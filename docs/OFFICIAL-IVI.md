@@ -33,3 +33,10 @@ This is not a full IVI driver implementation, driver factory, vendor loader, aut
 - https://www.nuget.org/packages/IviFoundation.Driver.Fgen/
 - https://www.nuget.org/packages/IviFoundation.DriverCore/
 - https://www.ivifoundation.org/downloads/Architecture%20Specifications/IVI-3.1_Architecture_2022-12-19.pdf
+
+## 2026-10-14 implementation increment
+
+- Implemented an `OfficialFgenBridge` using compile-time `Ivi.Fgen.IIviFgen` types and explicitly injected operation delegates, parallel to the existing official DMM bridge.
+- Added `tests/BenchDouble.Ivi.Official.Tests/`, which uses real IVI interface assemblies and NSubstitute doubles to check loading, type identity, interface-based dispatch, argument validation, and lifecycle delegation.
+- The cross-platform CI matrix now builds the optional module and runs these official interface contract tests.
+- **Verification status:** tests have been committed but not executed in the current environment. Vendor method mapping, actual driver loading, end-to-end IVI interchangeability and native VISA remain outstanding.
