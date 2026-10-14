@@ -284,3 +284,9 @@ Proposed when justified by tested dependencies:
 ## 16. Success criteria
 
 A developer can clone BenchDouble onto Windows/macOS/Linux, execute hardware-free tests, swap a real instrument adapter and a simulator without rewriting application business logic, verify safety-relevant ordering, produce diagnosable evidence from a failed test, and explicitly see where simulation fidelity ends. These are *target acceptance criteria*, not current achievements.
+
+## 17. Official IVI integration update — 2026-10-14
+
+An optional `src/BenchDouble.Ivi.Official` assembly now references the **real** IVI Foundation DMM/Fgen shared component packages (`IviFoundation.Driver.Dmm` and `IviFoundation.Driver.Fgen` 2.1.0) and the Generation 2026 DriverCore assembly (1.0.1). The code checks actual official class interface types and exposes an application-supplied delegate bridge from official `Ivi.Dmm.IIviDmm` drivers into the BenchDouble DMM abstraction. This is a *typed interoperability boundary*, not a completed mapping or conformant IVI driver. See [OFFICIAL-IVI.md](OFFICIAL-IVI.md).
+
+The package is isolated from `BenchDouble.Core` functionality so portable tests need no native driver. Verification remains pending: current session lacks the .NET SDK, and no full vendor driver has been exercised. Generation 2026 Core does not by itself guarantee IVI 2014 class interface semantics.
