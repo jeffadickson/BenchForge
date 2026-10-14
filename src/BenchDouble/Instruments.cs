@@ -114,6 +114,16 @@ public sealed class GeneratorSimulator : StatefulScpiDevice
     public override void Write(string command)
     {
         Before(command);
+        if (command == "*RST")
+        {
+            foreach (int ch in Outputs.Keys.ToArray())
+            {
+                Frequencies[ch] = 1000;
+                Amplitudes[ch] = 1;
+                Outputs[ch] = false;
+            }
+            return;
+        }
         var words = command.Split(' ', 2);
         if (words.Length != 2) throw new ScpiProtocolException($"Unrecognized generator write: {command}");
         var path = words[0].ToUpperInvariant();
@@ -149,7 +159,8 @@ public sealed class MultimeterSimulator : StatefulScpiDevice
     public override void Write(string command)
     {
         Before(command);
-        if (command == "CONF:VOLT:DC") Configured = true;
+        if (command == "*RST") Configured = false;
+        else if (command == "CONF:VOLT:DC") Configured = true;
         else throw new ScpiProtocolException($"Unsupported DMM command: {command}");
     }
     public override string Query(string command)
