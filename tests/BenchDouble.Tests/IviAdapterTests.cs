@@ -51,4 +51,28 @@ public class IviAdapterTests
         Assert.Equal(5.01, meter.Measure(), 6);
         replay.VerifyComplete();
     }
+    [Fact]
+    public void GeneratorResetRestoresSafeDefaultState()
+    {
+        var model = new GeneratorSimulator();
+        IIviFunctionGenerator generator = new ScpiFunctionGeneratorAdapter(model, true);
+        generator.ConfigureWaveform(1, IviWaveform.Sine, 12345, 2);
+        generator.SetOutputEnabled(1, true);
+        generator.Reset();
+        Assert.False(model.Outputs[1]);
+        Assert.Equal(1000, model.Frequencies[1]);
+        Assert.Equal(1, model.Amplitudes[1]);
+    }
+
+    [Fact]
+    public void DmmResetInvalidatesConfiguration()
+    {
+        var model = new MultimeterSimulator { InjectedVoltage = 1.2 };
+        IIviDigitalMultimeter meter = new ScpiDigitalMultimeterAdapter(model, true);
+        meter.ConfigureMeasurement(IviMeasurementFunction.DcVoltage);
+        meter.Reset();
+        Assert.False(model.Configured);
+        Assert.Throws<InvalidOperationException>(() => meter.Measure());
+    }
+
 }
