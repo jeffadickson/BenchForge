@@ -79,3 +79,13 @@ The implementation is currently a **partial prototype**. Official IVI.NET confor
 The optional [BenchDouble.Ivi.Official](src/BenchDouble.Ivi.Official/) project now references **actual IVI Foundation NuGet assemblies** for DMM, Fgen, and driver core. It provides official interface identity checks and a configurable DMM bridge. It **does not yet provide** fully mapped native IVI operations or vendor-driver loading. [Integration details](docs/OFFICIAL-IVI.md).
 
 Build separately with `dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj`. Its dependencies are intentionally excluded from the portable core. The optional build has not been confirmed passing.
+
+### Official IVI contract tests
+
+The optional project now provides **official DMM and function-generator typed bridges** and isolated tests using official IVI interface assemblies. Run with:
+
+```bash
+dotnet test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj
+```
+
+Passing those tests would validate type-level adapter behavior, **not** interoperability with a physical vendor instrument or IVI conformance.
