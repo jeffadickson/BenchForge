@@ -82,3 +82,49 @@ public sealed class OfficialDmmBridge : IIviDigitalMultimeter
     public void Reset() => _reset(_driver);
     public void Dispose() { } // Vendor-driver lifetime belongs to the caller.
 }
+
+
+/// <summary>
+/// Adapts an actual IVI Foundation function-generator driver to the portable
+/// BenchDouble contract. The host supplies explicit operations so that IVI
+/// driver capability and repeated-channel semantics are not assumed.
+/// </summary>
+public sealed class OfficialFgenBridge : IIviFunctionGenerator
+{
+    private readonly Ivi.Fgen.IIviFgen _driver;
+    private readonly Action<Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> _configure;
+    private readonly Action<Ivi.Fgen.IIviFgen, int, bool> _output;
+    private readonly Action<Ivi.Fgen.IIviFgen> _reset;
+    private readonly Func<Ivi.Fgen.IIviFgen, string> _identity;
+
+    public OfficialFgenBridge(
+        Ivi.Fgen.IIviFgen driver,
+        Action<Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> configure,
+        Action<Ivi.Fgen.IIviFgen, int, bool> output,
+        Action<Ivi.Fgen.IIviFgen> reset,
+        Func<Ivi.Fgen.IIviFgen, string> identity)
+    {
+        _driver = driver ?? throw new ArgumentNullException(nameof(driver));
+        _configure = configure ?? throw new ArgumentNullException(nameof(configure));
+        _output = output ?? throw new ArgumentNullException(nameof(output));
+        _reset = reset ?? throw new ArgumentNullException(nameof(reset));
+        _identity = identity ?? throw new ArgumentNullException(nameof(identity));
+    }
+
+    public string Identity => _identity(_driver);
+    public bool SimulationEnabled => false; // Do not infer an IVI driver option.
+    public void ConfigureWaveform(int channel, IviWaveform shape, double frequencyHz, double amplitudeVpp)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channel);
+        if (!double.IsFinite(frequencyHz) || frequencyHz <= 0) throw new ArgumentOutOfRangeException(nameof(frequencyHz));
+        if (!double.IsFinite(amplitudeVpp) || amplitudeVpp <= 0) throw new ArgumentOutOfRangeException(nameof(amplitudeVpp));
+        _configure(_driver, channel, shape, frequencyHz, amplitudeVpp);
+    }
+    public void SetOutputEnabled(int channel, bool enabled)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(channel);
+        _output(_driver, channel, enabled);
+    }
+    public void Reset() => _reset(_driver);
+    public void Dispose() { } // Caller owns the vendor driver.
+}
