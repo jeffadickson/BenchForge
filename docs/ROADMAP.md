@@ -47,3 +47,17 @@ See [SOFTWARE-DESCRIPTION.md](SOFTWARE-DESCRIPTION.md) for subsystem interfaces,
 - [ ] Implement direct class-method mapping with actual vendor driver test fixtures
 - [ ] Verify official function-generator operations and repeated channel capabilities
 - [ ] Confirm real driver loading, lifecycle and licensing
+
+## Scope change: production instrument framework
+
+The primary objective now includes **controlling real equipment**, not merely mocking it. See [package boundaries](PACKAGE-ARCHITECTURE.md). Introduce libraries only with working functionality and preserve current APIs during migration.
+
+### New high-priority execution order
+1. [ ] Make portable and official-IVI test projects green on all CI operating systems.
+2. [ ] Introduce stable instrument/session abstractions with explicit resource and ownership semantics.
+3. [ ] Implement real VISA provider plugin and loopback tests (hardware opt-in).
+4. [ ] Implement directly mapped official IVI DMM and FGEN operations and optional hardware smoke tests.
+5. [ ] Validate interchangeability: same compiled procedure with real, simulated and mocked backends.
+6. [ ] Extract mocking and simulation into independently usable packages without breaking legacy APIs.
+7. [ ] Expand instrument catalogue and virtual bench after production backend is validated.
+8. [ ] Revisit product name and NuGet IDs later.
