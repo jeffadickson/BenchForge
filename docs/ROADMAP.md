@@ -22,3 +22,18 @@
 
 ## Design rule
 Never silently treat unsupported SCPI commands as successful. Differentiate mock calls, protocol simulation and hardware-level electrical models.
+
+
+## Detailed requirements baseline
+
+See [SOFTWARE-DESCRIPTION.md](SOFTWARE-DESCRIPTION.md) for subsystem interfaces, simulation fidelity, IVI compatibility levels, fault taxonomy, acceptance criteria and testing requirements.
+
+### IVI-specific completion gate
+- [x] Own IVI-inspired DMM and FGEN class interfaces
+- [x] SCPI wrappers for these two classes
+- [x] Basic adapter unit tests committed
+- [ ] Compile and execute all tests on Windows/macOS/Linux
+- [ ] Map to official IVI.NET assemblies with approved dependencies
+- [ ] Compare real vendor driver and BenchDouble behavior for one common procedure
+- [ ] Validate capabilities/ranges/triggering and session status semantics
+- [ ] Publish documented supported instrument matrix
