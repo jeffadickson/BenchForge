@@ -83,3 +83,14 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Provide parameter-level units, enums, numeric scaling and typed measurement results
 - [ ] Migrate first concrete production-grade device driver
 - [ ] Integrate declarative parameter introspection with IVI capabilities and mock expectation builder
+
+### Structured logging / observability
+- [x] Document logging requirements in software description and LOGGING.md
+- [x] Add Microsoft.Extensions.Logging abstraction and structured SCPI session decorator
+- [x] Redact command/response payloads by default and allow explicit controlled capture
+- [x] Add regression tests for forwarding, redaction and exception propagation
+- [ ] Validate CI restore/build/tests across supported operating systems
+- [ ] Add logical instrument backend, resource and procedure-step correlation to all events
+- [ ] Add optional OpenTelemetry ActivitySource and meters
+- [ ] Create durable recording/replay artifact format independent of diagnostic logs
+- [ ] Validate SCPI binary payload redaction and bounded capture
