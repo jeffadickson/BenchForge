@@ -94,3 +94,13 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add optional OpenTelemetry ActivitySource and meters
 - [ ] Create durable recording/replay artifact format independent of diagnostic logs
 - [ ] Validate SCPI binary payload redaction and bounded capture
+
+### PyMeasure-inspired driver porting (selective)
+- [x] Inspect PyMeasure base instrument and property/validation source
+- [x] Confirm MIT attribution requirements and document selective adaptation policy
+- [x] Add typed vendor-token mapping and reusable discrete/range validators with tests
+- [ ] Compile and run all tests across Windows, macOS and Linux
+- [ ] Implement a first full Keysight 33500 instrument profile and SCPI command reference
+- [ ] Validate true IVI DMM/FGEN method compatibility on vendor devices
+- [ ] Port selected scope/DMM model capabilities with original attribution if source is reused
+- [ ] Add full upstream source download as a versioned, reproducible development setup step if needed
