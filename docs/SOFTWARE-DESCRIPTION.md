@@ -290,3 +290,11 @@ A developer can clone BenchDouble onto Windows/macOS/Linux, execute hardware-fre
 An optional `src/BenchDouble.Ivi.Official` assembly now references the **real** IVI Foundation DMM/Fgen shared component packages (`IviFoundation.Driver.Dmm` and `IviFoundation.Driver.Fgen` 2.1.0) and the Generation 2026 DriverCore assembly (1.0.1). The code checks actual official class interface types and exposes an application-supplied delegate bridge from official `Ivi.Dmm.IIviDmm` drivers into the BenchDouble DMM abstraction. This is a *typed interoperability boundary*, not a completed mapping or conformant IVI driver. See [OFFICIAL-IVI.md](OFFICIAL-IVI.md).
 
 The package is isolated from `BenchDouble.Core` functionality so portable tests need no native driver. Verification remains pending: current session lacks the .NET SDK, and no full vendor driver has been exercised. Generation 2026 Core does not by itself guarantee IVI 2014 class interface semantics.
+
+## 18. Official DMM/FGEN typed bridges and contract tests
+
+The optional official integration package now includes both `OfficialDmmBridge` and `OfficialFgenBridge`. Each holds a concrete official IVI class-interface typed reference and delegates operations to caller-provided mappings. The function generator additionally validates channel, finite frequency and finite amplitude before calling through. An official-IVI-specific xUnit/NSubstitute test project exercises the actual class-interface types without requiring a vendor instrument.
+
+**Status classification:** *typed adapter plumbing and tests written*, not vendor interoperability proven. CI runs these tests on Windows/macOS/Linux; results require separate verification. The operational mappings are deliberately injected delegates rather than assumed methods, since actual class method signatures and supported extensions need instrument-specific validation.
+
+**Next acceptance test:** write one test procedure using `IIviDigitalMultimeter` and `IIviFunctionGenerator`; run it with simulator-backed SCPI adapters and vendor driver bridges, then compare behavior and capability negotiation rather than demanding identical SCPI transcripts.
