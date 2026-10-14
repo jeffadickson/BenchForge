@@ -51,11 +51,17 @@ public sealed class LoggingScpiSessionTests
         Assert.Contains(logger.Messages, m => m.Contains("failed", StringComparison.Ordinal));
     }
 
+    private sealed class NoopScope : IDisposable
+    {
+        public static NoopScope Instance { get; } = new();
+        public void Dispose() { }
+    }
+
     private sealed class CollectingLogger : ILogger<LoggingScpiSession>
     {
         public List<string> Messages { get; } = new();
         public IDisposable BeginScope<TState>(TState state) where TState : notnull =>
-            Microsoft.Extensions.Logging.Abstractions.NullScope.Instance;
+            NoopScope.Instance;
         public bool IsEnabled(LogLevel logLevel) => true;
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
             Exception? exception, Func<TState, Exception?, string> formatter)
