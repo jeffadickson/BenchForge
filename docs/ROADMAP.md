@@ -37,3 +37,13 @@ See [SOFTWARE-DESCRIPTION.md](SOFTWARE-DESCRIPTION.md) for subsystem interfaces,
 - [ ] Compare real vendor driver and BenchDouble behavior for one common procedure
 - [ ] Validate capabilities/ranges/triggering and session status semantics
 - [ ] Publish documented supported instrument matrix
+
+### Official IVI module progress
+- [x] Isolate vendor-independent core from official IVI optional references
+- [x] Reference official DMM, FGEN and driver-core packages
+- [x] Add compile-time references to official legacy class interfaces
+- [x] Introduce explicit DMM operation delegate bridge
+- [ ] Confirm compile and restore of optional module on all supported platforms
+- [ ] Implement direct class-method mapping with actual vendor driver test fixtures
+- [ ] Verify official function-generator operations and repeated channel capabilities
+- [ ] Confirm real driver loading, lifecycle and licensing
