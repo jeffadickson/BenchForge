@@ -61,3 +61,13 @@ The primary objective now includes **controlling real equipment**, not merely mo
 6. [ ] Extract mocking and simulation into independently usable packages without breaking legacy APIs.
 7. [ ] Expand instrument catalogue and virtual bench after production backend is validated.
 8. [ ] Revisit product name and NuGet IDs later.
+
+### Generic instruments and external interface study
+- [x] Research IVI Foundation, PyMeasure, QCoDeS, pyvisa-sim and Scpi.NET design patterns
+- [x] Add generic DMM, function-generator and oscilloscope class contracts
+- [x] Add opt-in integration time (NPLC/aperture) and extension contracts
+- [x] Add SCPI-backed generic DMM and FGEN adapters with tests
+- [ ] Compile and run generic contract tests in CI
+- [ ] Inspect official IVI class member signatures and build compatibility matrix
+- [ ] Implement a model-specific Tektronix oscilloscope driver and waveform model
+- [ ] Implement NPLC integration on a real supported DMM profile
