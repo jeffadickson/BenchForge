@@ -353,3 +353,7 @@ Full pattern rationale, tradeoffs and anti-patterns: [DESIGN-PATTERNS.md](DESIGN
 **Testing requirements:** no behavior change with logging enabled, redaction by default, explicit controlled opt-in payloads, correct failure propagation, and no automatic replay/retry of potentially non-idempotent commands.
 
 See [LOGGING.md](LOGGING.md) for code example, event taxonomy, current limitations and future milestones. The source and tests are committed; a successful .NET test execution has not been established.
+
+## 25. PyMeasure source audit and selective port policy
+
+**Architectural decision:** IVI establishes instrument-class interoperability, while PyMeasure's actual `instrument.py`, `common_base.py` and `validators.py` implementations inform developer ergonomics, properties, SCPI mappings and channel hierarchies. A full Python framework translation is explicitly outside the core scope; experiments, GUI, plotters and PyVISA internals belong to their own layers or runtimes. Initial independent C# implementations include the existing immutable SCPI parameter factories plus `ParameterValidators` (range/discrete/composed validation) and `MappedCodec<T>` (bidirectional typed token mapping), with accompanying tests. See [PYMEASURE-PORT-STRATEGY.md](PYMEASURE-PORT-STRATEGY.md) for detailed traceability and license treatment. We inspected source via a connected GitHub service; full local clone was blocked by DNS. The new C# additions have not yet been compiled/tested in this environment.
