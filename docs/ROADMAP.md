@@ -71,3 +71,15 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Inspect official IVI class member signatures and build compatibility matrix
 - [ ] Implement a model-specific Tektronix oscilloscope driver and waveform model
 - [ ] Implement NPLC integration on a real supported DMM profile
+
+### Declarative driver framework
+- [x] Immutable parameter descriptors and PyMeasure-style factories
+- [x] Typed string/double/bool SCPI conversion boundary (currently double and bool codecs)
+- [x] Parameter-level min/max and custom validation
+- [x] Hierarchical SCPI channel command binding
+- [x] Add descriptor and channel tests (committed; not yet executed)
+- [ ] Compile and execute across all supported systems
+- [ ] Validate metadata against actual manufacturer command sets
+- [ ] Provide parameter-level units, enums, numeric scaling and typed measurement results
+- [ ] Migrate first concrete production-grade device driver
+- [ ] Integrate declarative parameter introspection with IVI capabilities and mock expectation builder
