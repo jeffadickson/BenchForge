@@ -92,3 +92,61 @@ This is **source scaffolding inside the existing assembly**, deliberately not a 
 - https://github.com/microsoft/Qcodes
 - https://github.com/pyvisa/pyvisa-sim
 - https://github.com/klasyc/ScpiNet
+
+
+## PyMeasure source/API audit — 2026-10-14
+
+Reviewed upstream documentation and concrete driver patterns:
+- https://pymeasure.readthedocs.io/en/latest/api/instruments/instruments.html
+- https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/properties.html
+- https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/channels.html
+- https://github.com/pymeasure/pymeasure/blob/master/pymeasure/instruments/keithley/keithley2400.py
+- https://pymeasure.readthedocs.io/en/stable/api/instruments/teledyne/teledyne_bases.html
+
+### Audit findings / corrections to our first interfaces
+
+| Finding | Current BenchDouble | Decision |
+|---|---|---|
+| Transport separated from command protocol | `IScpiSession` mixes abstract session with textual SCPI | Retain compatibility API, introduce lower level message session with binary buffers, timeout, connection metadata, explicit ownership |
+| Validated declarative parameter | `InstrumentFeature` is passive metadata | Add typed `IInstrumentParameter<T>` with read/write, units, constraints and device-side mapping; do not use reflection to guess capabilities |
+| Channels are child devices | `IFunctionGeneratorChannel` and `IOscilloscopeChannel` are separate | Keep; add channel identity/name, parent link, capability discovery, stable channel keys and noninteger selectors |
+| Optional functions vary | `INplcIntegration`, `IApertureIntegration` defined, no adapter implements them | Preserve optional feature interfaces; do **not** add mandatory NPLC member to universal DMM |
+| Results have metadata | DMM `Measure()` returns double; scope returns bare `double[]` | Create `MeasurementResult` and `WaveformResult` preserving units, trigger/time, scale, quality, overload and provenance |
+| Stateful operations matter | `MEAS:VOLT:DC?` in minimal adapter | Distinguish `Configure`, `Initiate`, `Fetch`, `Read`, `Measure`; side effects vary by instrument |
+| SCPI common operations and error checking | Simplified handwritten models | Add separate SCPI semantics mixin, error queue and status APIs; no silently accepted unrecognized commands |
+| Vendor-specific extensions | `IInstrumentExtension<T>` property only | Introduce explicit extension retrieval / capability negotiation, rather than mandatory giant interfaces |
+| Parameter state/cache | Only model-specific dictionary values | Explicit cache policy so strict expected SCPI sequences are not altered unintentionally |
+| Simulator validity | Logical enum defaults to Simulated | Backend provenance must be supplied by composition root, not accidentally mislabeled as simulated/physical |
+
+### Priority engineering issues found
+
+**P0:** Exact IVI/driver member mapping is not yet validated; do not advertise conformance.  
+**P0:** The generic function-generator contract permits any frequency/amplitude that existing driver accepts (>0) without model-based maximum checks.  
+**P0:** `BasicDmmAdapter.Measure()` invokes an immediate-measure SCPI query, which can reconfigure acquisition state; it is not equivalent to an IVI `Fetch` after a trigger.  
+**P1:** Scope waveform contract lacks x-axis/time metadata, samples/unit, acquisition state and scaling.  
+**P1:** Capability map units attach a single `Hz` label to a feature describing both frequency and amplitude; metadata should instead be per-parameter.  
+**P1:** The raw SCPI escape hatch deliberately breaks driver state/cache knowledge; require an invalidation strategy.  
+**P1:** Current channel IDs are assumed 1..2, which is a profile-specific detail, not generic semantics.
+
+### Recommended shape (future interface, not implemented)
+
+```csharp
+public interface IInstrumentParameter<T>
+{
+    string Key { get; }
+    string? Unit { get; }
+    bool CanRead { get; }
+    bool CanWrite { get; }
+    T Get();
+    void Set(T value);
+}
+public interface IInstrumentCapabilities
+{
+    bool Supports(string featureKey);
+    bool TryGetParameter<T>(string key, out IInstrumentParameter<T>? parameter);
+}
+```
+
+**Design rule:** generic interfaces expose universal semantics; optional feature interfaces and parameters represent advanced functions; model-specific drivers translate semantics to vendor commands. The same typed calls should target a physical instrument, stateful fake, or strict mock. Avoid premature large interface inheritance trees.
+
+**Research status:** based on upstream public documentation and representative source files. This is not a complete line-by-line audit of every PyMeasure manufacturer driver or every official IVI interface assembly.
