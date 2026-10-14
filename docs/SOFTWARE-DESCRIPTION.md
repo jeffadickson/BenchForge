@@ -298,3 +298,7 @@ The optional official integration package now includes both `OfficialDmmBridge` 
 **Status classification:** *typed adapter plumbing and tests written*, not vendor interoperability proven. CI runs these tests on Windows/macOS/Linux; results require separate verification. The operational mappings are deliberately injected delegates rather than assumed methods, since actual class method signatures and supported extensions need instrument-specific validation.
 
 **Next acceptance test:** write one test procedure using `IIviDigitalMultimeter` and `IIviFunctionGenerator`; run it with simulator-backed SCPI adapters and vendor driver bridges, then compare behavior and capability negotiation rather than demanding identical SCPI transcripts.
+
+## 19. Product scope and package-boundary decision
+
+The principal product purpose is **real instrument control** (VISA, SCPI, IVI, typed instrument drivers and device management), with integrated **mocking**, **stateful simulation**, and eventually **virtual bench** functions. The old name is retained temporarily. [PACKAGE-ARCHITECTURE.md](PACKAGE-ARCHITECTURE.md) is normative for target package ownership and dependency rules, production-vs-test boundaries, interchangeable backend requirements, migration compatibility and release gates. Logical package names are proposed and should not be mistaken for existing assemblies. The currently implemented features and verification gaps elsewhere in this document remain unchanged.
