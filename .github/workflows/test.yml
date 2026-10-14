@@ -16,3 +16,6 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
+
+      - name: Build official IVI.NET adapter
+        run: dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj --configuration Release
