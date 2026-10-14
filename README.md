@@ -49,3 +49,18 @@ The simulator models selected SCPI strings, not hardware timing, full SCPI comma
 ## License
 
 License pending selection by repository owner.
+
+
+## IVI instrument classes
+
+BenchDouble now includes **experimental IVI-inspired** function-generator and DMM contracts and SCPI adapters. See [IVI integration design](docs/IVI-INTEGRATION.md). These are deliberately not advertised as official IVI.NET interfaces or IVI-conformant drivers; native IVI integration is a follow-on milestone.
+
+Example:
+
+```csharp
+var model = new GeneratorSimulator();
+BenchDouble.Ivi.IIviFunctionGenerator generator =
+    new BenchDouble.Ivi.ScpiFunctionGeneratorAdapter(model, simulationEnabled: true);
+generator.ConfigureWaveform(1, BenchDouble.Ivi.IviWaveform.Sine, 1000, 1.0);
+generator.SetOutputEnabled(1, true);
+```
