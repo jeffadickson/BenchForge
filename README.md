@@ -64,3 +64,12 @@ BenchDouble.Ivi.IIviFunctionGenerator generator =
 generator.ConfigureWaveform(1, BenchDouble.Ivi.IviWaveform.Sine, 1000, 1.0);
 generator.SetOutputEnabled(1, true);
 ```
+
+
+## Detailed design and current work
+
+- [Full software design description](docs/SOFTWARE-DESCRIPTION.md) — engineering requirements, architecture, IVI integration, SCPI/VISA, expected sequences, virtual bench, fault models, verification and release criteria.
+- [IVI-specific integration](docs/IVI-INTEGRATION.md)
+- [Development roadmap](docs/ROADMAP.md)
+
+The implementation is currently a **partial prototype**. Official IVI.NET conformance, native VISA sessions, electrical DUT models and successful CI verification are not yet established.
