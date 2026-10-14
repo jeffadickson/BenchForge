@@ -97,3 +97,18 @@ BenchDouble is being developed as a **production instrument-control framework**,
 ## Generic instrument interfaces and research
 
 The library now includes initial `BenchDouble.Contracts` interfaces for DMMs, function generators (with channels), and oscilloscopes, plus optional NPLC/aperture integration and vendor-extension contracts. The first DMM and FGEN SCPI-backed generic adapters and xUnit tests are committed. See [instrument interface research](docs/INSTRUMENT-INTERFACES-RESEARCH.md) for IVI Foundation, PyMeasure, QCoDeS, pyvisa-sim and Scpi.NET comparisons. The classes are currently part of the original assembly, not yet separate NuGet packages.
+
+## Declarative SCPI parameters (experimental)
+
+The new `BenchDouble.Declarative` namespace provides PyMeasure-inspired **`ScpiParameter.Control`**, **`Measurement`** and **`Setting`** factories, with immutable metadata, validated get/set commands, typed wire codecs and channel binding. See [design patterns](docs/DESIGN-PATTERNS.md) and [regression tests](tests/BenchDouble.Tests/DeclarativeScpiTests.cs).
+
+```csharp
+using BenchDouble.Declarative;
+var frequency = ScpiParameter.Control(
+    new ParameterMetadata("Frequency", "Output frequency", "Hz", 1, 20_000_000),
+    "SOUR{channel}:FREQ?", "SOUR{channel}:FREQ {value}", DoubleCodec.Instance);
+var channel2 = new ScpiChannelGroup(session).Channel("2");
+channel2.Parameter(frequency).Set(1_000);
+```
+
+These are **source-level parameter descriptors**, not .NET auto-properties or a complete SCPI parser. Device-specific limits require manufacturer verification. The new C# tests have been committed but not run locally because this environment lacks the .NET SDK.
