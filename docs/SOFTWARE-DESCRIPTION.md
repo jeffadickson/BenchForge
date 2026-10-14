@@ -316,3 +316,40 @@ The current interfaces were reviewed against PyMeasure's instrument adapter, dec
 The `BenchDouble.Declarative` namespace implements PyMeasure-inspired parameter factories `Control`, `Measurement`, `Setting`. The immutable definition describes SCPI get/set templates, codec, optional validator, and display/capability metadata; binding it to a session/channel produces read/write operations with explicit read-only/write-only rejection. `DoubleCodec` and `BooleanCodec` provide basic invariant conversion. `ScpiChannelGroup` and `ScpiChannel` are initial hierarchical binding helpers. Tests cover multi-channel command generation, readback, boundary rejection and access rules. Integration into mature vendor-specific drivers remains outstanding; code is committed but compile/test status is unverified.
 
 See [DESIGN-PATTERNS.md](DESIGN-PATTERNS.md) for Abstract Factory, Adapter, Strategy, Composite, Decorator, Command, State, Builder, Specification and Observer rationale. These patterns define options for engineering tradeoffs, not mandates to add abstractions before they earn their complexity.
+
+## 23. Design-pattern rationale (normative guidance)
+
+BenchDouble deliberately uses the following patterns, matched to specific problems rather than applied indiscriminately:
+
+| Pattern | Concrete responsibility | Status |
+|---|---|---|
+| Abstract Factory / dependency injection | Resolve configured instrument class and explicitly chosen physical, simulated or mock backend | Planned |
+| Adapter | Bridge typed interfaces to SCPI or official IVI vendor drivers | Implemented in initial DMM/FGEN adapters; full IVI still pending |
+| Strategy | Replace session transport, validation and `IScpiCodec<T>` conversion | Sessions and codecs implemented; native VISA pending |
+| Composite | Instrument → channel group → channel → parameter with hierarchical addressing | Initial `ScpiChannelGroup` and `ScpiChannel` implemented |
+| Decorator | Cross-cutting logging, tracing and eventual scoped retries/recording | `LoggingScpiSession` now implemented |
+| Command / Interpreter | Model SCPI exchanges and expected replay behavior | `ExpectedExchange` and `StrictSession` implemented |
+| State | Capture configuration, enabling, measurement and future triggering/acquisition lifecycle | Simplified simulator state implemented |
+| Builder | Author strict ordered/unordered expectations, counts and injections | Advanced DSL planned |
+| Specification | Validate device/model-specific ranges and options | Initial metadata bounds and predicates implemented |
+| Observer | Stream state changes and diagnostics to OpenTelemetry or other subscribers | Planned; structured ILogger diagnostics started |
+
+The PyMeasure-inspired parameter factories (`ScpiParameter.Control`, `Measurement`, `Setting`) are declarative descriptors that encapsulate SCPI commands, typed conversion, metadata, validators and hierarchical binding. They are not magical C# properties or a complete instrument driver generator. Instrument features beyond common IVI behavior belong in narrow optional capability interfaces and vendor-specific extensions, not the universal `IInstrument` contract.
+
+Full pattern rationale, tradeoffs and anti-patterns: [DESIGN-PATTERNS.md](DESIGN-PATTERNS.md).
+
+## 24. Structured logging and observability requirements
+
+**Decision:** integrate `Microsoft.Extensions.Logging` for portable, DI-friendly structured events and leave providers/exporters to host applications. Logging must be usable for physical VISA, virtual instrument, and strict mock sessions. Do not implement a separate proprietary logging framework.
+
+**Initial implementation:** `BenchDouble.Observability.LoggingScpiSession` decorates the synchronous `IScpiSession`. It forwards `Write`/`Query`, emits structured start/success/failure records, measures elapsed time with `Stopwatch`, preserves exceptions, and redacts command/response payloads unless independently opted in. Application-supplied redaction is supported. The wrapper does not retry, swallow exceptions, or claim instrument state transitions succeeded.
+
+**Mandatory future structured fields:** instrument logical identifier; backend provenance (real/simulator/mock); resource/session ID; procedure/test run and step correlation; operation type; monotonic duration; status/error category; driver/instrument model; response metadata. A log of a command being issued must never be interpreted as proof of physical effect.
+
+**Security:** no credentials or arbitrary proprietary reply payloads by default; avoid unbounded data dumps, sanitize SCPI payloads and binary blocks; separate audit-grade transcripts from routine application logs.
+
+**OpenTelemetry integration:** optional `ActivitySource` spans, counters and meters, scope correlation and exporters chosen by application. Do not force a vendor-specific exporter into instrument interfaces.
+
+**Testing requirements:** no behavior change with logging enabled, redaction by default, explicit controlled opt-in payloads, correct failure propagation, and no automatic replay/retry of potentially non-idempotent commands.
+
+See [LOGGING.md](LOGGING.md) for code example, event taxonomy, current limitations and future milestones. The source and tests are committed; a successful .NET test execution has not been established.
