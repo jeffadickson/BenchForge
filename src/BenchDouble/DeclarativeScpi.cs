@@ -105,16 +105,18 @@ public sealed record ScpiAddress(string Prefix, string? Channel)
     internal static void ValidateTemplate(string template)
     {
         if (string.IsNullOrWhiteSpace(template)) throw new ArgumentException("SCPI command cannot be empty.");
-        if (template.Contains('{') && !template.Contains("{channel}", StringComparison.Ordinal))
+        if (template.Contains('{') && !(template.Contains("{channel}", StringComparison.Ordinal) || template.Contains("{value}", StringComparison.Ordinal)))
             throw new ArgumentException("Unsupported template placeholder.");
-        var withoutTokens = template.Replace("{channel}", "", StringComparison.Ordinal);
+        var withoutTokens = template.Replace("{channel}", "", StringComparison.Ordinal).Replace("{value}", "", StringComparison.Ordinal);
         if (withoutTokens.Contains('{') || withoutTokens.Contains('}'))
             throw new ArgumentException("Unsupported template placeholder.");
     }
 
     public string Resolve(string template) =>
-        template.Replace("{channel}", Channel ?? throw new InvalidOperationException(
-            "A channel-specific SCPI command must be bound to a channel."), StringComparison.Ordinal);
+        template.Contains("{channel}", StringComparison.Ordinal)
+            ? template.Replace("{channel}", Channel ?? throw new InvalidOperationException(
+                "A channel-specific SCPI command must be bound to a channel."), StringComparison.Ordinal)
+            : template;
 }
 
 /// <summary>Typed bound parameter implementing validation, command formatting and parsing.</summary>
