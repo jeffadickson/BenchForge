@@ -89,3 +89,7 @@ dotnet test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.
 ```
 
 Passing those tests would validate type-level adapter behavior, **not** interoperability with a physical vendor instrument or IVI conformance.
+
+## Product direction: instrument control plus integrated test doubles
+
+BenchDouble is being developed as a **production instrument-control framework**, with mocking and stateful simulation as interchangeable testing backends—not just a mock library. The project and package names remain provisional until a separate naming decision. See the [package architecture and requirements](docs/PACKAGE-ARCHITECTURE.md) for the boundary definitions, dependency rules, interoperability acceptance test, migration plan and status. No public API relocation has been performed as part of this design change.
