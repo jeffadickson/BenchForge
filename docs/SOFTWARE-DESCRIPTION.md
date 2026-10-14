@@ -1,0 +1,286 @@
+# BenchDouble — Software Design Description
+**Status:** engineering prototype / living architecture baseline  
+**Updated:** 2026-10-14  
+**Scope:** instrument-class mocks, SCPI/VISA abstraction, protocol verification, virtual test benches, and IVI interoperability.
+
+> This document distinguishes **implemented**, **partially implemented**, and **planned** behavior. The present repository is not IVI-certified, not a hardware-equivalent simulator, and must not be relied upon as a safety interlock or calibrated measurement standard.
+
+## 1. Executive overview
+
+BenchDouble is an open-source-oriented .NET test-double framework for automated laboratory and aerospace/flight-hardware test software. Its objective is to let engineers develop and test measurement automation without requiring every developer and CI job to access GPIB, USB, Ethernet or serial instruments. The design supports four separable levels of verification:
+
+1. **Application tests:** assert typed instrument-class method calls and their arguments.
+2. **Protocol tests:** assert precise SCPI write/query transcripts, including ordering across sessions.
+3. **Instrument-behavior tests:** run stateful virtual equipment with controlled replies, state changes and injected failures.
+4. **System tests:** ultimately connect simulated instruments through a virtual device under test (DUT), timed stimulus, and measurement models.
+
+None of these alone substitutes for calibration, hardware acceptance tests or electrical safety verification.
+
+### 1.1 Distinctive goal
+BenchDouble combines EasyMock-inspired deterministic strict transcripts with IVI-aware interchangeable instrument abstractions, explicit capability profiles, and predictable fault injection. It should coexist with xUnit, NSubstitute, vendor IVI drivers, NI/Keysight VISA implementations and other existing test tools rather than competing with them.
+
+### 1.2 Terminology
+- **Mock:** scripted responses plus assertions about calls made.
+- **Stub:** responds predictably without necessarily validating call history.
+- **Fake / simulator:** working, simplified model of device behavior and internal state.
+- **Spy / transcript:** records communication for later inspection.
+- **VISA:** session/resource API for instrument communication; not an instrument-class model.
+- **SCPI:** textual command/query syntax used by many instruments, with vendor variations.
+- **IVI:** standardized instrument-driver architecture and instrument classes; conformance is not implied by naming conventions.
+- **DUT:** device under test; distinct from the simulated test equipment connected to it.
+
+## 2. Current implementation inventory
+
+| Component | Status | Source |
+|---|---|---|
+| Synchronous SCPI session (`Write`, `Query`) | Implemented | `src/BenchDouble/Instruments.cs` |
+| Typed function-generator facade | Implemented, sine only | `FunctionGenerator` |
+| Typed DMM facade | Implemented, DC voltage only | `DigitalMultimeter` |
+| Strict exact-order replay | Implemented | `StrictSession` |
+| Single common timeline for several sessions | Implemented | `SharedTranscript` |
+| Stateful generator | Partial | `GeneratorSimulator` |
+| Stateful DMM | Partial | `MultimeterSimulator` |
+| One-shot transport timeout | Implemented | `StatefulScpiDevice.FailNextOperation` |
+| IVI-inspired, BenchDouble-owned instrument-class contracts | Partial | `Ivi/IviAbstractions.cs` |
+| DMM and generator class-to-SCPI adapters | Partial | `Ivi/ScpiIviAdapters.cs` |
+| Official IVI.NET assembly compatibility | Not implemented | Planned optional package |
+| Native VISA transports | Not implemented | Planned optional package |
+| Virtual clock, scheduler and virtual DUT | Not implemented | Planned |
+| Dynamic electrical models and uncertainty | Not implemented | Planned |
+| Cross-platform CI workflow | Committed, passing status unverified | `.github/workflows/test.yml` |
+
+The instrument profile names use example Keysight model identifiers, **not** claims of complete command, status, triggering, timing, frequency, accuracy, or range fidelity.
+
+## 3. System boundaries and architectural topology
+
+```text
+Test application, test procedure, TestForge or standalone xUnit test
+   |
+   +---- [Typed instrument-class contract]
+   |           |
+   |           +---- BenchDouble IVI-inspired adapter -- SCPI driver
+   |           |                                   |
+   |           |                              IScpiSession
+   |           |                                   |
+   |           |              +--------------------+------------------+
+   |           |              |                    |                  |
+   |           |       Stateful simulator    Strict replay      Future VISA
+   |           |                                                  adapter
+   |           |
+   |           +---- Future official IVI.NET vendor-driver adapter
+   |
+   +---- [Future virtual bench orchestration]
+                 | virtual connections, clocks, fault rules
+                 +---- DUT signal / response model
+```
+
+### 3.1 Important seam: typed IVI operations vs wire-level SCPI
+`IIviDigitalMultimeter.Measure()` is an **application-level** invocation; `MEAS:VOLT:DC?` is a **wire-level** SCPI query. A driver's legitimate internal status checks, caching, and retries can change the wire transcript while leaving class-level behavior equivalent. BenchDouble must make the chosen assertion boundary explicit. Do not assume a vendor IVI driver emits exactly the same SCPI commands as our reference driver.
+
+### 3.2 Dependency direction
+Core contracts should remain independent of NI, Keysight, COM, Windows registry, native GPIB libraries, and vendor DLLs. An optional adapter package may reference official IVI.NET or VISA assemblies. This ensures that developer tests without hardware can run on Windows, macOS and Linux.
+
+## 4. IVI integration strategy
+
+### 4.1 Goals
+A single test procedure should configure and read compatible function generators, DMMs, oscilloscopes, DC power supplies and RF generators through stable class-level operations, with either a hardware driver or a BenchDouble substitute injected at composition time.
+
+### 4.2 Compatibility levels
+- **Level 0 — IVI-inspired:** own interfaces modeled on IVI classes. **This is what exists now.**
+- **Level 1 — adapter compatibility:** a wrapper exposes common operations around genuine IVI.NET class assemblies, and maps standard error, status and capability semantics. Planned.
+- **Level 2 — interchangeability demonstration:** the *same compiled test procedure* runs against a supported real driver and a simulator with no procedure edits. Planned.
+- **Level 3 — evaluated IVI conformance:** only after assessing official specifications, testing requirements, redistribution rights and any certification process. Not claimed.
+
+### 4.3 IVI generation nuance
+Classic IVI class drivers and IVI Generation 2026 lightweight driver recommendations are related but not identical. Implementing a newer core driver alone is insufficient proof of complete legacy IVI class interchangeability. Track specific versions of the IviDmm/IviFgen specification and official API assemblies in an interoperability matrix.
+
+### 4.4 Instrument class API requirements
+Contracts should eventually support:
+- identity, initialization, reset, close/disposal, options and capability introspection;
+- standard measurement/channel configuration and ranges;
+- triggering and acquisition models, status/error/reporting;
+- explicit optional functionality via feature flags or queried capabilities;
+- simulator selection and configurable behavior;
+- range checking with explicit units and consistent diagnostics;
+- session ownership, thread safety and asynchronous cancellation policy;
+- vendor-specific extensions **without** polluting the portable common interface.
+
+Current `IIviFunctionGenerator` supports sine configuration and output state; current `IIviDigitalMultimeter` supports DC voltage with default range and resolution. Other operations must explicitly reject unsupported requests.
+
+## 5. VISA / SCPI transport specification
+
+### 5.1 Current transport
+`IScpiSession.Write(string)` sends a command; `Query(string)` returns a response. It is deliberately synchronous and transports only UTF-8-like strings conceptually; no native VISA I/O yet.
+
+### 5.2 Required production transport
+`IInstrumentSession` should introduce:
+- asynchronous write/read/query with `CancellationToken`;
+- binary block data and terminator configuration;
+- resource identification (GPIB/USB/TCPIP/serial);
+- connection/open/close lifecycle and explicit exclusive/session ownership;
+- timeouts, end-of-message handling, line endings, service request/status operations;
+- consistent mapping of VISA status/error codes to typed exceptions;
+- secure logging with redaction and bounded binary capture;
+- injectable clock, retry policy, and transport disturbance profile.
+
+Write/query operations on a single session must be serialized or reject concurrent use unless the transport explicitly supports it. Cancellation semantics must document whether an in-flight operation can leave the device in an unknown state.
+
+### 5.3 SCPI parser requirements
+The production parser must handle case-insensitive mnemonics, abbreviated/long forms, common commands (`*IDN?`, `*RST`, `*OPC?`, `*CLS`), command-tree context, delimiters, quoted strings, numeric units and binary blocks as relevant to the particular model. A profile must declare supported subsets. Unknown commands must never be silently accepted.
+
+## 6. Instrument models
+
+### 6.1 Function generator
+Current profile: two channels, sine function selection, frequency, voltage amplitude (treated as Vpp by typed facade), enable/disable and identity response. Planned: offset, duty cycle, load, burst, sweep, trigger, sync, arbitrary waveform upload, supported waveforms, limits and error queue.
+
+### 6.2 Digital multimeter
+Current profile: DC voltage configuration, injected measurement and identity response. Planned: AC voltage/current, DC current, 2-wire/4-wire resistance, NPLC, aperture, auto/manual range, triggering, sampling, buffering, null/relative, overrange/error reporting, source impedance and uncertainty.
+
+### 6.3 Future instruments
+Programmable DC supply (OVP/OCP/current limit, on/off interlock); oscilloscope (channels, coupling, bandwidth, trigger, waveform acquisition); RF source (power/frequency/modulation/ALC); power meter; counter/timer; switching matrix; temperature chamber. Each model requires specification-backed capability limits and test vectors.
+
+## 7. Expectation engine
+
+### 7.1 Present semantics
+`StrictSession` compares every write/query against the head of a FIFO. On mismatch, it throws **before consuming** the expectation. `VerifyComplete` detects unconsumed interactions. `SharedTranscript` enforces an ordered cross-instrument timeline.
+
+### 7.2 Planned expectation DSL
+- strict whole-transcript, ordered-subsequence, and unordered-set strategies;
+- `Exactly(n)`, `AtLeast(n)`, `Between(min,max)`, `Never()`;
+- argument and response matchers (numeric tolerances, regex, predicates);
+- ordered and unordered nested regions;
+- conditional branches, optional operations, bounded retries;
+- promises/barriers/partial-order graphs for concurrent instruments;
+- prescribed return values, exceptions, delays and timeouts;
+- fail-fast mode and collect-and-verify mode;
+- diffs with current state, pending operations, source call site and timestamps.
+
+**Invariant:** an unsuccessful unexpected call cannot advance a strict script. End-of-test verification must detect missing calls even when no mismatch was thrown during execution.
+
+### 7.3 Cross-session concurrency
+The existing shared FIFO is **not thread safe**. Until synchronization or an event-sourced verifier is implemented, treat sessions as single-threaded and don't claim deterministic parallel test execution.
+
+## 8. Simulation, virtual wiring and deterministic time
+
+The virtual bench will register resources (e.g., `VISA::GEN1`, `VISA::DMM1`), attach instrument models, connect ports through networks and DUT blocks, and schedule events on a virtual clock. A sine generator feeding a gain/low-pass DUT model could yield the DMM's expected RMS value or an oscilloscope trace, while independent faults introduce connection breaks, stale measurements or saturation.
+
+The physics fidelity level must be declared per model:
+- **Command-level:** state and query response only.
+- **Behavioral:** functional transfer model, ranges, loading and noise.
+- **Calibrated/metrological:** requires rigorous uncertainty analysis and validation; outside present scope.
+
+Virtual time should allow deterministic timeout, race, cancellation and recovery tests without sleeping for physical durations.
+
+## 9. Error model and safety
+
+Faults fall into:
+1. transport: timeout, truncated reply, lost connection, framing error;
+2. SCPI/protocol: unknown command, syntax, status register, error queue;
+3. instrument: output fault, range exceedance, overload, interlock, self-test fail;
+4. DUT/measurement: abnormal voltage, dropout, noise, drift, missing signal.
+
+A mocked `OUTP ON` merely proves software issued that command; it does not prove physical output reached its target. On cleanup failure, a test must report **unknown hardware state**, not imply the output is safe. Safety-critical tests must separately validate physical inhibit and emergency shutdown logic.
+
+## 10. Developer workflows and examples
+
+### 10.1 Stateful generator
+```csharp
+var model = new GeneratorSimulator();
+var source = new FunctionGenerator(model);
+source.SetSine(1000, 1.0);
+source.Output(true);
+Assert.True(model.Outputs[1]);
+```
+
+### 10.2 Strict DMM protocol
+```csharp
+var script = new StrictSession(new[]
+{
+    new ExpectedExchange("CONF:VOLT:DC"),
+    new ExpectedExchange("MEAS:VOLT:DC?", true, "5.01")
+});
+var meter = new DigitalMultimeter(script);
+meter.ConfigureDcVoltage();
+Assert.Equal(5.01, meter.MeasureDcVoltage(), 2);
+script.VerifyComplete();
+```
+
+### 10.3 IVI-inspired abstraction
+```csharp
+IIviDigitalMultimeter meter = new ScpiDigitalMultimeterAdapter(
+    new MultimeterSimulator { InjectedVoltage = 4.999 },
+    simulationEnabled: true);
+meter.ConfigureMeasurement(IviMeasurementFunction.DcVoltage);
+double volts = meter.Measure();
+```
+Imports: `using BenchDouble;` and `using BenchDouble.Ivi;`.
+
+### 10.4 Mock type selection
+Use NSubstitute for ordinary business collaborators; a strict transcript for exact protocol expectations; a stateful simulator for behavior and faults; Testcontainers for real auxiliary services; and physical bench testing for true electrical compatibility.
+
+## 11. Quality strategy
+
+### 11.1 Testing pyramid
+- Core parser, ranges and behavior unit tests;
+- strict script and IVI-adapter contract tests;
+- multiple-instrument scenario tests with virtual time;
+- integration tests with actual VISA backend and optional external simulator;
+- opt-in hardware smoke tests with named resource IDs;
+- interoperability tests against approved IVI implementations;
+- negative tests for unsupported features, resource loss and cleanup failures.
+
+### 11.2 CI and platforms
+The repository includes a three-OS GitHub Actions matrix targeting .NET 8. **No verified passing CI status has been established in this document.** All portable simulation and expectation tests must pass without vendor drivers; native integrations require separately labeled, platform-aware jobs.
+
+### 11.3 Release criteria
+Before alpha: clean CI, pinned/reproducible dependencies, coherent package boundaries, API examples that compile, deterministic tests, instrument-profile coverage table, exact licensing, and published limitations. Before hardware-ready beta: native backend validation, driver/version matrix, robust cancellation/reconnection, fault coverage, and trace diagnostics.
+
+## 12. Packaging and repository layout
+
+Current:
+```text
+src/BenchDouble/                  single .NET 8 library
+  Instruments.cs                  SCPI session, drivers, models, verifier
+  Ivi/                             own IVI-inspired interfaces and adapters
+tests/BenchDouble.Tests/          xUnit + NSubstitute
+docs/                              roadmap and IVI integration plan
+.github/workflows/test.yml         CI matrix
+global.json                        .NET SDK selection
+```
+
+Proposed when justified by tested dependencies:
+`BenchDouble.Core`, `BenchDouble.Scpi`, `BenchDouble.Ivi`, `BenchDouble.Visa`, `BenchDouble.Instruments`, `BenchDouble.VirtualBench`, `BenchDouble.Testing`. Avoid splitting prematurely merely to mirror a diagram.
+
+## 13. Non-functional requirements
+
+- **Portability:** core tests run without hardware or native VISA installation.
+- **Determinism:** same configuration/seed produces same trace and result.
+- **Performance:** thousands of simulated transactions per test without network/physical delays; benchmark before setting latency SLAs.
+- **Observability:** trace resource, operation, duration, response category, expected rule and fault; later OpenTelemetry support.
+- **Security:** restrict real resources explicitly, redact sensitive tokens and don't treat untrusted SCPI transcripts as executable code.
+- **Maintainability:** documented instrument commands with manuals, SDK version matrix and source-linked test fixtures.
+- **Extensibility:** vendor-specific behavior in profiles/adapters, not in generic IVI contracts.
+
+## 14. Known design gaps and risks
+
+1. Native official IVI.NET mapping and legal redistribution conditions are unresolved.
+2. Current model supports only a tiny command subset; vendor behavior is illustrative.
+3. Session interfaces are synchronous; shared timeline lacks concurrency safety.
+4. Simulator does not implement accurate status registers, errors, timing or hardware ranges.
+5. Present class interface is IVI-inspired, not official IVI conformance.
+6. Simulation mode flag is descriptive; it does not change physical device connection.
+7. No virtual DUT or hardware transport is wired into runtime.
+8. Automatic CI success, NuGet publication and instrument certification are not established.
+
+## 15. Prioritized implementation plan
+
+**P0 (engineering baseline):** green builds/tests on all three platforms; reset/identity/error semantics; accurate docs; capability validation; non-destructive release packaging.  
+**P1 (IVI interoperability):** integrate official API (isolated optional package), adapt DMM and FGEN, test same procedure against mocks and hardware-backed IVI drivers.  
+**P2 (expectation DSL):** scoped script, cardinality, nested order policies, thread-safe cross-session diagnostics and programmable failures.  
+**P3 (instrument depth):** PSU, oscilloscope, robust DMM/FGEN profiles and official command-source traceability.  
+**P4 (virtual bench):** DUT transfer blocks, wiring, virtual time, noise and metrology-aware simulations.  
+**P5 (operationalization):** package versioning, documentation site, tutorial playground, hardware validation matrix and adoption guide.
+
+## 16. Success criteria
+
+A developer can clone BenchDouble onto Windows/macOS/Linux, execute hardware-free tests, swap a real instrument adapter and a simulator without rewriting application business logic, verify safety-relevant ordering, produce diagnosable evidence from a failed test, and explicitly see where simulation fidelity ends. These are *target acceptance criteria*, not current achievements.
