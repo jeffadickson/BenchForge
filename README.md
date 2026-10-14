@@ -112,3 +112,9 @@ channel2.Parameter(frequency).Set(1_000);
 ```
 
 These are **source-level parameter descriptors**, not .NET auto-properties or a complete SCPI parser. Device-specific limits require manufacturer verification. The new C# tests have been committed but not run locally because this environment lacks the .NET SDK.
+
+## Structured logging and telemetry
+
+The new `BenchDouble.Observability.LoggingScpiSession` decorator uses `Microsoft.Extensions.Logging` and may wrap a physical, simulated, or strict replay SCPI session. By default, it **redacts instrument commands and query responses** while logging operation type, instrument name, elapsed duration and failures. Raw payload logging is independent and explicitly opt-in. See [logging architecture](docs/LOGGING.md) and [logging tests](tests/BenchDouble.Tests/LoggingScpiSessionTests.cs).
+
+The library also has a [design-pattern guide](docs/DESIGN-PATTERNS.md) covering Adapter, Strategy, Abstract Factory, Composite, Decorator, Command, State, Builder, Specification and Observer; the [main software description](docs/SOFTWARE-DESCRIPTION.md) now incorporates the decisions and status directly.
