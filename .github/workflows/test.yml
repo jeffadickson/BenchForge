@@ -19,3 +19,5 @@ jobs:
 
       - name: Build official IVI.NET adapter
         run: dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj --configuration Release
+      - name: Run official IVI.NET adapter contract tests
+        run: dotnet test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj --configuration Release
