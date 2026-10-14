@@ -118,3 +118,9 @@ These are **source-level parameter descriptors**, not .NET auto-properties or a 
 The new `BenchDouble.Observability.LoggingScpiSession` decorator uses `Microsoft.Extensions.Logging` and may wrap a physical, simulated, or strict replay SCPI session. By default, it **redacts instrument commands and query responses** while logging operation type, instrument name, elapsed duration and failures. Raw payload logging is independent and explicitly opt-in. See [logging architecture](docs/LOGGING.md) and [logging tests](tests/BenchDouble.Tests/LoggingScpiSessionTests.cs).
 
 The library also has a [design-pattern guide](docs/DESIGN-PATTERNS.md) covering Adapter, Strategy, Abstract Factory, Composite, Decorator, Command, State, Builder, Specification and Observer; the [main software description](docs/SOFTWARE-DESCRIPTION.md) now incorporates the decisions and status directly.
+
+## PyMeasure-inspired drivers + official IVI interoperability
+
+**Architecture decision:** use official IVI instrument classes and vendor adapters for standardized real control; selectively adapt PyMeasure's tested driver patterns into idiomatic C#, not a wholesale port of Python experiments and GUI tooling. The [port strategy](docs/PYMEASURE-PORT-STRATEGY.md) details evaluated upstream sources, copyright obligations, target drivers and milestones.
+
+Initial C# functionality includes `ScpiParameter` factories, `MappedCodec<T>` for vendor SCPI enumeration tokens and composable `ParameterValidators` for bounded and discrete settings (e.g. NPLC). See [tests](tests/BenchDouble.Tests/DeclarativeValidationTests.cs). No complete PyMeasure checkout or general-purpose Python-to-C# conversion has been made.
