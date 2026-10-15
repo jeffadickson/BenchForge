@@ -830,3 +830,63 @@ UID: BD-PARITY-001
 STATUS: Active
 TITLE: BD-PARITY-001 P1
 STATEMENT: Competitor comparison shall distinguish shipped tested functionality from prototypes and planned features.
+
+[REQUIREMENT]
+UID: BD-AM-001
+STATUS: Active
+TITLE: BD-AM-001 P0
+STATEMENT: An experiment shall inject declarative AutoMock rules into a typed instrument behavior without changing instrument driver source.
+
+[REQUIREMENT]
+UID: BD-AM-002
+STATUS: Active
+TITLE: BD-AM-002 P0
+STATEMENT: AutoMock shall support virtual-time activation, voltage-range predicates, fixed values, baseline scaling and deterministic priority.
+
+[REQUIREMENT]
+UID: BD-AM-003
+STATUS: Active
+TITLE: BD-AM-003 P0
+STATEMENT: Rule configurations shall reject invalid values, duplicate names, unsupported actions and incompatible schema versions before execution.
+
+[REQUIREMENT]
+UID: BD-AM-004
+STATUS: Active
+TITLE: BD-AM-004 P1
+STATEMENT: An experiment shall load data-only AutoMock rules from a versioned JSON file without executing expressions or user code.
+
+[REQUIREMENT]
+UID: BD-AM-005
+STATUS: Active
+TITLE: BD-AM-005 P0
+STATEMENT: AutoMock shall preserve instrument state invariants including zero output current when simulated output is disabled.
+
+[REQUIREMENT]
+UID: BD-AM-006
+STATUS: Active
+TITLE: BD-AM-006 P1
+STATEMENT: Experiment run metadata shall expose a stable SHA-256 of its AutoMock rule set for reproducibility.
+
+[REQUIREMENT]
+UID: BD-AM-007
+STATUS: Active
+TITLE: BD-AM-007 P1
+STATEMENT: The AutoMock framework shall support typed command and mode-dependent behavior for DMM, generator, SMU and chamber instrument classes.
+
+[REQUIREMENT]
+UID: BD-AM-008
+STATUS: Active
+TITLE: BD-AM-008 P1
+STATEMENT: Advanced rules shall be supported through an optional evaluated rule engine adapter without adding an expression engine to the core.
+
+[REQUIREMENT]
+UID: BD-AM-009
+STATUS: Active
+TITLE: BD-AM-009 P0
+STATEMENT: Untrusted executable mock behavior shall run only in isolated unprivileged simulation workers with approved package versions.
+
+[REQUIREMENT]
+UID: BD-AM-010
+STATUS: Active
+TITLE: BD-AM-010 P1
+STATEMENT: An integrated experiment shall exercise AutoMock, virtual time, monitoring, persistence and dashboard telemetry through the same C# backend.
