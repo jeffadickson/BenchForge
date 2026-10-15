@@ -37,6 +37,16 @@ else
 }
 builder.Simulated<IThermalChamber, SimulatedChamber>("Chamber1");
 builder.Simulated<IPowerSupply, SimulatedSupply>("Supply1");
+// The DMM advertises two typed capabilities. Future instrument definitions
+// will generate these registrations, not infer them from the caller's assignment.
+builder.Model(_ => new TypedMockMeasurementsBuilder()
+    .Constant(ElectricPotential.FromVolts(12))
+    .Register<ElectricResistance>(t =>
+        ElectricResistance.FromOhms(4700 + t.TotalMinutes))
+    .Build());
+builder.Simulated<ITypedConfigurableMeasurementSource>("Meter1", sp =>
+    new TypedMockMeter(sp.GetRequiredService<TypedMockMeasurements>(),
+        sp.GetRequiredService<ISimulationClock>()));
 
 var definition = builder.Build("Thermal qualification");
 Console.WriteLine($"Experiment: {definition.Name}");
@@ -48,6 +58,10 @@ foreach (var instrument in definition.Instruments)
 await using var run = definition.StartSimulated();
 var chamber = run.Instrument<IThermalChamber>("Chamber1");
 var supply = run.Instrument<IPowerSupply>("Supply1");
+var meter = run.Instrument<ITypedConfigurableMeasurementSource>("Meter1");
+await meter.ConfigureAsync<ElectricResistance>();
+Console.WriteLine($"DMM resistance: " +
+    $"{(await meter.MeasureAsync<ElectricResistance>()).Ohms:F1} ohms");
 run.Clock.AdvanceBy(TimeSpan.FromHours(1));
 Console.WriteLine($"At 1h: chamber {chamber.Setpoint.DegreesCelsius:F1} C, " +
     $"sensor-driven current {supply.Current.Amperes:F3} A");
