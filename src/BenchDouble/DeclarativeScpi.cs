@@ -61,7 +61,7 @@ public sealed class ScpiParameterDefinition<T>
         => new(this, session, address ?? ScpiAddress.Root);
 }
 
-/// <summary>Factory inspired by PyMeasure control(), measurement() and setting().</summary>
+/// <summary>Factory for declarative control, measurement, and setting definitions.</summary>
 public static class ScpiParameter
 {
     public static ScpiParameterDefinition<T> Control<T>(ParameterMetadata metadata,
