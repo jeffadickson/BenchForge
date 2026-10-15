@@ -99,3 +99,9 @@ The first reference `*.instrument.json` definition now produces both a typed SCP
 ## 17. Instrument Definer and intern intake plan
 
 Adopt schema-v2 JSON as the authoritative reviewed instrument specification. Interns may collect two spreadsheet tabs and export UTF-8 properties/methods CSV; use the stdlib Instrument Definer to import or statically extract PyMeasure source at a pinned revision. Each draft requires manual resolution of quantities, units, modes, command side effects, error/status behavior, license and safety constraints. New mode-aware UnitsNet mock preview demonstrates typed mode dispatch without hardware access. Local `make definer-check` runs stdlib Python tests and validates example drafts; .NET xUnit source tests exercise the mode-aware mock loader. No CI or physical tests have been executed. Issues #52 and #53 track extraction completeness, schema validation and generation from reviewed definitions. The procedure runner and GitHub-hosted CI remediation remain deferred as requested.
+
+
+
+## Reliability baseline and mandatory change tracking — 2026-10-15
+
+Follow AGENTS.md and requirements/README.md for every accepted feature. Update stable requirements, acceptance criteria, issue links, traceability and full-audit findings in the same commit. Lifecycle/recovery work #55–58 precedes deferred procedure/editor expansion. See docs/RELIABILITY-ARCHITECTURE.md and docs/REQUIREMENTS-FULL-AUDIT-2026-10-15.md. No runtime verification is inferred from this plan.

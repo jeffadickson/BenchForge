@@ -4,6 +4,8 @@ import csv
 import pathlib
 import re
 import sys
+import hashlib
+import json
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DOC = ROOT / "requirements/benchdouble.sdoc"
@@ -23,7 +25,8 @@ UID_PATTERN = re.compile(r"^UID:\s+([A-Z][A-Z0-9-]+)$", re.M)
 
 
 def main() -> int:
-    ids = UID_PATTERN.findall(DOC.read_text(encoding="utf-8"))
+    source = DOC.read_text(encoding="utf-8")
+    ids = UID_PATTERN.findall(source)
     ids = [uid for uid in ids if uid != "BD-BASELINE"]
     errors = []
     if len(ids) != len(set(ids)):
@@ -47,8 +50,22 @@ def main() -> int:
             r"https://github\.com/jeffadickson/BenchDouble/issues/[0-9]+", issue
         ):
             errors.append(f"{uid}: malformed GitHub issue URL")
-        if row["implementation_status"] == "Verified" and not row["verification_file"]:
-            errors.append(f"{uid}: cannot mark Verified without verification evidence")
+        if not issue:
+            errors.append(f"{uid}: requirement lacks GitHub issue")
+        if row["implementation_status"] == "Verified":
+            evidence = row.get("verification_evidence", "").strip()
+            if not row["verification_file"] or not evidence:
+                errors.append(f"{uid}: cannot mark Verified without test and execution evidence")
+            else:
+                try:
+                    report = json.loads((ROOT / evidence).read_text(encoding="utf-8"))
+                    if (report.get("result") != "passed" or
+                        not re.fullmatch(r"[0-9a-f]{40}", report.get("tested_commit", "")) or
+                        not report.get("platform") or not report.get("command") or
+                        uid not in report.get("requirements", [])):
+                        errors.append(f"{uid}: incomplete passing execution evidence")
+                except (OSError, ValueError, TypeError, AttributeError):
+                    errors.append(f"{uid}: invalid execution evidence report")
     for uid in sorted(set(ids) - set(by_id)):
         errors.append(f"Missing traceability row: {uid}")
     for uid in sorted(set(by_id) - set(ids)):
@@ -95,6 +112,34 @@ def main() -> int:
     if any(row["implementation_status"] == "Verified" for row in rows):
         # CI's file-existence check is not a substitute for test-run evidence.
         print("NOTICE: Verified statuses require separately reviewed passing CI evidence.")
+    # Audit every requirement, not only the historical TR subset. A statement
+    # fingerprint forces an explicit review when requirement wording changes.
+    statements = {}
+    for block in source.split("[REQUIREMENT]")[1:]:
+        uid = re.search(r"^UID: (.+)$", block, re.M)
+        statement = re.search(r"^STATEMENT: (.+)$", block, re.M)
+        if uid and statement:
+            statements[uid[1]] = statement[1]
+    full_path = ROOT / "requirements/full-audit.csv"
+    if not full_path.is_file():
+        errors.append("Missing complete requirements audit")
+    else:
+        with full_path.open(encoding="utf-8", newline="") as file:
+            full = list(csv.DictReader(file))
+        full_ids = [r["requirement_id"] for r in full]
+        if len(full_ids) != len(set(full_ids)) or set(full_ids) != set(ids):
+            errors.append("Full audit must contain every requirement exactly once")
+        for audit in full:
+            uid = audit["requirement_id"]
+            row = by_id.get(uid, {})
+            for field in ("priority", "implementation_status", "implementation_file", "verification_file", "github_issue"):
+                if audit.get(field) != row.get(field):
+                    errors.append(f"{uid}: full audit/traceability {field} mismatch")
+            fingerprint = hashlib.sha256(statements.get(uid, "").encode()).hexdigest()
+            if audit.get("requirement_sha256") != fingerprint:
+                errors.append(f"{uid}: requirement changed since full audit")
+            if not audit.get("finding", "").strip() or not audit.get("acceptance_criteria", "").strip():
+                errors.append(f"{uid}: full audit lacks finding or acceptance criteria")
     if errors:
         for error in errors:
             print("ERROR:", error, file=sys.stderr)
@@ -108,3 +153,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -1052,3 +1052,184 @@ UID: BD-DEF-008
 STATUS: Active
 TITLE: BD-DEF-008 P1
 STATEMENT: PyMeasure extraction shall report inherited/dynamic methods, parser coverage and unresolved mappings before a definition can be reviewed.
+
+[REQUIREMENT]
+UID: BD-LIFE-001
+STATUS: Active
+TITLE: Register before I/O P0
+STATEMENT: Every framework-managed open shall register its canonical resource and Opening state before initialization I/O and retain an accountable cleanup owner. Acceptance: Inject failure at every open stage; registry contains no unowned live session.
+
+[REQUIREMENT]
+UID: BD-LIFE-002
+STATUS: Active
+TITLE: Lifecycle transitions P0
+STATEMENT: The registry shall enforce and log allowed Opening, Ready, Busy, Closing, Closed, Faulted and RecoveryRequired transitions with run and resource identity. Acceptance: Exercise legal and illegal transitions, including concurrent open/close; reject illegal transitions.
+
+[REQUIREMENT]
+UID: BD-LIFE-003
+STATUS: Active
+TITLE: Partial startup rollback P0
+STATEMENT: Partial startup failure shall clean up all acquired resources in declared dependency-safe order and preserve primary and cleanup errors. Acceptance: Fail the second of three opens; first is cleaned, third is not opened, and all errors remain attributable.
+
+[REQUIREMENT]
+UID: BD-LIFE-004
+STATUS: Active
+TITLE: Bounded shutdown P0
+STATEMENT: Shutdown shall stop new work and execute declared device-specific abort, safe-state confirmation and close using deadlines independent of run cancellation. Acceptance: Cancel a run then hang one cleanup; shutdown decisions remain bounded and other resources still receive cleanup.
+
+[REQUIREMENT]
+UID: BD-LIFE-005
+STATUS: Active
+TITLE: Recovery quarantine P0
+STATEMENT: Unconfirmed shutdown shall retain RecoveryRequired ownership quarantine until an authorized recorded reconciliation confirms that reuse is permitted. Acceptance: Lose cleanup acknowledgment; reject a new reservation until explicit recovery completes.
+
+[REQUIREMENT]
+UID: BD-LIFE-006
+STATUS: Active
+TITLE: Restart reconciliation P0
+STATEMENT: The host shall durably record ownership and recovery state locally and reconcile interrupted sessions before accepting control after restart. Acceptance: Kill the host during dispatch and restart without a central database; affected resources remain unavailable pending reconciliation.
+
+[REQUIREMENT]
+UID: BD-HB-001
+STATUS: Active
+TITLE: Bidirectional health P0
+STATEMENT: Clients and authoritative instrument hosts shall exchange authenticated health messages including peer epoch and health sequence independently of instrument I/O. Acceptance: Block a device operation; peer health remains responsive while device readiness reports degradation.
+
+[REQUIREMENT]
+UID: BD-HB-002
+STATUS: Active
+TITLE: Real-time deadlines P0
+STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validated finite interval, timeout and expiry settings independent of simulated time. Acceptance: Advance simulation or change wall clock; real lease expiration is unchanged; reject invalid budgets.
+
+[REQUIREMENT]
+UID: BD-HB-003
+STATUS: Active
+TITLE: Fenced ownership P0
+STATEMENT: The authoritative host shall reject expired or stale owner commands using a restart-safe epoch and lease generation, including immediately before dispatch. Acceptance: Expire a queued command then renew with a new generation; old queued and replayed commands never reach the device.
+
+[REQUIREMENT]
+UID: BD-HB-004
+STATUS: Active
+TITLE: Loss policy P0
+STATEMENT: A missed heartbeat shall produce Suspect status; lease expiry shall fence old control and invoke the configured local safety policy before any reassignment. Acceptance: Inject one-way partition and delayed packets; no premature ownership transfer or false safe-state report.
+
+[REQUIREMENT]
+UID: BD-HB-005
+STATUS: Active
+TITLE: Multiple peer roles P0
+STATEMENT: Each resource shall have one authoritative owner and an explicit policy distinguishing loss of control peers from loss of optional telemetry or database peers. Acceptance: Disconnect each peer independently; apply the configured pause, local continuation or shutdown policy without split-brain ownership.
+
+[REQUIREMENT]
+UID: BD-HB-006
+STATUS: Active
+TITLE: Readiness telemetry P0
+STATEMENT: Health snapshots shall distinguish process responsiveness, instrument readiness, last device success and data staleness without observer-triggered device queries. Acceptance: Keep heartbeat alive while device fails; dashboard marks device unhealthy and cached samples stale.
+
+[REQUIREMENT]
+UID: BD-CMD-001
+STATUS: Active
+TITLE: Command envelope P0
+STATEMENT: Every remote control command shall carry protocol version, unique command ID, run ID, canonical resource ID, owner generation, payload hash and deadline. Acceptance: Reject missing, incompatible or unauthorized envelopes before instrument I/O.
+
+[REQUIREMENT]
+UID: BD-CMD-002
+STATUS: Active
+TITLE: Durable acceptance P0
+STATEMENT: The host shall acknowledge Accepted only after validation and local durable command recording, and report Started and terminal Completed, Failed, Rejected, Cancelled or OutcomeUnknown states. Acceptance: Crash after acceptance; command status is recoverable; disk-full prevents acceptance and dispatch.
+
+[REQUIREMENT]
+UID: BD-CMD-003
+STATUS: Active
+TITLE: Duplicate reconciliation P0
+STATEMENT: Duplicate command IDs with matching owner scope and payload shall return recorded state; conflicting reuse shall be rejected without repeating physical effects. Acceptance: Submit simultaneous duplicates and a changed-payload duplicate; dispatch at most once within the recorded execution attempt.
+
+[REQUIREMENT]
+UID: BD-CMD-004
+STATUS: Active
+TITLE: Status lookup P0
+STATEMENT: After a lost response clients shall query authorized command status by ID; indeterminate dispatch after a crash shall be OutcomeUnknown until reconciled. Acceptance: Drop completion reply and crash between physical effect and journal update; do not silently retry or report success.
+
+[REQUIREMENT]
+UID: BD-CMD-005
+STATUS: Active
+TITLE: Completion evidence P0
+STATEMENT: Completed receipts shall identify whether completion evidence is transport write, instrument-reported completion or verified physical state. Acceptance: Use a device accepting writes but not reaching target; never label transport completion as physical verification.
+
+[REQUIREMENT]
+UID: BD-CMD-006
+STATUS: Active
+TITLE: Retry policy P0
+STATEMENT: Automatic retries shall be bounded by deadline and attempt budget and require an explicit operation-specific safe-repeat classification; uncertain non-idempotent actuation shall not be replayed automatically. Acceptance: Test pulse/trigger/buffer reads, absolute setters and transient reconnects; unsafe operations never repeat and safe retry budgets terminate.
+
+[REQUIREMENT]
+UID: BD-CMD-007
+STATUS: Active
+TITLE: Typed errors P0
+STATEMENT: Local exceptions and remote faults shall preserve stable error code, stage, resource, command correlation, retry disposition and outcome certainty while redacting sensitive internals. Acceptance: Inject validation, lease, transport, timeout, protocol and cleanup faults; client receives distinct typed outcomes and correlated local diagnostics.
+
+[REQUIREMENT]
+UID: BD-CMD-008
+STATUS: Active
+TITLE: Backpressure and cancellation P0
+STATEMENT: Command queues shall have bounded capacity and explicit overload rejection; cancellation before dispatch shall prevent I/O, while cancellation after dispatch shall preserve outcome uncertainty and recovery policy. Acceptance: Saturate queue, cancel queued and running commands, then expire lease; assert bounds and accurate outcomes.
+
+[REQUIREMENT]
+UID: BD-RES-001
+STATUS: Active
+TITLE: Fault injection P0
+STATEMENT: Automated acceptance shall exercise message loss, duplication, reordering, partitions, disk-full, process restart and non-cooperative drivers across lifecycle and command states. Acceptance: Record a matrix of passing assertions for no stale actuation, no unsafe replay and bounded recovery decisions.
+
+[REQUIREMENT]
+UID: BD-RES-002
+STATUS: Active
+TITLE: External protection boundary P0
+STATEMENT: Instrument policies shall identify hazards needing independent hardware watchdogs or interlocks and shall not claim software shutdown executes after process or power loss. Acceptance: Kill the host and document the tested hardware protection or explicitly record that protection is unavailable.
+
+[REQUIREMENT]
+UID: BD-RES-003
+STATUS: Active
+TITLE: Evidence retention P0
+STATEMENT: Resilience verification shall retain tested commit, platform, configuration, fault schedule, assertions and logs, distinguishing simulations from hardware results. Acceptance: Reproduce a fault case from recorded configuration and reject verification claims lacking execution evidence.
+
+[REQUIREMENT]
+UID: BD-ID-001
+STATUS: Active
+TITLE: Identification on open P0
+STATEMENT: Every supported framework open and reconnect shall obtain declared instrument identification before enabling control and record unsupported or failed identification explicitly. Acceptance: Test supported, unsupported, empty and failed identification on direct, generated, async and remote paths.
+
+[REQUIREMENT]
+UID: BD-ID-002
+STATUS: Active
+TITLE: Durable identity history P0
+STATEMENT: Identity observations shall be locally durably logged with resource, backend, UTC time and available manufacturer, model, serial and firmware, without requiring a central database. Acceptance: Restart offline and recover identification history including nonstandard responses and failed attempts.
+
+[REQUIREMENT]
+UID: BD-ID-003
+STATUS: Active
+TITLE: Identity dashboard P0
+STATEMENT: Dashboards shall show cached observed identity, observation age, lock policy, authenticated owner/run and connection state without revealing lease secrets or issuing extra device queries. Acceptance: Poll before/during/after reservation and disconnect; identity remains attributable, stale state is explicit and bearer tokens are absent.
+
+[REQUIREMENT]
+UID: BD-ID-004
+STATUS: Active
+TITLE: Substitution detection P0
+STATEMENT: Reconnect shall invalidate stale identity and compare configured manufacturer, model or serial constraints before allowing control. Acceptance: Replace the device at the same address; reject control on mismatch until authorized reconciliation.
+
+[REQUIREMENT]
+UID: BD-OWN-001
+STATUS: Active
+TITLE: Reviewed sharing metadata P0
+STATEMENT: Instrument definitions shall declare exclusive-by-default access, whole-instrument lock scope, coupled resources, native lock support, identity provider, operation side effects and lifecycle policy with review provenance. Acceptance: Reject unreviewed independent-channel or shared-query claims; preserve these fields through import and generation.
+
+[REQUIREMENT]
+UID: BD-OWN-002
+STATUS: Active
+TITLE: Transaction and run ownership P0
+STATEMENT: The host shall serialize complete transport transactions and protect configure/acquire sequences with experiment ownership independently of optional native device locks. Acceptance: Interleave two clients and coupled channels; no response crossover or configuration interference; cached observers issue no I/O.
+
+[REQUIREMENT]
+UID: BD-REQ-006
+STATUS: Active
+TITLE: Change traceability P0
+STATEMENT: Every accepted feature or behavior change shall update stable requirements, acceptance criteria, traceability, issue links and verification evidence in the same change; deferred features shall remain explicitly tracked. Acceptance: Review a feature change and its linked requirement diff; the static gate rejects missing rows, acceptance criteria or issue links.
+

@@ -1,3 +1,5 @@
+> Superseded for complete baseline coverage by [revision 2](REQUIREMENTS-FULL-AUDIT-2026-10-15.md). Historical TR scope and CI observations below remain dated evidence.
+
 # BenchDouble — 90-Requirement Runner Audit
 
 **Audit date:** 2026-10-15  
@@ -33,7 +35,7 @@ These are **audit evidence categories, not percentages of functional completenes
 
 ## Concrete findings
 
-**Runner:** `ExperimentRunner.cs` has startup/execute/shutdown and basic failure/cancellation handling. However, it exposes only five states and explicitly says bounded cleanup policy is not yet implemented. It does not implement the full required state machine, resource preflight, approved revision pinning, or hardware OutcomeUnknown/RecoveryRequired semantics. See TR-015–019 and [issue #47](https://github.com/jeffadickson/BenchDouble/issues/47).
+**Runner (updated):** `ExperimentRunner.cs` has six enum states, startup/execute/shutdown, bounded independent cleanup, aggregated cleanup errors and a RecoveryRequired reuse latch. Full intermediate state transitions, durable resource quarantine, preflight, approved revision pinning and device-specific safe-state confirmation remain incomplete. See TR-015–019 and [issue #47](https://github.com/jeffadickson/BenchDouble/issues/47).
 
 **Host:** `HostResourceRegistry` has a real local-only exclusive GUID reservation check and sanitized activity log. Its source explicitly states no expiry, authenticated identity, persistence, physical safe-state recovery or remote TLS. Therefore TR-032 and TR-039 cannot be marked complete, regardless of passing local conflict tests. See [issue #46](https://github.com/jeffadickson/BenchDouble/issues/46).
 
@@ -81,3 +83,4 @@ Existing issues remain open for more detailed subsystem implementation.
 5. Execute the complete six-step procedure and multi-host end-to-end acceptance tests before moving P0 requirements to Verified.
 
 **Bottom line:** BenchDouble has meaningful instrument, mock, experiment and storage prototypes, but the original test-lab runner specification is not yet a verified integrated product. The audit makes the gaps visible and actionable rather than treating committed source as completion.
+
