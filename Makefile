@@ -1,4 +1,4 @@
-.PHONY: generate build test check-generated
+.PHONY: generate build test check-generated demo demo-normal
 DOTNET ?= dotnet
 generate:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
@@ -11,3 +11,9 @@ test: generate
 
 check-generated: generate
 	git diff --exit-code -- src/BenchDouble/Generated
+
+demo:
+	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj
+
+demo-normal:
+	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj -- --normal
