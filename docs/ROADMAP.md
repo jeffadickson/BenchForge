@@ -420,3 +420,16 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Share a stable-ID procedure schema with graphical editor and preserve comments on round trip
 - [ ] Extend grammar for generated instrument capabilities, conditions, bounded loops and operator steps
 - [ ] Integrate authorized physical-host operations only after security and safe-state acceptance
+
+### Instrument dataset and typed default mock generation
+- [x] Create machine-readable 25-PyMeasure-entry inventory plus Keithley 236 with evidence and implementation statuses
+- [x] Add catalog integrity validator without treating inventory as completed drivers
+- [x] Generate UnitsNet-typed SCPI driver and matching mock from the same instrument definition
+- [x] Support per-channel state, typed SetMock methods, exact command templates and finite numeric range checks
+- [x] Commit generated Keysight 33522B driver/mock source for editor awareness
+- [x] Add no-write generated-source consistency check, xUnit source tests and runnable example
+- [x] Invalidate Keithley 236 compliance/bias on mode change and require both before OPERATE
+- [ ] Obtain passing local/CI .NET compilation and tests; GitHub runner allocation remains blocked
+- [ ] Expand reviewed instrument definitions beyond the illustrative Keysight example
+- [ ] Complete Keithley 236 trigger, sweep, status, range, GPIB and hardware safety validation
+- [ ] Generate mode-aware default mocks for DMM, SMU, generator, chamber and other instrument families
