@@ -92,6 +92,15 @@ def audit(definition, target="manualReviewed"):
             block(not specified(op.get("commands")) and not specified(op.get("notes")),
                   f"Method {name}: no command or algorithm documentation")
         coverage = definition.get("extraction", {})
+        if provenance.get("upstreamProject") != "manual":
+            block(not coverage and not specified(review.get("coverageEvidence")),
+                  "Upstream extraction coverage or independent coverage evidence required")
+        block(bool(coverage.get("inheritedCandidates")) and
+              not specified(review.get("inheritanceEvidence")),
+              "Inherited member reconciliation evidence required")
+        block(bool(coverage.get("dynamicCandidates")) and
+              not specified(review.get("dynamicEvidence")),
+              "Dynamic member reconciliation evidence required")
         block(coverage.get("unresolvedDynamicMembers", 0) > 0,
               "Dynamic instrument members have not been reconciled")
         block(coverage.get("unresolvedInheritedMembers", 0) > 0,
