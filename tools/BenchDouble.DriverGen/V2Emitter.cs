@@ -103,7 +103,11 @@ internal static class V2Emitter
             string id = cap.GetProperty("name").GetString() ?? "";
             string quantity = cap.TryGetProperty("quantity", out var q) && q.ValueKind == JsonValueKind.String ? q.GetString()! : "";
             string unit = cap.TryGetProperty("unit", out var u) && u.ValueKind == JsonValueKind.String ? u.GetString()! : "";
-            // Unreviewed quantities are never guessed; they are excluded from typed emission.
+            // Only capabilities with an explicit simulation default can be emitted.
+            // Unsupported, incomplete draft capabilities remain in the definition for review.
+            if (!cap.TryGetProperty("mockDefault", out var defaultNode) ||
+                defaultNode.ValueKind != JsonValueKind.Number) continue;
+                        // Unreviewed quantities are never guessed; they are excluded from typed emission.
             if (quantity.Length == 0 || unit.Length == 0) continue;
             if (!Identifier.IsMatch(id) || !Units.ContainsKey(quantity + ":" + unit))
                 throw new InvalidDataException("Unsupported identifier or quantity/unit: " + id);
