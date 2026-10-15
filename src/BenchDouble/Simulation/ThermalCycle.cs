@@ -38,8 +38,20 @@ public sealed record ThermalChamberSample(Temperature Temperature, string Phase,
 /// Idealized chamber setpoint model; no real thermal lag, overshoot, or sensor noise.
 /// Evaluated using the shared simulation clock, not wall-clock sleeps.
 /// </summary>
-public sealed class ThermalChamberModel
+public sealed class ThermalChamberModel : ITemperatureProgram
 {
+    /// <summary>Discontinuities in setpoint slope; consumers integrate across these boundaries.</summary>
+    public IReadOnlyList<TimeSpan> Breakpoints => new[]
+    {
+        Settings.HeatRamp,
+        Settings.HeatRamp + Settings.HotDwell,
+        Settings.HeatRamp + Settings.HotDwell + Settings.CoolRamp,
+        Settings.HeatRamp + Settings.HotDwell + Settings.CoolRamp + Settings.ColdDwell,
+        Settings.TotalDuration
+    };
+
+    public Temperature ReadAt(TimeSpan elapsed) => At(elapsed).Temperature;
+
     public ThermalCycleSettings Settings { get; }
     public ThermalChamberModel(ThermalCycleSettings settings)
     {
