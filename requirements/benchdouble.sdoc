@@ -1322,3 +1322,21 @@ UID: BD-ART-005
 STATUS: Active
 TITLE: BD-ART-005 P2
 STATEMENT: Binary storage adapter and size-threshold choices shall be supported by representative workload measurements rather than assuming all database blobs are slow. Acceptance: Compare embedded BLOB, managed local files and the selected central object backend using capture sizes, concurrency, durability, range reads and restore costs, publishing configuration and latency/throughput evidence.
+
+[REQUIREMENT]
+UID: BD-DEF-009
+STATUS: Active
+TITLE: BD-DEF-009 P0
+STATEMENT: A review gate shall prevent unreviewed or incomplete instrument definitions from being eligible for generation and require provenance, reviewer and manual evidence.
+
+[REQUIREMENT]
+UID: BD-DEF-010
+STATUS: Active
+TITLE: BD-DEF-010 P1
+STATEMENT: Static extraction shall report potentially missing inherited and dynamic instrument members without claiming full method coverage.
+
+[REQUIREMENT]
+UID: BD-DEF-011
+STATUS: Active
+TITLE: BD-DEF-011 P1
+STATEMENT: The Instrument Definer shall batch-extract a pinned manifest of PyMeasure instruments with per-instrument diagnostics and no overwrites.
