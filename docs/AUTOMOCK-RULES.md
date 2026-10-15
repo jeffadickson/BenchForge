@@ -117,3 +117,7 @@ Do not introduce any of these into the core by default. If adopted, hide them be
 ## Generated mock adapters (planned)
 
 **BD-AM-011** will use the existing instrument-definition/code-generation pipeline to create default typed mock adapters for DMM, SMU, generator, chamber and other instrument classes. The goal is to avoid writing command boilerplate twice: generated adapters preserve compile-time method/property signatures, while AutoMock rules override selected measurements, command responses and fault behavior. This generator integration has **not** yet been implemented. See [issue #40](https://github.com/jeffadickson/BenchDouble/issues/40).
+
+## Multiple instruments in one experiment
+
+The composition root supports independently keyed rules using `AutoMockLoadFor("SupplyA", baselineFactory, configure)` and `AutoMockLoadFor("SupplyB", ...)`. Register each instrument with the `Simulated<TInterface>(role, factory)` overload, resolving its keyed `ILoadBehavior` inside the composition factory. The instrument implementation itself receives an ordinary `ILoadBehavior` constructor argument and never references the DI container. Each named rule set has a separate SHA-256 fingerprint in `ExperimentDefinition.AutoMockRuleHashes` and `ExperimentRun.AutoMockRuleHashes`. See `TwoNamedSuppliesCanHaveDifferentAutoMockRules` in the experiment xUnit tests. Full binary/package provenance remains planned.
