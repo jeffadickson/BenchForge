@@ -19,6 +19,9 @@ jobs:
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
+      - name: Build ScottPlot visualization adapter
+        run: dotnet build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj --configuration Release
+
       - name: Build official IVI.NET adapter
         run: dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj --configuration Release
       - name: Run official IVI.NET adapter contract tests
