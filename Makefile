@@ -1,4 +1,4 @@
-.PHONY: generate build test check-generated demo demo-normal
+.PHONY: generate build test check-generated demo demo-normal demo-thermal
 DOTNET ?= dotnet
 generate:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
@@ -17,3 +17,6 @@ demo:
 
 demo-normal:
 	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj -- --normal
+
+demo-thermal:
+	$(DOTNET) run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj
