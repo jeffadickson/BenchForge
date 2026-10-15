@@ -380,3 +380,13 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Pin behavior assemblies, package dependencies, configuration hashes and seeds in a complete run manifest
 
 - [x] Add C# integration test for AutoMock fault → simulated supply → unattended alarm → simulated shutdown
+
+### Generic unit-aware AutoMock foundation
+- [x] Add generic typed UnitsNet measurement interface and explicit typed mode configuration
+- [x] Add frozen quantity-to-behavior registration with constant and virtual-time-dependent values
+- [x] Add mode-safe DMM-like mock rejecting unsupported quantities and mismatched modes
+- [x] Add voltage/resistance unit tests, standalone demo and experiment composition registration
+- [x] Add Makefile and three-OS CI invocation for typed meter demo
+- [ ] Verify .NET compilation and tests on all three platforms
+- [ ] Generate typed capabilities, defaults and mode transitions from instrument definition dataset (issue #44)
+- [ ] Add measurement range, accuracy, integration time, overload and SCPI state validation
