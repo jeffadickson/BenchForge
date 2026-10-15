@@ -23,3 +23,5 @@ StrictDoc is a requirements **management** tool; Reqnroll is a separate .NET BDD
 Never infer verification from a commit, a test name, or a generated document. Requirement IDs are permanent; changes require review and traceability updates. The static checker fails on missing file references, duplicates, untracked planned requirements and unsupported Verified claims.
 
 StrictDoc output is generated documentation, not proof that tests passed. The existing 90 TR items remain indexed in their original source for continuity. 
+
+The [feature audit](../docs/FEATURE-AUDIT.md) records subsystem coverage and gaps; the [testing guide](../docs/TESTING-AND-TRACEABILITY.md) explains xUnit, Reqnroll and Playwright evidence. All 122 requirements are currently unverified or planned; no requirement is marked Verified without actual successful test evidence.
