@@ -58,3 +58,7 @@ The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.
 ## Optional procedure parser package
 
 `src/BenchDouble.Procedures/BenchDouble.Procedures.csproj` references **Parlot 1.5.9** (stable NuGet package, BSD-3-Clause license) and the existing `BenchDouble` and `BenchDouble.Experiments` projects. The core instrument library does **not** depend on Parlot. `tests/BenchDouble.Procedures.Tests` uses the existing xUnit, runner and test SDK packages; the example uses the existing logging abstractions. `make build`, `make test`, `make demo-procedure` and the three-OS CI workflow include the new projects. NuGet lockfiles and successful CI validation remain outstanding.
+
+## Generated driver/mock dependencies
+
+The `BenchDouble.DriverGen` console tool uses only .NET 8 `System.Text.Json`, `Regex` and standard code generation; generated typed drivers and mocks depend on the existing UnitsNet 5.75.1 and `IAsyncScpiSession` contracts. No additional NuGet runtime package is required. A standard-library Python catalog validator is used by `make generate` and CI. Generated source is committed so direct `dotnet build` and editor IntelliSense do not depend on running code generation first. The optional no-write `--check` gate detects stale source. Cross-platform CI cannot be marked green while GitHub runner allocation is unavailable.
