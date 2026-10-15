@@ -219,6 +219,6 @@ BD-ART-002,P0,PartialSourceUnverified,src/BenchDouble.Artifacts.Sqlite/SqliteArt
 BD-ART-003,P1,PartialSourceUnverified,src/BenchDouble.Artifacts.Sqlite/SqliteArtifactStore.cs,tests/BenchDouble.Artifacts.Tests/ArtifactStoreTests.cs,https://github.com/jeffadickson/BenchDouble/issues/62,
 BD-ART-004,P0,PartialSourceUnverified,src/BenchDouble.Artifacts.Sqlite/SqliteArtifactStore.cs,tests/BenchDouble.Artifacts.Tests/ArtifactStoreTests.cs,https://github.com/jeffadickson/BenchDouble/issues/62,
 BD-ART-005,P2,DesignOnly,docs/BINARY-CAPTURE-STORAGE.md,,https://github.com/jeffadickson/BenchDouble/issues/62,
-"BD-DEF-009","P0","SourceCommittedUnverified","tools/InstrumentDefiner/review_gate.py","tests/instrument_definer/test_review_gate.py","https://github.com/jeffadickson/BenchDouble/issues/52"
-"BD-DEF-010","P1","SourceCommittedUnverified","tools/InstrumentDefiner/definer.py","tests/instrument_definer/test_definer.py","https://github.com/jeffadickson/BenchDouble/issues/52"
-"BD-DEF-011","P1","SourceCommittedUnverified","tools/InstrumentDefiner/batch_extract.py","tests/instrument_definer/test_batch_extract.py","https://github.com/jeffadickson/BenchDouble/issues/52"
+BD-DEF-009,P0,SourceCommittedUnverified,tools/InstrumentDefiner/review_gate.py,tests/instrument_definer/test_review_gate.py,https://github.com/jeffadickson/BenchDouble/issues/52,
+BD-DEF-010,P1,SourceCommittedUnverified,tools/InstrumentDefiner/definer.py,tests/instrument_definer/test_definer.py,https://github.com/jeffadickson/BenchDouble/issues/52,
+BD-DEF-011,P1,SourceCommittedUnverified,tools/InstrumentDefiner/batch_extract.py,tests/instrument_definer/test_batch_extract.py,https://github.com/jeffadickson/BenchDouble/issues/52,
