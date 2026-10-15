@@ -62,3 +62,6 @@ GitHub Issues #1–#26 cover existing known subsystem gaps; #27–#33 cover brow
 
 ## 8. Release strategy
 Prototype → hardware-free alpha → controlled bench beta → lab pilot → production release. Do not label a phase complete based on source commits alone. For each release attach a requirement coverage report, test summary, known limitations, package/dependency inventory and user manual revision.
+
+## 9. Dependency baseline
+The [dependency inventory](DEPENDENCIES.md) is the maintained source for SDK/tool/package versions, platform assumptions and supply-chain risks. Issue #28 tracks locked NuGet/Python dependencies, clean-host provisioning, SBOM and cross-platform evidence. Until that work passes CI, the bootstrap scripts are a best-effort convenience rather than a fully reproducible build guarantee.
