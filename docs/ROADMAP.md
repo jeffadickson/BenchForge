@@ -372,7 +372,8 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [x] Add xUnit rule, JSON, output-off, run-isolation and composition tests
 - [x] Add fluent and JSON AutoMock console demos and three-OS CI invocation
 - [ ] Verify clean .NET build/test/demo results on Windows, macOS and Linux
-- [ ] Add per-instrument keyed rule sets, command-aware state/mode rules and initialize/reset lifecycle
+- [x] Add per-instrument keyed AutoMock rule sets and independent fingerprints
+- [ ] Add command-aware state/mode rules and initialize/reset lifecycle
 - [ ] Add deterministic ramps, seeded noise, SCPI faults and simulated latency/timeouts
 - [ ] Evaluate optional Microsoft RulesEngine adapter and isolate any executable custom expressions
 - [ ] Integrate a full run with alarm, SQLite, dashboard and Plotly sharing one backend
