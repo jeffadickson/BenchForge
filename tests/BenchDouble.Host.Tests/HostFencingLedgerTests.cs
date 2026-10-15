@@ -13,16 +13,29 @@ public sealed class HostFencingLedgerTests
         var path = Path.Combine(directory, "fencing.json");
         try
         {
-            var first = new HostFencingLedger(path);
+            using var first = new HostFencingLedger(path);
             Assert.Equal(1, first.Epoch);
             Assert.Equal(1, first.NextGeneration("SCOPE1"));
             Assert.Equal(2, first.NextGeneration("SCOPE1"));
-            var restarted = new HostFencingLedger(path);
+            first.Dispose();
+            using var restarted = new HostFencingLedger(path);
             Assert.Equal(2, restarted.Epoch);
             Assert.Equal(3, restarted.NextGeneration("SCOPE1"));
             Assert.Equal(1, restarted.NextGeneration("DMM1"));
         }
         finally { Directory.Delete(directory, recursive: true); }
+    }
+
+    [Fact]
+    public void ConcurrentLedgerOwnerIsRejected()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "benchforge-lock-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            using var first = new HostFencingLedger(path);
+            Assert.Throws<IOException>(() => new HostFencingLedger(path));
+        }
+        finally { File.Delete(path); File.Delete(path + ".owner.lock"); }
     }
 
     [Fact]
@@ -34,7 +47,7 @@ public sealed class HostFencingLedgerTests
             File.WriteAllText(path, "{broken");
             Assert.ThrowsAny<Exception>(() => new HostFencingLedger(path));
         }
-        finally { File.Delete(path); }
+        finally { File.Delete(path); File.Delete(path + ".owner.lock"); }
     }
 
     [Fact]
@@ -43,7 +56,7 @@ public sealed class HostFencingLedgerTests
         var path = Path.Combine(Path.GetTempPath(), "benchforge-generation-" + Guid.NewGuid().ToString("N"));
         try
         {
-            var ledger = new HostFencingLedger(path);
+            using var ledger = new HostFencingLedger(path);
             var host = new HostedOscilloscopeRegistry(ledger: ledger);
             var lease = host.Reserve("SCOPE1")!.Value;
             Assert.Equal(1, host.Generation("SCOPE1"));
