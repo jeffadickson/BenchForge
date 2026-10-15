@@ -49,6 +49,26 @@ public sealed class ExperimentDefinitionBuilder
         return this;
     }
 
+    /// <summary>
+    /// Compose a deterministic, declarative AutoMock decorator around a normal
+    /// instrument load behavior. The rules are frozen with the experiment definition.
+    /// The factory is used only at the composition root, never by the instrument.
+    /// </summary>
+    public ExperimentDefinitionBuilder AutoMockLoad(
+        Func<IServiceProvider, ILoadBehavior> baselineFactory,
+        Action<AutoMockLoadRulesBuilder> configure)
+    {
+        EnsureMutable();
+        ArgumentNullException.ThrowIfNull(baselineFactory);
+        ArgumentNullException.ThrowIfNull(configure);
+        var rulesBuilder = new AutoMockLoadRulesBuilder();
+        configure(rulesBuilder);
+        var rules = rulesBuilder.Build();
+        _services.AddScoped<ILoadBehavior>(sp =>
+            new RuleBasedLoadBehavior(baselineFactory(sp), rules));
+        return this;
+    }
+
     /// <summary>Configure a run-scoped model using a composition-root factory.</summary>
     public ExperimentDefinitionBuilder Model<TService>(Func<IServiceProvider, TService> factory)
         where TService : class
