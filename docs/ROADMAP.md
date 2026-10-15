@@ -279,3 +279,12 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add persistent alarm rules, acknowledgment, deduplication and escalation
 - [ ] Add opt-in real notification providers with secure credentials, retries and delivery receipts
 - [ ] Validate hardware safe-state independent of UI and notifications
+
+### Thermal cycle virtual bench demonstration
+- [x] Implement typed 30→70→−30→30°C ramp/dwell model with seven-hour default program
+- [x] Inject temperature-dependent supply load with +10% hot current response
+- [x] Add standalone interactive two-plot HTML monitor with accelerated/manual time
+- [x] Add DI C# demo exporting unit-labeled Plotly JSON and xUnit phase-boundary tests
+- [ ] Verify browser visual behavior and run .NET demo/tests in cross-platform CI
+- [ ] Add chamber thermal lag, actual sensor stabilization/dwell qualification and independent DUT temperature
+- [ ] Connect browser monitor to actual runner/host streaming, alerts and durable measurements
