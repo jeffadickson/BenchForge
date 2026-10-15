@@ -1,13 +1,47 @@
-.PHONY: generate build test check-generated demo demo-normal demo-thermal
+# BenchDouble developer entrypoints. Requires GNU Make on Unix; Windows can
+# use scripts/bootstrap.ps1 and dotnet CLI directly without Make.
 DOTNET ?= dotnet
+PYTHON ?= python3
+
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal check-generated
+
+setup:
+	bash scripts/bootstrap.sh
+
+setup-windows:
+	pwsh -File scripts/bootstrap.ps1
+
+requirements:
+	$(PYTHON) scripts/check_requirements.py
+	.tools/requirements-venv/bin/strictdoc export requirements --output-dir build/requirements
+
 generate:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
 
 build: generate
 	$(DOTNET) build src/BenchDouble/BenchDouble.csproj
+	$(DOTNET) build src/BenchDouble.TimeSeries.Sqlite/BenchDouble.TimeSeries.Sqlite.csproj
+	$(DOTNET) build src/BenchDouble.Plotting/BenchDouble.Plotting.csproj
+	$(DOTNET) build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj
+	$(DOTNET) build examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj
+	$(DOTNET) build examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj
+	$(DOTNET) build src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
+	$(DOTNET) build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj
 
 test: generate
 	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+	$(DOTNET) test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj
+	$(DOTNET) test tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj
+	$(DOTNET) test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj
+	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj
+	$(DOTNET) test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj
+
+test-browser:
+	$(DOTNET) build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj
+	pwsh tests/BenchDouble.Browser.Tests/bin/Debug/net8.0/playwright.ps1 install chromium
+	$(DOTNET) test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --no-build
+
+verify: requirements build test
 
 check-generated: generate
 	git diff --exit-code -- src/BenchDouble/Generated
