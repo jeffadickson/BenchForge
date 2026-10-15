@@ -19,12 +19,15 @@ public sealed class HostedOscilloscopeRegistry
     private readonly Dictionary<string, DateTimeOffset> _expires = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, long> _generations = new(StringComparer.OrdinalIgnoreCase);
     private readonly TimeProvider _clock;
+    private readonly HostFencingLedger? _ledger;
     private readonly TimeSpan _leaseDuration;
 
     /// <summary>Create a local simulated host with configurable lease duration and test clock.</summary>
-    public HostedOscilloscopeRegistry(TimeProvider? clock = null, TimeSpan? leaseDuration = null)
+    public HostedOscilloscopeRegistry(TimeProvider? clock = null, TimeSpan? leaseDuration = null,
+        HostFencingLedger? ledger = null)
     {
         _clock = clock ?? TimeProvider.System;
+        _ledger = ledger;
         _leaseDuration = leaseDuration ?? TimeSpan.FromMinutes(2);
         if (_leaseDuration <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(leaseDuration));
     }
@@ -43,7 +46,8 @@ public sealed class HostedOscilloscopeRegistry
             var id = Guid.NewGuid();
             _leases.Add(resourceId, id);
             _expires[resourceId] = _clock.GetUtcNow() + _leaseDuration;
-            _generations[resourceId] = _generations.GetValueOrDefault(resourceId) + 1;
+            _generations[resourceId] = _ledger?.NextGeneration(resourceId) ??
+                checked(_generations.GetValueOrDefault(resourceId) + 1);
             return id;
         }
     }
