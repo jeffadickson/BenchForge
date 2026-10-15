@@ -75,6 +75,10 @@ The parser accepts only schema version 1 and recognized actions/fields. It limit
 
 This version does **not** model current limiting or voltage droop. A real power supply and DUT need a validated compliance model before hardware-equivalent claims.
 
+## Rule-match provenance
+
+`RuleBasedLoadBehavior.EvaluateAt(voltage, elapsed)` returns `AutoMockEvaluation` containing the simulated current, matched rule name (or null for baseline fallback), and logical timestamp. This is a pure evaluation result; it is **not yet persisted to SQLite or streamed to the instrument dashboard**. The regular `ILoadBehavior.CurrentAt` method returns only the typed current, keeping existing instrument APIs unchanged.
+
 ## Testing
 
 `AutoMockLoadRulesTests` checks the five-second boundary, voltage-range scaling, priority, invalid configurations and output-off behavior. `AutoMockRuleFileTests` checks JSON parsing and rejection. `ExperimentCompositionTests` checks AutoMock injection and two-run isolation. These tests are in the normal xUnit CI projects.
