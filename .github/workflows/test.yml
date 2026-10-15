@@ -44,9 +44,7 @@ jobs:
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
       - name: Generate instrument drivers
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
-      - name: Validate schema-v2 preview emission (simulation only)
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code
-      - name: Verify deterministic schema-v2 preview
+      - name: Verify committed schema-v2 generated output without rewriting it
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
       - name: Compile committed schema-v2 generated preview
         run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
