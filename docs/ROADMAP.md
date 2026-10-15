@@ -116,3 +116,13 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Implement physical abort and safe-state confirmation semantics
 - [ ] Add IAsyncEnumerable measurement streaming with backpressure
 - [ ] Add parallel-instrument experiment barriers and partial-order mock expectations
+
+### Instrument arbitration
+- [x] Implement in-process exclusive instrument reservations and cancellable leases
+- [x] Verify intended resource contention and idempotent release in source tests
+- [ ] Compile/run the reservation tests in CI
+- [ ] Integrate compulsory leases into instrument factory and experiment context
+- [ ] Canonicalize resource aliases; prevent bypass via duplicate sessions
+- [ ] Add atomic multi-instrument reservations with deadlock-free acquisition
+- [ ] Add cross-process/instrument-host locking and optional VISA resource locks
+- [ ] Add lease telemetry, timeouts and physical safe-state cleanup policy
