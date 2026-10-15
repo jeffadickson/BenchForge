@@ -1,6 +1,6 @@
 # Requirements management
 
-The authoritative machine-readable baseline is [benchdouble.sdoc](benchdouble.sdoc) (StrictDoc). It imports all **90** consolidated test-runner requirements from `docs/TEST-LAB-RUNNER-REQUIREMENTS.md` and adds **32** cross-subsystem requirements for simulation, unattended monitoring, time-series persistence, testing, documentation and cross-platform builds. The companion [traceability.csv](traceability.csv) maps IDs to source, tests, GitHub issues and evidence status.
+The authoritative machine-readable baseline is [benchdouble.sdoc](benchdouble.sdoc) (StrictDoc). It imports all **90** consolidated test-runner requirements from `docs/TEST-LAB-RUNNER-REQUIREMENTS.md` and adds **64** cross-subsystem requirements for simulation, unattended monitoring, time-series persistence, testing, documentation and cross-platform builds. The companion [traceability.csv](traceability.csv) maps IDs to source, tests, GitHub issues and evidence status.
 
 StrictDoc is a requirements **management** tool; Reqnroll is a separate .NET BDD **acceptance testing** framework. GitHub Issues is the work-item tracker. STRIDE is a security threat-modeling method, not the requirements tracker.
 
