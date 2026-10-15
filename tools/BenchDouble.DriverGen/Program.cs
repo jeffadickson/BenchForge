@@ -80,8 +80,7 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
             (maximum is { } hi && initial > hi) ||
             (minimum is { } minBound && maximum is { } maxBound && minBound > maxBound))
             throw new InvalidDataException($"Invalid mock default or range for {propertyName}: {file}");
-        static string Literal(string value) => "\\\"" + value.Replace("\\\\", "\\\\\\\\")
-            .Replace("\\\"", "\\\\\\"") + "\\\"";
+        static string Literal(string value) => JsonSerializer.Serialize(value);
         static string Number(double value) =>
             value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
         mock.AppendLine($"    new MockScpiParameter({Literal(propertyName)}, {Literal(quantity)}, " +
@@ -95,7 +94,7 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
             if (query.Contains("{value}")) throw new InvalidDataException("Query may not contain {value}.");
             body.AppendLine($"  public async ValueTask<{quantity}> Get{propertyName}Async(int channel, CancellationToken ct = default)");
             body.AppendLine("  {");
-            body.AppendLine("    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
+            body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
             body.AppendLine($"    string reply = await session.QueryAsync($\"{query.Replace("{channel}", "{channel}")}\", ct).ConfigureAwait(false);");
             body.AppendLine($"    return {quantity}.{info.factory}(double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture));");
             body.AppendLine("  }");
@@ -105,7 +104,7 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
             if (!set.Contains("{value}")) throw new InvalidDataException("Setter must contain {value}.");
             body.AppendLine($"  public async ValueTask Set{propertyName}Async(int channel, {quantity} value, CancellationToken ct = default)");
             body.AppendLine("  {");
-            body.AppendLine("    if (channel < 1) throw new ArgumentOutOfRangeException(nameof(channel));");
+            body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
             body.AppendLine($"    double number = value.{info.unitProperty};");
             body.AppendLine("    if (!double.IsFinite(number)) throw new ArgumentOutOfRangeException(nameof(value));");
             if (param.TryGetProperty("minimum", out var min)) body.AppendLine($"    if (number < {min.GetDouble().ToString("R", System.Globalization.CultureInfo.InvariantCulture)}) throw new ArgumentOutOfRangeException(nameof(value));");
@@ -125,11 +124,11 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     var destination = Path.Combine(output, name + ".g.cs");
     var source = body.ToString().Replace("\r\n", "\n");
     if (!File.Exists(destination) || File.ReadAllText(destination) != source) File.WriteAllText(destination, source, new UTF8Encoding(false));
-    mock.AppendLine("  }");
+    mock.AppendLine("  })");
     mock.AppendLine($"  public {name} CreateDriver() => new(this);");
     mock.AppendLine("}");
     var mockDestination = Path.Combine(output, name + "Mock.g.cs");
-    var mockSource = mock.ToString().Replace("\\r\\n", "\\n");
+    var mockSource = mock.ToString().Replace("\r\n", "\n");
     if (!File.Exists(mockDestination) || File.ReadAllText(mockDestination) != mockSource)
         File.WriteAllText(mockDestination, mockSource, new UTF8Encoding(false));
     Console.WriteLine($"Generated {destination} and {mockDestination}");
