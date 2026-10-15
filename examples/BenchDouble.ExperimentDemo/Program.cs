@@ -14,8 +14,16 @@ builder.Model(sp => new FirstOrderThermalSensor(
 builder.Model<ITemperatureSignal>(sp => sp.GetRequiredService<FirstOrderThermalSensor>());
 // --automock adds a time-triggered fault without modifying SimulatedSupply
 // or SensorDrivenLoad. Rules are immutable and scoped to this experiment.
-bool useAutoMock = args.Contains("--automock", StringComparer.OrdinalIgnoreCase);
-if (useAutoMock)
+bool useAutoMockJson = args.Contains("--automock-json", StringComparer.OrdinalIgnoreCase);
+bool useAutoMock = useAutoMockJson || args.Contains("--automock", StringComparer.OrdinalIgnoreCase);
+if (useAutoMockJson)
+{
+    // Run from repository root; configuration contains no executable code.
+    var json = File.ReadAllText("examples/BenchDouble.ExperimentDemo/automock-overcurrent.json");
+    builder.AutoMockLoadFromJson(
+        sp => new SensorDrivenLoad(sp.GetRequiredService<ITemperatureSignal>()), json);
+}
+else if (useAutoMock)
 {
     builder.AutoMockLoad(
         sp => new SensorDrivenLoad(sp.GetRequiredService<ITemperatureSignal>()),
