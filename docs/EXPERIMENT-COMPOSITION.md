@@ -68,3 +68,7 @@ Constructor injection is the default for ordinary custom mock behaviors. The typ
 The injected behavior is normal C#, so use xUnit breakpoints and deterministic virtual time. Reqnroll verifies acceptance scenarios. Roslyn-compiled custom behavior loading must use isolated simulation workers and immutable package hashes.
 
 See [ADR-001](ADR-001-EXPERIMENT-SCOPED-COMPOSITION.md) and [Version Control Tutorial](VERSION-CONTROL-TUTORIAL.md).
+
+## AutoMock rules at the composition root
+
+The experiment builder now offers `AutoMockLoad(baselineFactory, rules => ...)` and `AutoMockLoadFromJson(baselineFactory, json)`. Both register a normal scoped `ILoadBehavior` decorator; instruments do not parse JSON or call `IServiceProvider`. Rules are frozen with the experiment definition and identified by `AutoMockRuleSha256`. Only one default `ILoadBehavior` AutoMock is supported in this increment; **keyed per-instrument rule registration** remains tracked in issue #40. Run the fluent and JSON examples with `make demo-automock` and `make demo-automock-json`. See [AutoMock rule tutorial](AUTOMOCK-RULES.md).
