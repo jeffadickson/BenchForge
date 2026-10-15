@@ -378,3 +378,5 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Evaluate optional Microsoft RulesEngine adapter and isolate any executable custom expressions
 - [ ] Integrate a full run with alarm, SQLite, dashboard and Plotly sharing one backend
 - [ ] Pin behavior assemblies, package dependencies, configuration hashes and seeds in a complete run manifest
+
+- [x] Add C# integration test for AutoMock fault → simulated supply → unattended alarm → simulated shutdown
