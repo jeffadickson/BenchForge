@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup>
-  <ItemGroup><ProjectReference Include="../BenchDouble/BenchDouble.csproj"/></ItemGroup>
+  <ItemGroup><PackageReference Include="UnitsNet" Version="5.75.1"/></ItemGroup>
 </Project>
