@@ -8,7 +8,17 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DOC = ROOT / "requirements/benchdouble.sdoc"
 TRACE = ROOT / "requirements/traceability.csv"
-VALID = {"Planned", "Unverified", "SourceCommittedUnverified", "Verified", "Blocked"}
+VALID = {
+    "Planned", "Unverified", "SourceCommittedUnverified",
+    "PartialSourceUnverified", "DesignOnly", "NoImplementationEvidence",
+    "Verified", "Blocked"
+}
+AUDIT = ROOT / "requirements/legacy-runner-audit.csv"
+AUDIT_TO_STATUS = {
+    "PartialSource": "PartialSourceUnverified",
+    "DesignOnly": "DesignOnly",
+    "NoImplementationEvidence": "NoImplementationEvidence",
+}
 UID_PATTERN = re.compile(r"^UID:\s+([A-Z][A-Z0-9-]+)$", re.M)
 
 
@@ -46,13 +56,53 @@ def main() -> int:
     for uid, row in by_id.items():
         if row["implementation_status"] == "Planned" and not row["github_issue"]:
             errors.append(f"{uid}: planned work lacks GitHub issue")
+    # Audit the entire original 90-requirement runner baseline against the
+    # canonical traceability matrix. Do not let the two reports drift.
+    with AUDIT.open(encoding="utf-8", newline="") as file:
+        audited = list(csv.DictReader(file))
+    expected_legacy = {f"TR-{n:03d}" for n in range(1, 91)}
+    audited_ids = [row["requirement_id"] for row in audited]
+    if len(audited_ids) != len(set(audited_ids)):
+        errors.append("Duplicate requirement in legacy runner audit")
+    if set(audited_ids) != expected_legacy:
+        errors.append("Legacy runner audit must contain exactly TR-001 through TR-090")
+    for audit in audited:
+        uid = audit["requirement_id"]
+        expected_status = AUDIT_TO_STATUS.get(audit["audit_assessment"])
+        if expected_status is None:
+            errors.append(f"{uid}: unknown audit assessment")
+            continue
+        row = by_id.get(uid)
+        if row is None:
+            errors.append(f"{uid}: audited requirement missing from traceability")
+            continue
+        if row["implementation_status"] != expected_status:
+            errors.append(f"{uid}: audit/traceability status mismatch")
+        if row["implementation_file"] != audit["source_evidence"]:
+            errors.append(f"{uid}: audit/traceability source mismatch")
+        if row["verification_file"] != audit["test_evidence"]:
+            errors.append(f"{uid}: audit/traceability test mismatch")
+        if row["github_issue"] != audit["tracking_issue"]:
+            errors.append(f"{uid}: audit/traceability issue mismatch")
+        if not audit["remaining_gap"].strip():
+            errors.append(f"{uid}: missing specific audit gap")
+        for field in ("source_evidence", "test_evidence"):
+            path = audit[field].strip()
+            if path and not (ROOT / path).is_file():
+                errors.append(f"{uid}: missing audited evidence path {path}")
+        if expected_status == "PartialSourceUnverified" and not audit["source_evidence"]:
+            errors.append(f"{uid}: partial source claim lacks source evidence")
+    if any(row["implementation_status"] == "Verified" for row in rows):
+        # CI's file-existence check is not a substitute for test-run evidence.
+        print("NOTICE: Verified statuses require separately reviewed passing CI evidence.")
     if errors:
         for error in errors:
             print("ERROR:", error, file=sys.stderr)
         return 1
     print(f"Traceability OK: {len(ids)} requirements, "
           f"{sum(r['implementation_status']=='Verified' for r in rows)} verified, "
-          f"{sum(r['implementation_status']=='SourceCommittedUnverified' for r in rows)} source-committed unverified.")
+          f"{sum(r['implementation_status'] in ('SourceCommittedUnverified','PartialSourceUnverified') for r in rows)} source-linked unverified, "
+          f"{len(audited)} original runner requirements audited.")
     return 0
 
 
