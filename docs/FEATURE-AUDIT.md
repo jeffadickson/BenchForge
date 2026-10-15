@@ -1,6 +1,6 @@
 # BenchDouble Feature-to-Requirement Audit
 
-**Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 64 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
+**Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 71 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
 
 | Feature family | Requirements baseline | Committed evidence | Outstanding work |
 |---|---|---|---|
@@ -40,7 +40,7 @@ The requirements baseline now contains 149 items, including BD-AM-011 for genera
 
 ## Generic UnitsNet AutoMock foundation
 
-BD-AM-013..016 add explicit quantity-typed measurement registration and mode-safe DMM mocks. Source/tests/demo committed; instrument-definition generator and actual CI verification remain open in issue #44. The baseline now contains 154 requirements.
+BD-AM-013..016 add explicit quantity-typed measurement registration and mode-safe DMM mocks. Source/tests/demo committed; instrument-definition generator and actual CI verification remain open in issue #44. The baseline now contains 161 requirements.
 
 ## Original runner requirements: detailed evidence audit
 
