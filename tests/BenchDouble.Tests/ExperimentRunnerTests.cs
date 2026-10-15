@@ -127,14 +127,14 @@ public sealed class ExperimentRunnerTests
 
     private sealed class BlockingShutdownProcedure : ExperimentProcedure
     {
-        private readonly TaskCompletionSource _release =
+        private readonly TaskCompletionSource<bool> _release =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         public override string Name => "Blocked shutdown";
         public override Task ExecuteAsync(ExperimentContext context, CancellationToken token) =>
             Task.CompletedTask;
         public override Task ShutdownAsync(ExperimentContext context, CancellationToken token) =>
             _release.Task;
-        public void Release() => _release.TrySetResult();
+        public void Release() => _release.TrySetResult(true);
     }
 
     private sealed class ExampleProcedure : ExperimentProcedure
