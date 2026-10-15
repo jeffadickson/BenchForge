@@ -147,3 +147,14 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Display live logs alongside client experiment steps and notebook cells
 - [ ] Propagate OpenTelemetry trace and instrument/run correlation IDs
 - [ ] Validate reconnect, slow subscribers, gap signals and redaction permissions
+
+### Host package scaffolding milestone
+- [x] Create separate host contracts, server and client projects
+- [x] Implement simulator-backed local discovery and exclusive reservation demo
+- [x] Implement leased SCPI query demo endpoint and async HTTP client
+- [x] Add host lease-contention and authorization-by-lease unit-test source
+- [ ] Confirm host project builds and tests pass on CI
+- [ ] Replace demo leases with authenticated, fenced expiring leases and safe recovery
+- [ ] Add non-loopback TLS/gRPC and instrument permissions only after security is tested
+- [ ] Implement structured host/client log streaming and UI
+- [ ] Integrate physical VISA adapter under controlled host ownership
