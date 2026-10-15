@@ -232,3 +232,5 @@ BenchDouble now has a **StrictDoc requirements baseline** with **122 stable IDs*
 - Open [interactive HTML project overview](examples/ProjectOverview/index.html), [user manual](docs/USER-MANUAL.md), [software development plan](docs/SOFTWARE-DEVELOPMENT-PLAN.md), [feature audit](docs/FEATURE-AUDIT.md), and [testing guide](docs/TESTING-AND-TRACEABILITY.md).
 
 The hardware-free .NET 8 target is intended for **Windows, macOS and Linux**; platform-specific VISA/IVI/GPIB drivers may have different support. The HTML demos currently execute JavaScript simulations, not C# WebAssembly; that enhancement is tracked in [issue #30](https://github.com/jeffadickson/BenchDouble/issues/30). Toolchain bootstrap and CI have been expanded, but package lockfiles, complete dependency pinning and green cross-platform evidence remain outstanding.
+
+The [dependency inventory](docs/DEPENDENCIES.md) records pinned project package versions, cross-platform prerequisites, and outstanding lockfile/SBOM hardening work. The [testing and traceability guide](docs/TESTING-AND-TRACEABILITY.md) explains why C# xUnit, Reqnroll acceptance and Playwright browser graphics checks are complementary.
