@@ -10,13 +10,13 @@ namespace BenchDouble.Simulation;
 /// </summary>
 public static class AutoMockRuleFiles
 {
-    private sealed class Document
+    public sealed class Document
     {
         public int Version { get; set; }
         public List<RuleSpec>? Rules { get; set; }
     }
 
-    private sealed class RuleSpec
+    public sealed class RuleSpec
     {
         public string? Name { get; set; }
         public string? Action { get; set; }
