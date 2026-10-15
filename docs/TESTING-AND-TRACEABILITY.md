@@ -75,7 +75,7 @@ This verifies that the real Chromium browser updates its DOM/SVG after the simul
 6. Run all tests in the Windows/macOS/Linux CI matrix.
 7. Change status to `Verified` only after reviewing actual successful CI evidence and documenting the run.
 
-The StrictDoc baseline currently covers **167 requirements** (90 runner + 77 cross-subsystem). Many have source but no verified test evidence. That is an explicit release risk, not a claim of completion.
+The StrictDoc baseline currently covers **175 requirements** (90 runner + 85 cross-subsystem). Many have source but no verified test evidence. That is an explicit release risk, not a claim of completion.
 
 ## Cross-platform provisioning
 
