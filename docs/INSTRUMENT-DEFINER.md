@@ -54,9 +54,9 @@ A successful mock demonstration is **not** hardware validation. A manual-reviewe
 
 ## Generation roadmap
 
-The existing `BenchDouble.DriverGen` continues to support schema-v1 scalar SCPI definitions, including the illustrative Keysight 33522B driver/mock pair. The new schema-v2 Definer is a **separate intake and review pipeline**. The next integration step is to generate typed async drivers and mode-aware mocks from *reviewed* v2 definitions, preserving source compatibility and ensuring no unreviewed command can enable a real output.
+The existing `BenchForge.DriverGen` continues to support schema-v1 scalar SCPI definitions, including the illustrative Keysight 33522B driver/mock pair. The new schema-v2 Definer is a **separate intake and review pipeline**. The next integration step is to generate typed async drivers and mode-aware mocks from *reviewed* v2 definitions, preserving source compatibility and ensuring no unreviewed command can enable a real output.
 
-**Tracking:** [#52 Instrument Definer](https://github.com/jeffadickson/BenchDouble/issues/52) and [#53 Mode-aware generation](https://github.com/jeffadickson/BenchDouble/issues/53). Requirement IDs BD-DEF-001..008.
+**Tracking:** [#52 Instrument Definer](https://github.com/jeffadickson/BenchForge/issues/52) and [#53 Mode-aware generation](https://github.com/jeffadickson/BenchForge/issues/53). Requirement IDs BD-DEF-001..008.
 
 ## 2026-10-15: batch intake, coverage evidence and review gating
 
@@ -85,6 +85,11 @@ schema-v2 driver generator and host safety controls remain separate.
 
 For the intern's complete commands and CSV templates, see
 [Instrument Definer README](../tools/InstrumentDefiner/README.md).
-Requirements BD-DEF-009..011 and [issue #52](https://github.com/jeffadickson/BenchDouble/issues/52)
+Requirements BD-DEF-009..011 and [issue #52](https://github.com/jeffadickson/BenchForge/issues/52)
 track these additions. CI execution and hardware qualification are not
 claimed by this increment.
+
+
+## End-to-end walkthrough
+
+See [Examples](EXAMPLES.md) for a generator/checked-in mock workflow. Schema-v2 review drafts must not be treated as production driver inputs until manual review and generator support are complete.
