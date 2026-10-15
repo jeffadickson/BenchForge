@@ -46,6 +46,9 @@ public static class QuantityAxes
 
     public static QuantityAxis<Duration> Seconds(string title = "Elapsed time") =>
         new(title, "s", "Duration", q => q.Seconds);
+
+    public static QuantityAxis<Duration> Hours(string title = "Elapsed time") =>
+        new(title, "h", "Duration", q => q.Hours);
 }
 
 /// <summary>
