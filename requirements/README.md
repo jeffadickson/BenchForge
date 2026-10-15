@@ -24,7 +24,7 @@ Never infer verification from a commit, a test name, or a generated document. Re
 
 StrictDoc output is generated documentation, not proof that tests passed. The existing 90 TR items remain indexed in their original source for continuity. 
 
-The [feature audit](../docs/FEATURE-AUDIT.md) records subsystem coverage and gaps; the [testing guide](../docs/TESTING-AND-TRACEABILITY.md) explains xUnit, Reqnroll and Playwright evidence. All 167 requirements are currently unverified or planned; no requirement is marked Verified without actual successful test evidence.
+The [feature audit](../docs/FEATURE-AUDIT.md) records subsystem coverage and gaps; the [testing guide](../docs/TESTING-AND-TRACEABILITY.md) explains xUnit, Reqnroll and Playwright evidence. All 175 requirements are currently unverified or planned; no requirement is marked Verified without actual successful test evidence.
 
 ## Original runner audit — completed 2026-10-15
 
@@ -32,8 +32,12 @@ The 90 TR requirements are now **individually audited**, not a blanket Unverifie
 
 ## Optional procedure language
 
-BD-DSL-001..007 cover the [Parlot procedure project](../docs/PROCEDURE-DSL.md), mock-only execution, unit-aware assertions and future shared editor/runner representation. See [issue #51](https://github.com/jeffadickson/BenchDouble/issues/51). The current baseline contains **167 requirements**; no new DSL requirement is marked Verified.
+BD-DSL-001..007 cover the [Parlot procedure project](../docs/PROCEDURE-DSL.md), mock-only execution, unit-aware assertions and future shared editor/runner representation. See [issue #51](https://github.com/jeffadickson/BenchDouble/issues/51). The current baseline contains **175 requirements**; no new DSL requirement is marked Verified.
 
 ## Generated instrument/mock baseline
 
-BD-GEN-001..006 track definition-driven typed SCPI driver/mock generation, per-channel state, strict validation, catalog provenance, source drift detection and Keithley 236 mode safety. The [instrument generator tutorial](../docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md) documents scope and limitations. The baseline now contains **167 requirements**; no new requirement is marked Verified.
+BD-GEN-001..006 track definition-driven typed SCPI driver/mock generation, per-channel state, strict validation, catalog provenance, source drift detection and Keithley 236 mode safety. The [instrument generator tutorial](../docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md) documents scope and limitations. The baseline now contains **175 requirements**; no new requirement is marked Verified.
+
+## Instrument Definer v2 requirements
+
+BD-DEF-001..008 specify the new [Instrument Definer](../docs/INSTRUMENT-DEFINER.md), including safe PyMeasure AST extraction, CSV handoff, versioned schema, UnitsNet dimension checks, mode-aware mock previews and review-before-generation. Six source-linked requirements remain unverified and two generator/extraction enhancements remain planned. The current baseline contains **175 requirements**.
