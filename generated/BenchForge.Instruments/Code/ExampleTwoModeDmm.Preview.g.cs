@@ -66,6 +66,7 @@ public sealed class ExampleTwoModeDmmPreview
 public sealed class ExampleTwoModeDmmMockDecorator
 {
   private readonly ExampleTwoModeDmmPreview _inner;
+  private readonly object _stateGate = new();
   /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>
   /// <param name="inner">The caller-owned simulation preview.</param>
   public ExampleTwoModeDmmMockDecorator(ExampleTwoModeDmmPreview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));
@@ -75,6 +76,16 @@ public sealed class ExampleTwoModeDmmMockDecorator
   /// <returns>Completion of the mode transition.</returns>
   public System.Threading.Tasks.ValueTask ConfigureModeAsync(string mode, System.Threading.CancellationToken ct = default) => _inner.ConfigureModeAsync(mode, ct);
   private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? _voltageBehavior;
+  private ElectricPotential? _voltageState;
+  /// <summary>Set a deterministic typed mock value for voltage.</summary>
+  /// <param name="value">Finite simulated quantity; no physical I/O.</param>
+  public void SetMockvoltage(ElectricPotential value)
+  {
+    if (!double.IsFinite(value.Volts)) throw new System.ArgumentOutOfRangeException(nameof(value));
+    lock (_stateGate) _voltageState = value;
+  }
+  /// <summary>Clear an explicitly assigned voltage value.</summary>
+  public void ResetMockvoltage() { lock (_stateGate) _voltageState = null; }
   /// <summary>Inject a test-specific voltage measurement behavior.</summary>
   /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
   public void SetvoltageBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? behavior)
@@ -87,9 +98,21 @@ public sealed class ExampleTwoModeDmmMockDecorator
   {
     var defaultValue = await _inner.GetvoltageAsync(ct).ConfigureAwait(false);
     var behavior = System.Threading.Volatile.Read(ref _voltageBehavior);
-    return behavior is null ? defaultValue : await behavior(ct).ConfigureAwait(false);
+    ElectricPotential? state;
+    lock (_stateGate) state = _voltageState;
+    return behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;
   }
   private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? _resistanceBehavior;
+  private ElectricResistance? _resistanceState;
+  /// <summary>Set a deterministic typed mock value for resistance.</summary>
+  /// <param name="value">Finite simulated quantity; no physical I/O.</param>
+  public void SetMockresistance(ElectricResistance value)
+  {
+    if (!double.IsFinite(value.Ohms)) throw new System.ArgumentOutOfRangeException(nameof(value));
+    lock (_stateGate) _resistanceState = value;
+  }
+  /// <summary>Clear an explicitly assigned resistance value.</summary>
+  public void ResetMockresistance() { lock (_stateGate) _resistanceState = null; }
   /// <summary>Inject a test-specific resistance measurement behavior.</summary>
   /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
   public void SetresistanceBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? behavior)
@@ -102,6 +125,8 @@ public sealed class ExampleTwoModeDmmMockDecorator
   {
     var defaultValue = await _inner.GetresistanceAsync(ct).ConfigureAwait(false);
     var behavior = System.Threading.Volatile.Read(ref _resistanceBehavior);
-    return behavior is null ? defaultValue : await behavior(ct).ConfigureAwait(false);
+    ElectricResistance? state;
+    lock (_stateGate) state = _resistanceState;
+    return behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;
   }
 }
