@@ -251,3 +251,11 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add dimension-aware multi-trace validation and mixed-axis support
 - [ ] Build browser live Plotly.js charts with bounded streaming and cursor/limit overlays
 - [ ] Add waveform/downsampling policies preserving limit excursions
+
+### Standalone UnitsNet plotting companion
+- [x] Remove BenchDouble core dependency from typed plotting adapter
+- [x] Add independent test project referencing only plotting library
+- [ ] Verify standalone project and tests build on supported operating systems
+- [ ] Split Plotly JSON renderer into optional adapter if API stability warrants
+- [ ] Complete unit/dimension compatibility, affine temperature, basis and uncertainty tests
+- [ ] Agree on public naming/license and submit upstream proposal after validation
