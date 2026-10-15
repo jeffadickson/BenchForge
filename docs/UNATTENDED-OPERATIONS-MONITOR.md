@@ -57,3 +57,15 @@ Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a brows
 ## Implementation status
 
 **Implemented:** standalone browser UI, live SVG plot, alarm rule, simulated notifications and simulated shutdown; C# DI notification interface and fake console sink. **Not implemented:** actual email/SMS providers, persisted outbox, alert acknowledgment/escalation, shared event backend, live remote instrument-host streaming, production interlocks and browser-to-.NET integration. Browser and .NET execution have not yet been verified in the current tool environment.
+
+## Automated test coverage (2026-10-15)
+
+The monitoring decision is now independently testable as `BenchDouble.Monitoring.UnattendedCurrentMonitor` with an injected `ICurrentAlarmSink`. xUnit tests verify a 0.5 A nominal reading, a 2.5 A fault at 5 simulated seconds, exactly one alarm after repeated observations, threshold equality, concurrent calls and virtual-time acceleration. See [UnattendedCurrentMonitorTests.cs](../tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs).
+
+[Reqnroll acceptance scenarios](../tests/BenchDouble.Acceptance.Tests/Features/UnattendedOperations.feature) express the same behavior in Given–When–Then steps, tagged `@BD-UOM-001`, and run with `Reqnroll.xUnit`.
+
+[Playwright Chromium browser tests](../tests/BenchDouble.Browser.Tests/UnattendedMonitorBrowserTests.cs) open the actual HTML file, trigger a simulated fault, verify the SVG chart and alarm text, inspect simulated notification log entries, reset the UI, and verify alarms still work when notification checkboxes are disabled. The test project also checks the thermal chamber and filtered sensor SVG plots.
+
+**Testing limitation:** The browser demo still uses its own JavaScript simulation, whereas the .NET tests exercise the C# monitoring logic. Passing both layers is not yet proof of shared runtime integration. Issue #23 tracks connecting the browser to the actual backend measurement stream. No test execution is claimed until CI evidence is reviewed.
+
+[Testing guide](TESTING-AND-TRACEABILITY.md) · [StrictDoc requirements](../requirements/benchdouble.sdoc) · [Feature audit](FEATURE-AUDIT.md)
