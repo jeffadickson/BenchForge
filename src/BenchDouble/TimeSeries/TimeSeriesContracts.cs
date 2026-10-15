@@ -58,7 +58,7 @@ public sealed class InMemoryTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesRead
     {
         ArgumentNullException.ThrowIfNull(samples);
         cancellationToken.ThrowIfCancellationRequested();
-        foreach (var sample in samples) Validate(sample);
+        foreach (var sample in samples) QuantitySeries.Validate(sample);
         lock (_gate)
         {
             // Validate the entire batch before changing stored state.
@@ -116,18 +116,4 @@ public sealed class InMemoryTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesRead
         }
     }
 
-    private static void Validate(TimeSeriesSample sample)
-    {
-        ArgumentNullException.ThrowIfNull(sample);
-        if (string.IsNullOrWhiteSpace(sample.RunId) ||
-            string.IsNullOrWhiteSpace(sample.InstrumentId) ||
-            string.IsNullOrWhiteSpace(sample.SignalId) ||
-            string.IsNullOrWhiteSpace(sample.QuantityKind) ||
-            string.IsNullOrWhiteSpace(sample.UnitCode) ||
-            !double.IsFinite(sample.CanonicalValue) ||
-            sample.AcquiredUtc.Offset != TimeSpan.Zero ||
-            sample.Sequence < 0 ||
-            sample.SimulationElapsed < TimeSpan.Zero)
-            throw new ArgumentException("Invalid time-series sample.");
-    }
 }
