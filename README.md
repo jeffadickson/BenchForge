@@ -132,3 +132,7 @@ The first asynchronous APIs now live in [`BenchDouble.Async`](src/BenchDouble/As
 ## Exclusive instrument reservations
 
 `BenchDouble.Async.InstrumentReservationManager` now supports cancellable, exclusive in-process resource leases. Use one shared manager instance and keep reservations for the entire experiment—including cleanup—not merely around one command. [Source](src/BenchDouble/Async/InstrumentReservations.cs) · [Tests](tests/BenchDouble.Tests/InstrumentReservationTests.cs). This is not cross-process locking; currently the instrument factory does not enforce it automatically.
+
+## Distributed instrument hosts (planned)
+
+BenchDouble will support a standalone instrument host on each computer physically connected to USB, GPIB, serial or LAN test equipment, including suitable Raspberry Pi or low-cost PCs. The host—not each client—owns device drivers, authenticated exclusive leases, asynchronous operations and recovery policy. Clients can reserve and operate remote instruments through the same typed API as local simulators. See [Distributed Instrument Host Architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md). **Not yet implemented:** gRPC server/client and cross-process locking.
