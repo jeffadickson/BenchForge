@@ -127,4 +127,13 @@ public sealed class ExampleTwoModeDmmMockDecorator
     lock (_stateGate) state = _resistanceState;
     return behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;
   }
+  /// <summary>Clear all injected scalar readings and restore definition defaults.</summary>
+  public void ResetAllMockReadings()
+  {
+    lock (_stateGate)
+    {
+      _voltageState = null;
+      _resistanceState = null;
+    }
+  }
 }
