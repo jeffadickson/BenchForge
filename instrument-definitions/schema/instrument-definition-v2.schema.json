@@ -238,6 +238,21 @@
               "manualReviewed",
               "hardwareValidated"
             ]
+          },
+          "responseFormat": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string"
+          },
+          "sideEffects": {
+            "type": "string"
+          },
+          "sourcePath": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -303,6 +318,28 @@
               "manualReviewed",
               "hardwareValidated"
             ]
+          },
+          "commands": {
+            "type": "string"
+          },
+          "preconditions": {
+            "type": "string"
+          },
+          "postconditions": {
+            "type": "string"
+          },
+          "sourcePath": {
+            "type": "string"
+          },
+          "sourceRevision": {
+            "type": "string"
+          },
+          "timeoutMs": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
           }
         },
         "additionalProperties": false
