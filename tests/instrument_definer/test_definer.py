@@ -55,6 +55,28 @@ class Meter:
         with self.assertRaisesRegex(ValueError, "--class-name"):
             self.extract_source(source, "Missing")
 
+    def test_inherited_and_dynamic_members_are_reported_not_silently_omitted(self):
+        doc = self.extract_source('''
+class Base:
+    inherited = Instrument.measurement("BASE?", "base")
+    def reset(self): pass
+
+class Meter(Base, ExternalMixin):
+    direct = Instrument.measurement("READ?", "reading")
+    def __getattr__(self, name): return 1
+    def install(self):
+        setattr(self, "dynamic", 1)
+''', "Meter")
+        coverage = doc["extraction"]
+        self.assertIn("Base.inherited", coverage["inheritedCandidates"])
+        self.assertIn("Base.reset", coverage["inheritedCandidates"])
+        self.assertTrue(any("ExternalMixin" in item
+                            for item in coverage["inheritedCandidates"]))
+        self.assertGreaterEqual(coverage["unresolvedInheritedMembers"], 3)
+        self.assertGreaterEqual(coverage["unresolvedDynamicMembers"], 2)
+        self.assertEqual(2, coverage["directMembers"])
+        self.assertEqual(["direct"], [x["name"] for x in doc["capabilities"]])
+
     def test_unrelated_descriptor_is_not_extracted(self):
         doc = self.extract_source('''
 class Meter:
