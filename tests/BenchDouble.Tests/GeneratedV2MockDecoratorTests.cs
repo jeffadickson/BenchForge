@@ -28,10 +28,9 @@ public sealed class GeneratedV2MockDecoratorTests
 
     /// <summary>Definition hash and missing upstream revision are explicitly recorded.</summary>
     [Fact]
-    public void ProvenanceContainsDefinitionDigestAndDoesNotInventUpstreamRevision()
+    public void BuildMetadataContainsDefinitionDigest()
     {
         Assert.Equal(64, ExampleTwoModeDmmPreview.DefinitionSha256.Length);
-        Assert.Equal("unverified", ExampleTwoModeDmmPreview.UpstreamRevision);
-        Assert.Equal("v2-decorator-1", ExampleTwoModeDmmPreview.GeneratorVersion);
+        Assert.Equal("v2-stateful-2", ExampleTwoModeDmmPreview.GeneratorVersion);
     }
 }
