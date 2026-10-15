@@ -160,3 +160,7 @@ BenchDouble now references stable `UnitsNet` and includes [typed instrument faca
 ## Declarative instrument definitions and generated C# drivers
 
 Drivers will be authored from versioned, validated [instrument description files](instrument-definitions/keysight/33522b.instrument.json), then compiled into strongly typed C# using a planned **Roslyn incremental generator**. The input specifies IVI class, SCPI commands, UnitsNet quantity types, channel templates, validation limits and feature metadata. See [Driver Generation Architecture](docs/DRIVER-GENERATION.md). This phase introduces the description format and generator specification; it does **not** yet implement source generation.
+
+## Standalone driver generator and programmable mocks
+
+The driver-generation approach is now an **explicit build step**, not a Roslyn incremental generator. Run `make generate` or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated` to emit ordinary editor-visible C# source. The generator currently supports a limited subset of SCPI numeric properties and UnitsNet types; it is not a fully validated IVI/PyMeasure converter. The simulation library also includes programmable `SineBehavior`, seeded random voltage-style readings, and composed signal/noise behaviors; JSON-driven mock generation is planned. See [Driver Generation](docs/DRIVER-GENERATION.md). Build verification is outstanding.
