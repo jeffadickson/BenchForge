@@ -26,6 +26,16 @@ internal static class V2MockEmitter
             var type = cap.Quantity;
             var property = cap.Name;
             s.AppendLine($"  private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<{type}>>? _{property}Behavior;");
+            s.AppendLine($"  private {type}? _{property}State;");
+            s.AppendLine($"  /// <summary>Set a deterministic typed mock value for {System.Security.SecurityElement.Escape(property)}.</summary>");
+            s.AppendLine("  /// <param name=\"value\">Finite simulated quantity; no physical I/O.</param>");
+            s.AppendLine($"  public void SetMock{property}({type} value)");
+            s.AppendLine("  {");
+            s.AppendLine($"    if (!double.IsFinite(value.{V2Emitter.UnitProperty(cap.Quantity, cap.Unit)})) throw new System.ArgumentOutOfRangeException(nameof(value));");
+            s.AppendLine($"    _{property}State = value;");
+            s.AppendLine("  }");
+            s.AppendLine($"  /// <summary>Clear an explicitly assigned {System.Security.SecurityElement.Escape(property)} value.</summary>");
+            s.AppendLine($"  public void ResetMock{property}() => _{property}State = null;");
             s.AppendLine($"  /// <summary>Inject a test-specific {System.Security.SecurityElement.Escape(property)} measurement behavior.</summary>");
             s.AppendLine("  /// <param name=\"behavior\">Explicit async behavior; null restores the definition default.</param>");
             s.AppendLine($"  public void Set{property}Behavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<{type}>>? behavior)");
@@ -38,7 +48,7 @@ internal static class V2MockEmitter
             s.AppendLine("  {");
             s.AppendLine($"    var defaultValue = await _inner.Get{property}Async(ct).ConfigureAwait(false);");
             s.AppendLine($"    var behavior = System.Threading.Volatile.Read(ref _{property}Behavior);");
-            s.AppendLine("    return behavior is null ? defaultValue : await behavior(ct).ConfigureAwait(false);");
+            s.AppendLine($"    return behavior is not null ? await behavior(ct).ConfigureAwait(false) : _{property}State ?? defaultValue;");
             s.AppendLine("  }");
         }
         s.AppendLine("}");
