@@ -76,7 +76,16 @@ public static class AutoMockRuleFiles
         ArgumentNullException.ThrowIfNull(rules);
         var validated = rules.ToArray();
         foreach (var rule in validated) rule.Validate();
-        var canonical = JsonSerializer.Serialize(validated);
+        var canonical = JsonSerializer.Serialize(validated.Select(r => new
+        {
+            r.Name, r.Priority,
+            FromTicks = r.Condition.From?.Ticks,
+            UntilTicks = r.Condition.Until?.Ticks,
+            MinimumVolts = r.Condition.MinimumVoltage?.Volts,
+            MaximumVolts = r.Condition.MaximumVoltage?.Volts,
+            Action = (int)r.Action,
+            r.Value
+        }).ToArray());
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)))
             .ToLowerInvariant();
     }
