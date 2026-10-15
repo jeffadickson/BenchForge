@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
 using UnitsNet;
 
@@ -63,6 +65,20 @@ public static class AutoMockRuleFiles
                 builder.ScaleBaseline(spec.Name ?? "", spec.Value, condition, spec.Priority);
         }
         return builder.Build();
+    }
+
+    /// <summary>
+    /// Stable SHA-256 of the validated ordered rule data. This identifies rules,
+    /// not the baseline behavior assembly or full experiment configuration.
+    /// </summary>
+    public static string Sha256(IEnumerable<AutoMockLoadRule> rules)
+    {
+        ArgumentNullException.ThrowIfNull(rules);
+        var validated = rules.ToArray();
+        foreach (var rule in validated) rule.Validate();
+        var canonical = JsonSerializer.Serialize(validated);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)))
+            .ToLowerInvariant();
     }
 
     private static TimeSpan Seconds(double value)
