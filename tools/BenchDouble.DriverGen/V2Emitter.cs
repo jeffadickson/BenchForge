@@ -136,16 +136,10 @@ internal static class V2Emitter
         s.AppendLine($"public sealed class {name}Preview");
         s.AppendLine("{");
         var definitionSha = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(file))).ToLowerInvariant();
-        var provenance = root.GetProperty("provenance");
-        string upstreamRevision = provenance.TryGetProperty("sourceRevision", out var rev) && rev.ValueKind == JsonValueKind.String
-            ? rev.GetString() ?? "" : "";
-        if (!Regex.IsMatch(upstreamRevision, "^[0-9a-fA-F]{40}$")) upstreamRevision = "unverified";
         s.AppendLine("  /// <summary>SHA-256 of the exact input definition bytes.</summary>");
         s.AppendLine($"  public const string DefinitionSha256 = {Str(definitionSha)};");
-        s.AppendLine("  /// <summary>Pinned upstream Git commit, or unverified when unavailable.</summary>");
-        s.AppendLine($"  public const string UpstreamRevision = {Str(upstreamRevision)};");
         s.AppendLine("  /// <summary>Versioned generator implementation identifier.</summary>");
-        s.AppendLine("  public const string GeneratorVersion = \"v2-decorator-1\";");
+        s.AppendLine("  public const string GeneratorVersion = \"v2-stateful-2\";");
         s.AppendLine("  /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>");
         s.AppendLine("  public static string BuildCommit => System.Attribute.GetCustomAttributes(typeof(" + name + "Preview).Assembly, typeof(System.Reflection.AssemblyMetadataAttribute))");
         s.AppendLine("    .OfType<System.Reflection.AssemblyMetadataAttribute>().FirstOrDefault(x => x.Key == \"BenchForgeGitCommit\")?.Value ?? \"unavailable\";");
@@ -169,7 +163,7 @@ internal static class V2Emitter
         {
             var (_, factory) = Units[cap.Quantity + ":" + cap.Unit];
             s.AppendLine($"  /// <summary>{Xml(cap.Description)}</summary>");
-            s.AppendLine($"  /// <remarks>Simulation-only. Quantity: {Xml(cap.Quantity)}; wire unit: {Xml(cap.Unit)}; basis: {Xml(cap.Basis.Length == 0 ? "unspecified" : cap.Basis)}. Original SCPI query: {Xml(cap.Query)}. No physical I/O.</remarks>");
+            s.AppendLine($"  /// <remarks>Simulation-only. Quantity: {Xml(cap.Quantity)}; wire unit: {Xml(cap.Unit)}; basis: {Xml(cap.Basis.Length == 0 ? "unspecified" : cap.Basis)}. No physical I/O.</remarks>");
             s.AppendLine("  /// <param name=\"ct\">Cancellation while waiting for the measurement lock.</param>");
             s.AppendLine($"  /// <returns>Simulated {Xml(cap.Quantity)} in {Xml(cap.Unit)}.</returns>");
             s.AppendLine("  /// <exception cref=\"InvalidOperationException\">The selected mode does not support this reading.</exception>");
