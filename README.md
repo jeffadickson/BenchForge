@@ -180,3 +180,7 @@ The [source-verified 25-operation PyMeasure comparison](docs/INSTRUMENT-OPERATIO
 ## 25 real PyMeasure instruments and Keithley 236
 
 The [25-instrument PyMeasure catalog and Keithley 236 coverage report](docs/PYMEASURE-25-INSTRUMENTS-AND-KEITHLEY-236.md) corrects the earlier 25-property comparison: it inventories **25 distinct PyMeasure instrument driver entries**, with explicit source-check status. PyMeasure does not currently list a Keithley 236 driver, so BenchDouble's [236 typed DC source/measure driver](src/BenchDouble/Instruments/Keithley/Keithley236.cs) is based on Keithley's own legacy IEEE-488 command manual, **not SCPI**. The [236 resistive-DUT mock](src/BenchDouble/Simulation/Keithley236MockBus.cs) and [tests](tests/BenchDouble.Tests/Keithley236Tests.cs) cover a substantial DC core, but sweeps, triggers, status, actual GPIB transport and hardware safety verification remain unfinished.
+
+## Unit-aware plotting (ScottPlot + Plotly.js)
+
+The new [plotting architecture](docs/PLOTTING-AND-UNITS.md) keeps the runner independent of visualization packages. `src/BenchDouble.Plotting` converts UnitsNet quantity series into typed, labeled plot coordinates and emits Plotly.js figure JSON for the future browser runner. Optional `src/BenchDouble.Plotting.ScottPlot` renders headless PNG using ScottPlot 5.1.59. `Plotly.NET` is evaluated but not required for direct Plotly.js rendering; LiveCharts2/OxyPlot remain optional alternatives. Unit conversion and Plotly JSON tests have been added, but compilation and rendering remain unverified.
