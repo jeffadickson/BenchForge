@@ -19,7 +19,10 @@
       "set": "SOUR{channel}:FREQ {value}",
       "minimum": 1,
       "maximum": 20000000,
-      "description": "Sine frequency; model bounds illustrative"
+      "description": "Sine frequency; model bounds illustrative",
+      "mock": {
+        "defaultValue": 1000
+      }
     },
     {
       "name": "Amplitude",
@@ -29,7 +32,16 @@
       "basis": "PeakToPeak",
       "query": "SOUR{channel}:VOLT?",
       "set": "SOUR{channel}:VOLT {value}",
-      "description": "Peak-to-peak amplitude"
+      "description": "Peak-to-peak amplitude",
+      "mock": {
+        "defaultValue": 1
+      }
     }
-  ]
+  ],
+  "verification": {
+    "status": "illustrative",
+    "source": "https://www.keysight.com/us/en/product/33522B/waveform-generator-30-mhz-2-channel.html",
+    "hardwareTested": false,
+    "notes": "SCPI template subset illustrative; validate commands and bounds against programming guide before physical use."
+  }
 }
