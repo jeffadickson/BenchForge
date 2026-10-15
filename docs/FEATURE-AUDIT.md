@@ -41,3 +41,7 @@ The requirements baseline now contains 149 items, including BD-AM-011 for genera
 ## Generic UnitsNet AutoMock foundation
 
 BD-AM-013..016 add explicit quantity-typed measurement registration and mode-safe DMM mocks. Source/tests/demo committed; instrument-definition generator and actual CI verification remain open in issue #44. The baseline now contains 154 requirements.
+
+## Original runner requirements: detailed evidence audit
+
+A full [90-row source-evidence matrix](../requirements/legacy-runner-audit.csv) and [summary report](REQUIREMENTS-AUDIT-2026-10-15.md) supersede earlier high-level assumptions about TR-001..090. Findings: 45 partial source, 6 design-only and 39 with no direct implementation evidence. The canonical traceability statuses have been updated. No requirement has reviewed passing verification evidence; CI is currently failing on the three OS targets. Issues #45–#50 capture P0 implementation and verification gaps.
