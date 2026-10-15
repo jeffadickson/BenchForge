@@ -62,3 +62,15 @@ The chamber line is the **setpoint**; the sensor line is a simulated first-order
 
 ## Dependency and environment reference
 For pinned project dependencies, browser requirements, optional hardware SDKs and outstanding platform caveats, see [Dependency Inventory](DEPENDENCIES.md). A cross-platform .NET build does not establish vendor VISA/IVI hardware compatibility.
+
+## Experiment registration and dependency injection
+
+Run `dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj` (or `make demo-experiment`). The example registers `Chamber1` and `Supply1`, injects a first-order sensor and temperature-dependent current model, advances a shared virtual clock, and prints the registered roles and their readings. The current `StartSimulated()` path does not discover physical hosts or acquire hardware leases. Read the [experiment composition tutorial](EXPERIMENT-COMPOSITION.md) for C# registration and the [Git/version-control tutorial](VERSION-CONTROL-TUTORIAL.md) for managing revisions and mock package compatibility.
+
+## Instrument status dashboard
+
+Start `dotnet run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj` (or `make demo-dashboard`) and open **http://127.0.0.1:5278/dashboard/**. The page shows the local host's registered simulated DMM and generator, whether each is reserved, and its recent activity log. It refreshes automatically and never sends instrument commands. The host must be running; opening the HTML file alone will not provide live data. **Do not expose this prototype server beyond loopback or attach hazardous equipment.** For details see [Instrument Dashboard](INSTRUMENT-DASHBOARD.md).
+
+## Version control for experiment authors
+
+Read [Version Control for Laboratory Automation](VERSION-CONTROL-TUTORIAL.md). It covers Git clone/branch/commit/pull requests, tags, semantic versioning, host protocol compatibility, package hashes and experiment replay manifests. Test results should identify the exact code and behavior versions, not just the procedure name.
