@@ -87,7 +87,7 @@ public sealed class ExperimentDefinitionBuilder
         ArgumentNullException.ThrowIfNull(baselineFactory);
         ArgumentNullException.ThrowIfNull(configure);
         if (_hasAutoMockLoad)
-            throw new InvalidOperationException("Only one default ILoadBehavior AutoMock is supported; keyed per-instrument rules are planned.");
+            throw new InvalidOperationException("Only one unkeyed default ILoadBehavior AutoMock is supported; use AutoMockLoadFor for named instruments.");
         var rulesBuilder = new AutoMockLoadRulesBuilder();
         configure(rulesBuilder);
         var rules = rulesBuilder.Build();
