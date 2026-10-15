@@ -433,3 +433,15 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Expand reviewed instrument definitions beyond the illustrative Keysight example
 - [ ] Complete Keithley 236 trigger, sweep, status, range, GPIB and hardware safety validation
 - [ ] Generate mode-aware default mocks for DMM, SMU, generator, chamber and other instrument families
+
+### Instrument Definer v2 and mode-aware mock preview
+- [x] Add schema-v2 JSON with identity, provenance, capabilities, methods, modes, mock and review metadata
+- [x] Add static PyMeasure AST extractor and spreadsheet-friendly CSV import
+- [x] Add intern handoff templates, example Keithley 2400 extraction draft and extraction documentation
+- [x] Add semantic checks for UnitsNet dimensions, duplicate names, modes, ranges and review status
+- [x] Add simulation-only mode-aware mock engine and schema-v2 mock default loader
+- [x] Add Python and C# unit-test source and local `make definer-check` target
+- [ ] Execute and verify Python/.NET tests on local development machines
+- [ ] Complete inherited/dynamic PyMeasure extraction and coverage reports
+- [ ] Add full schema validation and reviewer approval gate
+- [ ] Generate mode-aware asynchronous drivers/mocks from manually reviewed schema-v2 definitions
