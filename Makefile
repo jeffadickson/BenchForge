@@ -126,3 +126,9 @@ alpha-check: check-generated import-check demo-alpha
 PYMEASURE_ROOT ?= external/pymeasure
 pymeasure-inventory:
 	$(PYTHON) tools/InstrumentDefiner/discover_catalog.py --source-root $(PYMEASURE_ROOT) --manifest build/pymeasure-all-classes.csv --inventory build/pymeasure-inventory.json
+
+# Normalize imported descriptor descriptions without silently accepting inferred units.
+.PHONY: pymeasure-normalize
+PYMEASURE_DESCRIPTORS ?= build/pymeasure-descriptors.csv
+pymeasure-normalize:
+	$(PYTHON) tools/InstrumentDefiner/normalize_descriptions.py $(PYMEASURE_DESCRIPTORS) build/pymeasure-descriptors-normalized.csv
