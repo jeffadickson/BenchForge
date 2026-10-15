@@ -69,3 +69,7 @@ The monitoring decision is now independently testable as `BenchDouble.Monitoring
 **Testing limitation:** The browser demo still uses its own JavaScript simulation, whereas the .NET tests exercise the C# monitoring logic. Passing both layers is not yet proof of shared runtime integration. Issue #23 tracks connecting the browser to the actual backend measurement stream. No test execution is claimed until CI evidence is reviewed.
 
 [Testing guide](TESTING-AND-TRACEABILITY.md) · [StrictDoc requirements](../requirements/benchdouble.sdoc) · [Feature audit](FEATURE-AUDIT.md)
+
+## AutoMock integration test
+
+The C# integration test `AutoMockUnattendedIntegrationTests` now composes a rule-based load, a simulated power supply, the existing current monitor and a recording notification sink. It verifies the five-second overcurrent, exactly one alarm, matched rule provenance and simulated output-off. Browser/SQLite/dashboard integration remains open in issue #42; a passing unit test does not establish real hardware safety.
