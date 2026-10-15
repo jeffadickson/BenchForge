@@ -43,6 +43,36 @@ public sealed class ExperimentRunnerTests
     }
 
     [Fact]
+    public async Task CancellationDuringExecutionRunsIndependentCleanup()
+    {
+        using var cancellation = new CancellationTokenSource();
+        var procedure = new CancellingProcedure(cancellation);
+        var runner = new ExperimentRunner(new InMemoryExperimentResultSink(),
+            NullLogger<ExperimentRunner>.Instance);
+        var result = await runner.RunAsync(procedure, cancellation.Token);
+        Assert.Equal(ExperimentStatus.Cancelled, result.Status);
+        Assert.True(procedure.CleanedUp);
+        Assert.False(runner.RequiresRecovery);
+    }
+
+    private sealed class CancellingProcedure(CancellationTokenSource source) : ExperimentProcedure
+    {
+        public bool CleanedUp { get; private set; }
+        public override string Name => "Cancelled during acquisition";
+        public override Task ExecuteAsync(ExperimentContext context, CancellationToken token)
+        {
+            source.Cancel();
+            token.ThrowIfCancellationRequested();
+            return Task.CompletedTask;
+        }
+        public override Task ShutdownAsync(ExperimentContext context, CancellationToken token)
+        {
+            CleanedUp = true;
+            return Task.CompletedTask;
+        }
+    }
+
+    [Fact]
     public async Task ShutdownFailureRequiresRecoveryAndBlocksNextRun()
     {
         var runner = new ExperimentRunner(new InMemoryExperimentResultSink(),
