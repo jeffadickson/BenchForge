@@ -13,14 +13,13 @@ await mock.ConfigureModeAsync("voltage");
 var reading = await mock.GetvoltageAsync(); // 0.75 V, simulation only
 ```
 
-No mock behavior is invented for an unreviewed instrument capability. The uploaded PyMeasure corpus was augmented with **disabled, explicit-injection-only** decorator descriptors for its read-capable members. Those descriptors are review data, not executable SCPI commands or calibrated physical models. Until quantities, modes and defaults have been reviewed, a definition may generate only a mode skeleton or remain in the import dataset.
+No mock behavior is invented for an unreviewed instrument capability. Imported definitions may include simulation-only behavior metadata.
 
 ## Reproducible provenance in logs
 
 Generated preview classes expose:
 
 - `DefinitionSha256`: SHA-256 of the exact schema-v2 input bytes; changes when the definition changes.
-- `UpstreamRevision`: verified 40-character upstream commit from definition metadata, otherwise `unverified`.
 - `GeneratorVersion`: explicit emitter format revision, currently `v2-decorator-1`.
 - `BuildCommit`: the BenchForge Git commit stamped into the generated assembly via `SourceRevisionId`, otherwise `unavailable`.
 
@@ -50,4 +49,4 @@ dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
 
 The `generated/BenchForge.Instruments/Code/` directory is disposable; its parent project file is not. New xUnit tests check mode guards, injected UnitsNet values, reset-to-default behavior, and provenance metadata.
 
-**Scope:** This is a schema-v2 *simulation preview* generator. It is not a manufacturer-validated SCPI driver, a general-purpose mock physics engine, or proof of physical safety. The imported ZIP has no verified upstream Git commit and its source revision remains `unverified`. Successful .NET 10 CI execution has not yet been established.
+**Scope:** This is a schema-v2 *simulation preview* generator. It is not a manufacturer-validated SCPI driver, a general-purpose mock physics engine, or proof of physical safety. Source-review details are centralized in the repository root review register. Successful .NET 10 CI execution has not yet been established.
