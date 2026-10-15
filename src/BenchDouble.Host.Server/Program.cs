@@ -2,12 +2,14 @@ using BenchDouble;
 using BenchDouble.Host.Contracts;
 using System.Collections.Concurrent;
 using BenchDouble.Observability;
+using BenchDouble.Oscilloscopes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 // Intentionally loopback-only. Remote listeners require TLS and authentication first.
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
 builder.Services.AddSingleton<HostResourceRegistry>();
+builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -31,6 +33,26 @@ app.MapPost("/api/v1/instruments/{resourceId}/query", (string resourceId, ScpiRe
     catch (KeyNotFoundException) { return Results.NotFound(); }
     catch (Exception ex) { return Results.BadRequest(new HostError("instrument_error", ex.Message)); }
 });
+// Local-only demonstration: all scope clients share the host-owned coordinator.
+app.MapPost("/api/v1/scopes/{resourceId}/reserve", (string resourceId, HostedOscilloscopeRegistry scopes) =>
+    scopes.Reserve(resourceId) is { } lease ? Results.Ok(new { leaseId = lease }) : Results.Conflict());
+app.MapPost("/api/v1/scopes/{resourceId}/acquire", async (string resourceId, HostedScopeAcquisition request,
+    HostedOscilloscopeRegistry scopes, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var capture = await scopes.AcquireAsync(resourceId, request.LeaseId, request.Channel, cancellationToken);
+        return Results.Ok(new HostedScopeResult(capture.AcquisitionId, capture.Channel, capture.SampleCount,
+            capture.Preamble, Enumerable.Range(0, Math.Min(16, capture.SampleCount))
+                .Select(i => capture.VoltageAt(i).Volts).ToArray()));
+    }
+    catch (UnauthorizedAccessException) { return Results.StatusCode(403); }
+    catch (KeyNotFoundException) { return Results.NotFound(); }
+    catch (InvalidOperationException) { return Results.Conflict(); }
+    catch (ArgumentOutOfRangeException) { return Results.BadRequest(); }
+});
+app.MapDelete("/api/v1/scopes/{resourceId}/reserve/{leaseId:guid}", (string resourceId, Guid leaseId,
+    HostedOscilloscopeRegistry scopes) => scopes.Release(resourceId, leaseId) ? Results.NoContent() : Results.NotFound());
 app.Run();
 
 /// <summary>
