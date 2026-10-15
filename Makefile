@@ -3,7 +3,7 @@
 DOTNET ?= dotnet
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-procedure demo-dashboard check-generated
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated
 
 setup:
 	bash scripts/bootstrap.sh
@@ -21,6 +21,7 @@ generate:
 
 build: generate
 	$(DOTNET) build src/BenchDouble/BenchDouble.csproj
+	$(DOTNET) build examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj
 	$(DOTNET) build src/BenchDouble.Experiments/BenchDouble.Experiments.csproj
 	$(DOTNET) build src/BenchDouble.Procedures/BenchDouble.Procedures.csproj
 	$(DOTNET) build examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj
@@ -82,3 +83,6 @@ demo-typed-meter:
 
 demo-procedure:
 	$(DOTNET) run --project examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj
+
+demo-generated-mock:
+	$(DOTNET) run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj
