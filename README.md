@@ -176,3 +176,7 @@ The [Test-Lab Runner Requirements baseline](docs/TEST-LAB-RUNNER-REQUIREMENTS.md
 ## Unified instrument operations: 25 real PyMeasure examples
 
 The [source-verified 25-operation PyMeasure comparison](docs/INSTRUMENT-OPERATIONS-25-PYMEASURE-EXAMPLES.md) demonstrates how one typed UnitsNet instrument API can work with local hardware, local stateful mocks, and a generic remote proxy to a host using either physical or simulated drivers. Examples come from Agilent 34410A, Agilent 33500 and Keithley 2000 source files, with real SCPI command mappings and separate proposed BenchDouble mock behavior. This is an architecture reference; the 25 operations have not all been ported.
+
+## 25 real PyMeasure instruments and Keithley 236
+
+The [25-instrument PyMeasure catalog and Keithley 236 coverage report](docs/PYMEASURE-25-INSTRUMENTS-AND-KEITHLEY-236.md) corrects the earlier 25-property comparison: it inventories **25 distinct PyMeasure instrument driver entries**, with explicit source-check status. PyMeasure does not currently list a Keithley 236 driver, so BenchDouble's [236 typed DC source/measure driver](src/BenchDouble/Instruments/Keithley/Keithley236.cs) is based on Keithley's own legacy IEEE-488 command manual, **not SCPI**. The [236 resistive-DUT mock](src/BenchDouble/Simulation/Keithley236MockBus.cs) and [tests](tests/BenchDouble.Tests/Keithley236Tests.cs) cover a substantial DC core, but sweeps, triggers, status, actual GPIB transport and hardware safety verification remain unfinished.
