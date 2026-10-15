@@ -78,7 +78,6 @@ public sealed class FirstOrderThermalSensor : ITemperatureSignal
         double slope = (u1 - u0) / dt;
 
         // Exact solution of d(sensor)/dt = (input - sensor)/tau for a linear input.
-        // Expm1 avoids loss of precision for small dt/tau.
         double decay = Math.Exp(-dt / _tauSeconds);
         _kelvin = u1 - slope * _tauSeconds +
                   (_kelvin - u0 + slope * _tauSeconds) * decay;
