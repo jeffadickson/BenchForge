@@ -42,3 +42,7 @@ Prefer UnitsNet's quantity/extension mechanism and upstream contributions for br
 ## Mock measurements and simulated time
 
 Mock configuration and generated behaviors must use UnitsNet for voltage, resistance, current, frequency and duration. Record **acquisition simulation timestamp** separately from **wall-clock timestamp** and retain physical quantity, quality, waveform basis, seed and provenance. Integration/warmup/latency durations are explicit; simulation speed changes wall execution pacing without changing simulated physical dynamics. Neither UnitsNet quantity conversion nor random noise alone establishes calibrated measurement uncertainty. See [mock lifecycle and clock specification](MOCK-TIME-AND-LIFECYCLE.md).
+
+## UnitsNet-to-plotting adapter
+
+The [plotting layer](PLOTTING-AND-UNITS.md) defines `QuantityAxis<TQuantity>` so frequency, voltage, resistance, current, temperature and duration are converted to selected display units only at visualization time. `MeasurementPlotSeries` preserves axis units and physical dimension labels; `PlotlyFigure` exports Plotly.js JSON while an optional ScottPlot package generates PNG. Basis (RMS/peak/Vpp), quality, uncertainty and source timestamps must remain separate from physical magnitude; multi-trace dimensional validation, quality/error bars and live subscriptions are still pending.
