@@ -1,0 +1,3 @@
+name,arguments,returnQuantity,returnUnit,sourceLine,notes
+enable_source,,,,,Physical output enable requires safety review
+disable_source,,,,,Standby request is not confirmation of safe state
