@@ -58,7 +58,7 @@ GitHub Issues #1–#26 cover existing known subsystem gaps; #27–#33 cover brow
 | Package/platform differences | Three-OS CI, optional vendor SDK detection | Partial |
 | Requirement status drift | StrictDoc + CSV checker + CI evidence | New |
 | Plot regressions | Playwright real-browser smoke tests | New |
-| Poor traceability across 122 requirements | Map issues/tests and audit every release | In progress |
+| Poor traceability across 154 requirements | Map issues/tests and audit every release | In progress |
 
 ## 8. Release strategy
 Prototype → hardware-free alpha → controlled bench beta → lab pilot → production release. Do not label a phase complete based on source commits alone. For each release attach a requirement coverage report, test summary, known limitations, package/dependency inventory and user manual revision.
@@ -79,3 +79,7 @@ The same increment now includes **BD-AM-012**: per-role keyed AutoMock behavior 
 ## 12. Generic unit-aware mock capability increment
 
 New requirements BD-AM-013..016 cover explicit UnitsNet generic measurement types, instrument mode safety, generated capability metadata and time-indexed default values. Source-committed `TypedMockMeasurements`, `TypedMockMeter`, xUnit tests, standalone demo and experiment registration implement the initial foundation. Build and runtime verification remain pending. Issue #44 tracks generation from instrument definitions after the dataset has adequate mode, quantity, unit and range metadata. Release criteria include rejecting unsupported dimensions and mismatched meter modes, preserving UnitsNet conversions, and verifying Windows/macOS/Linux test execution.
+
+## 13. Requirement audit and release-gate remediation
+
+The [2026-10-15 runner requirements audit](REQUIREMENTS-AUDIT-2026-10-15.md) individually assessed TR-001..TR-090: 45 PartialSourceUnverified, 6 DesignOnly and 39 NoImplementationEvidence. These categories are evidence findings, not acceptance. All 154 requirements remain unverified or planned. Source and test paths, remaining gaps and issue links are recorded in `requirements/legacy-runner-audit.csv`; the canonical traceability matrix has been reconciled. The static checker now fails on missing/duplicate legacy IDs, nonexistent evidence paths and mismatched statuses. Observed GitHub Actions push runs failed across Windows, Ubuntu and macOS; detailed logs could not be retrieved. **Release gate:** no requirement may move to Verified until the CI/build/test failure is resolved and the specific acceptance evidence is reviewed. Prioritize [#50 CI](https://github.com/jeffadickson/BenchDouble/issues/50), [#47 runner safety](https://github.com/jeffadickson/BenchDouble/issues/47), [#46 host security](https://github.com/jeffadickson/BenchDouble/issues/46), then [#45 structured procedures](https://github.com/jeffadickson/BenchDouble/issues/45), [#48 evidence](https://github.com/jeffadickson/BenchDouble/issues/48) and [#49 browser/telemetry](https://github.com/jeffadickson/BenchDouble/issues/49).
