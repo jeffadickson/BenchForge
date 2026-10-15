@@ -4,7 +4,7 @@ BenchForge separates **source data** from **disposable generated C#**.
 
 | Location | Purpose | May delete? |
 |---|---|---|
-| `instrument-definitions/imports/pymeasure/` | Snapshot provenance and eventually all extracted, unreviewed schema-v2 definitions | **No** |
+| `instrument-definitions/imports/external source/` | Snapshot provenance and eventually all extracted, unreviewed schema-v2 definitions | **No** |
 | `instrument-definitions/drafts/` | Reviewed or illustrative schema-v2 input definitions | **No** |
 | `instrument-definitions/keysight/` | Existing schema-v1 driver inputs | **No** |
 | `tools/BenchDouble.DriverGen/` | Hand-maintained generator and Dataflow emitter | **No** |
@@ -24,9 +24,9 @@ dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
 
 The v2 emitter uses bounded TPL Dataflow stages, UnitsNet quantity mappings and XML documentation comments. All generated classes are **simulation-only** until the review gate and production driver generator are complete. CI checks generated-code drift and compiles the isolated generated project.
 
-## Imported PyMeasure dataset status
+## Imported external source dataset status
 
-The original uploaded PyMeasure snapshot was inventoried: 256 Python source files, 484 top-level classes, 2,099 methods and 2,695 descriptors, with zero AST parse errors. `snapshot-manifest.json` commits the snapshot hash and aggregate coverage. It **does not contain the full class/descriptor/method CSVs**; those were produced as downloadable conversation artifacts and still need to be committed as source data. Do not confuse the inventory with 484 approved instrument drivers.
+The original uploaded external source snapshot was inventoried: 256 Python source files, 484 top-level classes, 2,099 methods and 2,695 descriptors, with zero AST parse errors. `snapshot-manifest.json` commits the snapshot hash and aggregate coverage. It **does not contain the full class/descriptor/method CSVs**; those were produced as downloadable conversation artifacts and still need to be committed as source data. Do not confuse the inventory with 484 approved instrument drivers.
 
 Two existing schema-v2 drafts currently produce checked-in example preview classes: `ExampleTwoModeDmmPreview` and `Keithley2400Preview`. The Keithley draft lacks reviewed scalar measurement defaults and therefore intentionally emits no measurement methods. This is not a Keithley 2400 production driver.
 
