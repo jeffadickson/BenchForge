@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Globalization;
 using System.Text;
 using BenchDouble.Async;
+using BenchDouble.Simulation;
 using UnitsNet;
 
 namespace BenchDouble.Oscilloscopes;
@@ -95,14 +96,17 @@ public sealed class SimulatedOscilloscopeSession : IAsyncBinaryScpiSession
     private int _selectedChannel = 1;
     private bool _acquired;
     private double _interval = 1e-6;
+    private readonly VirtualSignalBus? _signal;
+    private VirtualSignalState? _acquisitionState;
 
     /// <summary>Create a mock with bounded sample count and channel count.</summary>
-    public SimulatedOscilloscopeSession(int channels = 2, int samples = 1024)
+    public SimulatedOscilloscopeSession(int channels = 2, int samples = 1024, VirtualSignalBus? signal = null)
     {
         if (channels < 1) throw new ArgumentOutOfRangeException(nameof(channels));
         if (samples < 1 || samples > 1_000_000) throw new ArgumentOutOfRangeException(nameof(samples));
         _channels = channels;
         _samples = samples;
+        _signal = signal;
     }
 
     /// <inheritdoc/>
@@ -111,7 +115,7 @@ public sealed class SimulatedOscilloscopeSession : IAsyncBinaryScpiSession
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (command == "SING") { _acquired = true; return; }
+            if (command == "SING") { _acquisitionState = _signal?.Snapshot(); _acquired = true; return; }
             if (command.StartsWith("WAV:SOUR CHAN", StringComparison.Ordinal))
             {
                 var number = command["WAV:SOUR CHAN".Length..];
@@ -158,7 +162,10 @@ public sealed class SimulatedOscilloscopeSession : IAsyncBinaryScpiSession
             byte[] payload = new byte[_samples * 2];
             for (int i = 0; i < _samples; i++)
             {
-                short code = (short)Math.Round(1000 * Math.Sin(2 * Math.PI * i / 64.0 + (_selectedChannel - 1) * Math.PI / 2));
+                double volts = _acquisitionState is { } snapshot
+                    ? snapshot.VoltageAt(Time.FromSeconds(i * _interval)).Volts
+                    : Math.Sin(2 * Math.PI * i / 64.0 + (_selectedChannel - 1) * Math.PI / 2);
+                short code = (short)Math.Clamp(Math.Round(1000 * volts, MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue);
                 System.Buffers.Binary.BinaryPrimitives.WriteInt16LittleEndian(payload.AsSpan(i * 2, 2), code);
             }
             string header = "#" + payload.Length.ToString(CultureInfo.InvariantCulture).Length.ToString(CultureInfo.InvariantCulture)
