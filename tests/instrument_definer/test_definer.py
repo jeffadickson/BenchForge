@@ -79,6 +79,17 @@ class Meter(Instrument):
         self.assertEqual([], definer.validate(doc))
         self.assertFalse(doc["review"]["hardwareTested"])
 
+    def test_intern_templates_import_with_command_provenance(self):
+        templates = ROOT / "tools/InstrumentDefiner/templates"
+        doc = definer.import_csv(
+            templates / "properties.csv", templates / "methods.csv",
+            "Keithley", "2400", "Keithley2400", "Vendor manual")
+        self.assertEqual([], definer.validate(doc))
+        self.assertEqual(2, len(doc["capabilities"]))
+        self.assertEqual(2, len(doc["operations"]))
+        self.assertEqual("OUTPUT 1", doc["operations"][0]["commands"])
+        self.assertEqual("PINNED_SHA", doc["capabilities"][0]["sourceRevision"])
+
     def test_output_file_is_never_overwritten(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "draft.json"
