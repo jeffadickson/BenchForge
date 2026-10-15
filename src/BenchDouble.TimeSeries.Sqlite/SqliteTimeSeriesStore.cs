@@ -9,7 +9,7 @@ namespace BenchDouble.TimeSeries.Sqlite;
 /// readers; batches are atomic and conflicting replays fail rather than overwrite.
 /// Dispose after the run to release this store's resources.
 /// </summary>
-public sealed class SqliteTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesReader, IAsyncDisposable
+public sealed class SqliteTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesReader, ISimulationTimeSeriesReader, IAsyncDisposable
 {
     private readonly string _connectionString;
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -66,6 +66,8 @@ public sealed class SqliteTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesReader
                 );
                 CREATE INDEX IF NOT EXISTS ix_samples_time
                   ON samples(run_id, signal_id, acquired_utc_ticks, sequence);
+                CREATE INDEX IF NOT EXISTS ix_samples_virtual_time
+                  ON samples(run_id, signal_id, simulated_ticks, sequence);
                 PRAGMA user_version=1;
                 """;
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -213,15 +215,47 @@ public sealed class SqliteTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesReader
         await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
-            yield return new TimeSeriesSample(
-                reader.GetString(0), reader.GetString(1), reader.GetString(2),
-                new DateTimeOffset(reader.GetInt64(3), TimeSpan.Zero),
-                reader.GetDouble(4), reader.GetString(5), reader.GetString(6),
-                reader.GetInt64(7),
-                reader.IsDBNull(8) ? null : TimeSpan.FromTicks(reader.GetInt64(8)),
-                reader.GetString(9), reader.IsDBNull(10) ? null : reader.GetString(10));
+            yield return ReadSample(reader);
         }
     }
+
+    /// <summary>Query a virtual experiment by simulated elapsed time, independent of wall speed.</summary>
+    public async IAsyncEnumerable<TimeSeriesSample> QuerySimulationAsync(
+        SimulationTimeSeriesQuery query,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        if (string.IsNullOrWhiteSpace(query.RunId) || string.IsNullOrWhiteSpace(query.SignalId) ||
+            query.MaximumPoints is < 1 or > 1_000_000 ||
+            query.Start < TimeSpan.Zero || query.End < query.Start)
+            throw new ArgumentException("Invalid simulation-time query.", nameof(query));
+        ThrowIfDisposed();
+        await using var connection = await ConnectAsync(cancellationToken).ConfigureAwait(false);
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT run_id, instrument_id, signal_id, acquired_utc_ticks, canonical_value,
+                   quantity_kind, unit_code, sequence, simulated_ticks, quality, measurement_basis
+            FROM samples WHERE run_id=$run AND signal_id=$signal
+               AND simulated_ticks >= $start AND simulated_ticks <= $end
+            ORDER BY simulated_ticks, sequence LIMIT $max;
+            """;
+        command.Parameters.AddWithValue("$run", query.RunId);
+        command.Parameters.AddWithValue("$signal", query.SignalId);
+        command.Parameters.AddWithValue("$start", query.Start.Ticks);
+        command.Parameters.AddWithValue("$end", query.End.Ticks);
+        command.Parameters.AddWithValue("$max", query.MaximumPoints);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            yield return ReadSample(reader);
+    }
+
+    private static TimeSeriesSample ReadSample(SqliteDataReader reader) => new(
+        reader.GetString(0), reader.GetString(1), reader.GetString(2),
+        new DateTimeOffset(reader.GetInt64(3), TimeSpan.Zero),
+        reader.GetDouble(4), reader.GetString(5), reader.GetString(6),
+        reader.GetInt64(7),
+        reader.IsDBNull(8) ? null : TimeSpan.FromTicks(reader.GetInt64(8)),
+        reader.GetString(9), reader.IsDBNull(10) ? null : reader.GetString(10));
 
     private static void AddIdentity(SqliteCommand command, TimeSeriesSample sample)
     {
