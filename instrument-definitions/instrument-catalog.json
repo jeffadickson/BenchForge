@@ -69,10 +69,12 @@
       "instrumentClass": "SourceMeasureUnit",
       "source": "PyMeasure published instrument catalog",
       "sourceEvidence": "sourceChecked",
-      "definitionStatus": "catalogOnly",
+      "definitionStatus": "definitionDraft",
       "implementationStatus": "notPorted",
       "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/",
+      "definitionPath": "instrument-definitions/drafts/keithley2400.definition.json",
+      "definitionNotes": "Representative subset only; not a complete extraction or reviewed driver."
     },
     {
       "id": "PYM-007",
