@@ -14,6 +14,7 @@ public sealed class ExperimentDefinitionBuilder
 {
     private readonly ServiceCollection _services = new();
     private readonly List<ExperimentInstrument> _instruments = new();
+    private string? _autoMockRuleHash;
     private bool _built;
 
     public ExperimentDefinitionBuilder()
@@ -64,6 +65,7 @@ public sealed class ExperimentDefinitionBuilder
         var rulesBuilder = new AutoMockLoadRulesBuilder();
         configure(rulesBuilder);
         var rules = rulesBuilder.Build();
+        _autoMockRuleHash = AutoMockRuleFiles.Sha256(rules);
         _services.AddScoped<ILoadBehavior>(sp =>
             new RuleBasedLoadBehavior(baselineFactory(sp), rules));
         return this;
@@ -101,7 +103,7 @@ public sealed class ExperimentDefinitionBuilder
         _built = true;
         var services = new ServiceCollection();
         foreach (var descriptor in _services) services.Add(descriptor);
-        return new ExperimentDefinition(name, _instruments.ToArray(), services);
+        return new ExperimentDefinition(name, _instruments.ToArray(), services, _autoMockRuleHash);
     }
 
     private void EnsureMutable()
@@ -118,12 +120,16 @@ public sealed class ExperimentDefinition
 {
     private readonly IServiceCollection _services;
     internal ExperimentDefinition(string name, IReadOnlyList<ExperimentInstrument> instruments,
-        IServiceCollection services)
+        IServiceCollection services, string? autoMockRuleHash)
     {
         Name = name;
         Instruments = instruments;
         _services = services;
+        AutoMockRuleSha256 = autoMockRuleHash;
     }
+
+    /// <summary>Rule-set digest only; not a complete software/run manifest.</summary>
+    public string? AutoMockRuleSha256 { get; }
 
     public string Name { get; }
     public IReadOnlyList<ExperimentInstrument> Instruments { get; }
@@ -135,7 +141,7 @@ public sealed class ExperimentDefinition
         {
             ValidateScopes = true, ValidateOnBuild = true
         });
-        return new ExperimentRun(provider, provider.CreateAsyncScope(), Instruments);
+        return new ExperimentRun(provider, provider.CreateAsyncScope(), Instruments, AutoMockRuleSha256);
     }
 }
 
@@ -151,15 +157,18 @@ public sealed class ExperimentRun : IAsyncDisposable
     private bool _disposed;
 
     internal ExperimentRun(ServiceProvider provider, AsyncServiceScope scope,
-        IReadOnlyList<ExperimentInstrument> instruments)
+        IReadOnlyList<ExperimentInstrument> instruments, string? autoMockRuleHash)
     {
         _provider = provider;
         _scope = scope;
         _instruments = instruments;
         RunId = Guid.NewGuid().ToString("N");
+        AutoMockRuleSha256 = autoMockRuleHash;
     }
 
     public string RunId { get; }
+    /// <summary>Digest of declarative mock rules; excludes code, drivers and dependencies.</summary>
+    public string? AutoMockRuleSha256 { get; }
     public ManualSimulationClock Clock => _scope.ServiceProvider.GetRequiredService<ManualSimulationClock>();
 
     public T Instrument<T>(string role) where T : class
