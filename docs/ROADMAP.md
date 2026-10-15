@@ -399,3 +399,12 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [x] Open focused P0 issues #45–#50 for structured procedures, secure hosts, safe runner lifecycle, evidence, browser/telemetry and CI
 - [ ] Resolve failing Windows/Linux/macOS GitHub Actions jobs and capture successful logs
 - [ ] Verify every P0 acceptance criterion before a controlled beta or production claim
+
+### Runner safe cleanup and CI diagnostics
+- [x] Add bounded real-wall-time shutdown and RecoveryRequired on cleanup failure/timeout
+- [x] Latch runner against reuse after unconfirmed shutdown
+- [x] Add xUnit cases for cleanup failure, timeout and cancellation after dispatch
+- [x] Add GitHub Actions concurrency cancellation and manual dispatch to reduce push storms
+- [ ] Diagnose GitHub Actions jobs failing before runner allocation (zero steps, empty runner name)
+- [ ] Implement device-specific physical abort/disable confirmation and authoritative host fencing
+- [ ] Add full runner state transitions and externally validated recovery/resume workflow
