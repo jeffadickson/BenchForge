@@ -50,3 +50,7 @@ The standalone HTML demos run in current browsers with no server; they are JavaS
 ## AutoMock dependency decision
 
 The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.Cryptography` and the existing UnitsNet and Microsoft.Extensions.DependencyInjection dependencies. **No additional runtime NuGet package is required.** Microsoft RulesEngine, NRules and Dynamic Expresso were evaluated as optional advanced rule-engine candidates, not installed. The v1 JSON rules are data-only and never execute arbitrary expressions. Reproducibility still requires NuGet lockfiles, dependency vulnerability checks, compiler/runtime versions and a full signed experiment manifest beyond the current rule-set digest. See [AUTOMOCK-RULES.md](AUTOMOCK-RULES.md).
+
+## Generic quantity mock dependencies
+
+`TypedMockMeasurements` and `TypedMockMeter` reuse the existing **UnitsNet 5.75.1** package and .NET 8 generic runtime support; no new runtime NuGet package is required. The test suite uses existing xUnit packages. The typed meter demo is included in Makefile build targets and the three-OS CI matrix. Driver-definition-based capability generation and compatibility tests remain tracked in issue #44.
