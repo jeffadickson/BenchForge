@@ -55,6 +55,8 @@ def draft(manufacturer, model, name, source="", revision=""):
 
 
 def extract(path, manufacturer, model, revision):
+    if path.stat().st_size > 2 * 1024 * 1024:
+        raise ValueError("Upstream Python source exceeds 2 MiB extraction limit")
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     classes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
     if not classes:
@@ -83,8 +85,10 @@ def extract(path, manufacturer, model, revision):
                 "access": {"control": "readwrite", "measurement": "read",
                            "setting": "write"}[kind],
                 "quantity": None, "unit": None,
-                "query": kw.get("get_command", query) if isinstance(query, str) else None,
-                "set": kw.get("set_command", setter) if isinstance(setter, str) else None,
+                "query": kw.get("get_command", query)
+                    if isinstance(kw.get("get_command", query), str) else None,
+                "set": kw.get("set_command", setter)
+                    if isinstance(kw.get("set_command", setter), str) else None,
                 "allowedValues": kw.get("values"),
                 "validator": next((dotted(item.value) for item in node.value.keywords
                                    if item.arg == "validator"), ""),
@@ -123,7 +127,13 @@ def import_csv(properties, methods, manufacturer, model, name, manual):
                 "minimum": float(row["minimum"]) if row["minimum"].strip() else None,
                 "maximum": float(row["maximum"]) if row["maximum"].strip() else None,
                 "sourceLine": int(row["sourceLine"]) if row["sourceLine"].strip() else None,
-                "notes": row["notes"], "mockDefault": None,
+                "notes": row["notes"],
+                "responseFormat": row.get("responseFormat", ""),
+                "basis": row.get("basis", ""),
+                "sideEffects": row.get("sideEffects", ""),
+                "sourcePath": row.get("sourcePath", ""),
+                "sourceRevision": row.get("sourceRevision", ""),
+                "mockDefault": None,
                 "reviewStatus": "unreviewed"
             })
     # A spreadsheet may name a mode before its command is known. Record the
@@ -149,7 +159,14 @@ def import_csv(properties, methods, manufacturer, model, name, manual):
                     "returnQuantity": row["returnQuantity"].strip() or None,
                     "returnUnit": row["returnUnit"].strip() or None,
                     "sourceLine": int(row["sourceLine"]) if row["sourceLine"].strip() else None,
-                    "notes": row["notes"], "semantics": "manualReviewRequired",
+                    "notes": row["notes"],
+                    "commands": row.get("commands", ""),
+                    "preconditions": row.get("preconditions", ""),
+                    "postconditions": row.get("postconditions", ""),
+                    "timeoutMs": int(row["timeoutMs"]) if row.get("timeoutMs", "").strip() else None,
+                    "sourcePath": row.get("sourcePath", ""),
+                    "sourceRevision": row.get("sourceRevision", ""),
+                    "semantics": "manualReviewRequired",
                     "reviewStatus": "unreviewed"
                 })
     return result
