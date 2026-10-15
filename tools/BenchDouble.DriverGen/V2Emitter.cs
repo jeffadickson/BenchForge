@@ -19,7 +19,7 @@ internal static class V2Emitter
     private static string Str(string value) => JsonSerializer.Serialize(value);
     private static string Num(double value) => value.ToString("R", CultureInfo.InvariantCulture);
 
-    private sealed record Capability(string Name, string Quantity, string Unit, string Description,
+    internal sealed record Capability(string Name, string Quantity, string Unit, string Description,
         string Basis, string[] Modes, double? Initial, string Query);
 
     /// <summary>Emit reviewed-mode, typed preview classes from v2 definitions in a bounded pipeline.</summary>
@@ -130,6 +130,20 @@ internal static class V2Emitter
         s.AppendLine($"/// <summary>Typed simulation-only instrument preview for {Xml(name)}.</summary>");
         s.AppendLine($"public sealed class {name}Preview");
         s.AppendLine("{");
+        var definitionSha = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(file))).ToLowerInvariant();
+        var provenance = root.GetProperty("provenance");
+        string upstreamRevision = provenance.TryGetProperty("sourceRevision", out var rev) && rev.ValueKind == JsonValueKind.String
+            ? rev.GetString() ?? "" : "";
+        if (!Regex.IsMatch(upstreamRevision, "^[0-9a-fA-F]{40}$")) upstreamRevision = "unverified";
+        s.AppendLine("  /// <summary>SHA-256 of the exact input definition bytes.</summary>");
+        s.AppendLine($"  public const string DefinitionSha256 = {Str(definitionSha)};");
+        s.AppendLine("  /// <summary>Pinned upstream Git commit, or unverified when unavailable.</summary>");
+        s.AppendLine($"  public const string UpstreamRevision = {Str(upstreamRevision)};");
+        s.AppendLine("  /// <summary>Versioned generator implementation identifier.</summary>");
+        s.AppendLine("  public const string GeneratorVersion = \"v2-decorator-1\";");
+        s.AppendLine("  /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>");
+        s.AppendLine("  public static string BuildCommit => System.Attribute.GetCustomAttributes(typeof(" + name + "Preview).Assembly, typeof(System.Reflection.AssemblyMetadataAttribute))");
+        s.AppendLine("    .OfType<System.Reflection.AssemblyMetadataAttribute>().FirstOrDefault(x => x.Key == \"BenchForgeGitCommit\")?.Value ?? \"unavailable\";");
         s.AppendLine("  private readonly System.Threading.SemaphoreSlim _gate = new(1, 1);");
         s.AppendLine("  private string? _mode;");
         foreach (var cap in capabilities)
@@ -166,6 +180,7 @@ internal static class V2Emitter
             s.AppendLine("  }");
         }
         s.AppendLine("}");
+        s.Append(V2MockEmitter.Render(name, capabilities));
         return (name, s.ToString().Replace("\r\n", "\n"));
     }
 }
