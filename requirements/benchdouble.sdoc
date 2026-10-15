@@ -734,3 +734,99 @@ UID: BD-WASM-001
 STATUS: Active
 TITLE: BD-WASM-001 P2
 STATEMENT: A browser demonstration shall execute selected C# simulation code via WebAssembly without privileged hardware access.
+
+[REQUIREMENT]
+UID: BD-EXP-001
+STATUS: Active
+TITLE: BD-EXP-001 P0
+STATEMENT: An immutable experiment definition shall register uniquely named typed instrument roles and backend choices.
+
+[REQUIREMENT]
+UID: BD-EXP-002
+STATUS: Active
+TITLE: BD-EXP-002 P0
+STATEMENT: Each experiment run shall create and dispose isolated DI scope, simulation clock and stateful mock instances.
+
+[REQUIREMENT]
+UID: BD-EXP-003
+STATUS: Active
+TITLE: BD-EXP-003 P1
+STATEMENT: Experiment mock behaviors shall receive typed dependencies through constructor injection including keyed instrument roles.
+
+[REQUIREMENT]
+UID: BD-EXP-004
+STATUS: Active
+TITLE: BD-EXP-004 P0
+STATEMENT: Physical instrument resolution shall use authenticated host discovery and host-owned fenced reservations, never DI alone.
+
+[REQUIREMENT]
+UID: BD-EXP-005
+STATUS: Active
+TITLE: BD-EXP-005 P1
+STATEMENT: Experiment start and disposal shall record resource provenance and recover safely after partial initialization failures.
+
+[REQUIREMENT]
+UID: BD-DASH-001
+STATUS: Active
+TITLE: BD-DASH-001 P1
+STATEMENT: The host shall expose a read-only instrument registry dashboard showing instrument class backend host and lease state.
+
+[REQUIREMENT]
+UID: BD-DASH-002
+STATUS: Active
+TITLE: BD-DASH-002 P1
+STATEMENT: Each instrument dashboard panel shall show a bounded recent activity log without sensitive command payloads.
+
+[REQUIREMENT]
+UID: BD-DASH-003
+STATUS: Active
+TITLE: BD-DASH-003 P1
+STATEMENT: The HTML dashboard shall refresh local host status and report connectivity failures without implying live data when disconnected.
+
+[REQUIREMENT]
+UID: BD-DASH-004
+STATUS: Active
+TITLE: BD-DASH-004 P0
+STATEMENT: Remote multi-host dashboard access shall require authentication authorization TLS and privacy-preserving telemetry.
+
+[REQUIREMENT]
+UID: BD-DASH-005
+STATUS: Active
+TITLE: BD-DASH-005 P1
+STATEMENT: The dashboard shall aggregate experiment roles and instruments across authorized hosts with stale heartbeat indication.
+
+[REQUIREMENT]
+UID: BD-DASH-006
+STATUS: Active
+TITLE: BD-DASH-006 P1
+STATEMENT: Browser acceptance tests shall verify registered instruments reservation transitions log rendering and disconnected states.
+
+[REQUIREMENT]
+UID: BD-VERSION-001
+STATUS: Active
+TITLE: BD-VERSION-001 P0
+STATEMENT: Experiment definitions and behavior packages shall have stable revisions and hashes stored in the run manifest.
+
+[REQUIREMENT]
+UID: BD-VERSION-002
+STATUS: Active
+TITLE: BD-VERSION-002 P1
+STATEMENT: Host protocol and instrument driver compatibility shall be negotiated across client/server versions.
+
+[REQUIREMENT]
+UID: BD-VERSION-003
+STATUS: Active
+TITLE: BD-VERSION-003 P1
+STATEMENT: Development documentation shall explain Git branches commits tags semantic versioning and reproducible experiment revisions.
+
+[REQUIREMENT]
+UID: BD-VERSION-004
+STATUS: Active
+TITLE: BD-VERSION-004 P0
+STATEMENT: Reproducible runs shall pin behavior dependencies, model configuration and simulation seeds.
+
+[REQUIREMENT]
+UID: BD-PARITY-001
+STATUS: Active
+TITLE: BD-PARITY-001 P1
+STATEMENT: Competitor comparison shall distinguish shipped tested functionality from prototypes and planned features.
