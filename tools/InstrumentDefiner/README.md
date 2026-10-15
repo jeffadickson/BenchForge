@@ -18,6 +18,8 @@ python3 tools/InstrumentDefiner/definer.py extract-pymeasure \
 # Validate a reviewed or extracted v2 definition.
 python3 tools/InstrumentDefiner/definer.py validate \
   instrument-definitions/drafts/keithley2400.definition.json
+python3 tools/InstrumentDefiner/definer.py report \
+  instrument-definitions/drafts/keithley2400.definition.json
 
 # Import hand-entered CSV exported from spreadsheet.
 python3 tools/InstrumentDefiner/definer.py import-csv \
