@@ -138,3 +138,12 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add optional native VISA provider with real USB/GPIB/TCPIP resource enumeration
 - [ ] Add cross-host coordinator without claiming premature global atomicity
 - [ ] Verify tests for contention, lost network, host restart and safe cleanup
+
+### Live logs at host and experiment client
+- [x] Document unified server-side logging schema and host/client visibility
+- [ ] Implement bounded nonblocking log fan-out plus retained local spool
+- [ ] Add authenticated gRPC SubscribeEvents with cursor resume and filters
+- [ ] Build host dashboard and headless CLI tail utility
+- [ ] Display live logs alongside client experiment steps and notebook cells
+- [ ] Propagate OpenTelemetry trace and instrument/run correlation IDs
+- [ ] Validate reconnect, slow subscribers, gap signals and redaction permissions
