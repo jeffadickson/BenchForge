@@ -21,7 +21,7 @@ bash scripts/bootstrap.sh
 dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
-The scripts attempt to install .NET 8 locally if missing, provision StrictDoc in a Python virtual environment, validate requirements and restore NuGet packages. **Internet access is required for first-time provisioning.** On Unix, if .NET was installed under `.tools/dotnet`, add that folder to PATH in subsequent shells. On Windows use the same PowerShell session or add the local folder to PATH. Optional physical VISA/IVI vendor drivers are not installed automatically; hardware capability is platform/vendor dependent.
+The scripts attempt to install .NET 10 locally if missing, provision StrictDoc in a Python virtual environment, validate requirements and restore NuGet packages. **Internet access is required for first-time provisioning.** On Unix, if .NET was installed under `.tools/dotnet`, add that folder to PATH in subsequent shells. On Windows use the same PowerShell session or add the local folder to PATH. Optional physical VISA/IVI vendor drivers are not installed automatically; hardware capability is platform/vendor dependent.
 
 ## Example 1: dependency-injected power supply
 ```bash
@@ -52,7 +52,7 @@ The chamber line is the **setpoint**; the sensor line is a simulated first-order
 - **No actual hardware safety is provided by the demos.** Real equipment requires authorized leases, verified output shutdown, interlocks, calibration, and vendor-specific drivers.
 - If `dotnet` is missing, rerun the bootstrap script and verify `dotnet --info`.
 - If NuGet restore fails, verify network/proxy settings and supported SDK.
-- If Playwright tests fail with missing browser, run `pwsh tests/BenchForge.Browser.Tests/bin/Debug/net8.0/playwright.ps1 install chromium` after building the project, or follow the CI installation step.
+- If Playwright tests fail with missing browser, run `pwsh tests/BenchForge.Browser.Tests/bin/Debug/net10.0/playwright.ps1 install chromium` after building the project, or follow the CI installation step.
 - If StrictDoc fails, run the Python requirements checker first, then inspect `requirements/benchforge.sdoc`.
 - If SQLite output is not writable, choose a writable working directory; never silently drop accepted samples.
 - macOS/Linux support applies to hardware-free .NET features. Vendor-specific GPIB/VISA/IVI drivers may require Windows or vendor-supported OS/runtime versions.
