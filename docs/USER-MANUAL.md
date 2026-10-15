@@ -74,3 +74,14 @@ Start `dotnet run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.
 ## Version control for experiment authors
 
 Read [Version Control for Laboratory Automation](VERSION-CONTROL-TUTORIAL.md). It covers Git clone/branch/commit/pull requests, tags, semantic versioning, host protocol compatibility, package hashes and experiment replay manifests. Test results should identify the exact code and behavior versions, not just the procedure name.
+
+## AutoMock: configure a fault without writing another driver
+
+AutoMock is an experiment-level simulation behavior override. Start with the existing thermal example and run:
+
+```bash
+dotnet run --project examples/BenchDouble.ExperimentDemo -- --automock
+dotnet run --project examples/BenchDouble.ExperimentDemo -- --automock-json
+```
+
+The first uses fluent typed C# rules; the second reads `examples/BenchDouble.ExperimentDemo/automock-overcurrent.json` from the repository root. In this demo the power-supply mock normally uses a temperature-dependent load, then reports a fixed 2.5 A current beginning at two simulated hours. The JSON example additionally scales the baseline by 10% at 11–13 V before the fault. The unchanged instrument class is injected with a different `ILoadBehavior`. The console prints the SHA-256 of the configured rule set for traceability. These are **simulated readings**; no hardware current limit or actual electrical safety interlock is exercised. See [AutoMock tutorial](AUTOMOCK-RULES.md) for rule semantics, priority, time windows, validation and testing.
