@@ -152,3 +152,7 @@ The repository now has independent projects for [Host.Contracts](src/BenchDouble
 ## Versioned host protocol and shared instruments
 
 The target network protocol uses versioned protobuf/gRPC contracts instead of serialized .NET objects. The [v1 schema draft](proto/benchdouble/host/v1/host.proto) and [sharing policy contracts](src/BenchDouble.Host.Contracts/SharingPolicies.cs) define exclusive, read-only, observer and host-sampled subscription modes. Future optional driver uploads are identified by content hash and require trusted signatures and isolated execution; untrusted code must never run inside the privileged host. See [Versioned Drivers and Sharing](docs/VERSIONED-DRIVERS-AND-SHARING.md). These are **contracts/design only**; the current HTTP server still supports exclusive in-memory leases only.
+
+## UnitsNet quantities
+
+BenchDouble now references stable `UnitsNet` and includes [typed instrument facades](src/BenchDouble/Quantities/TypedInstruments.cs) for voltage and sine-generator quantities. Examples: `ElectricPotential.FromMillivolts(500)`, `Frequency.FromKilohertz(10)`. The existing `double` methods are unchanged for compatibility. See [units and measurements](docs/UNITS-AND-MEASUREMENTS.md). Resistance/current typed contracts are present but their SCPI implementations are not yet supported.
