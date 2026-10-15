@@ -52,3 +52,11 @@ Committed: core unit-aware plot conversion, built-in axes for frequency/voltage/
 - ScottPlot 5.1.59: https://www.nuget.org/packages/ScottPlot/ (MIT)
 - Plotly.NET 5.1.0 (optional future typed adapter): https://www.nuget.org/packages/Plotly.NET/
 - Plotly.js: https://plotly.com/javascript/ (browser runtime to be pinned and packaged)
+
+## Standalone companion-library direction (2026-10-15)
+
+The unit conversion/axis project now references **UnitsNet directly** and no longer depends on the BenchDouble instrument library. This enables independent reuse and eventual upstream submission as a companion package. The source currently retains the `BenchDouble.Plotting` namespace and project name to avoid premature breaking renames; `UnitsNet.Plotting` is a proposed future public package identity, **not yet published or accepted by UnitsNet maintainers**.
+
+**Upstream-ready separation:** (1) core typed plotting axis/series abstraction has only UnitsNet + .NET dependencies; (2) ScottPlot is isolated in its own optional project; (3) Plotly.js JSON export currently lives in the plotting core and may be extracted to a separate adapter once the API stabilizes; (4) independent tests compile without referencing BenchDouble. Before submitting upstream, discuss desired namespace/package ownership, confirm license compatibility and contributor guidance, add CI, API docs, dimension validation and unit conversion edge cases. Avoid requiring UnitsNet core to depend on ScottPlot or Plotly.
+
+**Status:** code and independent test source committed; successful build/test execution is not yet verified.
