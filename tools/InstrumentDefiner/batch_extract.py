@@ -35,14 +35,17 @@ def process(manifest, source_root, destination):
     report = []
     output_names = set()
     for index, row in enumerate(rows, start=2):
-        label = f"{row['manufacturer'].strip()} {row['model'].strip()}"
+        label = f"{(row.get('manufacturer') or '').strip()} {(row.get('model') or '').strip()}"
         result = {"row": index, "instrument": label, "status": "error"}
         try:
-            manufacturer = row["manufacturer"].strip()
-            model = row["model"].strip()
-            class_name = row["className"].strip()
-            revision = row["revision"].strip()
-            relative = Path(row["sourcePath"].strip())
+            manufacturer = (row.get("manufacturer") or "").strip()
+            model = (row.get("model") or "").strip()
+            class_name = (row.get("className") or "").strip()
+            revision = (row.get("revision") or "").strip()
+            source_path = (row.get("sourcePath") or "").strip()
+            if not source_path:
+                raise ValueError("Source path is required")
+            relative = Path(source_path)
             if not all((manufacturer, model, class_name, revision)):
                 raise ValueError("Manufacturer, model, className and revision are required")
             if relative.is_absolute():
@@ -52,9 +55,12 @@ def process(manifest, source_root, destination):
                 raise ValueError("Source file missing or outside source root")
             if not re.fullmatch(r"[0-9a-fA-F]{40}", revision):
                 raise ValueError("Revision must be a pinned 40-character commit SHA")
-            filename = (SAFE_NAME.sub("-", manufacturer).strip("-") + "-" +
-                        SAFE_NAME.sub("-", model).strip("-")).lower() + ".definition.json"
-            if not filename or filename in output_names:
+            safe_manufacturer = SAFE_NAME.sub("-", manufacturer).strip("-")
+            safe_model = SAFE_NAME.sub("-", model).strip("-")
+            if not safe_manufacturer or not safe_model:
+                raise ValueError("Instrument identity cannot form a safe filename")
+            filename = (safe_manufacturer + "-" + safe_model).lower() + ".definition.json"
+            if filename in output_names:
                 raise ValueError("Duplicate or invalid output instrument identity")
             output_names.add(filename)
             output = destination / filename
