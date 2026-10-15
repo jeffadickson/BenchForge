@@ -332,3 +332,5 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Implement bounded buffered ingestion, disk-full policy and durable replication outbox
 - [ ] Implement simulated-time queries and min/max downsampling preserving excursions
 - [ ] Implement optional PostgreSQL/TimescaleDB adapter with integration tests
+
+- [x] Add indexed simulation-elapsed-time queries and a same-UTC/different-virtual-time test
