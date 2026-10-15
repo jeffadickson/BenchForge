@@ -349,3 +349,16 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add approved visual screenshot baselines and accessibility audits
 - [ ] Prototype C# WebAssembly simulation without privileged instrument access
 - [ ] Complete unverified physical instrument, host, editor, safety and offline replication requirements tracked by issues #1–#33
+
+### Experiment-scoped inversion of control and instrument dashboard
+- [x] Add optional experiment DI composition project with named keyed instrument roles and run-scoped virtual clock
+- [x] Add simulated thermal experiment example and xUnit role/isolation tests
+- [x] Add local host read-only monitor API with instrument status, reservation state and bounded sanitized activity
+- [x] Add HTML instrument dashboard served by the existing local ASP.NET Core host
+- [x] Add host dashboard unit tests and cross-platform CI entries for experiment tests/demo
+- [x] Add Git/semantic-versioning and experiment reproducibility tutorial, dashboard manual and requirements
+- [ ] Verify compilation and all new tests across Windows/macOS/Linux; add real dashboard Playwright tests
+- [ ] Implement authenticated multi-host discovery, physical leases, fencing and safe partial-start rollback
+- [ ] Add immutable experiment definition serialization, behavior hashes and host protocol compatibility negotiation
+- [ ] Add authorized multi-host dashboard aggregation, durable log replay, filtering and heartbeat/stale state
+- [ ] Benchmark actual instrument coverage against PyMeasure without confusing prototypes with released capabilities
