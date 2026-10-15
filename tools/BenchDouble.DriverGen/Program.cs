@@ -124,7 +124,7 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     var destination = Path.Combine(output, name + ".g.cs");
     var source = body.ToString().Replace("\r\n", "\n");
     if (!File.Exists(destination) || File.ReadAllText(destination) != source) File.WriteAllText(destination, source, new UTF8Encoding(false));
-    mock.AppendLine("  })");
+    mock.AppendLine("  }) { }");
     mock.AppendLine($"  public {name} CreateDriver() => new(this);");
     mock.AppendLine("}");
     var mockDestination = Path.Combine(output, name + "Mock.g.cs");
