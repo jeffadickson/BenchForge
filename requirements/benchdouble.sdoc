@@ -1,0 +1,736 @@
+[DOCUMENT]
+TITLE: BenchDouble System Requirements Baseline
+UID: BD-BASELINE
+VERSION: 2026-10-15
+
+[REQUIREMENT]
+UID: TR-001
+STATUS: Active
+TITLE: TR-001 P0
+STATEMENT: One structured procedure definition with stable ID, title, controlled revision, author, parameters, instrument requirements, step tree, acceptance criteria, and approval status.
+
+[REQUIREMENT]
+UID: TR-002
+STATUS: Active
+TITLE: TR-002 P0
+STATEMENT: The editor and runner operate on the same structured procedure model, not parallel HTML/code representations.
+
+[REQUIREMENT]
+UID: TR-003
+STATUS: Active
+TITLE: TR-003 P0
+STATEMENT: Insert before/after, delete, duplicate, move, reorder, indent/outdent and renumber steps without changing stable step IDs.
+
+[REQUIREMENT]
+UID: TR-004
+STATUS: Active
+TITLE: TR-004 P0
+STATEMENT: Step types: instruction, instrument configuration, measurement with limits, calculation, wait, condition/branch, loop, operator prompt, inspection, safety hold, attachment, signature, C# action, and subprocedure.
+
+[REQUIREMENT]
+UID: TR-005
+STATUS: Active
+TITLE: TR-005 P1
+STATEMENT: Typed step inputs, defaults, enums, UnitsNet quantities, validation and help text.
+
+[REQUIREMENT]
+UID: TR-006
+STATUS: Active
+TITLE: TR-006 P0
+STATEMENT: Draft, approved procedure revision, execution snapshot, redline, and deviation are separate versioned records.
+
+[REQUIREMENT]
+UID: TR-007
+STATUS: Active
+TITLE: TR-007 P0
+STATEMENT: Executions pin the exact approved revision/hash; redlines cannot silently overwrite it.
+
+[REQUIREMENT]
+UID: TR-008
+STATUS: Active
+TITLE: TR-008 P1
+STATEMENT: Step templates, reusable subprocedures, library search, cross-references and dependency validation.
+
+[REQUIREMENT]
+UID: TR-009
+STATUS: Active
+TITLE: TR-009 P1
+STATEMENT: Transactional edits, undo/redo, deterministic serialization, position mapping and autosave.
+
+[REQUIREMENT]
+UID: TR-010
+STATUS: Active
+TITLE: TR-010 P1
+STATEMENT: Inline review comments, change diffs, history and reviewer workflow.
+
+[REQUIREMENT]
+UID: TR-011
+STATUS: Active
+TITLE: TR-011 P1
+STATEMENT: C# custom-action editing with compilation diagnostics and typed instrument APIs, but not as the underlying document format.
+
+[REQUIREMENT]
+UID: TR-012
+STATUS: Active
+TITLE: TR-012 P1
+STATEMENT: Editor technology remains replaceable; Monaco may become the step editor or code editor. Do not prematurely constrain the structured document model to Monaco.
+
+[REQUIREMENT]
+UID: TR-013
+STATUS: Active
+TITLE: TR-013 P1
+STATEMENT: Preserve the independently specified C#-centric structured editor engine direction: no required ProseMirror/Tiptap dependency; browser JavaScript only for necessary interop.
+
+[REQUIREMENT]
+UID: TR-014
+STATUS: Active
+TITLE: TR-014 P2
+STATEMENT: Accessible keyboard navigation, IME, rich text, tables, attachments and eventual multi-user editing with conflict handling.
+
+[REQUIREMENT]
+UID: TR-015
+STATUS: Active
+TITLE: TR-015 P0
+STATEMENT: Run identity, pinned revision, operator, backend, parameters, instrument inventory, start/finish times, status and outcome.
+
+[REQUIREMENT]
+UID: TR-016
+STATUS: Active
+TITLE: TR-016 P0
+STATEMENT: Auditable states: Created, Validating, Reserving, Startup, Running, Cleanup, Completed, Failed, Cancelled, RecoveryRequired.
+
+[REQUIREMENT]
+UID: TR-017
+STATUS: Active
+TITLE: TR-017 P0
+STATEMENT: Explicit startup/execute/shutdown phases; cleanup executes after success, exception or cancellation.
+
+[REQUIREMENT]
+UID: TR-018
+STATUS: Active
+TITLE: TR-018 P0
+STATEMENT: Cleanup has a bounded policy and device-specific abort/disable confirmation; failure reports OutcomeUnknown/RecoveryRequired.
+
+[REQUIREMENT]
+UID: TR-019
+STATUS: Active
+TITLE: TR-019 P0
+STATEMENT: Validate procedure inputs, driver capabilities, permissions and resource availability before physical actuation.
+
+[REQUIREMENT]
+UID: TR-020
+STATUS: Active
+TITLE: TR-020 P0
+STATEMENT: Async Task/ValueTask, CancellationToken, deadlines, Task.WhenAll/WhenAny and IAsyncEnumerable for streaming.
+
+[REQUIREMENT]
+UID: TR-021
+STATUS: Active
+TITLE: TR-021 P0
+STATEMENT: Serialize per-instrument commands and full query/response transactions; independent devices may operate concurrently.
+
+[REQUIREMENT]
+UID: TR-022
+STATUS: Active
+TITLE: TR-022 P0
+STATEMENT: Cancelling an awaited task does not imply physical acquisition abort or safe-state confirmation.
+
+[REQUIREMENT]
+UID: TR-023
+STATUS: Active
+TITLE: TR-023 P1
+STATEMENT: Queue/schedule runs with fairness, progress, priority, operator holds and resource-aware admission.
+
+[REQUIREMENT]
+UID: TR-024
+STATUS: Active
+TITLE: TR-024 P1
+STATEMENT: Pause, resume, skip, retry, abort and approved checkpoint restart with clear audit and idempotency semantics.
+
+[REQUIREMENT]
+UID: TR-025
+STATUS: Active
+TITLE: TR-025 P1
+STATEMENT: Reserve all required instruments before coordinated execution; deadlock-free host-local atomic grants and failure-aware multi-host acquisition.
+
+[REQUIREMENT]
+UID: TR-026
+STATUS: Active
+TITLE: TR-026 P1
+STATEMENT: Support dependencies and partial-order barriers between concurrent operations; don't impose arbitrary global total order.
+
+[REQUIREMENT]
+UID: TR-027
+STATUS: Active
+TITLE: TR-027 P1
+STATEMENT: Live per-step state, progress, measurements, logs and errors, with reconciliation after browser/network disconnect.
+
+[REQUIREMENT]
+UID: TR-028
+STATUS: Active
+TITLE: TR-028 P2
+STATEMENT: Parameter sweeps, nested procedures, streaming acquisitions and reusable calculations.
+
+[REQUIREMENT]
+UID: TR-029
+STATUS: Active
+TITLE: TR-029 P0
+STATEMENT: Same procedure code runs with physical, simulated and strict-mock backends.
+
+[REQUIREMENT]
+UID: TR-030
+STATUS: Active
+TITLE: TR-030 P0
+STATEMENT: Instrument host is a separate, platform-neutral service: any supported computer with the necessary .NET runtime and instrument drivers.
+
+[REQUIREMENT]
+UID: TR-031
+STATUS: Active
+TITLE: TR-031 P0
+STATEMENT: Host is authoritative for resource identity, ownership, device operations and reservation policy; clients cannot bypass it.
+
+[REQUIREMENT]
+UID: TR-032
+STATUS: Active
+TITLE: TR-032 P0
+STATEMENT: Exclusive control default; leases identity-bound with expiry, renewal, fencing tokens and alias canonicalization.
+
+[REQUIREMENT]
+UID: TR-033
+STATUS: Active
+TITLE: TR-033 P0
+STATEMENT: Multiple sessions, driver versions or clients cannot independently control the same physical resource.
+
+[REQUIREMENT]
+UID: TR-034
+STATUS: Active
+TITLE: TR-034 P1
+STATEMENT: Device-specific policies: exclusive, safe shared read-only, exclusive controller with observers, host-sampled publish/subscribe.
+
+[REQUIREMENT]
+UID: TR-035
+STATUS: Active
+TITLE: TR-035 P1
+STATEMENT: Observers receive host-produced measurements/logs, not arbitrary independent SCPI reads that could change state.
+
+[REQUIREMENT]
+UID: TR-036
+STATUS: Active
+TITLE: TR-036 P0
+STATEMENT: Record host, manufacturer/model/firmware, driver/version/hash, instrument capability and calibration reference.
+
+[REQUIREMENT]
+UID: TR-037
+STATUS: Active
+TITLE: TR-037 P1
+STATEMENT: Use official IVI class interfaces where available, SCPI/VISA otherwise, with vendor-specific optional capabilities.
+
+[REQUIREMENT]
+UID: TR-038
+STATUS: Active
+TITLE: TR-038 P1
+STATEMENT: Versioned protobuf/gRPC contracts with capability negotiation; never serialize arbitrary CLR objects over the network.
+
+[REQUIREMENT]
+UID: TR-039
+STATUS: Active
+TITLE: TR-039 P0
+STATEMENT: Authentication, TLS for non-loopback, operation-level authorization, and no arbitrary untrusted code in privileged host.
+
+[REQUIREMENT]
+UID: TR-040
+STATUS: Active
+TITLE: TR-040 P2
+STATEMENT: Optional signed content-addressed driver packages in isolated worker processes, with version coexistence but single physical reservation authority.
+
+[REQUIREMENT]
+UID: TR-041
+STATUS: Active
+TITLE: TR-041 P0
+STATEMENT: Mock definition separates initialize/default state from each operation's state transition and measurement behavior.
+
+[REQUIREMENT]
+UID: TR-042
+STATUS: Active
+TITLE: TR-042 P0
+STATEMENT: DMM voltage/resistance mode changes determine subsequent measurement quantity, behavior and validity.
+
+[REQUIREMENT]
+UID: TR-043
+STATUS: Active
+TITLE: TR-043 P0
+STATEMENT: Mock outputs support constants, sequences, sine, seeded noise, state-dependent functions, injected faults and timeouts.
+
+[REQUIREMENT]
+UID: TR-044
+STATUS: Active
+TITLE: TR-044 P1
+STATEMENT: One explicit run-scoped shared simulation clock for all instruments and virtual DUT components.
+
+[REQUIREMENT]
+UID: TR-045
+STATUS: Active
+TITLE: TR-045 P1
+STATEMENT: Real-time, accelerated, paused and manually advanced virtual-time modes; speed factor changes wall duration, not modeled physical dynamics.
+
+[REQUIREMENT]
+UID: TR-046
+STATUS: Active
+TITLE: TR-046 P0
+STATEMENT: Physical safety delays, lease expiry, authentication and real hardware timeouts never use accelerated virtual time.
+
+[REQUIREMENT]
+UID: TR-047
+STATUS: Active
+TITLE: TR-047 P1
+STATEMENT: Model initialization/warmup, settling, integration, trigger/acquisition, processing latency, jitter and optional display pacing separately.
+
+[REQUIREMENT]
+UID: TR-048
+STATUS: Active
+TITLE: TR-048 P1
+STATEMENT: Strict EasyMock-style expected sequences, unordered regions, cardinality, argument matchers, fault injection and cross-device partial-order expectations.
+
+[REQUIREMENT]
+UID: TR-049
+STATUS: Active
+TITLE: TR-049 P1
+STATEMENT: Reproducible seeded randomness, virtual timestamps, state snapshots, deterministic scheduling and transcript replay.
+
+[REQUIREMENT]
+UID: TR-050
+STATUS: Active
+TITLE: TR-050 P2
+STATEMENT: Virtual wiring/DUT transfer functions and validated noise/uncertainty models; never claim simulator calibration.
+
+[REQUIREMENT]
+UID: TR-051
+STATUS: Active
+TITLE: TR-051 P0
+STATEMENT: UnitsNet quantities (volts, ohms, amperes, hertz, temperature, duration); reject dimension mismatches.
+
+[REQUIREMENT]
+UID: TR-052
+STATUS: Active
+TITLE: TR-052 P0
+STATEMENT: Preserve DC/RMS/peak/Vpp, measurement mode, range, limits, resolution, quality, uncertainty and source metadata.
+
+[REQUIREMENT]
+UID: TR-053
+STATUS: Active
+TITLE: TR-053 P0
+STATEMENT: Record acquisition timestamp, host wall time, simulation elapsed time if relevant, run/step IDs and driver identity.
+
+[REQUIREMENT]
+UID: TR-054
+STATUS: Active
+TITLE: TR-054 P0
+STATEMENT: Raw readings and run events are append-only; redlines/corrections cannot rewrite original evidence.
+
+[REQUIREMENT]
+UID: TR-055
+STATUS: Active
+TITLE: TR-055 P1
+STATEMENT: Durable local persistence (SQLite initially), checkpoints, crash recovery and transactional consistency.
+
+[REQUIREMENT]
+UID: TR-056
+STATUS: Active
+TITLE: TR-056 P1
+STATEMENT: Persist procedure revision/hash, configuration, operator, equipment/calibration, measurement rows, outcomes, attachments and approvals.
+
+[REQUIREMENT]
+UID: TR-057
+STATUS: Active
+TITLE: TR-057 P1
+STATEMENT: CSV/machine-readable export, tables, filtering, charts, waveform display, run comparison and reports.
+
+[REQUIREMENT]
+UID: TR-058
+STATUS: Active
+TITLE: TR-058 P1
+STATEMENT: Operate without central database/network, then synchronize with stable IDs, conflict detection, duplicate suppression and explicit reconciliation.
+
+[REQUIREMENT]
+UID: TR-059
+STATUS: Active
+TITLE: TR-059 P1
+STATEMENT: Hosts retain bounded event spools; reconnect replays available events with visible gap markers.
+
+[REQUIREMENT]
+UID: TR-060
+STATUS: Active
+TITLE: TR-060 P1
+STATEMENT: Pass/fail/limits calculations are separate traceable results, never substituted for original measured values.
+
+[REQUIREMENT]
+UID: TR-061
+STATUS: Active
+TITLE: TR-061 P0
+STATEMENT: Execution-scoped redlines include before/after, rationale, author, timestamp, review state and affected steps.
+
+[REQUIREMENT]
+UID: TR-062
+STATUS: Active
+TITLE: TR-062 P0
+STATEMENT: Reviewers approve/reject/request changes; released procedure definitions remain immutable.
+
+[REQUIREMENT]
+UID: TR-063
+STATUS: Active
+TITLE: TR-063 P0
+STATEMENT: Attributable electronic signatures at step, hold point, section and final run with explicit signing intent.
+
+[REQUIREMENT]
+UID: TR-064
+STATUS: Active
+TITLE: TR-064 P0
+STATEMENT: Signatures bind signer identity/role, timestamp and exact content hash; post-sign changes require new attestation.
+
+[REQUIREMENT]
+UID: TR-065
+STATUS: Active
+TITLE: TR-065 P1
+STATEMENT: Role-based permissions for author, operator, reviewer, approver and administrator, including optional separation of duties.
+
+[REQUIREMENT]
+UID: TR-066
+STATUS: Active
+TITLE: TR-066 P1
+STATEMENT: Corrections after submission remain possible only as logged attributable changes/superseding records.
+
+[REQUIREMENT]
+UID: TR-067
+STATUS: Active
+TITLE: TR-067 P1
+STATEMENT: Deviations/nonconformances, disposition, follow-up actions and operator notes/photos/files link to stable step IDs.
+
+[REQUIREMENT]
+UID: TR-068
+STATUS: Active
+TITLE: TR-068 P0
+STATEMENT: No 21 CFR Part 11 or other regulatory compliance claim without dedicated validation of identity, signatures, retention and audit controls.
+
+[REQUIREMENT]
+UID: TR-069
+STATUS: Active
+TITLE: TR-069 P0
+STATEMENT: One browser workspace composes, inserts, executes, redlines, reviews and signs off steps; notebook not required.
+
+[REQUIREMENT]
+UID: TR-070
+STATUS: Active
+TITLE: TR-070 P0
+STATEMENT: Inline measurement values, limits, pass/fail, logs, operator prompts and step progress; minimal presses.
+
+[REQUIREMENT]
+UID: TR-071
+STATUS: Active
+TITLE: TR-071 P1
+STATEMENT: Easy pre-submit correction, logged post-submit changes, clear confirmations for destructive or hazardous operations.
+
+[REQUIREMENT]
+UID: TR-072
+STATUS: Active
+TITLE: TR-072 P1
+STATEMENT: Host and client show the same authorized log events with event IDs, step/run correlation, filters and replay.
+
+[REQUIREMENT]
+UID: TR-073
+STATUS: Active
+TITLE: TR-073 P1
+STATEMENT: Live graphs, waveform plots, sortable measurement tables and time axes with correct units.
+
+[REQUIREMENT]
+UID: TR-074
+STATUS: Active
+TITLE: TR-074 P1
+STATEMENT: Accessible responsive layout, keyboard support, navigation/search and persistent unsaved editing state.
+
+[REQUIREMENT]
+UID: TR-075
+STATUS: Active
+TITLE: TR-075 P2
+STATEMENT: Optional Monaco-backed C# or structured step editing without coupling procedure storage to a particular editor.
+
+[REQUIREMENT]
+UID: TR-076
+STATUS: Active
+TITLE: TR-076 P0
+STATEMENT: Microsoft.Extensions.Logging structured events for commands, leases, runs, steps, results, approvals, faults and cleanup.
+
+[REQUIREMENT]
+UID: TR-077
+STATUS: Active
+TITLE: TR-077 P1
+STATEMENT: OpenTelemetry traces/metrics propagate host, instrument, run, step and request correlations.
+
+[REQUIREMENT]
+UID: TR-078
+STATUS: Active
+TITLE: TR-078 P0
+STATEMENT: Redact sensitive SCPI payloads by default; privileged debugging requires policy and retention controls.
+
+[REQUIREMENT]
+UID: TR-079
+STATUS: Active
+TITLE: TR-079 P0
+STATEMENT: Slow log subscribers cannot block instrument I/O; critical alarms preserved with explicit loss/gap reporting.
+
+[REQUIREMENT]
+UID: TR-080
+STATUS: Active
+TITLE: TR-080 P0
+STATEMENT: User-supplied C# runs in a restricted worker, not the privileged instrument host; host permissions remain authoritative.
+
+[REQUIREMENT]
+UID: TR-081
+STATUS: Active
+TITLE: TR-081 P1
+STATEMENT: Audit retention, encryption, backup, trace IDs, clock discipline and tamper-evidence policy are documented and tested.
+
+[REQUIREMENT]
+UID: TR-082
+STATUS: Active
+TITLE: TR-082 P0
+STATEMENT: Reproducible cross-platform build and hardware-free CI; actual VISA/IVI tests opt-in.
+
+[REQUIREMENT]
+UID: TR-083
+STATUS: Active
+TITLE: TR-083 P0
+STATEMENT: Test startup failure, cancellation before/after dispatch, timeouts, cleanup failure and uncertain hardware state.
+
+[REQUIREMENT]
+UID: TR-084
+STATUS: Active
+TITLE: TR-084 P0
+STATEMENT: Test lease conflicts, multi-instrument deadlock prevention, shared observers and mixed client/host versions.
+
+[REQUIREMENT]
+UID: TR-085
+STATUS: Active
+TITLE: TR-085 P1
+STATEMENT: Test redlines, approval, signature hashes, offline conflicts and immutable execution records.
+
+[REQUIREMENT]
+UID: TR-086
+STATUS: Active
+TITLE: TR-086 P1
+STATEMENT: Test deterministic mock timing, scaling, state transitions, noise seeds and partial-order expectations.
+
+[REQUIREMENT]
+UID: TR-087
+STATUS: Active
+TITLE: TR-087 P1
+STATEMENT: Test host restart, disconnect, stale fencing tokens, log replay and unauthorized commands.
+
+[REQUIREMENT]
+UID: TR-088
+STATUS: Active
+TITLE: TR-088 P1
+STATEMENT: End-to-end frequency sweep spanning two simulated hosts: reserve, configure, acquire, stream, plot, log, cancel and cleanup.
+
+[REQUIREMENT]
+UID: TR-089
+STATUS: Active
+TITLE: TR-089 P1
+STATEMENT: Six-step electronic procedure demonstration: insert/reorder, execute, redline, approve, sign off and archive.
+
+[REQUIREMENT]
+UID: TR-090
+STATUS: Active
+TITLE: TR-090 P2
+STATEMENT: Repeat same compiled procedure with approved physical drivers; compare semantic behavior, not identical SCPI transcripts.
+
+[REQUIREMENT]
+UID: BD-UOM-001
+STATUS: Active
+TITLE: BD-UOM-001 P0
+STATEMENT: The unattended monitor shall raise exactly one overcurrent alarm when measured current first exceeds its configured threshold.
+
+[REQUIREMENT]
+UID: BD-UOM-002
+STATUS: Active
+TITLE: BD-UOM-002 P0
+STATEMENT: The monitor shall evaluate alarms independently of browser graphics and external notification delivery.
+
+[REQUIREMENT]
+UID: BD-UOM-003
+STATUS: Active
+TITLE: BD-UOM-003 P0
+STATEMENT: The demo shall label email and SMS events simulated and shall not contact real operators.
+
+[REQUIREMENT]
+UID: BD-UOM-004
+STATUS: Active
+TITLE: BD-UOM-004 P1
+STATEMENT: The browser monitor shall plot measured current and a threshold, supporting start pause reset and fault injection.
+
+[REQUIREMENT]
+UID: BD-UOM-005
+STATUS: Active
+TITLE: BD-UOM-005 P1
+STATEMENT: The browser monitor shall consume the same backend measurement events as the C# runner rather than duplicating the simulation.
+
+[REQUIREMENT]
+UID: BD-UOM-006
+STATUS: Active
+TITLE: BD-UOM-006 P1
+STATEMENT: Browser acceptance tests shall verify chart elements alarm text reset and accessible status under Chromium.
+
+[REQUIREMENT]
+UID: BD-UOM-007
+STATUS: Active
+TITLE: BD-UOM-007 P0
+STATEMENT: Actual hardware safe-state actions shall be independent of the browser and email or SMS delivery.
+
+[REQUIREMENT]
+UID: BD-UOM-008
+STATUS: Active
+TITLE: BD-UOM-008 P1
+STATEMENT: Notification delivery shall use a durable outbox with idempotent retries receipts and escalation.
+
+[REQUIREMENT]
+UID: BD-TS-001
+STATUS: Active
+TITLE: BD-TS-001 P0
+STATEMENT: Measurements shall be recorded in a local durable SQLite database without central network access.
+
+[REQUIREMENT]
+UID: BD-TS-002
+STATUS: Active
+TITLE: BD-TS-002 P0
+STATEMENT: Stored quantities shall retain canonical UnitsNet dimensions and reject incompatible signal values.
+
+[REQUIREMENT]
+UID: BD-TS-003
+STATUS: Active
+TITLE: BD-TS-003 P0
+STATEMENT: Batch writes shall be atomic and replay of the same sample identity shall not duplicate evidence.
+
+[REQUIREMENT]
+UID: BD-TS-004
+STATUS: Active
+TITLE: BD-TS-004 P1
+STATEMENT: Queries shall support real UTC and accelerated simulated elapsed time independently.
+
+[REQUIREMENT]
+UID: BD-TS-005
+STATUS: Active
+TITLE: BD-TS-005 P1
+STATEMENT: A background replicator shall synchronize local measurements to PostgreSQL or TimescaleDB after outages.
+
+[REQUIREMENT]
+UID: BD-TS-006
+STATUS: Active
+TITLE: BD-TS-006 P1
+STATEMENT: Plot downsampling shall preserve peak excursions and raw acceptance evidence.
+
+[REQUIREMENT]
+UID: BD-SIM-001
+STATUS: Active
+TITLE: BD-SIM-001 P0
+STATEMENT: Instrument mocks shall accept injected behavior and a run-scoped simulation clock.
+
+[REQUIREMENT]
+UID: BD-SIM-002
+STATUS: Active
+TITLE: BD-SIM-002 P1
+STATEMENT: Virtual thermal sensor output shall lag chamber setpoint with configurable time constant.
+
+[REQUIREMENT]
+UID: BD-SIM-003
+STATUS: Active
+TITLE: BD-SIM-003 P1
+STATEMENT: Virtual wiring shall reject incompatible connections missing sources duplicate drivers and cycles.
+
+[REQUIREMENT]
+UID: BD-SIM-004
+STATUS: Active
+TITLE: BD-SIM-004 P1
+STATEMENT: Approved custom C# mock behavior shall compile with Roslyn and run in isolated unprivileged workers.
+
+[REQUIREMENT]
+UID: BD-SIM-005
+STATUS: Active
+TITLE: BD-SIM-005 P1
+STATEMENT: The thermal demo shall record chamber setpoint sensor temperature and supply current to SQLite.
+
+[REQUIREMENT]
+UID: BD-SIM-006
+STATUS: Active
+TITLE: BD-SIM-006 P1
+STATEMENT: The thermal demo shall display 30 to 70 to minus 30 to 30 degree cycling with two-hour hot and cold dwells.
+
+[REQUIREMENT]
+UID: BD-REQ-001
+STATUS: Active
+TITLE: BD-REQ-001 P0
+STATEMENT: Requirements shall have unique stable IDs and shall be maintained in parseable version-controlled StrictDoc source.
+
+[REQUIREMENT]
+UID: BD-REQ-002
+STATUS: Active
+TITLE: BD-REQ-002 P0
+STATEMENT: Every requirement shall have an explicit verification status and a trace to implementation tests and/or open GitHub work.
+
+[REQUIREMENT]
+UID: BD-REQ-003
+STATUS: Active
+TITLE: BD-REQ-003 P0
+STATEMENT: CI shall validate requirements syntax identifiers and traceability and fail for broken references.
+
+[REQUIREMENT]
+UID: BD-REQ-004
+STATUS: Active
+TITLE: BD-REQ-004 P1
+STATEMENT: The requirements report shall distinguish committed source from successful test execution and verified behavior.
+
+[REQUIREMENT]
+UID: BD-REQ-005
+STATUS: Active
+TITLE: BD-REQ-005 P1
+STATEMENT: Acceptance scenarios shall be executable in Reqnroll with xUnit and requirement ID tags.
+
+[REQUIREMENT]
+UID: BD-BUILD-001
+STATUS: Active
+TITLE: BD-BUILD-001 P0
+STATEMENT: The project shall restore build and run its hardware-free tests on Windows macOS and Linux.
+
+[REQUIREMENT]
+UID: BD-BUILD-002
+STATUS: Active
+TITLE: BD-BUILD-002 P0
+STATEMENT: A new computer shall be able to provision supported .NET SDK and documentation tools using documented setup scripts.
+
+[REQUIREMENT]
+UID: BD-BUILD-003
+STATUS: Active
+TITLE: BD-BUILD-003 P1
+STATEMENT: Dependency versions and reproducible restore shall be governed by central version policy and lockfiles.
+
+[REQUIREMENT]
+UID: BD-BUILD-004
+STATUS: Active
+TITLE: BD-BUILD-004 P1
+STATEMENT: CI shall test browser controls and plots using an automated real browser and preserve failure artifacts.
+
+[REQUIREMENT]
+UID: BD-DOC-001
+STATUS: Active
+TITLE: BD-DOC-001 P0
+STATEMENT: The repository shall maintain a software development plan architecture description requirements and user manual.
+
+[REQUIREMENT]
+UID: BD-DOC-002
+STATUS: Active
+TITLE: BD-DOC-002 P1
+STATEMENT: The project shall provide an interactive HTML overview of architecture examples and feature status.
+
+[REQUIREMENT]
+UID: BD-WASM-001
+STATUS: Active
+TITLE: BD-WASM-001 P2
+STATEMENT: A browser demonstration shall execute selected C# simulation code via WebAssembly without privileged hardware access.
