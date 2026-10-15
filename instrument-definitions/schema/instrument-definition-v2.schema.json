@@ -413,6 +413,9 @@
         },
         "dynamicEvidence": {
           "type": "string"
+        },
+        "coverageEvidence": {
+          "type": "string"
         }
       },
       "additionalProperties": false
