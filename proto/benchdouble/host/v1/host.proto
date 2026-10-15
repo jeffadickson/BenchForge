@@ -1,0 +1,44 @@
+syntax = "proto3";
+package benchdouble.host.v1;
+option csharp_namespace = "BenchDouble.Host.Protocol.V1";
+
+// Versioned contract proposal. No gRPC service implementation exists yet.
+service InstrumentHost {
+  rpc ListInstruments(ListInstrumentsRequest) returns (ListInstrumentsResponse);
+  rpc GetLatestSample(LatestSampleRequest) returns (MeasurementSample);
+  rpc SubscribeSamples(SubscribeSamplesRequest) returns (stream MeasurementSample);
+}
+
+message ListInstrumentsRequest {}
+message ListInstrumentsResponse { repeated InstrumentInfo instruments = 1; }
+
+enum AccessPolicy {
+  ACCESS_POLICY_UNSPECIFIED = 0;
+  EXCLUSIVE_CONTROL = 1;
+  SHARED_READ_ONLY = 2;
+  EXCLUSIVE_CONTROL_WITH_OBSERVERS = 3;
+  HOST_SAMPLED_PUBLISH_SUBSCRIBE = 4;
+}
+
+message InstrumentInfo {
+  string resource_id = 1;
+  string instrument_class = 2;
+  string model = 3;
+  AccessPolicy access_policy = 4;
+  repeated string feature_keys = 5;
+  string driver_package_sha256 = 6;
+}
+
+message LatestSampleRequest { string resource_id = 1; }
+message SubscribeSamplesRequest {
+  string resource_id = 1;
+  uint64 after_sequence = 2;
+}
+message MeasurementSample {
+  string resource_id = 1;
+  uint64 sequence = 2;
+  int64 timestamp_unix_milliseconds = 3;
+  double value = 4;
+  string unit = 5;
+  string quality = 6;
+}
