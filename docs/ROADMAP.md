@@ -200,3 +200,13 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add schema-driven mock expressions and scripted response behavior
 - [ ] Add stateful/mock timeout/error functions and controlled deterministic clock
 - [ ] Import PyMeasure driver profiles with attribution and validate manual command parity
+
+### Mock lifecycle and simulation clocks
+- [x] Specify initialization and per-measurement mock behavior definitions
+- [x] Specify run-scoped shared simulation time and speed scaling
+- [x] Specify wall-time versus simulation-time delay and safety separation
+- [ ] Implement I/SimulationClock abstraction with real, accelerated, paused and manual time
+- [ ] Add validated .mock.json format to standalone generator and produce editable .g.cs files
+- [ ] Bind seeded sine/noise mock behavior to simulation clocks and stateful DMM samples
+- [ ] Add per-operation latency, warmup, acquisition and jitter using UnitsNet durations
+- [ ] Verify deterministic multi-instrument concurrency, cancellation, replay and acceleration
