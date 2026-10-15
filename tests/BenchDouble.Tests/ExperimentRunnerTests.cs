@@ -42,6 +42,71 @@ public sealed class ExperimentRunnerTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => runner.RunAsync(procedure, cancellation.Token));
     }
 
+    [Fact]
+    public async Task ShutdownFailureRequiresRecoveryAndBlocksNextRun()
+    {
+        var runner = new ExperimentRunner(new InMemoryExperimentResultSink(),
+            NullLogger<ExperimentRunner>.Instance);
+        var procedure = new FailedShutdownProcedure();
+        var result = await runner.RunAsync(procedure);
+        Assert.Equal(ExperimentStatus.RecoveryRequired, result.Status);
+        Assert.True(runner.RequiresRecovery);
+        Assert.IsType<InvalidOperationException>(result.Error);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            runner.RunAsync(new ExampleProcedure()));
+    }
+
+    [Fact]
+    public async Task ShutdownTimeoutReturnsPromptlyAndDoesNotClaimSafeState()
+    {
+        var runner = new ExperimentRunner(new InMemoryExperimentResultSink(),
+            NullLogger<ExperimentRunner>.Instance,
+            new ExperimentRunnerOptions { ShutdownTimeout = TimeSpan.FromMilliseconds(40) });
+        var procedure = new BlockingShutdownProcedure();
+        try
+        {
+            var result = await runner.RunAsync(procedure);
+            Assert.Equal(ExperimentStatus.RecoveryRequired, result.Status);
+            Assert.IsType<TimeoutException>(result.Error);
+            Assert.True(runner.RequiresRecovery);
+        }
+        finally
+        {
+            // Release the intentionally blocked task so it does not linger.
+            procedure.Release();
+        }
+    }
+
+    [Fact]
+    public void RejectsUnboundedShutdownPolicy()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new ExperimentRunner(new InMemoryExperimentResultSink(),
+                NullLogger<ExperimentRunner>.Instance,
+                new ExperimentRunnerOptions { ShutdownTimeout = Timeout.InfiniteTimeSpan }));
+    }
+
+    private sealed class FailedShutdownProcedure : ExperimentProcedure
+    {
+        public override string Name => "Failed shutdown";
+        public override Task ExecuteAsync(ExperimentContext context, CancellationToken token) =>
+            Task.CompletedTask;
+        public override Task ShutdownAsync(ExperimentContext context, CancellationToken token) =>
+            throw new InvalidOperationException("Unable to confirm output disable");
+    }
+
+    private sealed class BlockingShutdownProcedure : ExperimentProcedure
+    {
+        private readonly TaskCompletionSource _release =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public override string Name => "Blocked shutdown";
+        public override Task ExecuteAsync(ExperimentContext context, CancellationToken token) =>
+            Task.CompletedTask;
+        public override Task ShutdownAsync(ExperimentContext context, CancellationToken token) =>
+            _release.Task;
+        public void Release() => _release.TrySetResult();
+    }
+
     private sealed class ExampleProcedure : ExperimentProcedure
     {
         public override string Name => "DC Voltage";
