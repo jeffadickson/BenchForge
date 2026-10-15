@@ -1,5 +1,6 @@
 using BenchDouble.Experiments;
 using BenchDouble.Simulation;
+using Microsoft.Extensions.DependencyInjection;
 using UnitsNet;
 
 // The experiment owns instrument role registration and mock composition.
