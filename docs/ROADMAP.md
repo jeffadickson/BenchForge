@@ -408,3 +408,15 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Diagnose GitHub Actions jobs failing before runner allocation (zero steps, empty runner name)
 - [ ] Implement device-specific physical abort/disable confirmation and authoritative host fencing
 - [ ] Add full runner state transitions and externally validated recovery/resume workflow
+
+### Parlot procedure DSL and mock-backed execution
+- [x] Add optional BenchDouble.Procedures project with stable Parlot dependency
+- [x] Parse five step types into typed AST with line diagnostics
+- [x] Validate simulated instrument roles, modes, variables and UnitsNet dimensions
+- [x] Execute mock-only DSL using experiment DI scope, virtual clock and existing runner
+- [x] Add resistance procedure example and xUnit parse/execute/failure tests
+- [x] Add Makefile and three-OS CI entries for the optional procedure project
+- [ ] Obtain successful compilation and test evidence (CI runner allocation currently blocked)
+- [ ] Share a stable-ID procedure schema with graphical editor and preserve comments on round trip
+- [ ] Extend grammar for generated instrument capabilities, conditions, bounded loops and operator steps
+- [ ] Integrate authorized physical-host operations only after security and safe-state acceptance
