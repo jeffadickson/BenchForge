@@ -890,3 +890,9 @@ UID: BD-AM-010
 STATUS: Active
 TITLE: BD-AM-010 P1
 STATEMENT: An integrated experiment shall exercise AutoMock, virtual time, monitoring, persistence and dashboard telemetry through the same C# backend.
+
+[REQUIREMENT]
+UID: BD-AM-011
+STATUS: Active
+TITLE: BD-AM-011 P1
+STATEMENT: AutoMock shall generate typed default simulation adapters from instrument definitions so developers configure overrides without duplicating command boilerplate.
