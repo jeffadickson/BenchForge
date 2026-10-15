@@ -108,3 +108,44 @@ Time-series storage is for observations; the virtual wiring graph remains the so
 - Downsampled plots still display peaks that exceed acceptance limits.
 
 **Status:** architectural design and lightweight interfaces committed. No production database adapter, durable spool, real replication, quantity registry or database-backed plot exists yet.
+
+## 10. Implementation increment: durable SQLite (2026-10-15)
+
+**Implemented in source (not yet build-verified):**
+- `src/BenchDouble/TimeSeries/QuantitySeries.cs`: UnitsNet-to-canonical storage conversion and allow-listed quantity kinds and units (K, V, A, Ohm, Hz, s). A voltage cannot be inserted into a resistance/current series by changing the unit string.
+- `src/BenchDouble.TimeSeries.Sqlite`: optional `Microsoft.Data.Sqlite` adapter with WAL, synchronous FULL, durable local database file, version-1 schema, indexed acquired-time queries, atomic batch commits, signal dimension/basis locking, and duplicate replay verification.
+- `tests/BenchDouble.TimeSeries.Sqlite.Tests`: isolated-file tests for close/reopen durability, idempotent replay, atomic rollback on conflicting duplicates, incompatible quantity rejection, noncanonical unit rejection, and bounded queries.
+- `examples/BenchDouble.ThermalCycleDemo`: records four signals at five-minute intervals across the seven-hour virtual thermal cycle and queries stored sensor samples. Uses deterministic simulated timestamps for demo reproducibility; **production physical timestamps must come from actual acquisition**.
+- The storage package is optional: the core instrument library has no SQLite dependency.
+
+### Developer example
+
+```csharp
+await using var store = await SqliteTimeSeriesStore.OpenAsync("runs/measurements.sqlite");
+var point = QuantitySeries.FromQuantity(
+    runId: "RUN-42",
+    instrumentId: "DMM-1",
+    signalId: "supply.current",
+    acquiredUtc: DateTimeOffset.UtcNow,
+    quantity: ElectricCurrent.FromMilliamperes(550),
+    sequence: 0,
+    simulationElapsed: TimeSpan.FromHours(1));
+await store.AppendAsync(new[] { point });
+
+await foreach (var sample in store.QueryAsync(
+    new TimeSeriesQuery("RUN-42", "supply.current",
+        DateTimeOffset.UtcNow.AddHours(-1),
+        DateTimeOffset.UtcNow.AddHours(1))))
+{
+    Console.WriteLine($"{sample.CanonicalValue} {sample.UnitCode}");
+}
+```
+
+### Current limitations / production gates
+
+- This is a **local recorder**, not yet a complete offline-to-central replication system. No TimescaleDB/InfluxDB/QuestDB adapter has been implemented.
+- It opens a SQLite connection per operation and serializes writes per store instance; ingestion batching/backpressure, sustained high-rate throughput benchmarks and multi-process stress tests remain pending.
+- `TimeSeriesQuery` currently filters by acquisition UTC, not virtual time; add a virtual-time query mode before production use for accelerated simulation.
+- No signal metadata migrations beyond schema version 1, retention policies, waveform object store, or replication cursor/outbox.
+- Local SQLite durability does not replace the immutable procedure/audit/signature database.
+- No performance or physical safety guarantees until CI and failure-injection validation are complete.
