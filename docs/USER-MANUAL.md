@@ -59,3 +59,6 @@ The chamber line is the **setpoint**; the sensor line is a simulated first-order
 
 ## Where to go next
 [Software description](SOFTWARE-DESCRIPTION.md) · [Development plan](SOFTWARE-DEVELOPMENT-PLAN.md) · [Requirements](../requirements/README.md) · [GitHub Issues](https://github.com/jeffadickson/BenchDouble/issues) · [HTML project overview](../examples/ProjectOverview/index.html)
+
+## Dependency and environment reference
+For pinned project dependencies, browser requirements, optional hardware SDKs and outstanding platform caveats, see [Dependency Inventory](DEPENDENCIES.md). A cross-platform .NET build does not establish vendor VISA/IVI hardware compatibility.
