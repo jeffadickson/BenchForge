@@ -214,3 +214,11 @@ The primary objective now includes **controlling real equipment**, not merely mo
 ## Integrated test-lab runner acceptance baseline
 
 Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the indexed TR-001–TR-090 source for implementation issues, tests and milestone acceptance. Prioritize (1) green build and durable async runner, (2) structured procedure editing, (3) controlled redlines and signoff, (4) secure host streaming and leases, (5) multi-host demonstration. Maintain requirement-to-test traceability; do not mark an item complete solely because an interface or document was committed.
+
+### Source-grounded unified instrument operation architecture
+- [x] Document local physical, local simulated, remote physical and remote simulated paths
+- [x] Audit 25 actual PyMeasure operation definitions with file/line provenance
+- [ ] Implement typed operation registry and generic dispatch for selected DMM/FGEN operations
+- [ ] Integrate mock state transitions with operation definitions (mode-aware measurement)
+- [ ] Implement typed versioned remote proxy without client-side vendor SCPI duplication
+- [ ] Verify source-to-C# operation parity and real-device behavior where authorized
