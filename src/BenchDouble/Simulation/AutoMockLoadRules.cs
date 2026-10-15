@@ -48,8 +48,10 @@ public sealed record AutoMockLoadRule(
         ArgumentException.ThrowIfNullOrWhiteSpace(Name);
         ArgumentNullException.ThrowIfNull(Condition);
         Condition.Validate();
-        if (!double.IsFinite(Value) || Value < 0 ||
-            !Enum.IsDefined(Action))
+        if (!double.IsFinite(Value) || Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(Value),
+                $"Rule '{Name}' requires a finite nonnegative value.");
+        if (!Enum.IsDefined(Action))
             throw new ArgumentException($"Invalid action for AutoMock rule '{Name}'.");
     }
 }
