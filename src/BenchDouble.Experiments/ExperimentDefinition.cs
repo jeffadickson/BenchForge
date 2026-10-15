@@ -197,14 +197,14 @@ public sealed class ExperimentDefinition
     public string Name { get; }
     public IReadOnlyList<ExperimentInstrument> Instruments { get; }
 
-    public ExperimentRun StartSimulated()
+    public ExperimentSession StartSimulated()
     {
         // A new container per run prevents singleton-like model state leaking across runs.
         var provider = _services.BuildServiceProvider(new ServiceProviderOptions
         {
             ValidateScopes = true, ValidateOnBuild = true
         });
-        return new ExperimentRun(provider, provider.CreateAsyncScope(), Instruments,
+        return new ExperimentSession(provider, provider.CreateAsyncScope(), Instruments,
             AutoMockRuleSha256, AutoMockRuleHashes);
     }
 }
@@ -213,14 +213,14 @@ public sealed class ExperimentDefinition
 /// Owns the simulation scope and the provider. Only this composition boundary
 /// resolves named instruments. Always dispose when a run finishes.
 /// </summary>
-public sealed class ExperimentRun : IAsyncDisposable
+public sealed class ExperimentSession : IAsyncDisposable
 {
     private readonly ServiceProvider _provider;
     private readonly AsyncServiceScope _scope;
     private readonly IReadOnlyList<ExperimentInstrument> _instruments;
     private bool _disposed;
 
-    internal ExperimentRun(ServiceProvider provider, AsyncServiceScope scope,
+    internal ExperimentSession(ServiceProvider provider, AsyncServiceScope scope,
         IReadOnlyList<ExperimentInstrument> instruments, string? autoMockRuleHash,
         IReadOnlyDictionary<string, string> roleRuleHashes)
     {
