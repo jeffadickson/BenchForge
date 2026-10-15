@@ -1,0 +1,64 @@
+# BenchDouble Software Development Plan (SDP)
+
+**Baseline:** SDP-001 · 2026-10-15 · **Maturity:** active prototype / pre-beta; not production qualified.
+
+## 1. Product and process
+BenchDouble is a .NET laboratory instrument-control, mocking and experiment-execution platform with typed IVI/SCPI/legacy GPIB APIs, local/remote instrument hosts, virtual bench physics, procedure editing, monitoring and persistence. Development follows requirements-driven increments: **requirement → GitHub issue → implementation → unit/BDD/browser test → CI evidence → review → release**. Keep evidence and implementation status distinct.
+
+## 2. Configuration and change control
+- GitHub repository: `jeffadickson/BenchDouble`. All source, docs and tests are reviewed as commits/PRs.
+- Stable IDs in `requirements/benchdouble.sdoc`; `requirements/traceability.csv` is the requirement-to-code/test/issue matrix.
+- StrictDoc parses/exports the requirements. Reqnroll executes Gherkin acceptance scenarios tagged with requirement IDs. xUnit is used for component tests.
+- Existing `TR-001..TR-090` requirements remain valid; subsystem specifications are linked from the software description.
+- Changes to a released requirement are reviewed; record rationale and impact on code/tests/manual.
+- STRIDE threat modeling is used for remote-host identity, driver package loading, safety boundaries and secrets, not as a requirements tool.
+
+## 3. Work planning
+Priority P0: safety/ownership, data integrity, type correctness, reproducible build, essential verification.
+P1: integrated editor, durable notifications, distributed reliability, full browser tests, operational reporting.
+P2: rich WebAssembly browser simulation, optional database backends, visual wiring and advanced solvers.
+
+GitHub Issues #1–#26 cover existing known subsystem gaps; #27–#33 cover browser tests, bootstrap, manuals, overview/WebAssembly, requirements CI, notification reliability and audit closure. Every `Planned` requirement needs an issue; no issue is closed without linked test evidence or an explicit justified deferral.
+
+## 4. Architecture and dependency policy
+- Instrument core: .NET 8, UnitsNet and logging abstractions. No GUI/database dependency.
+- Optional adapters: SQLite, ScottPlot, IVI/VISA, host transport, driver generation, plotting.
+- `Microsoft.Extensions.DependencyInjection` only in application composition roots; per-run clocks, simulation models and stateful mocks are scoped.
+- `Microsoft.Data.Sqlite` local WAL recorder; TimescaleDB replication remains unimplemented.
+- Reqnroll.xUnit and Microsoft.Playwright are **test-only** packages. StrictDoc is a Python tool for requirements, not a runtime dependency.
+- Pin SDK with `global.json`; pin NuGet package versions; create/commit NuGet lockfiles and centralize versions in a future dependency-hardening issue.
+- No arbitrary uploaded C# may execute in the privileged instrument host. Isolate Roslyn-compiled mock workers.
+
+## 5. Development and verification
+1. `bash scripts/bootstrap.sh` on Linux/macOS, `pwsh -File scripts/bootstrap.ps1` on Windows.
+2. `python3 scripts/check_requirements.py` checks IDs, statuses, local paths and issue links.
+3. StrictDoc export validates the machine-readable baseline and produces navigable HTML.
+4. `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj`: component/physics/monitor tests.
+5. `dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj`: Reqnroll scenarios.
+6. `dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj`: real Chromium DOM/SVG smoke tests after Playwright browser install.
+7. SQLite tests, other package tests and demo applications run on the Windows/Linux/macOS CI matrix.
+8. Physical hardware tests are opt-in, authorized, fixture-specific, and require separate safe-state verification. A green mock CI is not a hardware qualification.
+
+## 6. Quality gates and exit criteria
+- All P0 requirements have a verified test or a documented release-blocking exception.
+- All public interfaces have XML documentation and examples; package boundaries remain acyclic.
+- No unbounded queues, silent telemetry loss, or unverified safe-state claims.
+- CI succeeds on all supported OSes; dependency restore reproducibility and vulnerabilities are reviewed.
+- At least one complete simulated experiment: configure, acquire, alarm, persist, plot, cleanup, replay.
+- Browser tests verify logic-to-UI integration, not only a hardcoded SVG.
+- Reproducible builds and signed release artifacts; package SBOM and dependency licenses reviewed.
+
+## 7. Risk register
+| Risk | Mitigation | Current status |
+|---|---|---|
+| False hardware-safe-state claims | Separate simulation and physical recovery contracts | Open |
+| Mock UI duplicates C# engine | Move UI to backend event stream; integration tests | Open |
+| Disconnected central database | Local SQLite durable spool; replication pending | Partial |
+| Untrusted Roslyn plugin execution | Isolated worker, signed behavior packages | Open |
+| Package/platform differences | Three-OS CI, optional vendor SDK detection | Partial |
+| Requirement status drift | StrictDoc + CSV checker + CI evidence | New |
+| Plot regressions | Playwright real-browser smoke tests | New |
+| Poor traceability across 122 requirements | Map issues/tests and audit every release | In progress |
+
+## 8. Release strategy
+Prototype → hardware-free alpha → controlled bench beta → lab pilot → production release. Do not label a phase complete based on source commits alone. For each release attach a requirement coverage report, test summary, known limitations, package/dependency inventory and user manual revision.
