@@ -1,6 +1,6 @@
 # API documentation policy
 
-Requirements: BD-DOC-003..005. Work item: [#61](https://github.com/jeffadickson/BenchDouble/issues/61).
+Requirements: BD-DOC-003..005. Work item: [#61](https://github.com/jeffadickson/BenchForge/issues/61).
 
 Run `make setup`, then `make docs`. Open `build/documentation/index.html`
 through a local static HTTP server (for example `python3 -m http.server 8000
@@ -62,3 +62,8 @@ site, generator comments and auditable migration boundary.
 - [Sphinx autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html)
 
 See the [dated execution audit](API-DOCUMENTATION-AUDIT-2026-10-15.md) for exact coverage counts and local build limitations.
+
+
+## Example integration
+
+The [examples guide](EXAMPLES.md) links runnable source to generated API documentation. All new examples must explain input, output, cancellation, error behavior and whether hardware is involved.
