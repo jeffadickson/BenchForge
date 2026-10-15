@@ -128,3 +128,7 @@ Initial C# functionality includes `ScpiParameter` factories, `MappedCodec<T>` fo
 ## Async instrument APIs
 
 The first asynchronous APIs now live in [`BenchDouble.Async`](src/BenchDouble/Async/AsyncInstruments.cs). They provide `IAsyncScpiSession`, a session-serialization decorator, typed async DMM/generator drivers and a compatibility adapter for existing synchronous simulators. See [tests](tests/BenchDouble.Tests/AsyncInstrumentTests.cs). The compatibility adapter remains synchronous underneath and does not create true nonblocking VISA operations. Cancellation does not guarantee hardware abort or a confirmed safe state. The implementation has been committed but is not yet verified by a successful .NET build.
+
+## Exclusive instrument reservations
+
+`BenchDouble.Async.InstrumentReservationManager` now supports cancellable, exclusive in-process resource leases. Use one shared manager instance and keep reservations for the entire experiment—including cleanup—not merely around one command. [Source](src/BenchDouble/Async/InstrumentReservations.cs) · [Tests](tests/BenchDouble.Tests/InstrumentReservationTests.cs). This is not cross-process locking; currently the instrument factory does not enforce it automatically.
