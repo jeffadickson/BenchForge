@@ -32,6 +32,13 @@ def main() -> int:
             raise ValueError(f"Unknown implementation state: {item['id']}")
         if item.get("hardwareValidated", False) and item["implementationStatus"] != "hardwareValidated":
             raise ValueError(f"Hardware validation claim not supported: {item['id']}")
+        if item["definitionStatus"] in {"definitionDraft", "definitionReviewed"}:
+            definition_path = item.get("definitionPath")
+            if not definition_path or not (ROOT / definition_path).is_file():
+                raise ValueError(f"Missing definition draft for {item['id']}")
+            definition = json.loads((ROOT / definition_path).read_text(encoding="utf-8"))
+            if definition.get("schemaVersion") not in (1, 2):
+                raise ValueError(f"Unsupported definition schema for {item['id']}")
         if item["implementationStatus"] != "notPorted":
             for field in ("driverPath", "mockPath"):
                 path = item.get(field)
