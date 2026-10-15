@@ -189,3 +189,14 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Generate test fixtures and XML docs; integrate with simulator expectations
 - [ ] Validate Keysight and Tektronix profile SCPI against vendor manuals
 - [ ] Convert selected PyMeasure device profiles with attribution and parity tests
+
+### Explicit source generation and programmable mocks
+- [x] Replace compiler-time generator direction with standalone .NET generator and Makefile entry point
+- [x] Emit editor-visible ordinary .g.cs files from versioned JSON numeric SCPI definitions
+- [x] Implement sine, seeded uniform random and composable simulation signal behavior types
+- [x] Add simulation signal tests
+- [ ] Verify generator compiles and generated drivers pass unit tests
+- [ ] Commit generated outputs and enforce drift check in CI
+- [ ] Add schema-driven mock expressions and scripted response behavior
+- [ ] Add stateful/mock timeout/error functions and controlled deterministic clock
+- [ ] Import PyMeasure driver profiles with attribution and validate manual command parity
