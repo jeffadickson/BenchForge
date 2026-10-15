@@ -99,6 +99,10 @@ public sealed class AutoMockLoadRulesBuilder
     public IReadOnlyList<AutoMockLoadRule> Build() => Array.AsReadOnly(_rules.ToArray());
 }
 
+/// <summary>One evaluated mock measurement with rule provenance for future telemetry.</summary>
+public sealed record AutoMockEvaluation(
+    ElectricCurrent Current, string? MatchedRule, TimeSpan SimulatedElapsed);
+
 /// <summary>
 /// An ordinary ILoadBehavior decorator. Command/state behavior remains in the
 /// instrument; the decorator only controls the simulated current reading.
@@ -120,7 +124,14 @@ public sealed class RuleBasedLoadBehavior : ILoadBehavior
         _rules = _rules.OrderByDescending(r => r.Priority).ToArray();
     }
 
-    public ElectricCurrent CurrentAt(ElectricPotential voltage, TimeSpan elapsed)
+    public ElectricCurrent CurrentAt(ElectricPotential voltage, TimeSpan elapsed) =>
+        EvaluateAt(voltage, elapsed).Current;
+
+    /// <summary>
+    /// Evaluate the rules and expose which rule matched, without mutating state.
+    /// Instrument logging can publish this result separately from physical state.
+    /// </summary>
+    public AutoMockEvaluation EvaluateAt(ElectricPotential voltage, TimeSpan elapsed)
     {
         if (elapsed < TimeSpan.Zero || !double.IsFinite(voltage.Volts))
             throw new ArgumentOutOfRangeException(nameof(elapsed));
@@ -136,8 +147,10 @@ public sealed class RuleBasedLoadBehavior : ILoadBehavior
             };
             if (!double.IsFinite(amps) || amps < 0)
                 throw new InvalidOperationException($"Rule '{rule.Name}' produced an invalid current.");
-            return ElectricCurrent.FromAmperes(amps);
+            return new AutoMockEvaluation(ElectricCurrent.FromAmperes(amps),
+                rule.Name, elapsed);
         }
-        return _baseline.CurrentAt(voltage, elapsed);
+        return new AutoMockEvaluation(_baseline.CurrentAt(voltage, elapsed),
+            null, elapsed);
     }
 }
