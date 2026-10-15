@@ -164,3 +164,7 @@ Drivers will be authored from versioned, validated [instrument description files
 ## Standalone driver generator and programmable mocks
 
 The driver-generation approach is now an **explicit build step**, not a Roslyn incremental generator. Run `make generate` or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated` to emit ordinary editor-visible C# source. The generator currently supports a limited subset of SCPI numeric properties and UnitsNet types; it is not a fully validated IVI/PyMeasure converter. The simulation library also includes programmable `SineBehavior`, seeded random voltage-style readings, and composed signal/noise behaviors; JSON-driven mock generation is planned. See [Driver Generation](docs/DRIVER-GENERATION.md). Build verification is outstanding.
+
+## Timed, programmable instrument mocks
+
+The mock design now explicitly separates instrument initialization from operation/measurement behaviors, and introduces a **shared simulation time domain**. Proposed real-time (1×), accelerated, paused and manually advanced modes allow realistic acquisition/warmup delays without slowing tests. Security leases and physical hardware timing always remain on real time. See [Mock Time and Lifecycle Specification](docs/MOCK-TIME-AND-LIFECYCLE.md). The behavior types exist, but clock/scaling and mock-schema generation are not yet implemented.
