@@ -221,7 +221,7 @@ The SQLite recorder also supports `SimulationTimeSeriesQuery` to retrieve readin
 
 ## Requirements-driven development and testing (2026-10-15)
 
-BenchDouble now has a **StrictDoc requirements baseline** with **122 stable IDs** (the 90 previously consolidated test-runner requirements plus 32 additional cross-subsystem requirements) in [requirements/benchdouble.sdoc](requirements/benchdouble.sdoc). [Traceability](requirements/traceability.csv) links each to implementation, test evidence status and GitHub work. [Reqnroll.xUnit](tests/BenchDouble.Acceptance.Tests/) provides executable Given–When–Then acceptance for the unattended monitor, and [Playwright Chromium tests](tests/BenchDouble.Browser.Tests/) check the browser SVG, alarm log and controls. [Pure xUnit tests](tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs) verify the same C# alarm logic without a browser. **All are source-committed; successful execution has not been verified.**
+BenchDouble now has a **StrictDoc requirements baseline** with **167 stable IDs** (90 original test-runner requirements plus 77 cross-subsystem requirements) in [requirements/benchdouble.sdoc](requirements/benchdouble.sdoc). [Traceability](requirements/traceability.csv) links each to implementation, test evidence status and GitHub work. [Reqnroll.xUnit](tests/BenchDouble.Acceptance.Tests/) provides executable Given–When–Then acceptance for the unattended monitor, and [Playwright Chromium tests](tests/BenchDouble.Browser.Tests/) check the browser SVG, alarm log and controls. [Pure xUnit tests](tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs) verify the same C# alarm logic without a browser. **Implementation maturity varies by requirement; successful execution has not been verified.**
 
 ### First-time setup
 
@@ -241,7 +241,7 @@ The optional [experiment composition project](src/BenchDouble.Experiments/) prov
 
 The existing loopback-only instrument host now serves a [read-only HTML instrument dashboard](src/BenchDouble.Host.Server/wwwroot/dashboard/index.html). Run `make demo-dashboard` (or `dotnet run --project src/BenchDouble.Host.Server`) and open **http://127.0.0.1:5278/dashboard/**. It shows registered local simulated instruments, reservation state, and bounded sanitized per-instrument activity logs. The [dashboard guide](docs/INSTRUMENT-DASHBOARD.md) documents current scope and security limitations. This is not yet a network-wide authenticated operations console.
 
-The [requirements baseline](requirements/benchdouble.sdoc) now contains **138** stable IDs. New GitHub issues [#35–#39](https://github.com/jeffadickson/BenchDouble/issues) cover remote composition, dashboard aggregation, CI, versioning and evidence-based PyMeasure comparison. BenchDouble has interesting architectural differentiators but has **not yet demonstrated overall feature parity or superiority to PyMeasure** in validated driver coverage and production operation.
+At the earlier experiment/dashboard increment, the [requirements baseline](requirements/benchdouble.sdoc) contained **138** stable IDs; it has since expanded to 167. New GitHub issues [#35–#39](https://github.com/jeffadickson/BenchDouble/issues) cover remote composition, dashboard aggregation, CI, versioning and evidence-based PyMeasure comparison. BenchDouble has interesting architectural differentiators but has **not yet demonstrated overall feature parity or superiority to PyMeasure** in validated driver coverage and production operation.
 
 ## AutoMock — rule-driven instrument behavior (2026-10-15)
 
