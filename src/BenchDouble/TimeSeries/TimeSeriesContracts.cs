@@ -117,3 +117,20 @@ public sealed class InMemoryTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesRead
     }
 
 }
+
+
+/// <summary>Query logical elapsed time rather than UTC; for accelerated virtual runs.</summary>
+public sealed record SimulationTimeSeriesQuery(
+    string RunId,
+    string SignalId,
+    TimeSpan Start,
+    TimeSpan End,
+    int MaximumPoints = 10000);
+
+/// <summary>Optional capability for querying deterministic virtual time directly.</summary>
+public interface ISimulationTimeSeriesReader
+{
+    IAsyncEnumerable<TimeSeriesSample> QuerySimulationAsync(
+        SimulationTimeSeriesQuery query,
+        CancellationToken cancellationToken = default);
+}
