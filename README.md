@@ -168,3 +168,7 @@ The driver-generation approach is now an **explicit build step**, not a Roslyn i
 ## Timed, programmable instrument mocks
 
 The mock design now explicitly separates instrument initialization from operation/measurement behaviors, and introduces a **shared simulation time domain**. Proposed real-time (1×), accelerated, paused and manually advanced modes allow realistic acquisition/warmup delays without slowing tests. Security leases and physical hardware timing always remain on real time. See [Mock Time and Lifecycle Specification](docs/MOCK-TIME-AND-LIFECYCLE.md). The behavior types exist, but clock/scaling and mock-schema generation are not yet implemented.
+
+## Consolidated test-lab runner requirements
+
+The [Test-Lab Runner Requirements baseline](docs/TEST-LAB-RUNNER-REQUIREMENTS.md) consolidates **TR-001 through TR-090** across structured authoring, async execution, distributed hosts, instrument sharing, simulation, durable results, redlines, signatures, unified UI, observability and verification. Requirements are prioritized and distinguish implemented prototypes from planned work. The runner and editor share one structured procedure representation; TestForge may integrate formal qualification/evidence functions without duplicating the execution engine.
