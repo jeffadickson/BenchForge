@@ -16,6 +16,7 @@ requirements:
 	.tools/requirements-venv/bin/strictdoc export requirements --output-dir build/requirements
 
 generate:
+	$(PYTHON) scripts/check_instrument_catalog.py
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
 
 build: generate
@@ -50,8 +51,9 @@ test-browser:
 
 verify: requirements build test
 
-check-generated: generate
-	git diff --exit-code -- src/BenchDouble/Generated
+check-generated:
+	$(PYTHON) scripts/check_instrument_catalog.py
+	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
 
 demo:
 	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj
