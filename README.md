@@ -291,4 +291,5 @@ coverage audit and remaining legacy gaps. New generated APIs are checked too.
 
 [Binary capture storage](docs/BINARY-CAPTURE-STORAGE.md) specifies the proposed
 local-first artifact service for scope traces and screenshots, including metadata,
-checksums, crash recovery and export. This backend is designed, not implemented.
+checksums, crash recovery and export. A first local SQLite BLOB backend is implemented; remote object storage is still
+planned. Run `make demo-capture` and read [save/retrieve examples](docs/LOCAL-CAPTURE-STORAGE.md).

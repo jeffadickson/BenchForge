@@ -35,3 +35,9 @@ Documentation audit
 
 .. automodule:: scripts.check_api_docs
    :members:
+
+Artifact recovery check
+-----------------------
+
+.. automodule:: scripts.check_artifact_recovery
+   :members:

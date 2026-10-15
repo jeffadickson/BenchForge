@@ -10,3 +10,5 @@
   href: ../API-DOCUMENTATION.md
 - name: Binary captures
   href: ../BINARY-CAPTURE-STORAGE.md
+- name: Save traces and screenshots
+  href: ../LOCAL-CAPTURE-STORAGE.md

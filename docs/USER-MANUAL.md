@@ -117,3 +117,12 @@ See [Instrument Definer instructions](INSTRUMENT-DEFINER.md). For PyMeasure, use
 ## Local-first setup and routing
 
 See [local/remote configuration examples](LOCAL-FIRST-CONFIGURATION.md) for the optional instruments.json file, localhost default, route logging, per-resource reservations and multiple cached observers. See [feature overview](FEATURE-OVERVIEW.md) for current implementation limits. `make setup` restores all project dependencies; `make setup-browser` adds Chromium. `make scoreboard` generates the searchable requirements status page.
+
+## Save scope traces and screenshots
+
+Run `make demo-capture` for a complete synthetic capture example. The optional
+local store keeps original bytes and metadata together in SQLite, returns stable
+IDs, and links a trace with its screenshot through a shared acquisition ID.
+See [Local capture storage](LOCAL-CAPTURE-STORAGE.md) for what is stored, where it
+lives, retrieval code, duplicate-save rules and failure handling. Remote upload
+is not implemented; local success and a pending outbox do not imply a remote copy.

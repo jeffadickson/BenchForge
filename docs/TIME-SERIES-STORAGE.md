@@ -160,4 +160,5 @@ await foreach (var sample in store.QueryAsync(
 See [Binary capture storage](BINARY-CAPTURE-STORAGE.md) for the managed artifact
 service proposal, stable IDs, raw waveform metadata, linked screenshots,
 transactional indexing/outbox and recovery. This extends the bulk-store design;
-no artifact backend is implemented by the existing SQLite time-series adapter.
+the existing SQLite time-series adapter remains separate from the new optional
+`BenchDouble.Artifacts.Sqlite` BLOB adapter. See [capture examples](LOCAL-CAPTURE-STORAGE.md).

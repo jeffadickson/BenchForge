@@ -1,12 +1,12 @@
-# Requirements coverage — 2026-10-15 revision 3
+# Requirements coverage — 2026-10-15 revision 4
 
 **220 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
 
 | Status | Count |
 |---|---:|
-| DesignOnly | 11 |
+| DesignOnly | 7 |
 | NoImplementationEvidence | 39 |
-| PartialSourceUnverified | 54 |
+| PartialSourceUnverified | 58 |
 | Planned | 49 |
 | SourceCommittedUnverified | 67 |
 
@@ -16,4 +16,6 @@ Local evidence: 12 Instrument Definer tests and two draft validations passed in 
 
 Local-first routing increment: BD-CFG-001..007 and issues #59/#60. Host projects and new configuration tests compiled locally using MSBuild; the standard VSTest runner crashed before executing tests. Final client/tests were also compiled with Roslyn and 19 host/configuration test-method cases passed in-process (not VSTest). StrictDoc 0.30.2 installed and exported successfully. No Verified promotion.
 
-API documentation/artifact increment: BD-DOC-003..005 and BD-ART-001..005 (#61/#62). Documentation pipeline and generated comments implemented with an explicit legacy backlog. Binary storage remains design-only. No Verified promotion. See docs/API-DOCUMENTATION-AUDIT-2026-10-15.md for local execution scope.
+API documentation/artifact increment: BD-DOC-003..005 and BD-ART-001..005 (#61/#62). Documentation pipeline and generated comments implemented with an explicit legacy backlog. That increment specified the binary storage design; see the local backend update below. No Verified promotion. See docs/API-DOCUMENTATION-AUDIT-2026-10-15.md for local execution scope.
+
+Local capture backend: BD-ART-001..004 now PartialSourceUnverified (125 source-linked requirements total). Twelve in-process xUnit Fact methods and an independent process-exit recovery probe passed. Standard VSTest remains blocked; remote storage, backup/retention, power-loss and performance acceptance remain open. See docs/ARTIFACT-STORAGE-VALIDATION-2026-10-15.md. No Verified promotion; total remains 220.

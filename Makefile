@@ -45,7 +45,7 @@ test-browser:
 	$(DOTNET) run --project tools/BenchDouble.BrowserSetup -- install chromium
 	$(DOTNET) test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --no-build
 
-verify: requirements build test docs
+verify: requirements build test docs artifact-recovery
 
 check-generated:
 	$(PYTHON) scripts/check_instrument_catalog.py
@@ -99,3 +99,14 @@ docs-check:
 docs: check-generated docs-check
 	.tools/docs-venv/bin/python -m sphinx -W --keep-going -b html docs/python build/python
 	$(DOTNET) tool run docfx docfx.json
+
+.PHONY: demo-capture artifact-check artifact-recovery
+demo-capture:
+	$(DOTNET) run --project examples/BenchDouble.CaptureDemo
+
+artifact-check: artifact-recovery
+	$(DOTNET) test tests/BenchDouble.Artifacts.Tests
+
+artifact-recovery:
+	$(DOTNET) build tools/BenchDouble.ArtifactCrashProbe
+	$(PYTHON) scripts/check_artifact_recovery.py --dotnet "$(DOTNET)"

@@ -91,3 +91,10 @@ Transitive Python/NuGet lockfiles and clean-platform provisioning remain #28/#60
   SDK's C#12 generation. Project discovery restores it automatically.
 - `make docs` builds a combined site; `make docs-check` audits all owned source.
   Full transitive dependency locking remains tracked in #28.
+
+## Local binary captures
+
+The optional `BenchDouble.Artifacts.Sqlite` package uses Microsoft.Data.Sqlite
+8.0.11, matching the existing time-series SQLite adapter. Bootstrap project
+discovery includes the capture demo, xUnit tests and process-exit probe.
+`make artifact-check` runs the focused tests and recovery probe.

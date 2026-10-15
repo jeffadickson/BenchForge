@@ -28,3 +28,12 @@ Start with [setup and configuration examples](LOCAL-FIRST-CONFIGURATION.md),
 [reliability architecture](RELIABILITY-ARCHITECTURE.md). Build the searchable
 scoreboard with `make scoreboard`; export StrictDoc with `make requirements`.
 Routine pushes skip hosted CI; local tests and milestone verification are separate.
+
+## Local trace and screenshot storage
+
+`BenchDouble.Artifacts.Sqlite` now stores immutable capture bytes plus searchable
+metadata and a pending outbox in one local transaction. It supports bounded
+streaming, SHA-256 verification, idempotent IDs and acquisition lookup.
+[Run the capture example](LOCAL-CAPTURE-STORAGE.md). Remote upload, retention,
+online backup and comparative storage benchmarks remain pending; the pending
+outbox is not a remote-durability claim.

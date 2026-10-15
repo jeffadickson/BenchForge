@@ -18,3 +18,4 @@ thermal-demo-output/
 .verification/
 docfx.local-*.json
 **/__pycache__/
+capture-demo-output/

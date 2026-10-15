@@ -69,6 +69,12 @@ jobs:
             build/documentation/
             build/documentation-audit.json
           if-no-files-found: ignore
+      - name: Test local binary captures
+        run: dotnet test tests/BenchDouble.Artifacts.Tests/BenchDouble.Artifacts.Tests.csproj
+      - name: Build artifact recovery probe
+        run: dotnet build tools/BenchDouble.ArtifactCrashProbe
+      - name: Verify artifact process-exit recovery
+        run: python scripts/check_artifact_recovery.py
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
