@@ -18,8 +18,6 @@ public sealed class UnattendedMonitorBrowserTests
             Headless = true
         });
         var page = await browser.NewPageAsync();
-        var html = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory, "../../../../examples/UnattendedOperationsMonitor/index.html"));
         // Locate from repository root even when tests run in nested output folders.
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName,
@@ -28,6 +26,8 @@ public sealed class UnattendedMonitorBrowserTests
         Assert.NotNull(dir);
         await page.GotoAsync(new Uri(Path.Combine(dir!.FullName,
             "examples/UnattendedOperationsMonitor/index.html")).AbsoluteUri);
+        try
+        {
         Assert.Contains("Unattended Operations Monitor", await page.TitleAsync());
         Assert.Equal("0.50", await page.Locator("#current").InnerTextAsync());
         await page.GetByRole(AriaRole.Button, new() { Name = "Inject fault now" }).ClickAsync();
@@ -41,6 +41,12 @@ public sealed class UnattendedMonitorBrowserTests
         await page.GetByRole(AriaRole.Button, new() { Name = "Reset" }).ClickAsync();
         Assert.Equal("0.50", await page.Locator("#current").InnerTextAsync());
         Assert.DoesNotContain("ALARM:", await page.Locator("#log").InnerTextAsync());
+        }
+        catch
+        {
+            await CaptureFailureAsync(page, "fault-alarm");
+            throw;
+        }
     }
 
     [Fact]
@@ -56,6 +62,8 @@ public sealed class UnattendedMonitorBrowserTests
         Assert.NotNull(dir);
         await page.GotoAsync(new Uri(Path.Combine(dir!.FullName,
             "examples/UnattendedOperationsMonitor/index.html")).AbsoluteUri);
+        try
+        {
         await page.Locator("#email").UncheckAsync();
         await page.Locator("#sms").UncheckAsync();
         await page.Locator("#fault").ClickAsync();
@@ -64,5 +72,21 @@ public sealed class UnattendedMonitorBrowserTests
         Assert.Contains("ALARM:", log);
         Assert.DoesNotContain("SIMULATED EMAIL:", log);
         Assert.DoesNotContain("SIMULATED SMS:", log);
+        }
+        catch
+        {
+            await CaptureFailureAsync(page, "notifications-disabled");
+            throw;
+        }
+    }
+
+    private static async Task CaptureFailureAsync(IPage page, string name)
+    {
+        Directory.CreateDirectory("TestResults/browser");
+        await page.ScreenshotAsync(new PageScreenshotOptions
+        {
+            Path = $"TestResults/browser/{name}.png",
+            FullPage = true
+        });
     }
 }
