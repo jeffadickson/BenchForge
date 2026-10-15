@@ -29,7 +29,6 @@ public sealed class Keithley236
     private readonly SemaphoreSlim _lock = new(1, 1);
     private SourceMeasureMode? _mode;
     private bool _operating;
-    private double _source;
     private double _compliance;
 
     public Keithley236(IKeithley236Bus bus) =>
@@ -76,7 +75,6 @@ public sealed class Keithley236
         {
             // B(level),(range),(delay), range 0=auto; execute with X.
             await _bus.WriteAsync($"B{level.ToString("G17", CultureInfo.InvariantCulture)},0,{delay.TotalMilliseconds.ToString("0.###", CultureInfo.InvariantCulture)}X", ct).ConfigureAwait(false);
-            _source = level;
         }
         finally { _lock.Release(); }
     }
