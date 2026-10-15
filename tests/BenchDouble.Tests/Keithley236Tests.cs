@@ -61,4 +61,54 @@ public sealed class Keithley236Tests
         Assert.Equal(0.005, (await meter.MeasureCurrentAsync()).Amperes, 10);
         await meter.StandbyAsync();
     }
+    [Fact]
+    public async Task ChangingSourceModeInvalidatesOldCompliance()
+    {
+        var bus = new Keithley236MockBus();
+        var instrument = new Keithley236(bus);
+        await instrument.ConfigureAsync(SourceMeasureMode.SourceVoltageMeasureCurrent);
+        await instrument.SetComplianceAsync(ElectricCurrent.FromMilliamperes(5));
+        await instrument.ConfigureAsync(SourceMeasureMode.SourceCurrentMeasureVoltage);
+
+        Assert.False(instrument.OperateRequested);
+        Assert.Equal(0, bus.Compliance);
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await instrument.SetOperateAsync(true));
+        await instrument.SetComplianceAsync(ElectricPotential.FromVolts(10));
+        await instrument.SetBiasAsync(ElectricCurrent.FromMilliamperes(1), TimeSpan.Zero);
+        await instrument.SetOperateAsync(true);
+        Assert.True(bus.Operate);
+        await instrument.StandbyAsync();
+    }
+
+    [Fact]
+    public async Task FailedModeWriteLeavesDriverUnconfiguredAndInStandby()
+    {
+        var bus = new FaultingBus();
+        var instrument = new Keithley236(bus);
+        await instrument.ConfigureAsync(SourceMeasureMode.SourceVoltageMeasureCurrent);
+        await instrument.SetComplianceAsync(ElectricCurrent.FromMilliamperes(5));
+        bus.FailModeWrite = true;
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await instrument.ConfigureAsync(SourceMeasureMode.SourceCurrentMeasureVoltage));
+        Assert.Null(instrument.ConfiguredMode);
+        Assert.False(instrument.OperateRequested);
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await instrument.SetOperateAsync(true));
+    }
+
+    private sealed class FaultingBus : IKeithley236Bus
+    {
+        public bool FailModeWrite { get; set; }
+        public ValueTask WriteAsync(string command, CancellationToken ct = default)
+        {
+            if (FailModeWrite && command.StartsWith("F", StringComparison.Ordinal))
+                throw new InvalidOperationException("Simulated IEEE-488 write failure");
+            return ValueTask.CompletedTask;
+        }
+        public ValueTask<string> ReadAsync(CancellationToken ct = default) =>
+            ValueTask.FromResult("0");
+    }
+
 }
