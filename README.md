@@ -16,11 +16,19 @@ This is an early prototype, **not** a certified, hardware-accurate emulation of 
 
 ## Quick start
 
-Install .NET SDK 8 or newer:
+Prerequisites: Python 3.10+ (with venv), curl and GNU Make on Unix; Python and PowerShell on Windows.
 
 ```bash
-dotnet test
+make setup
+make test
+make demo-dashboard
+make scoreboard
 ```
+
+Windows: `powershell -File scripts/bootstrap.ps1`; then use the project-specific
+`dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj` command.
+Browser provisioning: `make setup-browser` or `scripts/bootstrap.ps1 -Browser`.
+See [local/remote routing and setup examples](docs/LOCAL-FIRST-CONFIGURATION.md).
 
 ## Project layout
 
@@ -268,3 +276,9 @@ The offline `BenchDouble.DriverGen` now generates a **typed UnitsNet driver and 
 ## Instrument Definer — PyMeasure intake and mode-aware mock previews
 
 The new [Instrument Definer](tools/InstrumentDefiner/) is a separate, stdlib-only Python CLI for **static** PyMeasure descriptor/method extraction and spreadsheet CSV import. It writes [schema-v2 JSON review drafts](instrument-definitions/schema/instrument-definition-v2.schema.json) with pinned source provenance, UnitsNet quantity/unit metadata, mode declarations and unresolved review items; it never executes upstream driver code. An intern can use the [extraction instructions](docs/INSTRUMENT-DEFINER.md) and [CSV templates](tools/InstrumentDefiner/templates/). The core now also has `ModeAwareMockInstrument` and `InstrumentDefinitionMockLoader.CreatePreview`: schema-v2 modes and explicit mock defaults become typed, mode-checked simulation readings without physical I/O. The v1 production generator and v2 intake remain separate until manual review and generator integration. Try `make definer-check`. Tracked in [#52](https://github.com/jeffadickson/BenchDouble/issues/52) and [#53](https://github.com/jeffadickson/BenchDouble/issues/53); requirements baseline **175**, no new requirement Verified.
+
+
+
+## Local-first configuration and current feature overview
+
+See [routing examples](docs/LOCAL-FIRST-CONFIGURATION.md), the [feature overview](docs/FEATURE-OVERVIEW.md), and [requirements coverage](requirements/COVERAGE.md). `make scoreboard` produces a searchable evidence-status dashboard. Missing default configuration selects localhost and logs the choice; explicit invalid configurations fail without fallback.

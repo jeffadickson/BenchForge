@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install StrictDoc requirements tracker
-        run: python -m pip install strictdoc
+        run: python -m pip install -r tools/requirements.txt
       - name: Validate requirement IDs and traceability
         run: python scripts/check_requirements.py
       - name: Parse and export StrictDoc requirements
@@ -100,3 +100,4 @@ jobs:
         run: dotnet build src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj --configuration Release
       - name: Test instrument-host reservation contracts
         run: dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
+

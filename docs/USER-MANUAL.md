@@ -111,3 +111,9 @@ Run `make demo-generated-mock` or `dotnet run --project examples/BenchDouble.Gen
 ## Add an instrument with the Instrument Definer
 
 See [Instrument Definer instructions](INSTRUMENT-DEFINER.md). For PyMeasure, use `python3 tools/InstrumentDefiner/definer.py extract-pymeasure path/to/driver.py --manufacturer ... --model ... --revision PINNED_SHA --output instrument-definitions/drafts/model.extracted.json`. For manual extraction, export [properties and methods CSV templates](../tools/InstrumentDefiner/templates/) and use `import-csv`. Run `make definer-check` for example validations. These are **review drafts**, not executable physical drivers. The schema-v2 example DMM can produce a simulation-only UnitsNet mock that refuses voltage reads while in resistance mode. The existing schema-v1 generator remains the only driver generator until v2 commands and modes are reviewed.
+
+
+
+## Local-first setup and routing
+
+See [local/remote configuration examples](LOCAL-FIRST-CONFIGURATION.md) for the optional instruments.json file, localhost default, route logging, per-resource reservations and multiple cached observers. See [feature overview](FEATURE-OVERVIEW.md) for current implementation limits. `make setup` restores all project dependencies; `make setup-browser` adds Chromium. `make scoreboard` generates the searchable requirements status page.

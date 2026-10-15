@@ -1,9 +1,9 @@
 # BenchDouble developer entrypoints. Requires GNU Make on Unix; Windows can
 # use scripts/bootstrap.ps1 and dotnet CLI directly without Make.
-DOTNET ?= dotnet
+DOTNET ?= $(if $(wildcard .tools/dotnet/dotnet),$(CURDIR)/.tools/dotnet/dotnet,dotnet)
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check setup-browser scoreboard requirements-check
 
 setup:
 	bash scripts/bootstrap.sh
@@ -11,43 +11,38 @@ setup:
 setup-windows:
 	pwsh -File scripts/bootstrap.ps1
 
-requirements:
+requirements-check:
 	$(PYTHON) scripts/check_requirements.py
+	$(PYTHON) -m unittest discover -s tests/requirements -v
+
+scoreboard:
+	$(PYTHON) scripts/requirements_scoreboard.py
+
+setup-browser:
+	bash scripts/bootstrap.sh --browser
+
+requirements: requirements-check scoreboard
 	.tools/requirements-venv/bin/strictdoc export requirements --output-dir build/requirements
 
 generate:
 	$(PYTHON) scripts/check_instrument_catalog.py
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
 
+# Discover projects so new libraries/examples/tools participate automatically.
 build: generate
-	$(DOTNET) build src/BenchDouble/BenchDouble.csproj
-	$(DOTNET) build examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj
-	$(DOTNET) build src/BenchDouble.Experiments/BenchDouble.Experiments.csproj
-	$(DOTNET) build src/BenchDouble.Procedures/BenchDouble.Procedures.csproj
-	$(DOTNET) build examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj
-	$(DOTNET) build examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
-	$(DOTNET) build examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj
-	$(DOTNET) build src/BenchDouble.TimeSeries.Sqlite/BenchDouble.TimeSeries.Sqlite.csproj
-	$(DOTNET) build src/BenchDouble.Plotting/BenchDouble.Plotting.csproj
-	$(DOTNET) build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj
-	$(DOTNET) build examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj
-	$(DOTNET) build examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj
-	$(DOTNET) build src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
-	$(DOTNET) build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj
+	@set -e; for project in src/*/*.csproj examples/*/*.csproj tools/*/*.csproj; do \
+		[ ! -f "$$project" ] || $(DOTNET) build "$$project"; \
+	done
 
 test: generate
-	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj
-	$(DOTNET) test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj
-	$(DOTNET) test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj
+	@set -e; for project in tests/*/*.csproj; do \
+		case "$$project" in *BenchDouble.Browser.Tests*) continue ;; esac; \
+		[ ! -f "$$project" ] || $(DOTNET) test "$$project"; \
+	done
 
 test-browser:
 	$(DOTNET) build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj
-	pwsh tests/BenchDouble.Browser.Tests/bin/Debug/net8.0/playwright.ps1 install chromium
+	$(DOTNET) run --project tools/BenchDouble.BrowserSetup -- install chromium
 	$(DOTNET) test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --no-build
 
 verify: requirements build test
@@ -92,3 +87,4 @@ definer-check:
 	$(PYTHON) -m unittest discover -s tests/instrument_definer -p 'test_*.py' -v
 	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/keithley2400.definition.json
 	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/example-two-mode-dmm.definition.json
+

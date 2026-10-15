@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "hosts": {
+    "local": "http://127.0.0.1:5278",
+    "thermalLab": "https://instrument-host.example:5279"
+  },
+  "instruments": {
+    "voltmeter": { "host": "local", "resourceId": "DMM1" },
+    "generator": { "host": "local", "resourceId": "FGEN1" },
+    "remoteMeter": { "host": "thermalLab", "resourceId": "DMM2" }
+  }
+}

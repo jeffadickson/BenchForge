@@ -1,0 +1,2 @@
+# Shared by bootstrap and CI. Transitive dependency locking is tracked in #28.
+strictdoc==0.30.2

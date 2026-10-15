@@ -66,3 +66,16 @@ The `BenchDouble.DriverGen` console tool uses only .NET 8 `System.Text.Json`, `R
 ## Instrument Definer dependencies
 
 The new `tools/InstrumentDefiner/definer.py` uses Python standard-library `ast`, `csv`, `json`, `argparse` and `unittest`; **no PyMeasure installation is required to parse an upstream source file**, and the tool never imports that file. Schema-v2 JSON and CSV templates are repository assets. The core mode-aware mock preview uses existing .NET 8 `System.Text.Json` and UnitsNet 5.75.1; no new NuGet runtime package was added. `make definer-check` provides local checks independent of GitHub-hosted CI.
+
+
+
+## Local-first setup update — 2026-10-15
+
+`make setup` and `scripts/bootstrap.ps1` discover and restore every project under
+`src`, `tests`, `examples` and `tools`. They use global.json when installing an SDK
+and share `tools/requirements.txt` with CI (StrictDoc 0.30.2). The routing client
+adds Microsoft.Extensions.Logging.Abstractions 8.0.3, matching core.
+`tools/BenchDouble.BrowserSetup` uses Microsoft.Playwright 1.56.0, matching browser
+tests, and removes the Unix PowerShell dependency for Chromium provisioning.
+See `docs/LOCAL-FIRST-CONFIGURATION.md` for prerequisites and Linux system libraries.
+Transitive Python/NuGet lockfiles and clean-platform provisioning remain #28/#60.

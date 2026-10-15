@@ -16,7 +16,7 @@ class RequirementGateTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / 'repo'
-        shutil.copytree(ROOT, self.root, ignore=shutil.ignore_patterns('.git', '.tools', '__pycache__'))
+        shutil.copytree(ROOT, self.root, ignore=shutil.ignore_patterns('.git', '.tools', '__pycache__', 'bin', 'obj', 'build', '.verification'))
         spec = importlib.util.spec_from_file_location('gate', self.root / 'scripts/check_requirements.py')
         self.gate = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.gate)

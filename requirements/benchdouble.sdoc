@@ -1233,3 +1233,45 @@ STATUS: Active
 TITLE: Change traceability P0
 STATEMENT: Every accepted feature or behavior change shall update stable requirements, acceptance criteria, traceability, issue links and verification evidence in the same change; deferred features shall remain explicitly tracked. Acceptance: Review a feature change and its linked requirement diff; the static gate rejects missing rows, acceptance criteria or issue links.
 
+[REQUIREMENT]
+UID: BD-CFG-001
+STATUS: Active
+TITLE: BD-CFG-001 P0
+STATEMENT: The instrument client shall resolve roles through an optional versioned instrument-location file mapping host origins and canonical host-local resource IDs. Acceptance: Load a local and remote mapping and verify the exact target resource and URI with a fake HTTP transport.
+
+[REQUIREMENT]
+UID: BD-CFG-002
+STATUS: Active
+TITLE: BD-CFG-002 P0
+STATEMENT: When the conventional configuration file is absent the framework shall resolve instrument IDs to the localhost server and log the default decision and selected route. Acceptance: Resolve DMM1 without instruments.json and assert localhost endpoint and both log records.
+
+[REQUIREMENT]
+UID: BD-CFG-003
+STATUS: Active
+TITLE: BD-CFG-003 P0
+STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete routing configuration shall fail without silently choosing a local or different instrument. Acceptance: Reject invalid versions, duplicate keys, unknown fields/hosts/roles and unsafe endpoints; verify no fallback request.
+
+[REQUIREMENT]
+UID: BD-CFG-004
+STATUS: Active
+TITLE: BD-CFG-004 P0
+STATEMENT: Configured routing shall support multiple experiment clients and cached read-only observers per server while preserving exclusive ownership of each canonical resource. Acceptance: Reserve two distinct resources concurrently, reject a competing reservation for one resource and allow multiple observer snapshots.
+
+[REQUIREMENT]
+UID: BD-CFG-005
+STATUS: Active
+TITLE: BD-CFG-005 P0
+STATEMENT: Routing configuration shall exclude credentials, use HTTPS for non-loopback endpoints and remain immutable for each loaded snapshot; route logging shall not expose secrets. Acceptance: Reject credential-bearing URLs, retain caller HTTP settings, and verify that invalid configuration logs omit secret values.
+
+[REQUIREMENT]
+UID: BD-CFG-006
+STATUS: Active
+TITLE: BD-CFG-006 P1
+STATEMENT: Dependency setup shall discover all project references, install a compatible SDK and pinned documentation tools, and offer browser provisioning without a separate PowerShell requirement on Unix. Acceptance: Run setup on clean supported operating systems and restore every project including the browser installer; report missing system prerequisites explicitly.
+
+[REQUIREMENT]
+UID: BD-CFG-007
+STATUS: Active
+TITLE: BD-CFG-007 P1
+STATEMENT: A generated searchable requirements scoreboard and documented local/remote examples shall reflect canonical statuses and distinguish source, execution evidence and planned capabilities. Acceptance: Generate scoreboard from traceability and verify total/status counts, filtering markup, escaped values and links; review setup and routing examples.
+
