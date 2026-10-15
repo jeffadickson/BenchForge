@@ -14,11 +14,29 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install StrictDoc requirements tracker
+        run: python -m pip install strictdoc
+      - name: Validate requirement IDs and traceability
+        run: python scripts/check_requirements.py
+      - name: Parse and export StrictDoc requirements
+        run: strictdoc export requirements --output-dir build/requirements
       - name: Generate instrument drivers
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
+      - name: Run Reqnroll executable acceptance scenarios
+        run: dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj --configuration Release
+      - name: Build browser test project
+        run: dotnet build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release
+      - name: Install Playwright Chromium
+        shell: pwsh
+        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net8.0/playwright.ps1 install chromium
+      - name: Run real-browser unattended monitor tests
+        run: dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release --no-build
       - name: Test standalone UnitsNet plotting adapter
         run: dotnet test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj --configuration Release
 
