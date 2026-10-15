@@ -40,7 +40,7 @@ The C# demo writes `thermal-demo-output/measurements.sqlite` and Plotly JSON fig
 
 ## Example 4: requirements and tests
 - `requirements/benchdouble.sdoc`: StrictDoc source.
-- `requirements/traceability.csv`: 122 requirements, source/test/issue mapping and verification status.
+- `requirements/traceability.csv`: 154 requirements, source/test/issue mapping and verification status.
 - `python3 scripts/check_requirements.py`: quick coverage validation.
 - `dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj`: Given–When–Then acceptance.
 - `dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj`: Chromium UI checks, after installing the browser via Playwright.
@@ -91,3 +91,7 @@ Multiple instruments may use `AutoMockLoadFor("SupplyA", ...)` and `AutoMockLoad
 ## Generic unit-aware meter AutoMock
 
 Run `make demo-typed-meter` or `dotnet run --project examples/BenchDouble.TypedMockDemo`. The demo registers voltage (250 mV) and resistance (4.7 kΩ, increasing with virtual time), explicitly selects each measurement mode and calls `MeasureAsync<ElectricPotential>()` or `MeasureAsync<ElectricResistance>()`. Requesting voltage while configured for resistance produces an intentional mode-mismatch exception. The experiment demo also includes a named `Meter1`. See [Generic Unit-Aware Mocks](GENERIC-UNIT-AWARE-MOCKS.md). Generated registrations from the complete instrument-definition dataset remain planned.
+
+## Requirement coverage and acceptance status
+
+The [full runner audit](REQUIREMENTS-AUDIT-2026-10-15.md) reviews all 90 original test-lab runner requirements and distinguishes partial source, design-only and missing implementation evidence. The [coverage summary](../requirements/COVERAGE.md) and [per-requirement CSV](../requirements/legacy-runner-audit.csv) are the current reference. **Do not interpret a committed C# test or dashboard demo as a validated procedure execution system.** At the time of this audit no requirement has reviewed passing verification evidence; recent cross-platform CI runs failed. To check the requirement files locally run `python3 scripts/check_requirements.py`. This static command checks traceability consistency, not test execution or hardware safety.
