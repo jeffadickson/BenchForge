@@ -14,6 +14,11 @@ internal static class V2Emitter
         ["ElectricCurrent:Ampere"] = ("Amperes", "FromAmperes"),
         ["Frequency:Hertz"] = ("Hertz", "FromHertz")
     };
+    /// <summary>Resolve the canonical UnitsNet scalar accessor used by generated stateful mocks.</summary>
+    internal static string UnitProperty(string quantity, string unit) =>
+        Units.TryGetValue(quantity + ":" + unit, out var mapping)
+            ? mapping.Property : throw new InvalidDataException("Unsupported quantity/unit mapping.");
+
     private static readonly Regex Identifier = new("^[A-Za-z_][A-Za-z0-9_]*$", RegexOptions.CultureInvariant);
     private static string Xml(string value) => System.Security.SecurityElement.Escape(value) ?? "";
     private static string Str(string value) => JsonSerializer.Serialize(value);
