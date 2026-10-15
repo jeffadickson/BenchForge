@@ -140,3 +140,7 @@ BenchDouble will support a standalone instrument host on each computer physicall
 ## Instrument logs on both hosts and clients (planned)
 
 Each host will maintain local structured instrument logs and stream the same authorized events to connected clients for live experiment displays. Event IDs, trace correlation, cursor replay, host dashboard/CLI access and data redaction are specified in [Distributed Instrument Host Architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md). Currently only the local `LoggingScpiSession` decorator exists; live remote log streaming is not implemented.
+
+## Platform-neutral instrument hosts
+
+An instrument host can be **any computer with a supported BenchDouble runtime and the necessary instrument drivers and interfaces**—a workstation, server, laptop, industrial PC, mini PC, or embedded system. A Raspberry Pi is only one possible deployment. The service API is platform-neutral; specific VISA/IVI/USB/GPIB driver support must be validated per operating system and architecture. See [distributed host architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md).
