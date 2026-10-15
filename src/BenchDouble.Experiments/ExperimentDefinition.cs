@@ -69,6 +69,21 @@ public sealed class ExperimentDefinitionBuilder
         return this;
     }
 
+    /// <summary>
+    /// Configure a data-only AutoMock from a versioned JSON document.
+    /// Parsing/validation happens before the experiment can be started.
+    /// </summary>
+    public ExperimentDefinitionBuilder AutoMockLoadFromJson(
+        Func<IServiceProvider, ILoadBehavior> baselineFactory, string json)
+    {
+        EnsureMutable();
+        var rules = AutoMockRuleFiles.Parse(json);
+        return AutoMockLoad(baselineFactory, builder =>
+        {
+            foreach (var rule in rules) builder.AddRule(rule);
+        });
+    }
+
     /// <summary>Configure a run-scoped model using a composition-root factory.</summary>
     public ExperimentDefinitionBuilder Model<TService>(Func<IServiceProvider, TService> factory)
         where TService : class
