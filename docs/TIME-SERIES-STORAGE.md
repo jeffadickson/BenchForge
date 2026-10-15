@@ -41,7 +41,7 @@ Instrument or mock -> typed UnitsNet Measurement<T> -> ingestion service
 
 ### Type safety and unit handling
 
-The wire/storage DTO uses canonical numeric units and stable quantity/unit identifiers rather than serializing UnitsNet CLR objects. **At the API boundary, provide typed adapters** from `Measurement<TQuantity>` / `IQuantity` to canonical storage representation, using a validated registry of quantity kinds and canonical units. The initial DTO does not yet perform dimension validation or conversion automatically; that is a P0 implementation requirement before accepting remote writes. Reject attempts to insert resistance into an electric-current series, even if the numeric value is valid. Store measurement basis (DC, RMS, peak, Vpp) separately.
+The wire/storage DTO uses canonical numeric units and stable quantity/unit identifiers rather than serializing UnitsNet CLR objects. **At the API boundary, provide typed adapters** from `Measurement<TQuantity>` / `IQuantity` to canonical storage representation, using a validated registry of quantity kinds and canonical units. The initial canonical DTO is now validated against an allow-listed UnitsNet quantity/unit registry by the SQLite adapter; expand the registry and add authenticated network ingestion validation before accepting remote writes. Reject attempts to insert resistance into an electric-current series, even if the numeric value is valid. Store measurement basis (DC, RMS, peak, Vpp) separately.
 
 Prefer one schema per signal or a signal metadata registry: a signal cannot silently switch from A to V midway through a run. Persist display preferences independently.
 
@@ -149,3 +149,7 @@ await foreach (var sample in store.QueryAsync(
 - No signal metadata migrations beyond schema version 1, retention policies, waveform object store, or replication cursor/outbox.
 - Local SQLite durability does not replace the immutable procedure/audit/signature database.
 - No performance or physical safety guarantees until CI and failure-injection validation are complete.
+
+### Virtual-time query addition
+
+`ISimulationTimeSeriesReader.QuerySimulationAsync(SimulationTimeSeriesQuery)` now queries stored samples by run-scoped simulated elapsed time, independently of UTC acquisition pacing. SQLite indexes `(run_id, signal_id, simulated_ticks, sequence)`. A test verifies two samples acquired at the same UTC time but different simulated times can be filtered correctly. The query currently requires a bounded maximum-point count and does not yet provide min/max downsampling or time-aligned joins.
