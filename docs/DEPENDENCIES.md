@@ -62,3 +62,7 @@ The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.
 ## Generated driver/mock dependencies
 
 The `BenchDouble.DriverGen` console tool uses only .NET 8 `System.Text.Json`, `Regex` and standard code generation; generated typed drivers and mocks depend on the existing UnitsNet 5.75.1 and `IAsyncScpiSession` contracts. No additional NuGet runtime package is required. A standard-library Python catalog validator is used by `make generate` and CI. Generated source is committed so direct `dotnet build` and editor IntelliSense do not depend on running code generation first. The optional no-write `--check` gate detects stale source. Cross-platform CI cannot be marked green while GitHub runner allocation is unavailable.
+
+## Instrument Definer dependencies
+
+The new `tools/InstrumentDefiner/definer.py` uses Python standard-library `ast`, `csv`, `json`, `argparse` and `unittest`; **no PyMeasure installation is required to parse an upstream source file**, and the tool never imports that file. Schema-v2 JSON and CSV templates are repository assets. The core mode-aware mock preview uses existing .NET 8 `System.Text.Json` and UnitsNet 5.75.1; no new NuGet runtime package was added. `make definer-check` provides local checks independent of GitHub-hosted CI.
