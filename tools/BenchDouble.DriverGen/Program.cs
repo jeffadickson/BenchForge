@@ -34,8 +34,11 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     mock.AppendLine("using BenchDouble.Simulation;");
     mock.AppendLine("using UnitsNet;");
     mock.AppendLine("namespace BenchDouble.Generated;");
+    mock.AppendLine($"/// <summary>In-memory SCPI simulation for {name}; values use the instrument definition's units and limits.</summary>");
+    mock.AppendLine("/// <remarks>For hardware-free tests. This mock does not implement physical settling or instrument safety interlocks.</remarks>");
     mock.AppendLine($"public sealed class {name}Mock : DefinitionDrivenScpiMockSession");
     mock.AppendLine("{");
+    mock.AppendLine("  /// <summary>Initialize all channels from the reviewed definition's mock defaults.</summary>");
     mock.AppendLine($"  public {name}Mock() : base({channelCount}, new MockScpiParameter[]");
     mock.AppendLine("  {");
     var mockMethods = new StringBuilder();
@@ -46,6 +49,9 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     body.AppendLine("using BenchDouble.Async;");
     body.AppendLine("using UnitsNet;");
     body.AppendLine("namespace BenchDouble.Generated;");
+    body.AppendLine($"/// <summary>Typed SCPI access to {name}, using UnitsNet quantities.</summary>");
+    body.AppendLine("/// <param name=\"session\">Caller-owned transport; the caller must reserve the instrument and dispose the session.</param>");
+    body.AppendLine("/// <remarks>No automatic retries or reservation acquisition. Serialize access according to the session's ownership policy; cancellation does not establish physical completion.</remarks>");
     body.AppendLine($"public sealed partial class {name}(IAsyncScpiSession session)");
     body.AppendLine("{");
     foreach (var param in parameters)
@@ -103,6 +109,13 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         if (query.Length > 0)
         {
             if (query.Contains("{value}")) throw new InvalidDataException("Query may not contain {value}.");
+            body.AppendLine($"  /// <summary>Query {propertyName}; interpret the numeric SCPI response in {unit}.</summary>");
+            body.AppendLine($"  /// <param name=\"channel\">One-based channel, 1 through {channelCount}.</param>");
+            body.AppendLine("  /// <param name=\"ct\">Cancellation forwarded to the transport.</param>");
+            body.AppendLine($"  /// <returns>The response as a typed {quantity}.</returns>");
+            body.AppendLine("  /// <exception cref=\"ArgumentOutOfRangeException\">The channel is outside the definition's range.</exception>");
+            body.AppendLine("  /// <exception cref=\"FormatException\">The response is not an invariant-culture number.</exception>");
+            body.AppendLine("  /// <remarks>Transport failures propagate to the caller. A successful query does not establish the instrument's physical state.</remarks>");
             body.AppendLine($"  public async ValueTask<{quantity}> Get{propertyName}Async(int channel, CancellationToken ct = default)");
             body.AppendLine("  {");
             body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
@@ -113,6 +126,13 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         if (set.Length > 0)
         {
             if (!set.Contains("{value}")) throw new InvalidDataException("Setter must contain {value}.");
+            body.AppendLine($"  /// <summary>Write {propertyName}, encoded in {unit} using invariant culture.</summary>");
+            body.AppendLine($"  /// <param name=\"channel\">One-based channel, 1 through {channelCount}.</param>");
+            body.AppendLine($"  /// <param name=\"value\">Finite {quantity}; definition limits in {unit}: minimum {(minimum.HasValue ? Number(minimum.Value) : "unspecified")}, maximum {(maximum.HasValue ? Number(maximum.Value) : "unspecified")}.</param>");
+            body.AppendLine("  /// <param name=\"ct\">Cancellation forwarded to the transport; it does not undo a command already sent.</param>");
+            body.AppendLine("  /// <returns>Completion of the transport write, not confirmation of physical execution or settling.</returns>");
+            body.AppendLine("  /// <exception cref=\"ArgumentOutOfRangeException\">Channel, finiteness or definition limits are invalid.</exception>");
+            body.AppendLine("  /// <remarks>Transport failures propagate. Do not automatically retry after an ambiguous failure.</remarks>");
             body.AppendLine($"  public async ValueTask Set{propertyName}Async(int channel, {quantity} value, CancellationToken ct = default)");
             body.AppendLine("  {");
             body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
@@ -126,6 +146,10 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         }
         // Generated typed mock configuration; the same quantity/unit mapping
         // is used by the typed driver and the SCPI mock session.
+        mockMethods.AppendLine($"  /// <summary>Configure the simulated {propertyName} reading without sending hardware commands.</summary>");
+        mockMethods.AppendLine($"  /// <param name=\"channel\">One-based channel, 1 through {channelCount}.</param>");
+        mockMethods.AppendLine($"  /// <param name=\"value\">Finite {quantity}, converted to {unit} and validated against the definition limits.</param>");
+        mockMethods.AppendLine("  /// <exception cref=\"ArgumentOutOfRangeException\">Channel or value violates the definition.</exception>");
         mockMethods.AppendLine($"  public void SetMock{propertyName}(int channel, {quantity} value)");
         mockMethods.AppendLine("  {");
         mockMethods.AppendLine($"    SetReading({Literal(propertyName)}, channel, value.{info.unitProperty});");
@@ -143,6 +167,8 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         File.WriteAllText(destination, source, new UTF8Encoding(false));
     mock.AppendLine("  }) { }");
     mock.Append(mockMethods);
+    mock.AppendLine("  /// <summary>Create a typed driver sharing this mock session and its mutable channel state.</summary>");
+    mock.AppendLine("  /// <returns>A driver over this caller-owned mock; no new reservation or physical connection is opened.</returns>");
     mock.AppendLine($"  public {name} CreateDriver() => new(this);");
     mock.AppendLine("}");
     var mockDestination = Path.Combine(output, name + "Mock.g.cs");
@@ -157,5 +183,7 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     Console.WriteLine($"Generated {destination} and {mockDestination}");
     generated++;
 }
+if (generated == 0) throw new InvalidDataException("No instrument definitions found; refusing an empty generation check.");
 Console.WriteLine($"{(checkOnly ? "Verified" : "Generated")} {generated} typed driver/mock pair(s).");
 return 0;
+

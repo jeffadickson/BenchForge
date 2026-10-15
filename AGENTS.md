@@ -23,3 +23,9 @@ Routine incremental pushes use [skip ci]; reserve paid hosted runs for explicitl
 requested verification or agreed substantial milestones. Prefer local tests.
 Procedure/editor expansion remains deferred while lifecycle/recovery foundations
 are built, unless the user changes that priority.
+
+API changes must include XML comments (C#) or docstrings (Python), with units,
+parameters, return meaning, relevant errors, cancellation and ownership semantics.
+All generators must emit the same documentation and join `make docs`. Run
+`make docs-check`; never auto-refresh the legacy baseline to hide a new gap.
+Generated output cannot use legacy documentation exceptions.

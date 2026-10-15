@@ -30,8 +30,11 @@ if (-not $usableSdk) {
     $env:PATH = "$localDotnet;$env:PATH"
 }
 Invoke-Checked "dotnet" @("--info")
+Invoke-Checked "dotnet" @("tool", "restore")
 Invoke-Checked $python ($pythonArgs + @("-m", "venv", ".tools/requirements-venv"))
 Invoke-Checked ".tools/requirements-venv/Scripts/python.exe" @("-m", "pip", "install", "-r", "tools/requirements.txt")
+Invoke-Checked $python ($pythonArgs + @("-m", "venv", ".tools/docs-venv"))
+Invoke-Checked ".tools/docs-venv/Scripts/python.exe" @("-m", "pip", "install", "-r", "tools/docs-requirements.txt")
 Invoke-Checked $python ($pythonArgs + @("scripts/check_requirements.py"))
 Invoke-Checked ".tools/requirements-venv/Scripts/strictdoc.exe" @("export", "requirements", "--output-dir", "build/requirements")
 Invoke-Checked $python ($pythonArgs + @("scripts/requirements_scoreboard.py"))

@@ -1,0 +1,66 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "src/**/*.csproj",
+            "tools/**/*.csproj",
+            "examples/**/*.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ]
+        }
+      ],
+      "dest": "build/api",
+      "properties": {
+        "TargetFramework": "net8.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "build/api/**/*.yml"
+        ],
+        "src": ".",
+        "dest": "."
+      },
+      {
+        "files": [
+          "index.md",
+          "toc.yml"
+        ],
+        "src": "docs/site"
+      },
+      {
+        "files": [
+          "docs/**/*.md"
+        ],
+        "exclude": [
+          "docs/site/**",
+          "docs/python/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "build/python/**/*"
+        ]
+      }
+    ],
+    "dest": "build/documentation",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appTitle": "BenchDouble",
+      "_enableSearch": true
+    }
+  }
+}

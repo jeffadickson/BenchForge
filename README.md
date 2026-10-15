@@ -282,3 +282,13 @@ The new [Instrument Definer](tools/InstrumentDefiner/) is a separate, stdlib-onl
 ## Local-first configuration and current feature overview
 
 See [routing examples](docs/LOCAL-FIRST-CONFIGURATION.md), the [feature overview](docs/FEATURE-OVERVIEW.md), and [requirements coverage](requirements/COVERAGE.md). `make scoreboard` produces a searchable evidence-status dashboard. Missing default configuration selects localhost and logs the choice; explicit invalid configurations fail without fallback.
+
+## Generated API documentation and binary captures
+
+Run `make setup` and `make docs` for the combined C# DocFX/Python Sphinx reference.
+See [API documentation policy](docs/API-DOCUMENTATION.md) for comment standards,
+coverage audit and remaining legacy gaps. New generated APIs are checked too.
+
+[Binary capture storage](docs/BINARY-CAPTURE-STORAGE.md) specifies the proposed
+local-first artifact service for scope traces and screenshots, including metadata,
+checksums, crash recovery and export. This backend is designed, not implemented.

@@ -1275,3 +1275,50 @@ STATUS: Active
 TITLE: BD-CFG-007 P1
 STATEMENT: A generated searchable requirements scoreboard and documented local/remote examples shall reflect canonical statuses and distinguish source, execution evidence and planned capabilities. Acceptance: Generate scoreboard from traceability and verify total/status counts, filtering markup, escaped values and links; review setup and routing examples.
 
+[REQUIREMENT]
+UID: BD-DOC-003
+STATUS: Active
+TITLE: BD-DOC-003 P1
+STATEMENT: The project shall generate a browsable CSharp XML-comment API reference and Python docstring reference using pinned tools provisioned by setup. Acceptance: Build the combined site on a clean supported host, navigate API and Python pages and publish the build artifact; report unresolved links and tool failures.
+
+[REQUIREMENT]
+UID: BD-DOC-004
+STATUS: Active
+TITLE: BD-DOC-004 P1
+STATEMENT: All owned public CSharp APIs and Python modules/functions shall have accurate purpose, parameter, units, return, error, ownership and cancellation documentation as applicable. Acceptance: Audit every source area, resolve the tracked legacy gaps through semantic review and reject new undocumented APIs; signatures alone do not count as completed descriptions.
+
+[REQUIREMENT]
+UID: BD-DOC-005
+STATUS: Active
+TITLE: BD-DOC-005 P1
+STATEMENT: Every instrument or code generator shall emit API documentation through the same pipeline as handwritten code. Acceptance: Regenerate driver and mock fixtures, verify units, limits, channel, cancellation and ownership comments, reject undocumented generated members even if present in a legacy baseline, and render the generated APIs.
+
+[REQUIREMENT]
+UID: BD-ART-001
+STATUS: Active
+TITLE: BD-ART-001 P1
+STATEMENT: A backend-neutral artifact service shall save binary captures by stable artifact ID with searchable run, acquisition and instrument metadata, while supporting local-only operation and optional central storage. Acceptance: Save and retrieve a trace and screenshot by acquisition after restart and storage relocation without application-owned filenames.
+
+[REQUIREMENT]
+UID: BD-ART-002
+STATUS: Active
+TITLE: BD-ART-002 P0
+STATEMENT: Artifact durability acknowledgments shall follow verified immutable bytes and committed ready metadata; pending states and replication outbox shall support restart reconciliation. Acceptance: Inject failure at every write/commit boundary and recover staging, orphaned objects and interrupted uploads without exposing incomplete captures or falsely acknowledging durability.
+
+[REQUIREMENT]
+UID: BD-ART-003
+STATUS: Active
+TITLE: BD-ART-003 P1
+STATEMENT: Waveform artifacts shall preserve original bytes and a versioned decoding manifest with acquisition identity, units, encoding, timebase and available calibration/settings; screenshots and derived previews shall link to the acquisition and source artifact. Acceptance: Decode a saved trace with correct axes after restart, explicitly retain unknown metadata as absent and retrieve its linked screenshot.
+
+[REQUIREMENT]
+UID: BD-ART-004
+STATUS: Active
+TITLE: BD-ART-004 P0
+STATEMENT: Artifact storage shall stream with bounded memory, verify byte counts and digests, enforce quotas and ownership-aware retention, and surface recording faults. Acceptance: Save a capture larger than process memory, detect corruption/disk exhaustion, preserve referenced data during retention and restore an exported manifest plus all bytes on an empty host.
+
+[REQUIREMENT]
+UID: BD-ART-005
+STATUS: Active
+TITLE: BD-ART-005 P2
+STATEMENT: Binary storage adapter and size-threshold choices shall be supported by representative workload measurements rather than assuming all database blobs are slow. Acceptance: Compare embedded BLOB, managed local files and the selected central object backend using capture sizes, concurrency, durability, range reads and restore costs, publishing configuration and latency/throughput evidence.

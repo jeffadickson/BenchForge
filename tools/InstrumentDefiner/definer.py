@@ -20,6 +20,7 @@ KINDS = {"control", "measurement", "setting", "status"}
 
 
 def literal(node):
+    """Evaluate a literal AST node; return None for unsupported expressions or evaluation errors."""
     try:
         return ast.literal_eval(node)
     except (ValueError, TypeError, SyntaxError, RecursionError, MemoryError):
@@ -36,6 +37,7 @@ def safe_json(value):
 
 
 def dotted(node):
+    """Return a dotted name for Name/Attribute syntax; return an empty string for other expressions."""
     if isinstance(node, ast.Name):
         return node.id
     if isinstance(node, ast.Attribute):
@@ -44,6 +46,7 @@ def dotted(node):
 
 
 def draft(manufacturer, model, name, source="", revision=""):
+    """Create an unreviewed schema-v1 draft with provenance; no hardware capability is validated."""
     return {
         "schemaVersion": 2, "definitionStatus": "extracted",
         "identity": {"manufacturer": manufacturer, "model": model,
@@ -64,6 +67,7 @@ def draft(manufacturer, model, name, source="", revision=""):
 
 
 def extract(path, manufacturer, model, revision, class_name=None):
+    """Parse a Python source file into a review-only draft. Raise ValueError for missing or ambiguous classes; never import the source."""
     if path.stat().st_size > 2 * 1024 * 1024:
         raise ValueError("Upstream Python source exceeds 2 MiB extraction limit")
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -154,6 +158,7 @@ def method_arguments(node):
 
 
 def import_csv(properties, methods, manufacturer, model, name, manual):
+    """Import manual-derived CSV tables into a draft. Reject missing columns or invalid numeric metadata rather than guessing."""
     result = draft(manufacturer, model, name)
     result["provenance"]["manualReference"] = manual
     with properties.open(newline="", encoding="utf-8-sig") as handle:
@@ -220,6 +225,7 @@ def import_csv(properties, methods, manufacturer, model, name, manual):
 
 
 def validate(doc):
+    """Return schema/semantic validation errors for a draft; an empty list does not establish hardware compatibility."""
     errors = []
     def check(condition, message):
         if not condition:
@@ -286,6 +292,7 @@ def validate(doc):
 
 
 def save(path, doc):
+    """Write a new UTF-8 JSON draft. Raise FileExistsError instead of overwriting reviewed work; reject nonfinite JSON numbers."""
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         raise FileExistsError("Refusing to overwrite " + str(path))
@@ -294,6 +301,7 @@ def save(path, doc):
 
 
 def main():
+    """Run the extract, CSV import or validation command selected by CLI arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     ex = sub.add_parser("extract-pymeasure")

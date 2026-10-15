@@ -14,3 +14,7 @@ thermal-demo-output/
 .DS_Store
 .vs/
 .idea/
+
+.verification/
+docfx.local-*.json
+**/__pycache__/

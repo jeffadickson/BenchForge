@@ -3,8 +3,11 @@
 using BenchDouble.Simulation;
 using UnitsNet;
 namespace BenchDouble.Generated;
+/// <summary>In-memory SCPI simulation for Keysight33522B; values use the instrument definition's units and limits.</summary>
+/// <remarks>For hardware-free tests. This mock does not implement physical settling or instrument safety interlocks.</remarks>
 public sealed class Keysight33522BMock : DefinitionDrivenScpiMockSession
 {
+  /// <summary>Initialize all channels from the reviewed definition's mock defaults.</summary>
   public Keysight33522BMock() : base(2, new MockScpiParameter[]
   {
     new MockScpiParameter("Frequency", "Frequency", "Hertz", "SOUR{channel}:FREQ?", "SOUR{channel}:FREQ {value}", 1000, 1, 20000000),
@@ -12,13 +15,23 @@ public sealed class Keysight33522BMock : DefinitionDrivenScpiMockSession
     new MockScpiParameter("Amplitude", "ElectricPotential", "Volt", "SOUR{channel}:VOLT?", "SOUR{channel}:VOLT {value}", 1, null, null),
     // Amplitude: ElectricPotential in Volt
   }) { }
+  /// <summary>Configure the simulated Frequency reading without sending hardware commands.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="value">Finite Frequency, converted to Hertz and validated against the definition limits.</param>
+  /// <exception cref="ArgumentOutOfRangeException">Channel or value violates the definition.</exception>
   public void SetMockFrequency(int channel, Frequency value)
   {
     SetReading("Frequency", channel, value.Hertz);
   }
+  /// <summary>Configure the simulated Amplitude reading without sending hardware commands.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="value">Finite ElectricPotential, converted to Volt and validated against the definition limits.</param>
+  /// <exception cref="ArgumentOutOfRangeException">Channel or value violates the definition.</exception>
   public void SetMockAmplitude(int channel, ElectricPotential value)
   {
     SetReading("Amplitude", channel, value.Volts);
   }
+  /// <summary>Create a typed driver sharing this mock session and its mutable channel state.</summary>
+  /// <returns>A driver over this caller-owned mock; no new reservation or physical connection is opened.</returns>
   public Keysight33522B CreateDriver() => new(this);
 }

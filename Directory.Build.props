@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Preserve missing-comment warnings while the explicit audit backlog is closed. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591</WarningsNotAsErrors>
+  </PropertyGroup>
+</Project>

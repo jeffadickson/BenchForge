@@ -25,6 +25,7 @@ UID_PATTERN = re.compile(r"^UID:\s+([A-Z][A-Z0-9-]+)$", re.M)
 
 
 def main() -> int:
+    """Validate baseline, traceability, audit hashes and evidence references; return nonzero on inconsistencies."""
     source = DOC.read_text(encoding="utf-8")
     ids = UID_PATTERN.findall(source)
     ids = [uid for uid in ids if uid != "BD-BASELINE"]

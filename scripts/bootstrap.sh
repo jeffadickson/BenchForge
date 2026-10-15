@@ -26,8 +26,11 @@ if ! command -v dotnet >/dev/null || ! dotnet --version >/dev/null 2>&1; then
   export PATH="$DOTNET_ROOT:$PATH"
 fi
 dotnet --info
+dotnet tool restore
 python3 -m venv .tools/requirements-venv
 .tools/requirements-venv/bin/python -m pip install -r tools/requirements.txt
+python3 -m venv .tools/docs-venv
+.tools/docs-venv/bin/python -m pip install -r tools/docs-requirements.txt
 python3 scripts/check_requirements.py
 .tools/requirements-venv/bin/strictdoc export requirements --output-dir build/requirements
 python3 scripts/requirements_scoreboard.py

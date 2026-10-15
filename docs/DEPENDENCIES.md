@@ -79,3 +79,15 @@ adds Microsoft.Extensions.Logging.Abstractions 8.0.3, matching core.
 tests, and removes the Unix PowerShell dependency for Chromium provisioning.
 See `docs/LOCAL-FIRST-CONFIGURATION.md` for prerequisites and Linux system libraries.
 Transitive Python/NuGet lockfiles and clean-platform provisioning remain #28/#60.
+
+## API documentation
+
+- DocFX 2.78.3 is pinned in `.config/dotnet-tools.json`; both bootstrap scripts run
+  `dotnet tool restore`. This version includes a .NET 8 tool target.
+- Sphinx 8.1.3 and Docutils 0.21.2 are pinned in `tools/docs-requirements.txt`,
+  installed into `.tools/docs-venv`. StrictDoc uses its own requirements environment
+  with Docutils 0.22.2. They must not be installed into the same Python environment.
+- The syntax audit uses Microsoft.CodeAnalysis.CSharp 4.8.0, matching the pinned
+  SDK's C#12 generation. Project discovery restores it automatically.
+- `make docs` builds a combined site; `make docs-check` audits all owned source.
+  Full transitive dependency locking remains tracked in #28.

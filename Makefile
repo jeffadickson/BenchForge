@@ -45,7 +45,7 @@ test-browser:
 	$(DOTNET) run --project tools/BenchDouble.BrowserSetup -- install chromium
 	$(DOTNET) test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --no-build
 
-verify: requirements build test
+verify: requirements build test docs
 
 check-generated:
 	$(PYTHON) scripts/check_instrument_catalog.py
@@ -88,3 +88,14 @@ definer-check:
 	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/keithley2400.definition.json
 	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/example-two-mode-dmm.definition.json
 
+
+# The Python reference is copied into the same DocFX site.
+.PHONY: docs docs-check
+docs-check:
+	$(DOTNET) run --project tools/BenchDouble.DocumentationAudit -- . build/api-audit.json
+	$(PYTHON) scripts/check_api_docs.py
+	$(PYTHON) -m unittest discover -s tests/documentation -v
+
+docs: check-generated docs-check
+	.tools/docs-venv/bin/python -m sphinx -W --keep-going -b html docs/python build/python
+	$(DOTNET) tool run docfx docfx.json

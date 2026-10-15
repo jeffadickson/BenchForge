@@ -4,14 +4,31 @@ using System.Globalization;
 using BenchDouble.Async;
 using UnitsNet;
 namespace BenchDouble.Generated;
+/// <summary>Typed SCPI access to Keysight33522B, using UnitsNet quantities.</summary>
+/// <param name="session">Caller-owned transport; the caller must reserve the instrument and dispose the session.</param>
+/// <remarks>No automatic retries or reservation acquisition. Serialize access according to the session's ownership policy; cancellation does not establish physical completion.</remarks>
 public sealed partial class Keysight33522B(IAsyncScpiSession session)
 {
+  /// <summary>Query Frequency; interpret the numeric SCPI response in Hertz.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="ct">Cancellation forwarded to the transport.</param>
+  /// <returns>The response as a typed Frequency.</returns>
+  /// <exception cref="ArgumentOutOfRangeException">The channel is outside the definition's range.</exception>
+  /// <exception cref="FormatException">The response is not an invariant-culture number.</exception>
+  /// <remarks>Transport failures propagate to the caller. A successful query does not establish the instrument's physical state.</remarks>
   public async ValueTask<Frequency> GetFrequencyAsync(int channel, CancellationToken ct = default)
   {
     if (channel < 1 || channel > 2) throw new ArgumentOutOfRangeException(nameof(channel));
     string reply = await session.QueryAsync($"SOUR{channel}:FREQ?", ct).ConfigureAwait(false);
     return Frequency.FromHertz(double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture));
   }
+  /// <summary>Write Frequency, encoded in Hertz using invariant culture.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="value">Finite Frequency; definition limits in Hertz: minimum 1, maximum 20000000.</param>
+  /// <param name="ct">Cancellation forwarded to the transport; it does not undo a command already sent.</param>
+  /// <returns>Completion of the transport write, not confirmation of physical execution or settling.</returns>
+  /// <exception cref="ArgumentOutOfRangeException">Channel, finiteness or definition limits are invalid.</exception>
+  /// <remarks>Transport failures propagate. Do not automatically retry after an ambiguous failure.</remarks>
   public async ValueTask SetFrequencyAsync(int channel, Frequency value, CancellationToken ct = default)
   {
     if (channel < 1 || channel > 2) throw new ArgumentOutOfRangeException(nameof(channel));
@@ -22,12 +39,26 @@ public sealed partial class Keysight33522B(IAsyncScpiSession session)
     string encoded = number.ToString("G17", CultureInfo.InvariantCulture);
     await session.WriteAsync($"SOUR{channel}:FREQ {encoded}", ct).ConfigureAwait(false);
   }
+  /// <summary>Query Amplitude; interpret the numeric SCPI response in Volt.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="ct">Cancellation forwarded to the transport.</param>
+  /// <returns>The response as a typed ElectricPotential.</returns>
+  /// <exception cref="ArgumentOutOfRangeException">The channel is outside the definition's range.</exception>
+  /// <exception cref="FormatException">The response is not an invariant-culture number.</exception>
+  /// <remarks>Transport failures propagate to the caller. A successful query does not establish the instrument's physical state.</remarks>
   public async ValueTask<ElectricPotential> GetAmplitudeAsync(int channel, CancellationToken ct = default)
   {
     if (channel < 1 || channel > 2) throw new ArgumentOutOfRangeException(nameof(channel));
     string reply = await session.QueryAsync($"SOUR{channel}:VOLT?", ct).ConfigureAwait(false);
     return ElectricPotential.FromVolts(double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture));
   }
+  /// <summary>Write Amplitude, encoded in Volt using invariant culture.</summary>
+  /// <param name="channel">One-based channel, 1 through 2.</param>
+  /// <param name="value">Finite ElectricPotential; definition limits in Volt: minimum unspecified, maximum unspecified.</param>
+  /// <param name="ct">Cancellation forwarded to the transport; it does not undo a command already sent.</param>
+  /// <returns>Completion of the transport write, not confirmation of physical execution or settling.</returns>
+  /// <exception cref="ArgumentOutOfRangeException">Channel, finiteness or definition limits are invalid.</exception>
+  /// <remarks>Transport failures propagate. Do not automatically retry after an ambiguous failure.</remarks>
   public async ValueTask SetAmplitudeAsync(int channel, ElectricPotential value, CancellationToken ct = default)
   {
     if (channel < 1 || channel > 2) throw new ArgumentOutOfRangeException(nameof(channel));

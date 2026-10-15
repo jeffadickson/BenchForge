@@ -11,6 +11,7 @@ ALLOWED_IMPLEMENTATION = {"notPorted", "partialDcSourceMeasure", "generatedProto
 
 
 def main() -> int:
+    """Validate catalog structure, statuses and referenced definitions; raise ValueError on invalid inventory."""
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     if catalog.get("schemaVersion") != 1:
         raise ValueError("Unsupported instrument catalog schema")
@@ -54,3 +55,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
