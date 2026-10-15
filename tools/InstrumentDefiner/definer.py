@@ -63,7 +63,7 @@ def draft(manufacturer, model, name, source="", revision=""):
     }
 
 
-def extract(path, manufacturer, model, revision):
+def extract(path, manufacturer, model, revision, class_name=None):
     if path.stat().st_size > 2 * 1024 * 1024:
         raise ValueError("Upstream Python source exceeds 2 MiB extraction limit")
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -75,15 +75,29 @@ def extract(path, manufacturer, model, revision):
                    and dotted(n.value.func) in
                    {"Instrument.control", "Instrument.measurement", "Instrument.setting"}
                    for n in cls.body)
-    cls = max(classes, key=count)
+    if class_name:
+        candidates = [cls for cls in classes if cls.name == class_name]
+    else:
+        highest = max(map(count, classes))
+        candidates = [cls for cls in classes if count(cls) == highest]
+    if len(candidates) != 1:
+        raise ValueError("Select exactly one upstream class with --class-name; available: "
+                         + ", ".join(cls.name for cls in classes))
+    cls = candidates[0]
     result = draft(manufacturer, model, cls.name, str(path), revision)
+    result["provenance"]["upstreamClass"] = cls.name
+    if cls.bases:
+        result["review"]["unresolved"].append(
+            "Inherited members are not extracted; review bases: "
+            + ", ".join(ast.unparse(base) for base in cls.bases))
     for node in cls.body:
         if (isinstance(node, ast.Assign) and len(node.targets) == 1
                 and isinstance(node.targets[0], ast.Name)
                 and isinstance(node.value, ast.Call)):
-            kind = dotted(node.value.func).removeprefix("Instrument.")
-            if kind not in {"control", "measurement", "setting"}:
+            descriptor = dotted(node.value.func)
+            if descriptor not in {"Instrument.control", "Instrument.measurement", "Instrument.setting"}:
                 continue
+            kind = descriptor.split(".")[-1]
             args = [literal(arg) for arg in node.value.args]
             kw = {item.arg: literal(item.value) for item in node.value.keywords if item.arg}
             query = args[0] if kind != "setting" and args else None
@@ -107,12 +121,36 @@ def extract(path, manufacturer, model, revision):
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith("_"):
             result["operations"].append({
                 "name": node.name,
-                "arguments": [a.arg for a in node.args.args if a.arg != "self"],
+                # Preserve defaults, annotations, positional-only/keyword-only
+                # separators and variadics as source text; never evaluate them.
+                "arguments": method_arguments(node),
+                "notes": "Python signature: " + ast.unparse(node.args),
+                "async": isinstance(node, ast.AsyncFunctionDef),
                 "returnQuantity": None, "returnUnit": None,
                 "sourceLine": node.lineno, "semantics": "manualReviewRequired",
                 "reviewStatus": "unreviewed"
             })
     return result
+
+
+def method_arguments(node):
+    """Return all parameter names in declaration order, excluding the bound receiver."""
+    import copy
+    args = copy.deepcopy(node.args)
+    positional = args.posonlyargs or args.args
+    is_static = any(dotted(item) == "staticmethod" for item in node.decorator_list)
+    if not is_static and positional and positional[0].arg in {"self", "cls"}:
+        # Defaults align with the trailing combined positional parameters.
+        if len(args.defaults) == len(args.posonlyargs) + len(args.args):
+            args.defaults.pop(0)
+        positional.pop(0)
+    names = [arg.arg for arg in args.posonlyargs + args.args]
+    if args.vararg:
+        names.append("*" + args.vararg.arg)
+    names.extend(arg.arg for arg in args.kwonlyargs)
+    if args.kwarg:
+        names.append("**" + args.kwarg.arg)
+    return names
 
 
 def import_csv(properties, methods, manufacturer, model, name, manual):
@@ -263,6 +301,7 @@ def main():
     ex.add_argument("--manufacturer", required=True)
     ex.add_argument("--model", required=True)
     ex.add_argument("--revision", required=True)
+    ex.add_argument("--class-name", help="Explicit upstream class (required for ambiguous files)")
     ex.add_argument("--output", required=True, type=Path)
     imp = sub.add_parser("import-csv")
     imp.add_argument("properties", type=Path)
@@ -279,7 +318,7 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == "extract-pymeasure":
-            doc = extract(args.source, args.manufacturer, args.model, args.revision)
+            doc = extract(args.source, args.manufacturer, args.model, args.revision, args.class_name)
             errors = validate(doc)
             if errors:
                 raise ValueError("; ".join(errors))
@@ -325,3 +364,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -32,6 +32,22 @@ python3 tools/InstrumentDefiner/definer.py import-csv \
 
 The tool refuses to overwrite existing files. The extracted draft contains all statically recognizable `Instrument.control`, `Instrument.measurement`, and `Instrument.setting` descriptors plus public class methods. It **cannot infer all semantics**, especially properties defined dynamically, inherited capabilities, mappings, unit dimensions, safety interlocks, decorators, complex methods, or device-specific response parsing. The intern must resolve these manually.
 
+When multiple classes tie for the most recognized descriptors, extraction stops:
+select the intended class with `--class-name Keithley2400`. An explicit selection
+also overrides automatic selection for files containing helper/channel classes.
+The selected class is recorded in `provenance.upstreamClass`; inheritance is
+flagged as unresolved rather than presented as complete coverage.
+
+Method extraction preserves positional-only and keyword-only parameter names,
+`*args`/`**kwargs`, and the async marker. The complete Python argument signature,
+including annotations and defaults, is retained as text in `notes`. Default
+expressions are never evaluated. `arguments` remains a list of parameter names
+(variadics include their stars); these are review metadata, not executable C#.
+
+Local verification: `make definer-check` passed 12 Python tests and both checked-in
+draft validations on 2026-10-15. This verifies extraction behavior, not full JSON
+Schema conformance, generated C# compilation, or hardware correctness.
+
 ## Review workflow
 
 **Extracted → Source reviewed → Manual reviewed → Hardware validated.** Reviewer, source revision, manual reference and unresolved questions remain part of the definition. Hardware validation requires actual hardware evidence and a named reviewer. The draft format is [schema v2](../../instrument-definitions/schema/instrument-definition-v2.schema.json). The existing `BenchDouble.DriverGen` consumes the older, limited **schema v1** `*.instrument.json` files only. It must not silently convert v2 extraction drafts into working drivers until command mappings, units, modes and safety are reviewed.
@@ -39,3 +55,4 @@ The tool refuses to overwrite existing files. The extracted draft contains all s
 ## Generator roadmap
 
 The next increment will use approved v2 definitions to generate typed async interfaces, SCPI/legacy-bus adapters, mode/state transitions, default mock initialization, measurement behaviors, test fixtures, documentation and unit-specific examples. The mode-aware mock engine must refuse incompatible requests, and unsafe output-enabling commands must require explicit authorization. No automatic physical access from extracted source.
+

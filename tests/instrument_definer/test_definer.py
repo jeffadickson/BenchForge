@@ -13,6 +13,56 @@ spec.loader.exec_module(definer)
 
 
 class InstrumentDefinerTests(unittest.TestCase):
+    def extract_source(self, source, class_name=None):
+        """Extract disposable source without importing it."""
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "driver.py"
+            path.write_text(source, encoding="utf-8")
+            return definer.extract(path, "Example", "123", "pinned-sha", class_name)
+
+    def test_complete_async_signature_is_preserved_without_execution(self):
+        doc = self.extract_source('''
+class Meter(Instrument):
+    async def acquire(self, channel: int, /, count=explode(), *values, timeout=5, **options):
+        pass
+''')
+        op = doc["operations"][0]
+        self.assertEqual(["channel", "count", "*values", "timeout", "**options"], op["arguments"])
+        self.assertTrue(op["async"])
+        self.assertIn("count=explode()", op["notes"])
+        self.assertIn("/", op["notes"])
+        self.assertIn("Inherited members are not extracted", doc["review"]["unresolved"][-1])
+        self.assertEqual("Meter", doc["provenance"]["upstreamClass"])
+
+    def test_static_and_class_method_receivers(self):
+        doc = self.extract_source('''
+class Meter:
+    @staticmethod
+    def static(self, *, flag=True): pass
+    @classmethod
+    def create(cls, address, /): pass
+    def reset(self): pass
+''')
+        self.assertEqual([["self", "flag"], ["address"], []],
+                         [op["arguments"] for op in doc["operations"]])
+
+    def test_ambiguous_class_requires_explicit_selection(self):
+        source = "class First:\n    def reset(self): pass\nclass Second:\n    def read(self): pass\n"
+        with self.assertRaisesRegex(ValueError, "--class-name"):
+            self.extract_source(source)
+        doc = self.extract_source(source, "Second")
+        self.assertEqual("Second", doc["identity"]["driverName"])
+        with self.assertRaisesRegex(ValueError, "--class-name"):
+            self.extract_source(source, "Missing")
+
+    def test_unrelated_descriptor_is_not_extracted(self):
+        doc = self.extract_source('''
+class Meter:
+    fake = measurement("NOT A PYMEASURE DESCRIPTOR")
+    voltage = Instrument.measurement("V?", "Voltage")
+''')
+        self.assertEqual(["voltage"], [cap["name"] for cap in doc["capabilities"]])
+
     def test_extract_is_static_and_preserves_command_metadata(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "driver.py"
@@ -101,3 +151,4 @@ class Meter(Instrument):
 
 if __name__ == "__main__":
     unittest.main()
+
