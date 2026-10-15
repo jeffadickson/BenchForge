@@ -1,6 +1,6 @@
-# BenchDouble: instrument automation with explicit evidence
+# BenchForge: instrument automation with explicit evidence
 
-BenchDouble aims to make experiments ordinary, testable C# programs while keeping
+BenchForge aims to make experiments ordinary, testable C# programs while keeping
 instrument ownership, units, simulation, failure recovery and evidence explicit.
 This is an evolving prototype, not a completed LabVIEW replacement or a verified
 physical safety system. The requirements scoreboard distinguishes those claims.
@@ -31,9 +31,14 @@ Routine pushes skip hosted CI; local tests and milestone verification are separa
 
 ## Local trace and screenshot storage
 
-`BenchDouble.Artifacts.Sqlite` now stores immutable capture bytes plus searchable
+`BenchForge.Artifacts.Sqlite` now stores immutable capture bytes plus searchable
 metadata and a pending outbox in one local transaction. It supports bounded
 streaming, SHA-256 verification, idempotent IDs and acquisition lookup.
 [Run the capture example](LOCAL-CAPTURE-STORAGE.md). Remote upload, retention,
 online backup and comparative storage benchmarks remain pending; the pending
 outbox is not a remote-durability claim.
+
+
+## Hands-on examples
+
+See [Examples](EXAMPLES.md) for runnable commands, expected observations, limitations and validation steps. All examples distinguish simulated operation from physical instrument control.
