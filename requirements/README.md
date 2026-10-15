@@ -24,4 +24,4 @@ Never infer verification from a commit, a test name, or a generated document. Re
 
 StrictDoc output is generated documentation, not proof that tests passed. The existing 90 TR items remain indexed in their original source for continuity. 
 
-The [feature audit](../docs/FEATURE-AUDIT.md) records subsystem coverage and gaps; the [testing guide](../docs/TESTING-AND-TRACEABILITY.md) explains xUnit, Reqnroll and Playwright evidence. All 148 requirements are currently unverified or planned; no requirement is marked Verified without actual successful test evidence.
+The [feature audit](../docs/FEATURE-AUDIT.md) records subsystem coverage and gaps; the [testing guide](../docs/TESTING-AND-TRACEABILITY.md) explains xUnit, Reqnroll and Playwright evidence. All 149 requirements are currently unverified or planned; no requirement is marked Verified without actual successful test evidence.
