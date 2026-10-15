@@ -12,7 +12,21 @@ builder.Model(sp => new FirstOrderThermalSensor(
     sp.GetRequiredService<ITemperatureProgram>(),
     TimeSpan.FromMinutes(20), Temperature.FromDegreesCelsius(30)));
 builder.Model<ITemperatureSignal>(sp => sp.GetRequiredService<FirstOrderThermalSensor>());
-builder.Behavior<ILoadBehavior, SensorDrivenLoad>();
+// --automock adds a time-triggered fault without modifying SimulatedSupply
+// or SensorDrivenLoad. Rules are immutable and scoped to this experiment.
+bool useAutoMock = args.Contains("--automock", StringComparer.OrdinalIgnoreCase);
+if (useAutoMock)
+{
+    builder.AutoMockLoad(
+        sp => new SensorDrivenLoad(sp.GetRequiredService<ITemperatureSignal>()),
+        rules => rules.FixedCurrent("late-overcurrent",
+            ElectricCurrent.FromAmperes(2.5),
+            new AutoMockLoadCondition(From: TimeSpan.FromHours(2))));
+}
+else
+{
+    builder.Behavior<ILoadBehavior, SensorDrivenLoad>();
+}
 builder.Simulated<IThermalChamber, SimulatedChamber>("Chamber1");
 builder.Simulated<IPowerSupply, SimulatedSupply>("Supply1");
 
@@ -27,6 +41,9 @@ var supply = run.Instrument<IPowerSupply>("Supply1");
 run.Clock.AdvanceBy(TimeSpan.FromHours(1));
 Console.WriteLine($"At 1h: chamber {chamber.Setpoint.DegreesCelsius:F1} C, " +
     $"sensor-driven current {supply.Current.Amperes:F3} A");
+run.Clock.AdvanceBy(TimeSpan.FromHours(1));
+Console.WriteLine($"At 2h: current {supply.Current.Amperes:F3} A" +
+    (useAutoMock ? " (AutoMock fault injected)" : " (normal load)"));
 Console.WriteLine("No physical instrument discovery, reservation or network connection was performed.");
 
 public interface IThermalChamber
