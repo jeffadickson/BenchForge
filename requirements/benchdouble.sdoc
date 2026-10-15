@@ -896,3 +896,9 @@ UID: BD-AM-011
 STATUS: Active
 TITLE: BD-AM-011 P1
 STATEMENT: AutoMock shall generate typed default simulation adapters from instrument definitions so developers configure overrides without duplicating command boilerplate.
+
+[REQUIREMENT]
+UID: BD-AM-012
+STATUS: Active
+TITLE: BD-AM-012 P1
+STATEMENT: Multiple named instruments in one experiment shall support independently keyed AutoMock behaviors and distinct rule-set fingerprints.
