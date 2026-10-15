@@ -21,3 +21,20 @@ All public handwritten and generated C# types and members require meaningful `//
 ## Verification
 
 Run `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj`, `make docs-check` and `make check-generated`. These commands must pass in .NET 10 CI before marking this increment verified.
+
+## Where Dataflow belongs
+
+Use Dataflow for bounded batches of instrument definitions, CPU-intensive waveform transforms, buffered measurement persistence and optional telemetry fan-out. For small one-off operations, ordinary `async/await` or `Parallel.ForEachAsync` is simpler. **Do not use Dataflow to replace instrument ownership locks, transaction serialization or host leases.**
+
+For continuous capture, distinguish lossless archival (bounded queue, explicit backpressure/fail-fast policy) from lossy visualization (bounded latest-value updates). Do not allow a slow dashboard to hold an instrument's exclusive SCPI transaction. Prefer capture completion before enqueueing immutable data to downstream processing. Avoid unbounded `Post` calls; use `SendAsync` and check rejection/fault propagation.
+
+## Make targets
+
+```sh
+make import-check   # Focused schema-v2 and Dataflow tests
+make demo-alpha     # Hardware-free waveform/RMS demonstration
+make alpha-check    # Generated-code check, importer tests, demo and host tests
+make docs-check     # XML API documentation audit
+```
+
+These targets require the .NET 10 SDK. Their presence does not imply passing CI; actual execution evidence must be reviewed before closing requirements.
