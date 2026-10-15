@@ -3,7 +3,7 @@
 DOTNET ?= dotnet
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-dashboard check-generated
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-dashboard check-generated
 
 setup:
 	bash scripts/bootstrap.sh
@@ -22,6 +22,7 @@ build: generate
 	$(DOTNET) build src/BenchDouble/BenchDouble.csproj
 	$(DOTNET) build src/BenchDouble.Experiments/BenchDouble.Experiments.csproj
 	$(DOTNET) build examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
+	$(DOTNET) build examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj
 	$(DOTNET) build src/BenchDouble.TimeSeries.Sqlite/BenchDouble.TimeSeries.Sqlite.csproj
 	$(DOTNET) build src/BenchDouble.Plotting/BenchDouble.Plotting.csproj
 	$(DOTNET) build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj
@@ -70,3 +71,6 @@ demo-automock:
 
 demo-automock-json:
 	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj -- --automock-json
+
+demo-typed-meter:
+	$(DOTNET) run --project examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj
