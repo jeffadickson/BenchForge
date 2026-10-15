@@ -5,6 +5,15 @@ namespace BenchDouble.Generated;
 /// <summary>Typed simulation-only instrument preview for ExampleTwoModeDmm.</summary>
 public sealed class ExampleTwoModeDmmPreview
 {
+  /// <summary>SHA-256 of the exact input definition bytes.</summary>
+  public const string DefinitionSha256 = "592faccb10026d5bc0b3d7449bf4706980f8ca171ebf379d841b26b84ed05397";
+  /// <summary>Pinned upstream Git commit, or unverified when unavailable.</summary>
+  public const string UpstreamRevision = "unverified";
+  /// <summary>Versioned generator implementation identifier.</summary>
+  public const string GeneratorVersion = "v2-decorator-1";
+  /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>
+  public static string BuildCommit => System.Attribute.GetCustomAttributes(typeof(ExampleTwoModeDmmPreview).Assembly, typeof(System.Reflection.AssemblyMetadataAttribute))
+    .OfType<System.Reflection.AssemblyMetadataAttribute>().FirstOrDefault(x => x.Key == "BenchForgeGitCommit")?.Value ?? "unavailable";
   private readonly System.Threading.SemaphoreSlim _gate = new(1, 1);
   private string? _mode;
   private double _voltage = 0.25;
@@ -49,5 +58,50 @@ public sealed class ExampleTwoModeDmmPreview
       return ElectricResistance.FromOhms(_resistance);
     }
     finally { _gate.Release(); }
+  }
+}
+
+/// <summary>Injectable, simulation-only mock decorator for ExampleTwoModeDmm.</summary>
+/// <remarks>Preserves the preview's mode validation. Overrides are explicitly supplied by tests; no physical I/O.</remarks>
+public sealed class ExampleTwoModeDmmMockDecorator
+{
+  private readonly ExampleTwoModeDmmPreview _inner;
+  /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>
+  /// <param name="inner">The caller-owned simulation preview.</param>
+  public ExampleTwoModeDmmMockDecorator(ExampleTwoModeDmmPreview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));
+  /// <summary>Configure the underlying simulation mode.</summary>
+  /// <param name="mode">Declared mode name.</param>
+  /// <param name="ct">Cancellation while waiting for the mode lock.</param>
+  /// <returns>Completion of the mode transition.</returns>
+  public System.Threading.Tasks.ValueTask ConfigureModeAsync(string mode, System.Threading.CancellationToken ct = default) => _inner.ConfigureModeAsync(mode, ct);
+  private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? _voltageBehavior;
+  /// <summary>Inject a test-specific voltage measurement behavior.</summary>
+  /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
+  public void SetvoltageBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? behavior)
+    => System.Threading.Volatile.Write(ref _voltageBehavior, behavior);
+  /// <summary>Measure voltage with mode checks and optional injected behavior.</summary>
+  /// <param name="ct">Cancellation forwarded to both the preview and injected behavior.</param>
+  /// <returns>A typed ElectricPotential simulated measurement.</returns>
+  /// <exception cref="System.InvalidOperationException">The selected mode does not permit this measurement.</exception>
+  public async System.Threading.Tasks.ValueTask<ElectricPotential> GetvoltageAsync(System.Threading.CancellationToken ct = default)
+  {
+    var defaultValue = await _inner.GetvoltageAsync(ct).ConfigureAwait(false);
+    var behavior = System.Threading.Volatile.Read(ref _voltageBehavior);
+    return behavior is null ? defaultValue : await behavior(ct).ConfigureAwait(false);
+  }
+  private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? _resistanceBehavior;
+  /// <summary>Inject a test-specific resistance measurement behavior.</summary>
+  /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
+  public void SetresistanceBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? behavior)
+    => System.Threading.Volatile.Write(ref _resistanceBehavior, behavior);
+  /// <summary>Measure resistance with mode checks and optional injected behavior.</summary>
+  /// <param name="ct">Cancellation forwarded to both the preview and injected behavior.</param>
+  /// <returns>A typed ElectricResistance simulated measurement.</returns>
+  /// <exception cref="System.InvalidOperationException">The selected mode does not permit this measurement.</exception>
+  public async System.Threading.Tasks.ValueTask<ElectricResistance> GetresistanceAsync(System.Threading.CancellationToken ct = default)
+  {
+    var defaultValue = await _inner.GetresistanceAsync(ct).ConfigureAwait(false);
+    var behavior = System.Threading.Volatile.Read(ref _resistanceBehavior);
+    return behavior is null ? defaultValue : await behavior(ct).ConfigureAwait(false);
   }
 }
