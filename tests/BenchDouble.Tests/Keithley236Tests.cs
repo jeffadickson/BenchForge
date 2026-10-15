@@ -62,6 +62,32 @@ public sealed class Keithley236Tests
         await meter.StandbyAsync();
     }
     [Fact]
+    public async Task OperateRequiresBiasAsWellAsModeAndCompliance()
+    {
+        var bus = new Keithley236MockBus();
+        var instrument = new Keithley236(bus);
+        await instrument.ConfigureAsync(SourceMeasureMode.SourceVoltageMeasureCurrent);
+        await instrument.SetComplianceAsync(ElectricCurrent.FromMilliamperes(5));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await instrument.SetOperateAsync(true));
+        Assert.False(bus.Operate);
+        await instrument.SetBiasAsync(ElectricPotential.FromVolts(1), TimeSpan.Zero);
+        await instrument.SetOperateAsync(true);
+        Assert.True(bus.Operate);
+        await instrument.StandbyAsync();
+    }
+
+    [Fact]
+    public async Task InvalidSourceModeDoesNotWriteToBus()
+    {
+        var bus = new Keithley236MockBus();
+        var instrument = new Keithley236(bus);
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            await instrument.ConfigureAsync((SourceMeasureMode)999));
+        Assert.Empty(bus.Transcript);
+    }
+
+    [Fact]
     public async Task ChangingSourceModeInvalidatesOldCompliance()
     {
         var bus = new Keithley236MockBus();
