@@ -35,3 +35,7 @@ The experiment definition will declare instrument roles; the host resolver will 
 ## Verification
 
 [Host dashboard unit tests](../tests/BenchDouble.Host.Tests/HostDashboardTests.cs) check idle/reserved/released state and sanitized log messages. Browser tests for real dashboard DOM updates, reconnect behavior and multi-host status remain planned. Compilation/CI evidence has not been reviewed.
+
+## AutoMock visibility (planned)
+
+The dashboard currently shows only local host resource state and sanitized query/lease activity. It does **not** display experiment rule matches, rule hashes, active injected faults or remote experiment registrations. Issue #42 tracks integrating the AutoMock event stream and experiment provenance with the dashboard. Never infer that a host instrument is safe merely because the mock reports an output-off state.
