@@ -1,3 +1,3 @@
-name,kind,access,quantity,unit,query,set,mode,minimum,maximum,sourceLine,notes
-source_delay,control,readwrite,Duration,Second,:SOURCE:DELAY?,:SOURCE:DELAY %g,,0,999.9999,,Review actual programming guide and setter formatting
-source_enabled,control,readwrite,,,OUTPUT?,OUTPUT %d,,,,,Output enable requires authorization and safety review
+name,kind,access,quantity,unit,query,set,mode,minimum,maximum,sourceLine,notes,responseFormat,basis,sideEffects,sourcePath,sourceRevision
+source_delay,control,readwrite,Duration,Second,:SOURCE:DELAY?,:SOURCE:DELAY %g,,0,999.9999,,Review command against manual,float,seconds,Setting may disable auto delay,pymeasure/instruments/keithley/keithley2400.py,PINNED_SHA
+source_enabled,control,readwrite,,,OUTPUT?,OUTPUT %d,,,,,Requires output authorization,bool,,Changes physical output state,pymeasure/instruments/keithley/keithley2400.py,PINNED_SHA
