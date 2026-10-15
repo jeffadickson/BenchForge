@@ -75,3 +75,7 @@ The initial runtime `ISignalBehavior`, `SineBehavior`, `SeededRandomBehavior` an
 - Code changes require parity tests versus manufacturer manuals and any source-adapted PyMeasure commands.
 - The current Makefile is a convenience entry point, not yet a cross-platform bootstrapper; direct `dotnet run` supports Windows without Make.
 - **Current status: source committed; no successful .NET build or generator execution has been verified here.**
+
+## Mock profile generation and time semantics
+
+Instrument drivers and mock behavior definitions have distinct concerns: generated production drivers describe validated commands, quantities and capabilities; versioned mock descriptions define **initialization**, **per-operation measurement behavior**, clock attachment, latency, seeds and state transitions. A proposed `*.mock.json` format should compile to ordinary C# mocks and behavior setup using the same explicit standalone generator. Mock time is a bench-scoped service with real-time, accelerated, paused and manual modes. Delays and jitter have UnitsNet-compatible duration definitions; real hardware and server lease timeouts remain on wall time. See [MOCK-TIME-AND-LIFECYCLE.md](MOCK-TIME-AND-LIFECYCLE.md). The proposed schema is not yet accepted by the current generator.
