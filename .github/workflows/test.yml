@@ -35,6 +35,10 @@ jobs:
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
+      - name: Test experiment-scoped dependency injection
+        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release
+      - name: Run experiment composition demonstration
+        run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release
       - name: Run Reqnroll executable acceptance scenarios
         run: dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj --configuration Release
       - name: Build browser test project
