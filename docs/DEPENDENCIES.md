@@ -54,3 +54,7 @@ The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.
 ## Generic quantity mock dependencies
 
 `TypedMockMeasurements` and `TypedMockMeter` reuse the existing **UnitsNet 5.75.1** package and .NET 8 generic runtime support; no new runtime NuGet package is required. The test suite uses existing xUnit packages. The typed meter demo is included in Makefile build targets and the three-OS CI matrix. Driver-definition-based capability generation and compatibility tests remain tracked in issue #44.
+
+## Optional procedure parser package
+
+`src/BenchDouble.Procedures/BenchDouble.Procedures.csproj` references **Parlot 1.5.9** (stable NuGet package, BSD-3-Clause license) and the existing `BenchDouble` and `BenchDouble.Experiments` projects. The core instrument library does **not** depend on Parlot. `tests/BenchDouble.Procedures.Tests` uses the existing xUnit, runner and test SDK packages; the example uses the existing logging abstractions. `make build`, `make test`, `make demo-procedure` and the three-OS CI workflow include the new projects. NuGet lockfiles and successful CI validation remain outstanding.
