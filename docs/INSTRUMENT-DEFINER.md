@@ -57,3 +57,34 @@ A successful mock demonstration is **not** hardware validation. A manual-reviewe
 The existing `BenchDouble.DriverGen` continues to support schema-v1 scalar SCPI definitions, including the illustrative Keysight 33522B driver/mock pair. The new schema-v2 Definer is a **separate intake and review pipeline**. The next integration step is to generate typed async drivers and mode-aware mocks from *reviewed* v2 definitions, preserving source compatibility and ensuring no unreviewed command can enable a real output.
 
 **Tracking:** [#52 Instrument Definer](https://github.com/jeffadickson/BenchDouble/issues/52) and [#53 Mode-aware generation](https://github.com/jeffadickson/BenchDouble/issues/53). Requirement IDs BD-DEF-001..008.
+
+## 2026-10-15: batch intake, coverage evidence and review gating
+
+The next increment adds [batch_extract.py](../tools/InstrumentDefiner/batch_extract.py)
+for a manifest of pinned PyMeasure files and
+[review_gate.py](../tools/InstrumentDefiner/review_gate.py) for a stricter
+metadata-readiness check. The batch tool produces separate draft definitions,
+never overwrites previous work, and emits a JSON report for every requested
+model. It rejects source paths outside the selected checkout and requires
+40-character upstream Git revisions.
+
+The AST extractor now records unresolved inherited and dynamic member
+candidates, including inherited members from classes in the same file,
+external mixins, dynamic `setattr` calls and Python properties. This is a
+**conservative completeness report**, not a claim that all inherited methods
+were extracted. Reviewers must reconcile those members and attach evidence
+before marking a definition manual-reviewed.
+
+The gate rejects unknown physical units for measurement capabilities,
+unreviewed commands, missing mode-selection commands, unresolved method
+semantics, placeholder upstream provenance, missing manufacturer manual
+evidence, and unreviewed inheritance/dynamic behavior. The gate can also
+check hardware-evidence metadata, but it does not itself test hardware.
+A successful metadata gate does not yet authorize code generation; the
+schema-v2 driver generator and host safety controls remain separate.
+
+For the intern's complete commands and CSV templates, see
+[Instrument Definer README](../tools/InstrumentDefiner/README.md).
+Requirements BD-DEF-009..011 and [issue #52](https://github.com/jeffadickson/BenchDouble/issues/52)
+track these additions. CI execution and hardware qualification are not
+claimed by this increment.
