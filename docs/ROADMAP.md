@@ -270,3 +270,12 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add explicit InitializeAsync/ResetAsync behavior lifecycle for stateful plugins
 - [ ] Add Roslyn DLL/PDB build, test and approved isolated-worker deployment pipeline
 - [ ] Integrate DI-backed mocks with remote host factory, run logging and versioned behavior hashes
+
+### Unattended Operations Monitor
+- [x] Add self-contained HTML demo with live current plot, fault injection, overcurrent alarm and event log
+- [x] Add simulated email/SMS notification sink to C# DI example
+- [x] Document alert/outbox, delivery and physical safety boundaries
+- [ ] Integrate browser UI with live UnitsNet measurement stream and host event IDs
+- [ ] Add persistent alarm rules, acknowledgment, deduplication and escalation
+- [ ] Add opt-in real notification providers with secure credentials, retries and delivery receipts
+- [ ] Validate hardware safe-state independent of UI and notifications
