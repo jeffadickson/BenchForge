@@ -104,3 +104,15 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Validate true IVI DMM/FGEN method compatibility on vendor devices
 - [ ] Port selected scope/DMM model capabilities with original attribution if source is reused
 - [ ] Add full upstream source download as a versioned, reproducible development setup step if needed
+
+### Async-first instrument APIs
+- [x] Add cancellable ValueTask SCPI session contract
+- [x] Add per-session serialization of query/write operations
+- [x] Implement asynchronous DMM and function-generator subset drivers
+- [x] Preserve existing synchronous simulator support through explicit compatibility adapter
+- [x] Add async serialization and cancellation-before-dispatch tests
+- [ ] Confirm compilation and CI execution
+- [ ] Implement genuine native asynchronous VISA I/O and timeouts
+- [ ] Implement physical abort and safe-state confirmation semantics
+- [ ] Add IAsyncEnumerable measurement streaming with backpressure
+- [ ] Add parallel-instrument experiment barriers and partial-order mock expectations
