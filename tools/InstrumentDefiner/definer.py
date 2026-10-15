@@ -126,6 +126,14 @@ def import_csv(properties, methods, manufacturer, model, name, manual):
                 "notes": row["notes"], "mockDefault": None,
                 "reviewStatus": "unreviewed"
             })
+    # A spreadsheet may name a mode before its command is known. Record the
+    # mode as a review placeholder rather than rejecting the imported draft.
+    modes = sorted({mode for cap in result["capabilities"] for mode in cap["modes"]})
+    for mode in modes:
+        result["modes"].append({
+            "id": mode, "selectionCommand": None, "initial": False,
+            "notes": "Imported from CSV; mode command requires manual review"
+        })
     if methods:
         with methods.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
@@ -170,6 +178,9 @@ def validate(doc):
     names = set()
     mode_names = {m.get("id") for m in modes if isinstance(m, dict)}
     check(len(mode_names) == len(modes), "Duplicate mode IDs")
+    for mode in mode_names:
+        check(isinstance(mode, str) and bool(IDENT.fullmatch(mode)),
+              "Invalid mode identifier")
     for i, cap in enumerate(caps):
         name = cap.get("name") or ""
         prefix = f"capabilities[{i}]"
@@ -190,6 +201,12 @@ def validate(doc):
             check(low <= high, prefix + ": invalid range")
         for mode in cap.get("modes") or []:
             check(mode in mode_names, prefix + ": undeclared mode " + str(mode))
+        default = cap.get("mockDefault")
+        if type(default) in (int, float):
+            if type(low) in (int, float):
+                check(default >= low, prefix + ": mockDefault below minimum")
+            if type(high) in (int, float):
+                check(default <= high, prefix + ": mockDefault above maximum")
     for op in ops:
         name = op.get("name") or ""
         check(bool(IDENT.fullmatch(name)) and name not in names,
