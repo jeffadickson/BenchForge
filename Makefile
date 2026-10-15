@@ -1,9 +1,9 @@
-# BenchDouble developer entrypoints. Requires GNU Make on Unix; Windows can
+# BenchForge developer entrypoints. Requires GNU Make on Unix; Windows can
 # use scripts/bootstrap.ps1 and dotnet CLI directly without Make.
 DOTNET ?= $(if $(wildcard .tools/dotnet/dotnet),$(CURDIR)/.tools/dotnet/dotnet,dotnet)
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check setup-browser scoreboard requirements-check
+.PHONY: alpha-check demo-alpha import-check setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check setup-browser scoreboard requirements-check
 
 setup:
 	bash scripts/bootstrap.sh
@@ -110,3 +110,13 @@ artifact-check: artifact-recovery
 artifact-recovery:
 	$(DOTNET) build tools/BenchDouble.ArtifactCrashProbe
 	$(PYTHON) scripts/check_artifact_recovery.py --dotnet "$(DOTNET)"
+
+# Focused .NET 10 alpha verification, without expanding distributed-host scope.
+import-check:
+	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~ImportedInstrumentDefinitionTests|FullyQualifiedName~InstrumentImportPipelineTests"
+
+demo-alpha:
+	$(DOTNET) run --project examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj --configuration Release
+
+alpha-check: check-generated import-check demo-alpha
+	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
