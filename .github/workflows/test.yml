@@ -23,6 +23,13 @@ jobs:
         run: python scripts/check_requirements.py
       - name: Parse and export StrictDoc requirements
         run: strictdoc export requirements --output-dir build/requirements
+      - name: Archive generated requirements HTML
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: requirements-${{ matrix.os }}
+          path: build/requirements/
+          if-no-files-found: ignore
       - name: Generate instrument drivers
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
       - name: Run tests
@@ -37,6 +44,13 @@ jobs:
         run: ./tests/BenchDouble.Browser.Tests/bin/Release/net8.0/playwright.ps1 install chromium
       - name: Run real-browser unattended monitor tests
         run: dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release --no-build
+      - name: Archive browser failure screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-failures-${{ matrix.os }}
+          path: TestResults/browser/
+          if-no-files-found: ignore
       - name: Test standalone UnitsNet plotting adapter
         run: dotnet test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj --configuration Release
 
