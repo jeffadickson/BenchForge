@@ -9,7 +9,7 @@ physical safety system. The requirements scoreboard distinguishes those claims.
 |---|---|---|
 | Typed instrument APIs | C# interfaces and UnitsNet quantities | Broader driver coverage and hardware qualification |
 | Hardware-free development | Stateful mocks, strict transcripts, virtual time and injected behavior | Full command/mode coverage and integrated acceptance |
-| Instrument Definer | Static PyMeasure extraction, CSV import, review drafts, mock preview | Full schema validation, inherited extraction and reviewed v2 generation |
+| Instrument Definer | Static external instrument catalog extraction, CSV import, review drafts, mock preview | Full schema validation, inherited extraction and reviewed v2 generation |
 | Local-first routing | Optional JSON directory, localhost default, logged decisions, role-bound HTTP client | Production authenticated remote hosting and managed-open integration |
 | Multiple experiments | Per-resource prototype reservations; different resources can be reserved independently | Authenticated owner/run, expiry and fencing |
 | Multiple observers | Cached read-only host snapshots and dashboard polling | Registered streaming subscriptions and replay |
