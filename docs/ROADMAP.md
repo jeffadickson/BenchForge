@@ -210,3 +210,7 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Bind seeded sine/noise mock behavior to simulation clocks and stateful DMM samples
 - [ ] Add per-operation latency, warmup, acquisition and jitter using UnitsNet durations
 - [ ] Verify deterministic multi-instrument concurrency, cancellation, replay and acceleration
+
+## Integrated test-lab runner acceptance baseline
+
+Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the indexed TR-001–TR-090 source for implementation issues, tests and milestone acceptance. Prioritize (1) green build and durable async runner, (2) structured procedure editing, (3) controlled redlines and signoff, (4) secure host streaming and leases, (5) multi-host demonstration. Maintain requirement-to-test traceability; do not mark an item complete solely because an interface or document was committed.
