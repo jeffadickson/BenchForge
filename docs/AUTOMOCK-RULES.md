@@ -121,3 +121,7 @@ Do not introduce any of these into the core by default. If adopted, hide them be
 ## Multiple instruments in one experiment
 
 The composition root supports independently keyed rules using `AutoMockLoadFor("SupplyA", baselineFactory, configure)` and `AutoMockLoadFor("SupplyB", ...)`. Register each instrument with the `Simulated<TInterface>(role, factory)` overload, resolving its keyed `ILoadBehavior` inside the composition factory. The instrument implementation itself receives an ordinary `ILoadBehavior` constructor argument and never references the DI container. Each named rule set has a separate SHA-256 fingerprint in `ExperimentDefinition.AutoMockRuleHashes` and `ExperimentRun.AutoMockRuleHashes`. See `TwoNamedSuppliesCanHaveDifferentAutoMockRules` in the experiment xUnit tests. Full binary/package provenance remains planned.
+
+## Integrated unattended-monitor verification increment
+
+`tests/BenchDouble.Tests/AutoMockUnattendedIntegrationTests.cs` exercises the **same C# backend** from declarative AutoMock timed fault through `MockPowerSupply`, `UnattendedCurrentMonitor`, one alarm and explicit simulated output-off. It also asserts the matched rule name and virtual timestamp. This advances issue #42, but it does not yet connect SQLite, host dashboard or browser plots to the same run. No physical shutdown is claimed.
