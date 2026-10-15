@@ -1,0 +1,16 @@
+# Build, tool provisioning, browser and local experiment artifacts
+**/bin/
+**/obj/
+.tools/
+build/
+TestResults/
+playwright-report/
+thermal-demo-output/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.trx
+*.coverage
+.DS_Store
+.vs/
+.idea/
