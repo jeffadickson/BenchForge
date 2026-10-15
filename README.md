@@ -184,3 +184,7 @@ The [25-instrument PyMeasure catalog and Keithley 236 coverage report](docs/PYME
 ## Unit-aware plotting (ScottPlot + Plotly.js)
 
 The new [plotting architecture](docs/PLOTTING-AND-UNITS.md) keeps the runner independent of visualization packages. `src/BenchDouble.Plotting` converts UnitsNet quantity series into typed, labeled plot coordinates and emits Plotly.js figure JSON for the future browser runner. Optional `src/BenchDouble.Plotting.ScottPlot` renders headless PNG using ScottPlot 5.1.59. `Plotly.NET` is evaluated but not required for direct Plotly.js rendering; LiveCharts2/OxyPlot remain optional alternatives. Unit conversion and Plotly JSON tests have been added, but compilation and rendering remain unverified.
+
+## Standalone UnitsNet plotting companion
+
+`BenchDouble.Plotting` has been decoupled from the BenchDouble instrument library: it now depends directly on UnitsNet and has [independent tests](tests/UnitsNet.Plotting.Tests/). This makes it a candidate for a future standalone `UnitsNet.Plotting` package and upstream proposal, without forcing ScottPlot or Plotly dependencies into UnitsNet itself. The current names remain provisional; no upstream submission or package publication has occurred. See [plotting architecture](docs/PLOTTING-AND-UNITS.md).
