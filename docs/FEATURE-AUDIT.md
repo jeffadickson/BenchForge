@@ -35,3 +35,5 @@ On each feature PR, add/update a requirement UID, source/test link, verification
 ## AutoMock rule engine increment
 
 BD-AM-001..010 add declarative current rules, JSON parsing, DI injection, rule-set hash, instrument command/state backlog and end-to-end experiment verification. Typed source and tests exist, but have not been build-verified. Issues #40–#43 track unfinished command rules, optional advanced engine adapter, integrated backend demo and cross-platform validation.
+
+The requirements baseline now contains 149 items, including BD-AM-011 for generated typed mock adapters from instrument definitions. Generator integration is planned, not implemented.
