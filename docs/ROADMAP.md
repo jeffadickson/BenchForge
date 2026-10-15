@@ -362,3 +362,18 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add immutable experiment definition serialization, behavior hashes and host protocol compatibility negotiation
 - [ ] Add authorized multi-host dashboard aggregation, durable log replay, filtering and heartbeat/stale state
 - [ ] Benchmark actual instrument coverage against PyMeasure without confusing prototypes with released capabilities
+
+### Experiment AutoMock and rule-driven simulation
+- [x] Add typed, deterministic AutoMockLoadRulesBuilder and ILoadBehavior decorator
+- [x] Add elapsed-time and voltage conditions, fixed-current and baseline-scale actions, rule priorities
+- [x] Add bounded strict versioned JSON parser with invalid-rule rejection
+- [x] Inject fluent or JSON AutoMock into experiment-scoped DI composition
+- [x] Add rule-set SHA-256 and expose on experiment definition/run (partial provenance)
+- [x] Add xUnit rule, JSON, output-off, run-isolation and composition tests
+- [x] Add fluent and JSON AutoMock console demos and three-OS CI invocation
+- [ ] Verify clean .NET build/test/demo results on Windows, macOS and Linux
+- [ ] Add per-instrument keyed rule sets, command-aware state/mode rules and initialize/reset lifecycle
+- [ ] Add deterministic ramps, seeded noise, SCPI faults and simulated latency/timeouts
+- [ ] Evaluate optional Microsoft RulesEngine adapter and isolate any executable custom expressions
+- [ ] Integrate a full run with alarm, SQLite, dashboard and Plotly sharing one backend
+- [ ] Pin behavior assemblies, package dependencies, configuration hashes and seeds in a complete run manifest
