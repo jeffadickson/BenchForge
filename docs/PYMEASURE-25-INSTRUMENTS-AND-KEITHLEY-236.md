@@ -68,3 +68,7 @@ Sources:
 - [Keithley 236/237/238 operator manual (Tektronix)](https://www.tek.com/en/manual/model-236-237-238-source-measure-units-operators-manual-rev-e-13-mb)
 
 **Safety:** The Keithley 236 can source hazardous voltages/currents. The mock is not a safety interlock. The current driver's output-enable call requires explicit caller authorization and a verified test fixture before real use; software-only checks do not prove electrical safety.
+
+## Machine-readable catalog and generated-mock increment (2026-10-15)
+
+The 25 listed PyMeasure driver entries now have a [machine-readable inventory](../instrument-definitions/instrument-catalog.json) with model/class, source-evidence level, definition/implementation status and hardware-validation flag. All 25 remain **catalog-only/not ported**. The separately implemented Keithley 236 remains a partial, unverified legacy IEEE-488 driver. The new [definition-driven generator](INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md) emits both a UnitsNet-typed SCPI driver and matching default mock from a validated `*.instrument.json` file; only the illustrative Keysight 33522B schema currently participates. Keithley 236 now invalidates old compliance/bias on mode changes, checks mode under the bus serialization lock, and requires source mode, bias and compliance before OPERATE. These are source-level safety improvements, **not hardware qualification**. Follow issues #19 and #44 for remaining driver and generator work.
