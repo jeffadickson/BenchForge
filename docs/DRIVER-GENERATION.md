@@ -1,0 +1,52 @@
+# Declarative instrument profiles and C# driver generation
+Status: chosen design and first machine-readable sample; production source generator not implemented.
+
+## Decision
+A **validated description is the source of truth for instrument-specific SCPI mappings**, while IVI class interfaces are the source of truth for common device semantics. A Roslyn **incremental** source generator produces idiomatic typed async C# façade methods, UnitsNet quantities, validation, XML documentation, capability descriptors and a matching mock test fixture. Bespoke extension classes remain handwritten partial classes. Runtime dictionaries are an optional dynamic escape hatch, not the normal production programming model.
+
+## Sources
+- Roslyn incremental generator cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.cookbook.md
+- PyMeasure control/measurement/setting: https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/properties.html
+- IVI instrument class specifications: https://www.ivifoundation.org/specifications/default.aspx/
+
+## Profile schema v1
+See `instrument-definitions/keysight/33522b.instrument.json`. Fields include stable schema version; manufacturer, model, class and driver name; channel count/template; parameter names/kinds; quantity and unit identifier; read/write templates; numeric bounds; description; measurement basis. All unverified bounds MUST be explicitly annotated as illustrative. Future fields: feature availability predicates by model/firmware, enums, inverse conversions, SCPI error check policy, compound/multipart operations, binary waveform data, read/write side effects, safety categories, trigger state machine, channel mappings and commands with multiple arguments.
+
+## Generator rules
+1. Use `AdditionalFiles` `*.instrument.json` as input to `IIncrementalGenerator`, parse with versioned schema and produce deterministic source.
+2. Never interpolate untrusted source text as identifiers or C# code. Strictly validate IDs, known quantity types, wire templates, invariant number formatting, bounds and channel placeholders.
+3. Emit diagnostic IDs for malformed or unsafe schema. Generated APIs preserve UnitsNet quantity types, async cancellation and explicit Vpp/RMS/peak meaning.
+4. Generated methods invoke the common `IAsyncScpiSession` and shared validators; communication, reservations, transport logs and mocks remain separate.
+5. Generate associated command transcript fixtures, positive/negative validation tests and source traceability comments.
+6. Allow handwritten vendor-specific code through explicit `partial` extension classes, not edits to generated files.
+7. Preserve model-specific original license/attribution when derived from PyMeasure. Capture source URL, commit, file, command manual and verification level.
+8. A host advertises driver manifest/schema/hash; cross-version protocol is independent of specific generated C# assemblies.
+
+## Example target API (not yet generated)
+```csharp
+await generator.Channel(2).SetFrequencyAsync(Frequency.FromKilohertz(10), ct);
+await generator.Channel(2).SetAmplitudeVppAsync(ElectricPotential.FromMillivolts(500), ct);
+```
+
+## Generation architecture
+```text
+versioned instrument profile JSON
+  -> schema + semantic validator
+  -> Roslyn incremental source generator
+       -> strongly typed C# driver + docs + capability metadata
+       -> generated mock fixture / command compatibility table
+  -> compile normally with .NET and existing common runtime
+```
+
+## Why not just a dictionary?
+An untyped dictionary is convenient for discovery and arbitrary commands, but string names and `object` values lose compile-time type checking. A validated description with generated code retains ease of authoring **and** strongly typed usability. We can expose descriptor metadata at runtime for web UI and instrument introspection without exposing it as the primary application API.
+
+## What to prototype before catalog conversion
+- Build minimal generator with 33522B and 34461A profiles.
+- Compare generated code against manually written drivers, verify SCPI transcripts and UnitsNet conversions.
+- Assert bad quantity, channel, missing template or out-of-range profile fails at **compile time** via diagnostics.
+- Benchmark incremental rebuild cost for a catalog of 100+ profiles; keep generation deterministic and cacheable.
+- Validate instrument SCPI commands and ranges against manufacturer documentation before production use.
+
+## Implementation status
+A draft JSON profile and specification have been committed. Existing `ScpiParameter` descriptors, UnitsNet facades, async sessions and simulator tests can serve as the generator runtime. **No Roslyn generator is claimed to be working in this change.**
