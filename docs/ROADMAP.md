@@ -233,3 +233,11 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add actual GPIB TALK/EOI transport and hardware acceptance tests
 - [ ] Validate physical safety/interlocks and fault recovery before production enable
 - [ ] Inspect and port remaining 25 catalog instrument drivers individually with attribution
+
+### TPL Dataflow evaluation
+- [x] Review ActionBlock, bounded capacity, transforms, fan-out semantics and instrument actor architecture
+- [x] Document boundaries vs leases, procedure DAG, durable storage and safe abort
+- [ ] Prototype internal bounded instrument actor for Keithley 236 and DMM
+- [ ] Test concurrent clients, cancellation, faulted block, fencing and command completion
+- [ ] Benchmark ActionBlock against Channel<T> and existing SemaphoreSlim design
+- [ ] Adopt only if it simplifies the implementation and passes safety/concurrency tests
