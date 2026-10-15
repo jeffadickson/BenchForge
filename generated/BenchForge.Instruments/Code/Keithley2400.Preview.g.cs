@@ -41,4 +41,11 @@ public sealed class Keithley2400MockDecorator
   /// <param name="ct">Cancellation while waiting for the mode lock.</param>
   /// <returns>Completion of the mode transition.</returns>
   public System.Threading.Tasks.ValueTask ConfigureModeAsync(string mode, System.Threading.CancellationToken ct = default) => _inner.ConfigureModeAsync(mode, ct);
+  /// <summary>Clear all injected scalar readings and restore definition defaults.</summary>
+  public void ResetAllMockReadings()
+  {
+    lock (_stateGate)
+    {
+    }
+  }
 }
