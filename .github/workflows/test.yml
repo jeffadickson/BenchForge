@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: benchdouble-tests-${{ github.workflow }}-${{ github.ref }}
+  group: benchforge-tests-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   dotnet:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -100,7 +100,7 @@ jobs:
         run: dotnet build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release
       - name: Install Playwright Chromium
         shell: pwsh
-        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net8.0/playwright.ps1 install chromium
+        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net10.0/playwright.ps1 install chromium
       - name: Run real-browser unattended monitor tests
         run: dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release --no-build
       - name: Archive browser failure screenshots
