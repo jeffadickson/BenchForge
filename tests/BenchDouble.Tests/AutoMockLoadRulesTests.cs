@@ -21,6 +21,21 @@ public sealed class AutoMockLoadRulesTests
     }
 
     [Fact]
+    public void EvaluationReportsMatchedRuleForObservability()
+    {
+        var rules = new AutoMockLoadRulesBuilder()
+            .FixedCurrent("fault", ElectricCurrent.FromAmperes(2.5),
+                new AutoMockLoadCondition(From: TimeSpan.FromSeconds(5))).Build();
+        var mock = new RuleBasedLoadBehavior(
+            new ResistiveLoadBehavior(ElectricResistance.FromOhms(24)), rules);
+        var normal = mock.EvaluateAt(ElectricPotential.FromVolts(12), TimeSpan.Zero);
+        var fault = mock.EvaluateAt(ElectricPotential.FromVolts(12), TimeSpan.FromSeconds(5));
+        Assert.Null(normal.MatchedRule);
+        Assert.Equal("fault", fault.MatchedRule);
+        Assert.Equal(TimeSpan.FromSeconds(5), fault.SimulatedElapsed);
+    }
+
+    [Fact]
     public void VoltageRangeCanScaleBaseline()
     {
         var rules = new AutoMockLoadRulesBuilder()
