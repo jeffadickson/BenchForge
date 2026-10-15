@@ -85,9 +85,20 @@ public sealed class HostedOscilloscopeRegistry
         lock (_gate) return _generations.GetValueOrDefault(resourceId);
     }
 
+    /// <summary>Get the epoch and generation for a currently valid lease.</summary>
+    public (long Epoch, long Generation)? Fence(string resourceId, Guid leaseId)
+    {
+        lock (_gate)
+        {
+            if (!_leases.TryGetValue(resourceId, out var active) || active != leaseId ||
+                _expires[resourceId] <= _clock.GetUtcNow()) return null;
+            return (_ledger?.Epoch ?? 0, _generations[resourceId]);
+        }
+    }
+
     /// <summary>Run one host-owned coordinated acquisition after validating the lease.</summary>
     public async ValueTask<WaveformCapture> AcquireAsync(string resourceId, Guid leaseId, int channel,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, long? expectedEpoch = null, long? expectedGeneration = null)
     {
         OscilloscopeSessionCoordinator coordinator;
         lock (_gate)
@@ -95,6 +106,10 @@ public sealed class HostedOscilloscopeRegistry
             if (!_coordinators.TryGetValue(resourceId, out coordinator!)) throw new KeyNotFoundException();
             if (!_leases.TryGetValue(resourceId, out var active) || active != leaseId ||
                 _expires[resourceId] <= _clock.GetUtcNow())
+                throw new UnauthorizedAccessException();
+            if (expectedEpoch.HasValue && expectedEpoch.Value != (_ledger?.Epoch ?? 0))
+                throw new UnauthorizedAccessException();
+            if (expectedGeneration.HasValue && expectedGeneration.Value != _generations[resourceId])
                 throw new UnauthorizedAccessException();
             _inFlight[resourceId] = _inFlight.GetValueOrDefault(resourceId) + 1;
         }
