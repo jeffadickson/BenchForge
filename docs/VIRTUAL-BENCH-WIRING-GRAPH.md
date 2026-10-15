@@ -105,3 +105,7 @@ The C# thermal demo now builds the graph, samples it every five simulated minute
 6. Add a visual wiring editor only after the underlying graph API is validated.
 
 See also [signal sharing](VIRTUAL-BENCH-SIGNAL-SHARING.md), [thermal example](THERMAL-CYCLE-MONITOR.md), and [simulation time](MOCK-TIME-AND-LIFECYCLE.md).
+
+## Browser demonstration
+
+The [Thermal Cycle Monitor](../examples/ThermalCycleMonitor/index.html) now overlays **setpoint-driven current** and **sensor-driven DUT current** on the same chart. The curves differ during temperature ramps because the 20-minute first-order sensor lags the chamber setpoint. The browser uses an equivalent standalone JavaScript model; it is **not** yet consuming the C# graph's live measurements. The console demo does execute the typed C# graph and exports the sensor-driven current series.
