@@ -61,11 +61,16 @@ public sealed class InMemoryTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesRead
         foreach (var sample in samples) Validate(sample);
         lock (_gate)
         {
+            // Validate the entire batch before changing stored state.
+            // Conflicting duplicates must never cause a partially committed batch.
+            var incoming = new Dictionary<(string, string, string, long), TimeSeriesSample>();
             foreach (var sample in samples)
             {
                 var key = (sample.RunId, sample.InstrumentId, sample.SignalId, sample.Sequence);
-                if (_keys.Add(key)) _samples.Add(sample);
-                else
+                if (incoming.TryGetValue(key, out var duplicate) && duplicate != sample)
+                    throw new InvalidOperationException("Conflicting duplicate inside incoming batch.");
+                incoming[key] = sample;
+                if (_keys.Contains(key))
                 {
                     var prior = _samples.First(s =>
                         s.RunId == sample.RunId && s.InstrumentId == sample.InstrumentId &&
@@ -73,6 +78,10 @@ public sealed class InMemoryTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesRead
                     if (prior != sample)
                         throw new InvalidOperationException("Conflicting time-series sample with duplicate identity.");
                 }
+            }
+            foreach (var pair in incoming)
+            {
+                if (_keys.Add(pair.Key)) _samples.Add(pair.Value);
             }
         }
         return ValueTask.CompletedTask;
