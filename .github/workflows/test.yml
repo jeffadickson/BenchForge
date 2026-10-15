@@ -21,3 +21,7 @@ jobs:
         run: dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj --configuration Release
       - name: Run official IVI.NET adapter contract tests
         run: dotnet test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj --configuration Release
+      - name: Build instrument host and client
+        run: dotnet build src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj --configuration Release
+      - name: Test instrument-host reservation contracts
+        run: dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
