@@ -321,3 +321,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add bounded ingestion pipeline, critical disk-full behavior, virtual-time queries and min/max downsampling
 - [ ] Connect thermal cycle, unattended monitor and Plotly/ScottPlot with stored measurement streams
 - [ ] Benchmark alternative InfluxDB/QuestDB adapters only if justified
+
+### SQLite time-series implementation increment
+- [x] Implement optional Microsoft.Data.Sqlite adapter with WAL, transactional batches and indexed acquisition queries
+- [x] Add canonical UnitsNet quantity conversion and per-signal dimension/basis locking
+- [x] Implement idempotent sample replay and atomic rejection of conflicting batches
+- [x] Record four thermal-cycle streams to local SQLite and query saved sensor readings
+- [x] Add SQLite persistence/dimension/query tests and three-OS CI job
+- [ ] Verify clean builds, successful tests and thermal demo output on all three OSes
+- [ ] Implement bounded buffered ingestion, disk-full policy and durable replication outbox
+- [ ] Implement simulated-time queries and min/max downsampling preserving excursions
+- [ ] Implement optional PostgreSQL/TimescaleDB adapter with integration tests
