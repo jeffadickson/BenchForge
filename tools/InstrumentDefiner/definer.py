@@ -26,6 +26,15 @@ def literal(node):
         return None
 
 
+def safe_json(value):
+    """Keep only JSON-representable upstream literals, without guessing."""
+    try:
+        json.dumps(value, allow_nan=False)
+        return value
+    except (TypeError, ValueError):
+        return None
+
+
 def dotted(node):
     if isinstance(node, ast.Name):
         return node.id
@@ -89,7 +98,7 @@ def extract(path, manufacturer, model, revision):
                     if isinstance(kw.get("get_command", query), str) else None,
                 "set": kw.get("set_command", setter)
                     if isinstance(kw.get("set_command", setter), str) else None,
-                "allowedValues": kw.get("values"),
+                "allowedValues": safe_json(kw.get("values")),
                 "validator": next((dotted(item.value) for item in node.value.keywords
                                    if item.arg == "validator"), ""),
                 "modes": [], "mockDefault": None, "sourceLine": node.lineno,
@@ -265,6 +274,8 @@ def main():
     imp.add_argument("--output", required=True, type=Path)
     val = sub.add_parser("validate")
     val.add_argument("definition", type=Path)
+    report = sub.add_parser("report", help="List unresolved quantities and review work")
+    report.add_argument("definition", type=Path)
     args = parser.parse_args()
     try:
         if args.command == "extract-pymeasure":
@@ -290,8 +301,22 @@ def main():
                 print("ERROR: " + error, file=sys.stderr)
             if errors:
                 return 1
-            print(f"VALID schema v2 ({len(doc['capabilities'])} capabilities, "
-                  f"{len(doc['operations'])} operations); review={doc['review']['status']}")
+            if args.command == "report":
+                caps = doc["capabilities"]
+                unknown = [cap["name"] for cap in caps
+                           if cap.get("quantity") is None or cap.get("unit") is None]
+                print(f"Instrument: {doc['identity']['manufacturer']} "
+                      f"{doc['identity']['model']}")
+                print(f"Capabilities: {len(caps)}, methods: {len(doc['operations'])}, "
+                      f"modes: {len(doc['modes'])}")
+                print(f"Unknown UnitsNet mappings ({len(unknown)}): " +
+                      (", ".join(unknown) if unknown else "none"))
+                print("Review status: " + doc["review"]["status"])
+                for item in doc["review"].get("unresolved", []):
+                    print("TODO: " + item)
+            else:
+                print(f"VALID schema v2 ({len(doc['capabilities'])} capabilities, "
+                      f"{len(doc['operations'])} operations); review={doc['review']['status']}")
         return 0
     except (OSError, ValueError, SyntaxError, TypeError, KeyError) as exc:
         print("ERROR: " + str(exc), file=sys.stderr)
