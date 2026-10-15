@@ -1,19 +1,21 @@
 # BenchDouble Requirements Coverage — Evidence Audit
 
-**Date:** 2026-10-15 · **Total:** 167 requirements · **Verified:** 0
+**Date:** 2026-10-15 · **Total:** 175 requirements · **Verified:** 0
 
 | Status | Count | Meaning |
 |---|---:|---|
-| PartialSourceUnverified | 45 | Legacy runner requirement has relevant source but incomplete or unverified acceptance |
-| DesignOnly | 6 | Legacy requirement has design documentation only |
-| NoImplementationEvidence | 39 | No direct implementation evidence found for legacy requirement |
-| SourceCommittedUnverified | 53 | Newer requirement has linked source/tests but no reviewed passing CI evidence |
-| Planned | 24 | Requirement awaits implementation |
+| PartialSourceUnverified | 45 | Original runner requirement has relevant source, but incomplete/unverified acceptance |
+| DesignOnly | 6 | Original runner requirement has design documentation only |
+| NoImplementationEvidence | 39 | No direct implementation evidence found for original runner requirement |
+| SourceCommittedUnverified | 59 | Newer requirement has linked source/tests without reviewed passing execution |
+| Planned | 26 | Requirement awaits implementation |
 | Verified | **0** | Reviewed passing requirement-level verification |
-| **Total** | **167** | All requirements have GitHub task links |
+| **Total** | **175** | All have linked GitHub work |
 
-The original 90 runner requirements retain their individually audited findings (45 partial-source, 6 design-only, 39 without direct implementation evidence) in [legacy-runner-audit.csv](legacy-runner-audit.csv).
+The 90 original runner requirements retain their individual findings in [legacy-runner-audit.csv](legacy-runner-audit.csv).
 
-New **BD-GEN-001..006** requirements track generation of typed SCPI driver/mock pairs, unit-aware default values, per-channel state, catalog evidence, generated-source drift checks and Keithley 236 mode/bias/compliance safety. Source and tests are committed, but execution remains unverified while GitHub Actions runner allocation is blocked. The 25 PyMeasure entries in the [instrument catalog](../instrument-definitions/instrument-catalog.json) are an **inventory, not 25 completed drivers**.
+**BD-DEF-001..008** cover the new [Instrument Definer](../docs/INSTRUMENT-DEFINER.md): source extraction, intern CSV handoff, schema v2, validation and provenance, mode-aware UnitsNet mock preview, and future generator integration. Six requirements have source/test or documentation links; two remain planned. The [Keithley 2400 draft](../instrument-definitions/drafts/keithley2400.definition.json) is representative and unreviewed, not a completed driver.
 
-[Traceability matrix](traceability.csv) · [Instrument definition and mock tutorial](../docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md) · [Original runner audit](../docs/REQUIREMENTS-AUDIT-2026-10-15.md)
+The existing [schema-v1 SCPI generator](../docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md) remains separate until v2 command/mode review. No hardware validation is claimed. GitHub-hosted runner allocation remains on hold, so C# and Python tests are not yet execution-verified.
+
+[Canonical traceability matrix](traceability.csv) · [Instrument Definer instructions](../tools/InstrumentDefiner/README.md) · [GitHub issue #52](https://github.com/jeffadickson/BenchDouble/issues/52) · [GitHub issue #53](https://github.com/jeffadickson/BenchDouble/issues/53)
