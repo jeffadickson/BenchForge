@@ -4,8 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UnitsNet;
 
 // Seven hours of virtual chamber cycling can be evaluated immediately.
-// --speed 3600 is descriptive wall-time scale for the browser demonstration;
-// the console version advances a manual clock without sleeping.
+// The console version advances a manual clock without sleeping.
 var services = new ServiceCollection();
 services.AddScoped<ManualSimulationClock>();
 services.AddScoped<ISimulationClock>(sp => sp.GetRequiredService<ManualSimulationClock>());
@@ -56,7 +55,7 @@ finally
 }
 
 var temperaturePlot = MeasurementPlot.Create("Thermal chamber temperature",
-    tempPoints, QuantityAxes.Seconds("Simulation time"),
+    tempPoints, QuantityAxes.Hours("Simulation time"),
     QuantityAxes.Celsius());
 var currentPlot = MeasurementPlot.Create("Supply current",
     currentPoints, QuantityAxes.Seconds("Simulation time"),
