@@ -299,3 +299,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add coherent multi-signal snapshots, typed graph registration and cycle detection
 - [ ] Model separate chamber/fixture/DUT temperatures, sensor noise and calibration offset
 - [ ] Wire sensor-driven load behavior and live host streaming as optional scenario
+
+### Typed virtual-bench wiring graph
+- [x] Add strongly typed SignalPort<T> and explicit source/connect/transform graph builder
+- [x] Reject cycles, unbound ports, duplicate drivers and cross-run ports before execution
+- [x] Add logical-time snapshots caching each signal once per sample
+- [x] Wire thermal setpoint → filtered sensor + supply voltage → DUT current in C# demo
+- [x] Add graph acceptance tests for caching, wiring, cycles and run isolation
+- [ ] Verify graph and thermal demo build/tests across OS matrix
+- [ ] Integrate graph-backed DUT current into injected MockPowerSupply behavior
+- [ ] Add immutable thread-safe snapshot publication and scheduler-owned state
+- [ ] Add versioned graph schema, editor and delayed feedback/solver support
