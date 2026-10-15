@@ -50,3 +50,28 @@ An untyped dictionary is convenient for discovery and arbitrary commands, but st
 
 ## Implementation status
 A draft JSON profile and specification have been committed. Existing `ScpiParameter` descriptors, UnitsNet facades, async sessions and simulator tests can serve as the generator runtime. **No Roslyn generator is claimed to be working in this change.**
+
+## Revised decision — standalone source emission, not compiler-time generator
+
+**This supersedes the earlier Roslyn incremental-generator recommendation above.** Developers edit instrument descriptions and invoke a standalone .NET generator from the build, which writes ordinary `.g.cs` files into `src/BenchDouble/Generated`. Generated files should be committed and indexed by editors, inspected in diffs, debugged, and included in ordinary compilation. No compiler/analyzer magic is required.
+
+Current tool: `tools/BenchDouble.DriverGen`. Run `make generate` (or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated`). The tool currently handles numeric frequency/potential/resistance/current properties with SCPI get/set templates, channel placeholders, basic bounds and UnitsNet conversions. It is an **early generator**, not yet a general PyMeasure driver converter or full IVI mapping.
+
+### Mock behavior as data and code
+Mock outputs must support not only static responses but scripted behaviors:
+- constant, sequence, state-dependent, error, timeout
+- sine-wave function of elapsed time, amplitude, frequency, phase and offset
+- seeded pseudo-random measurement with bounded range or configured statistical distribution
+- composite signal-plus-noise and DUT transfer functions
+- handwritten callback hooks only within an isolated, approved simulator process
+
+The initial runtime `ISignalBehavior`, `SineBehavior`, `SeededRandomBehavior` and `SumBehavior` are now implemented. **Binding these behaviors from instrument JSON into generated mock classes is still pending.** Sine parameters are explicit; random samples depend on call order and seed, so tests must control both. No untrusted C# code shall be compiled/executed by instrument hosts based on a remote user-supplied description.
+
+### Build and verification requirements
+- `make generate` regenerates files deterministically; `make check-generated` detects committed output drift.
+- Build-time generation is a separate program; CI must generate, compile, test and detect stale generated code.
+- Validate descriptions before emitting partial results; use atomic writes and reject duplicate driver names, unsupported quantity/unit pairs, bad command templates and unsafe class names.
+- Record generator version, schema revision and original source attribution.
+- Code changes require parity tests versus manufacturer manuals and any source-adapted PyMeasure commands.
+- The current Makefile is a convenience entry point, not yet a cross-platform bootstrapper; direct `dotnet run` supports Windows without Make.
+- **Current status: source committed; no successful .NET build or generator execution has been verified here.**
