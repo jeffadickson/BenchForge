@@ -99,3 +99,7 @@ The [full runner audit](REQUIREMENTS-AUDIT-2026-10-15.md) reviews all 90 origina
 ## Experiment runner cleanup and recovery status
 
 `ExperimentRunnerOptions.ShutdownTimeout` sets a finite real-time shutdown wait (default 10 seconds). If the shutdown procedure fails or times out, the result is `RecoveryRequired`, and that runner instance refuses further runs. This is a **warning that physical equipment state may be unknown**, not proof that output was disabled. Operators must follow instrument-specific safe-state and host-lease recovery procedures; those production workflows are still under development. See [experiment runner design](EXPERIMENT-RUNNER.md).
+
+## Text procedures backed by typed instrument mocks
+
+The optional [Parlot procedure tutorial](PROCEDURE-DSL.md) introduces a small human-readable DSL for engineers who prefer editing procedure text. Run `make demo-procedure` or `dotnet run --project examples/BenchDouble.ProcedureDemo` from the repository root. The sample registers a simulated `Meter1`, selects resistance mode, measures 100 Ohm, checks limits, advances the virtual clock five seconds, then measures 105 Ohm. A failed `VERIFY` produces a failed run and a source-line error. The DSL does not connect to physical instruments, execute arbitrary code or replace the graphical procedure editor. Future editor integration and revision control remain in issue #51.
