@@ -136,3 +136,7 @@ The first asynchronous APIs now live in [`BenchDouble.Async`](src/BenchDouble/As
 ## Distributed instrument hosts (planned)
 
 BenchDouble will support a standalone instrument host on each computer physically connected to USB, GPIB, serial or LAN test equipment, including suitable Raspberry Pi or low-cost PCs. The host—not each client—owns device drivers, authenticated exclusive leases, asynchronous operations and recovery policy. Clients can reserve and operate remote instruments through the same typed API as local simulators. See [Distributed Instrument Host Architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md). **Not yet implemented:** gRPC server/client and cross-process locking.
+
+## Instrument logs on both hosts and clients (planned)
+
+Each host will maintain local structured instrument logs and stream the same authorized events to connected clients for live experiment displays. Event IDs, trace correlation, cursor replay, host dashboard/CLI access and data redaction are specified in [Distributed Instrument Host Architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md). Currently only the local `LoggingScpiSession` decorator exists; live remote log streaming is not implemented.
