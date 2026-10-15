@@ -75,7 +75,7 @@ This verifies that the real Chromium browser updates its DOM/SVG after the simul
 6. Run all tests in the Windows/macOS/Linux CI matrix.
 7. Change status to `Verified` only after reviewing actual successful CI evidence and documenting the run.
 
-The StrictDoc baseline currently covers **154 requirements** (90 runner + 32 cross-subsystem). Many have source but no verified test evidence. That is an explicit release risk, not a claim of completion.
+The StrictDoc baseline currently covers **154 requirements** (90 runner + 64 cross-subsystem). Many have source but no verified test evidence. That is an explicit release risk, not a claim of completion.
 
 ## Cross-platform provisioning
 
@@ -88,3 +88,7 @@ The StrictDoc baseline currently covers **154 requirements** (90 runner + 32 cro
 - Vendor-specific VISA/GPIB/IVI drivers remain optional and may not support all OSes.
 
 **Not yet implemented:** centrally managed NuGet versions/lockfiles, pinned StrictDoc package lock, browser screenshot baseline comparisons, C# WebAssembly demo, and confirmed successful cross-platform CI run.
+
+## Completed 90-row runner evidence audit
+
+See [2026-10-15 audit](REQUIREMENTS-AUDIT-2026-10-15.md) and [legacy-runner-audit.csv](../requirements/legacy-runner-audit.csv). All TR-001..090 now have an individual source-evidence assessment, remaining gap and issue. `scripts/check_requirements.py` enforces full 90-row coverage and consistency with `traceability.csv`. The 45 partial-source entries are not verified; 6 are design-only and 39 have no direct implementation evidence. GitHub Actions runs currently fail across Windows/Linux/macOS, so actual CI and acceptance verification must be repaired before advancing statuses.
