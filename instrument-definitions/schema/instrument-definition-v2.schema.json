@@ -383,6 +383,57 @@
         "realTimeDelayScale": {
           "type": "number",
           "minimum": 0
+        },
+        "behaviorPolicy": {
+          "type": "string",
+          "enum": [
+            "explicitOnly"
+          ]
+        },
+        "requiresExplicitInitialization": {
+          "type": "boolean"
+        },
+        "provenancePolicy": {
+          "type": "string"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "capability",
+              "strategy",
+              "enabled",
+              "reviewStatus"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "measurementBehavior"
+                ]
+              },
+              "capability": {
+                "type": "string"
+              },
+              "strategy": {
+                "enum": [
+                  "injected"
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "reviewStatus": {
+                "enum": [
+                  "unreviewed",
+                  "manualReviewed",
+                  "hardwareValidated"
+                ]
+              }
+            }
+          }
         }
       },
       "additionalProperties": false
