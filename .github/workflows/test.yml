@@ -78,6 +78,15 @@ jobs:
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
+      - name: Run alpha waveform and RMS integration smoke test
+        run: dotnet run --project examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj --configuration Release
+      - name: Archive alpha waveform evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: alpha-waveform-${{ matrix.os }}
+          path: alpha-demo-output/
+          if-no-files-found: ignore
       - name: Run generated typed driver/mock demonstration
         run: dotnet run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj --configuration Release
       - name: Test experiment-scoped dependency injection
