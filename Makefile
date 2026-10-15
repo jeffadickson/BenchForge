@@ -3,7 +3,7 @@
 DOTNET ?= dotnet
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal check-generated
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-dashboard check-generated
 
 setup:
 	bash scripts/bootstrap.sh
@@ -20,6 +20,8 @@ generate:
 
 build: generate
 	$(DOTNET) build src/BenchDouble/BenchDouble.csproj
+	$(DOTNET) build src/BenchDouble.Experiments/BenchDouble.Experiments.csproj
+	$(DOTNET) build examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
 	$(DOTNET) build src/BenchDouble.TimeSeries.Sqlite/BenchDouble.TimeSeries.Sqlite.csproj
 	$(DOTNET) build src/BenchDouble.Plotting/BenchDouble.Plotting.csproj
 	$(DOTNET) build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj
@@ -30,6 +32,7 @@ build: generate
 
 test: generate
 	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+	$(DOTNET) test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj
 	$(DOTNET) test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj
 	$(DOTNET) test tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj
 	$(DOTNET) test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj
@@ -54,3 +57,10 @@ demo-normal:
 
 demo-thermal:
 	$(DOTNET) run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj
+
+demo-experiment:
+	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
+
+demo-dashboard:
+	@echo "Open http://127.0.0.1:5278/dashboard/ after the server starts"
+	$(DOTNET) run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
