@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jeffadickson/BenchDouble/blob/main/instrument-definitions/schema/instrument-definition-v2.schema.json",
+  "title": "BenchDouble Instrument Definer draft v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "definitionStatus",
+    "identity",
+    "provenance",
+    "modes",
+    "capabilities",
+    "operations",
+    "mock",
+    "review"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "definitionStatus": {
+      "enum": [
+        "extracted",
+        "draft",
+        "sourceReviewed",
+        "manualReviewed",
+        "hardwareValidated"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "manufacturer",
+        "model",
+        "driverName",
+        "instrumentClass",
+        "protocol",
+        "interfaces"
+      ],
+      "properties": {
+        "manufacturer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "driverName": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "instrumentClass": {
+          "type": "string"
+        },
+        "protocol": {
+          "enum": [
+            "unknown",
+            "SCPI",
+            "legacyIEEE488",
+            "serial",
+            "other"
+          ]
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "upstreamProject",
+        "sourcePath",
+        "sourceRevision",
+        "license",
+        "manualReference"
+      ],
+      "properties": {
+        "upstreamProject": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string"
+        },
+        "sourceRevision": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "manualReference": {
+          "type": "string"
+        },
+        "upstreamClass": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "modes": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "selectionCommand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "initial": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "access",
+          "quantity",
+          "unit",
+          "query",
+          "set",
+          "modes",
+          "sourceLine",
+          "reviewStatus"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "kind": {
+            "enum": [
+              "control",
+              "measurement",
+              "setting",
+              "status"
+            ]
+          },
+          "access": {
+            "enum": [
+              "read",
+              "write",
+              "readwrite"
+            ]
+          },
+          "quantity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "query": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "set": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "allowedValues": {},
+          "validator": {
+            "type": "string"
+          },
+          "minimum": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "maximum": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "mockDefault": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "modes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceLine": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "notes": {
+            "type": "string"
+          },
+          "reviewStatus": {
+            "enum": [
+              "unreviewed",
+              "sourceReviewed",
+              "manualReviewed",
+              "hardwareValidated"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "operations": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "arguments",
+          "returnQuantity",
+          "returnUnit",
+          "sourceLine",
+          "semantics",
+          "reviewStatus"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "returnQuantity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "returnUnit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceLine": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "notes": {
+            "type": "string"
+          },
+          "semantics": {
+            "type": "string"
+          },
+          "async": {
+            "type": "boolean"
+          },
+          "reviewStatus": {
+            "enum": [
+              "unreviewed",
+              "sourceReviewed",
+              "manualReviewed",
+              "hardwareValidated"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "mock": {
+      "type": "object",
+      "required": [
+        "initialize",
+        "measurementModels",
+        "virtualTime",
+        "realTimeDelayScale"
+      ],
+      "properties": {
+        "initialize": {
+          "type": "array"
+        },
+        "measurementModels": {
+          "type": "array"
+        },
+        "virtualTime": {
+          "type": "boolean"
+        },
+        "realTimeDelayScale": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "status",
+        "reviewer",
+        "hardwareTested",
+        "unresolved"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unreviewed",
+            "sourceReviewed",
+            "manualReviewed",
+            "hardwareValidated"
+          ]
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "hardwareTested": {
+          "type": "boolean"
+        },
+        "unresolved": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
