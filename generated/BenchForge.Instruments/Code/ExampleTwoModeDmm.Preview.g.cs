@@ -7,10 +7,8 @@ public sealed class ExampleTwoModeDmmPreview
 {
   /// <summary>SHA-256 of the exact input definition bytes.</summary>
   public const string DefinitionSha256 = "592faccb10026d5bc0b3d7449bf4706980f8ca171ebf379d841b26b84ed05397";
-  /// <summary>Pinned upstream Git commit, or unverified when unavailable.</summary>
-  public const string UpstreamRevision = "unverified";
   /// <summary>Versioned generator implementation identifier.</summary>
-  public const string GeneratorVersion = "v2-decorator-1";
+  public const string GeneratorVersion = "v2-stateful-2";
   /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>
   public static string BuildCommit => System.Attribute.GetCustomAttributes(typeof(ExampleTwoModeDmmPreview).Assembly, typeof(System.Reflection.AssemblyMetadataAttribute))
     .OfType<System.Reflection.AssemblyMetadataAttribute>().FirstOrDefault(x => x.Key == "BenchForgeGitCommit")?.Value ?? "unavailable";
@@ -30,7 +28,7 @@ public sealed class ExampleTwoModeDmmPreview
     try { _mode = mode; } finally { _gate.Release(); }
   }
   /// <summary>Measure DC voltage.</summary>
-  /// <remarks>Simulation-only. Quantity: ElectricPotential; wire unit: Volt; basis: unspecified. Original SCPI query: MEAS:VOLT:DC?. No physical I/O.</remarks>
+  /// <remarks>Simulation-only. Quantity: ElectricPotential; wire unit: Volt; basis: unspecified. No physical I/O.</remarks>
   /// <param name="ct">Cancellation while waiting for the measurement lock.</param>
   /// <returns>Simulated ElectricPotential in Volt.</returns>
   /// <exception cref="InvalidOperationException">The selected mode does not support this reading.</exception>
@@ -45,7 +43,7 @@ public sealed class ExampleTwoModeDmmPreview
     finally { _gate.Release(); }
   }
   /// <summary>Measure resistance.</summary>
-  /// <remarks>Simulation-only. Quantity: ElectricResistance; wire unit: Ohm; basis: unspecified. Original SCPI query: MEAS:RES?. No physical I/O.</remarks>
+  /// <remarks>Simulation-only. Quantity: ElectricResistance; wire unit: Ohm; basis: unspecified. No physical I/O.</remarks>
   /// <param name="ct">Cancellation while waiting for the measurement lock.</param>
   /// <returns>Simulated ElectricResistance in Ohm.</returns>
   /// <exception cref="InvalidOperationException">The selected mode does not support this reading.</exception>
