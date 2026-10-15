@@ -45,3 +45,7 @@ If startup or execution fails, shutdown still runs. Failure returns an `Experime
 8. Build an experiment queue and web UI as a separate hosting/presentation component.
 
 **Status:** source/tests committed; successful .NET compilation and CI execution not yet established. This is an experiment-runner kernel, not a production hardware scheduler.
+
+## Bounded shutdown and recovery latch (2026-10-15)
+
+The core `ExperimentRunner` now accepts optional `ExperimentRunnerOptions { ShutdownTimeout = TimeSpan.FromSeconds(10) }`. Cleanup is attempted after success, failure or cancellation using a token independent of the cancelled run. If shutdown faults or exceeds its real wall-clock deadline, the result is `ExperimentStatus.RecoveryRequired`, the error is preserved, and `RequiresRecovery` prevents further runs on that runner. A timed-out shutdown task may continue if the device driver ignores cancellation; **a timeout never proves physical output is disabled**. The runner deliberately has no automatic recovery reset: operator/device-specific verification and host lease fencing are still required before resuming physical control. The latch is per-runner, not a cross-process hardware interlock. xUnit tests cover shutdown fault, timeout, cancellation during execution and refusal to rerun. Full state machine, real device abort and host-level recovery are still open in issue #47.
