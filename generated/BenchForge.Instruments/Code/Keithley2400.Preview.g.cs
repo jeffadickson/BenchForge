@@ -5,6 +5,15 @@ namespace BenchDouble.Generated;
 /// <summary>Typed simulation-only instrument preview for Keithley2400.</summary>
 public sealed class Keithley2400Preview
 {
+  /// <summary>SHA-256 of the exact input definition bytes.</summary>
+  public const string DefinitionSha256 = "12ced85d27f46790ef54d4bc5d93ecd9615be729bddaf4942bda010492e99084";
+  /// <summary>Pinned upstream Git commit, or unverified when unavailable.</summary>
+  public const string UpstreamRevision = "unverified";
+  /// <summary>Versioned generator implementation identifier.</summary>
+  public const string GeneratorVersion = "v2-decorator-1";
+  /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>
+  public static string BuildCommit => System.Attribute.GetCustomAttributes(typeof(Keithley2400Preview).Assembly, typeof(System.Reflection.AssemblyMetadataAttribute))
+    .OfType<System.Reflection.AssemblyMetadataAttribute>().FirstOrDefault(x => x.Key == "BenchForgeGitCommit")?.Value ?? "unavailable";
   private readonly System.Threading.SemaphoreSlim _gate = new(1, 1);
   private string? _mode;
   /// <summary>Select a declared instrument mode without physical I/O.</summary>
@@ -18,4 +27,19 @@ public sealed class Keithley2400Preview
     await _gate.WaitAsync(ct).ConfigureAwait(false);
     try { _mode = mode; } finally { _gate.Release(); }
   }
+}
+
+/// <summary>Injectable, simulation-only mock decorator for Keithley2400.</summary>
+/// <remarks>Preserves the preview's mode validation. Overrides are explicitly supplied by tests; no physical I/O.</remarks>
+public sealed class Keithley2400MockDecorator
+{
+  private readonly Keithley2400Preview _inner;
+  /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>
+  /// <param name="inner">The caller-owned simulation preview.</param>
+  public Keithley2400MockDecorator(Keithley2400Preview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));
+  /// <summary>Configure the underlying simulation mode.</summary>
+  /// <param name="mode">Declared mode name.</param>
+  /// <param name="ct">Cancellation while waiting for the mode lock.</param>
+  /// <returns>Completion of the mode transition.</returns>
+  public System.Threading.Tasks.ValueTask ConfigureModeAsync(string mode, System.Threading.CancellationToken ct = default) => _inner.ConfigureModeAsync(mode, ct);
 }
