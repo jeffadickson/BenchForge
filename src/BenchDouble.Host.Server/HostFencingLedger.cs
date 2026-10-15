@@ -8,10 +8,12 @@ namespace BenchDouble;
 /// The state file must be on durable storage exclusively owned by one host process.
 /// This is not a distributed consensus service or a hardware safety interlock.
 /// </summary>
-public sealed class HostFencingLedger
+public sealed class HostFencingLedger : IDisposable
 {
     private readonly object _gate = new();
     private readonly string _path;
+    private readonly FileStream _ownerLock;
+    private bool _disposed;
     private LedgerState _state;
 
     private sealed class LedgerState
@@ -30,6 +32,7 @@ public sealed class HostFencingLedger
         _path = Path.GetFullPath(path);
         var directory = Path.GetDirectoryName(_path)!;
         Directory.CreateDirectory(directory);
+        _ownerLock = new FileStream(_path + ".owner.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         if (File.Exists(_path))
         {
             _state = JsonSerializer.Deserialize<LedgerState>(File.ReadAllText(_path))
@@ -51,10 +54,22 @@ public sealed class HostFencingLedger
         if (string.IsNullOrWhiteSpace(resourceId)) throw new ArgumentException("Resource required.", nameof(resourceId));
         lock (_gate)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
             var previous = _state.Generations.GetValueOrDefault(resourceId);
             _state.Generations[resourceId] = checked(previous + 1);
             Persist();
             return _state.Generations[resourceId];
+        }
+    }
+
+    /// <summary>Release the single-writer ownership lock.</summary>
+    public void Dispose()
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _ownerLock.Dispose();
         }
     }
 
