@@ -218,3 +218,17 @@ BenchDouble now defines [time-series storage contracts](src/BenchDouble/TimeSeri
 The optional [SQLite time-series package](src/BenchDouble.TimeSeries.Sqlite/) now implements `ITimeSeriesWriter`/`ITimeSeriesReader` using WAL, atomic append-only batches, idempotent replay, per-signal UnitsNet dimension/basis validation and bounded historical queries. The [thermal-cycle C# demo](examples/BenchDouble.ThermalCycleDemo/) records chamber setpoint, filtered sensor, supply current and sensor-driven DUT current to `thermal-demo-output/measurements.sqlite` and reads back the sensor history. Independent [SQLite tests](tests/BenchDouble.TimeSeries.Sqlite.Tests/) cover reopen durability, replay conflicts, dimension checks and query limits. See [time-series requirements](docs/TIME-SERIES-STORAGE.md). The code is committed and added to three-OS CI; **successful build/runtime verification is still pending**. Remote TimescaleDB replication, ingestion buffering and virtual-time query APIs remain future work.
 
 The SQLite recorder also supports `SimulationTimeSeriesQuery` to retrieve readings by virtual elapsed time, independently of accelerated wall-clock pacing. It maintains a separate logical-time index and tests same-UTC/different-simulation-time samples.
+
+## Requirements-driven development and testing (2026-10-15)
+
+BenchDouble now has a **StrictDoc requirements baseline** with **122 stable IDs** (the 90 previously consolidated test-runner requirements plus 32 additional cross-subsystem requirements) in [requirements/benchdouble.sdoc](requirements/benchdouble.sdoc). [Traceability](requirements/traceability.csv) links each to implementation, test evidence status and GitHub work. [Reqnroll.xUnit](tests/BenchDouble.Acceptance.Tests/) provides executable Given–When–Then acceptance for the unattended monitor, and [Playwright Chromium tests](tests/BenchDouble.Browser.Tests/) check the browser SVG, alarm log and controls. [Pure xUnit tests](tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs) verify the same C# alarm logic without a browser. **All are source-committed; successful execution has not been verified.**
+
+### First-time setup
+
+- macOS/Linux: `bash scripts/bootstrap.sh` (or `make setup`).
+- Windows PowerShell: `pwsh -File scripts/bootstrap.ps1` (no Make required).
+- Requirements: `python3 scripts/check_requirements.py`; StrictDoc export is part of bootstrap/CI.
+- Tests: `make verify` on Unix; run individual `dotnet test` projects on Windows. `make test-browser` requires PowerShell and installs Playwright Chromium.
+- Open [interactive HTML project overview](examples/ProjectOverview/index.html), [user manual](docs/USER-MANUAL.md), [software development plan](docs/SOFTWARE-DEVELOPMENT-PLAN.md), [feature audit](docs/FEATURE-AUDIT.md), and [testing guide](docs/TESTING-AND-TRACEABILITY.md).
+
+The hardware-free .NET 8 target is intended for **Windows, macOS and Linux**; platform-specific VISA/IVI/GPIB drivers may have different support. The HTML demos currently execute JavaScript simulations, not C# WebAssembly; that enhancement is tracked in [issue #30](https://github.com/jeffadickson/BenchDouble/issues/30). Toolchain bootstrap and CI have been expanded, but package lockfiles, complete dependency pinning and green cross-platform evidence remain outstanding.
