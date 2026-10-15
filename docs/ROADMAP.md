@@ -169,3 +169,14 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add host-owned driver package cache, trusted signatures and process isolation
 - [ ] Add old/new client and host compatibility CI matrix, schema-breaking checks
 - [ ] Validate crash recovery, unknown physical state and resource fencing across versions
+
+### UnitsNet integration
+- [x] Adopt stable UnitsNet in library and tests
+- [x] Implement typed voltage results and function-generator frequency/amplitude conversion
+- [x] Preserve existing double-valued APIs
+- [x] Add conversion tests
+- [ ] Compile/run new tests in cross-platform CI
+- [ ] Implement supported current/resistance measurement profiles
+- [ ] Add unit-aware parameter definitions, range checking and result storage
+- [ ] Define protobuf quantity wire DTOs and reject dimensional mismatch
+- [ ] Model RMS/Vpp/peak and uncertainty independently of UnitsNet quantities
