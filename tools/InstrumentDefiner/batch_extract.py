@@ -50,6 +50,8 @@ def process(manifest, source_root, destination):
             source = (source_root / relative).resolve()
             if not source.is_relative_to(source_root) or not source.is_file():
                 raise ValueError("Source file missing or outside source root")
+            if not re.fullmatch(r"[0-9a-fA-F]{40}", revision):
+                raise ValueError("Revision must be a pinned 40-character commit SHA")
             filename = (SAFE_NAME.sub("-", manufacturer).strip("-") + "-" +
                         SAFE_NAME.sub("-", model).strip("-")).lower() + ".definition.json"
             if not filename or filename in output_names:
