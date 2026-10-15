@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 2,
+  "definitionStatus": "draft",
+  "identity": {
+    "manufacturer": "Example",
+    "model": "TwoModeDmm",
+    "driverName": "ExampleTwoModeDmm",
+    "instrumentClass": "DigitalMultimeter",
+    "protocol": "SCPI",
+    "interfaces": [
+      "simulation"
+    ]
+  },
+  "provenance": {
+    "upstreamProject": "manual",
+    "sourcePath": "",
+    "sourceRevision": "",
+    "license": "example-only",
+    "manualReference": "BenchDouble illustrative example; no physical model"
+  },
+  "modes": [
+    {
+      "id": "voltage",
+      "selectionCommand": "CONF:VOLT:DC",
+      "initial": false,
+      "notes": "Example only"
+    },
+    {
+      "id": "resistance",
+      "selectionCommand": "CONF:RES",
+      "initial": false,
+      "notes": "Example only"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "voltage",
+      "kind": "measurement",
+      "access": "read",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "query": "MEAS:VOLT:DC?",
+      "set": null,
+      "modes": [
+        "voltage"
+      ],
+      "mockDefault": 0.25,
+      "sourceLine": null,
+      "notes": "250 mV mock default",
+      "reviewStatus": "unreviewed"
+    },
+    {
+      "name": "resistance",
+      "kind": "measurement",
+      "access": "read",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "query": "MEAS:RES?",
+      "set": null,
+      "modes": [
+        "resistance"
+      ],
+      "mockDefault": 4700,
+      "sourceLine": null,
+      "notes": "4.7 kOhm mock default",
+      "reviewStatus": "unreviewed"
+    }
+  ],
+  "operations": [],
+  "mock": {
+    "initialize": [],
+    "measurementModels": [],
+    "virtualTime": true,
+    "realTimeDelayScale": 1
+  },
+  "review": {
+    "status": "unreviewed",
+    "reviewer": "",
+    "hardwareTested": false,
+    "unresolved": [
+      "Illustrative commands only; not a physical instrument"
+    ]
+  }
+}
