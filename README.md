@@ -144,3 +144,7 @@ Each host will maintain local structured instrument logs and stream the same aut
 ## Platform-neutral instrument hosts
 
 An instrument host can be **any computer with a supported BenchDouble runtime and the necessary instrument drivers and interfaces**—a workstation, server, laptop, industrial PC, mini PC, or embedded system. A Raspberry Pi is only one possible deployment. The service API is platform-neutral; specific VISA/IVI/USB/GPIB driver support must be validated per operating system and architecture. See [distributed host architecture](docs/DISTRIBUTED-INSTRUMENT-HOST.md).
+
+## Separate instrument host service
+
+The repository now has independent projects for [Host.Contracts](src/BenchDouble.Host.Contracts/), [Host.Server](src/BenchDouble.Host.Server/), and [Host.Client](src/BenchDouble.Host.Client/), plus [host tests](tests/BenchDouble.Host.Tests/). The initial HTTP API demonstrates instrument discovery, simulation-backed exclusive reservation, leased SCPI queries and release. Run `dotnet run --project src/BenchDouble.Host.Server` and use `http://127.0.0.1:5278` locally. **Not safe for network exposure:** authentication, TLS, fenced expiring leases, logging streams and physical VISA are not yet implemented. See [host structure and next steps](docs/HOST-REPO-STRUCTURE.md).
