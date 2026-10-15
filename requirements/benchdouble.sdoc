@@ -968,3 +968,39 @@ UID: BD-DSL-007
 STATUS: Active
 TITLE: BD-DSL-007 P0
 STATEMENT: The DSL shall not permit arbitrary code or physical instrument control without explicit authorization, capability checks and safe-state handling.
+
+[REQUIREMENT]
+UID: BD-GEN-001
+STATUS: Active
+TITLE: BD-GEN-001 P0
+STATEMENT: The instrument generator shall emit a strongly typed UnitsNet driver and matching simulated SCPI transport from the same validated definition.
+
+[REQUIREMENT]
+UID: BD-GEN-002
+STATUS: Active
+TITLE: BD-GEN-002 P0
+STATEMENT: Generated mocks shall enforce declared command templates, supported channel bounds and finite parameter ranges without arbitrary commands.
+
+[REQUIREMENT]
+UID: BD-GEN-003
+STATUS: Active
+TITLE: BD-GEN-003 P1
+STATEMENT: Generated mocks shall support per-channel state and strongly typed simulated reading overrides without changing the generated driver API.
+
+[REQUIREMENT]
+UID: BD-GEN-004
+STATUS: Active
+TITLE: BD-GEN-004 P0
+STATEMENT: Instrument inventory shall distinguish PyMeasure catalog entries from completed driver ports and physical hardware validation.
+
+[REQUIREMENT]
+UID: BD-GEN-005
+STATUS: Active
+TITLE: BD-GEN-005 P1
+STATEMENT: The build shall verify checked-in generated driver/mock source against definitions without rewriting it.
+
+[REQUIREMENT]
+UID: BD-GEN-006
+STATUS: Active
+TITLE: BD-GEN-006 P0
+STATEMENT: Keithley 236 source-mode changes shall invalidate old compliance and bias configuration and prevent unsafe OPERATE requests.
