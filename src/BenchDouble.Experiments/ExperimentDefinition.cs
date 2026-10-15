@@ -233,6 +233,8 @@ public sealed class ExperimentSession : IAsyncDisposable
     }
 
     public string RunId { get; }
+    /// <summary>Registered instrument roles visible to procedure preflight.</summary>
+    public IReadOnlyList<ExperimentInstrument> RegisteredInstruments => _instruments;
     /// <summary>Digest of declarative mock rules; excludes code, drivers and dependencies.</summary>
     public string? AutoMockRuleSha256 { get; }
     public IReadOnlyDictionary<string, string> AutoMockRuleHashes { get; }
