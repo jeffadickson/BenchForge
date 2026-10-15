@@ -1,4 +1,5 @@
 using BenchDouble.Simulation;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BenchDouble.Experiments;
@@ -16,6 +17,7 @@ public sealed class ExperimentDefinitionBuilder
     private readonly List<ExperimentInstrument> _instruments = new();
     private string? _autoMockRuleHash;
     private bool _hasAutoMockLoad;
+    private readonly Dictionary<string, string> _roleRuleHashes = new(StringComparer.Ordinal);
     private bool _built;
 
     public ExperimentDefinitionBuilder()
@@ -39,6 +41,27 @@ public sealed class ExperimentDefinitionBuilder
             throw new InvalidOperationException($"Duplicate instrument role '{role}'.");
         _instruments.Add(new ExperimentInstrument(role, typeof(TInterface), hostId, "Simulated"));
         _services.AddKeyedScoped<TInterface, TImplementation>(role);
+        return this;
+    }
+
+    /// <summary>
+    /// Register a named simulated instrument with an explicit composition-root
+    /// factory. This supports injecting a role-specific behavior without exposing
+    /// IServiceProvider to the instrument implementation itself.
+    /// </summary>
+    public ExperimentDefinitionBuilder Simulated<TInterface>(
+        string role, Func<IServiceProvider, TInterface> factory,
+        string hostId = "simulation-worker")
+        where TInterface : class
+    {
+        EnsureMutable();
+        ArgumentException.ThrowIfNullOrWhiteSpace(role);
+        ArgumentException.ThrowIfNullOrWhiteSpace(hostId);
+        ArgumentNullException.ThrowIfNull(factory);
+        if (_instruments.Any(i => string.Equals(i.Role, role, StringComparison.Ordinal)))
+            throw new InvalidOperationException($"Duplicate instrument role '{role}'.");
+        _instruments.Add(new ExperimentInstrument(role, typeof(TInterface), hostId, "Simulated"));
+        _services.AddKeyedScoped<TInterface>(role, (sp, _) => factory(sp));
         return this;
     }
 
@@ -76,6 +99,31 @@ public sealed class ExperimentDefinitionBuilder
     }
 
     /// <summary>
+    /// Register a keyed AutoMock for a particular instrument role.
+    /// Use with the Simulated factory overload to supply the selected behavior
+    /// to a normal instrument constructor. No global behavior lookup is needed.
+    /// </summary>
+    public ExperimentDefinitionBuilder AutoMockLoadFor(
+        string role,
+        Func<IServiceProvider, ILoadBehavior> baselineFactory,
+        Action<AutoMockLoadRulesBuilder> configure)
+    {
+        EnsureMutable();
+        ArgumentException.ThrowIfNullOrWhiteSpace(role);
+        ArgumentNullException.ThrowIfNull(baselineFactory);
+        ArgumentNullException.ThrowIfNull(configure);
+        if (_roleRuleHashes.ContainsKey(role))
+            throw new InvalidOperationException($"AutoMock already registered for role '{role}'.");
+        var rulesBuilder = new AutoMockLoadRulesBuilder();
+        configure(rulesBuilder);
+        var rules = rulesBuilder.Build();
+        _roleRuleHashes.Add(role, AutoMockRuleFiles.Sha256(rules));
+        _services.AddKeyedScoped<ILoadBehavior>(role,
+            (sp, _) => new RuleBasedLoadBehavior(baselineFactory(sp), rules));
+        return this;
+    }
+
+    /// <summary>
     /// Configure a data-only AutoMock from a versioned JSON document.
     /// Parsing/validation happens before the experiment can be started.
     /// </summary>
@@ -104,10 +152,16 @@ public sealed class ExperimentDefinitionBuilder
     {
         EnsureMutable();
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        foreach (var role in _roleRuleHashes.Keys)
+        {
+            if (!_instruments.Any(i => i.Role == role && i.Backend == "Simulated"))
+                throw new InvalidOperationException($"AutoMock role '{role}' has no simulated instrument.");
+        }
         _built = true;
         var services = new ServiceCollection();
         foreach (var descriptor in _services) services.Add(descriptor);
-        return new ExperimentDefinition(name, _instruments.ToArray(), services, _autoMockRuleHash);
+        return new ExperimentDefinition(name, _instruments.ToArray(), services,
+            _autoMockRuleHash, new Dictionary<string, string>(_roleRuleHashes));
     }
 
     private void EnsureMutable()
@@ -124,16 +178,21 @@ public sealed class ExperimentDefinition
 {
     private readonly IServiceCollection _services;
     internal ExperimentDefinition(string name, IReadOnlyList<ExperimentInstrument> instruments,
-        IServiceCollection services, string? autoMockRuleHash)
+        IServiceCollection services, string? autoMockRuleHash,
+        IReadOnlyDictionary<string, string> roleRuleHashes)
     {
         Name = name;
         Instruments = instruments;
         _services = services;
         AutoMockRuleSha256 = autoMockRuleHash;
+        AutoMockRuleHashes = new ReadOnlyDictionary<string, string>(
+            new Dictionary<string, string>(roleRuleHashes));
     }
 
     /// <summary>Rule-set digest only; not a complete software/run manifest.</summary>
     public string? AutoMockRuleSha256 { get; }
+    /// <summary>Per-instrument rule hashes; still not a complete run manifest.</summary>
+    public IReadOnlyDictionary<string, string> AutoMockRuleHashes { get; }
 
     public string Name { get; }
     public IReadOnlyList<ExperimentInstrument> Instruments { get; }
@@ -145,7 +204,8 @@ public sealed class ExperimentDefinition
         {
             ValidateScopes = true, ValidateOnBuild = true
         });
-        return new ExperimentRun(provider, provider.CreateAsyncScope(), Instruments, AutoMockRuleSha256);
+        return new ExperimentRun(provider, provider.CreateAsyncScope(), Instruments,
+            AutoMockRuleSha256, AutoMockRuleHashes);
     }
 }
 
@@ -161,18 +221,21 @@ public sealed class ExperimentRun : IAsyncDisposable
     private bool _disposed;
 
     internal ExperimentRun(ServiceProvider provider, AsyncServiceScope scope,
-        IReadOnlyList<ExperimentInstrument> instruments, string? autoMockRuleHash)
+        IReadOnlyList<ExperimentInstrument> instruments, string? autoMockRuleHash,
+        IReadOnlyDictionary<string, string> roleRuleHashes)
     {
         _provider = provider;
         _scope = scope;
         _instruments = instruments;
         RunId = Guid.NewGuid().ToString("N");
         AutoMockRuleSha256 = autoMockRuleHash;
+        AutoMockRuleHashes = roleRuleHashes;
     }
 
     public string RunId { get; }
     /// <summary>Digest of declarative mock rules; excludes code, drivers and dependencies.</summary>
     public string? AutoMockRuleSha256 { get; }
+    public IReadOnlyDictionary<string, string> AutoMockRuleHashes { get; }
     public ManualSimulationClock Clock => _scope.ServiceProvider.GetRequiredService<ManualSimulationClock>();
 
     public T Instrument<T>(string role) where T : class
