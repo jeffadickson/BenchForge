@@ -2,7 +2,7 @@ namespace BenchDouble.Declarative;
 
 /// <summary>
 /// Composable value validation for instrument parameters. Inspired by the
-/// validator patterns used in PyMeasure, independently implemented for C#.
+/// declarative validator patterns supported by BenchForge.
 /// </summary>
 public static class ParameterValidators
 {
