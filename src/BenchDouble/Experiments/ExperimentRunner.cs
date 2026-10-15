@@ -100,7 +100,7 @@ public sealed class ExperimentRunner
     private bool _recoveryRequired;
 
     /// <summary>True after an unconfirmed shutdown; this runner rejects subsequent runs.</summary>
-    public bool RequiresRecovery => _recoveryRequired;
+    public bool RequiresRecovery => Volatile.Read(ref _recoveryRequired);
 
     public ExperimentRunner(IExperimentResultSink sink, ILogger<ExperimentRunner> logger,
         ExperimentRunnerOptions? options = null)
@@ -186,7 +186,7 @@ public sealed class ExperimentRunner
                 }
             }
             if (status == ExperimentStatus.RecoveryRequired)
-                _recoveryRequired = true;
+                Volatile.Write(ref _recoveryRequired, true);
             _logger.LogInformation("Experiment {ExperimentId} finished with status {Status}", id, status);
             return new ExperimentRun(id, procedure.Name, status, started, DateTimeOffset.UtcNow, error);
         }
