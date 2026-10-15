@@ -12,7 +12,7 @@ def main():
     """Run the compiled probe and assert SQLite recovery, bytes, digest and atomic outbox state."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dotnet", default="dotnet")
-    parser.add_argument("--probe", default="tools/BenchDouble.ArtifactCrashProbe/bin/Debug/net8.0/BenchDouble.ArtifactCrashProbe.dll")
+    parser.add_argument("--probe", default="tools/BenchDouble.ArtifactCrashProbe/bin/Debug/net10.0/BenchDouble.ArtifactCrashProbe.dll")
     args = parser.parse_args()
     probe = Path(args.probe).resolve()
     if not probe.is_file():
