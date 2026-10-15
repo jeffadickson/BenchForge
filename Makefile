@@ -120,3 +120,9 @@ demo-alpha:
 
 alpha-check: check-generated import-check demo-alpha
 	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
+
+# Full PyMeasure source inventory; requires a pinned local upstream checkout.
+.PHONY: pymeasure-inventory
+PYMEASURE_ROOT ?= external/pymeasure
+pymeasure-inventory:
+	$(PYTHON) tools/InstrumentDefiner/discover_catalog.py --source-root $(PYMEASURE_ROOT) --manifest build/pymeasure-all-classes.csv --inventory build/pymeasure-inventory.json
