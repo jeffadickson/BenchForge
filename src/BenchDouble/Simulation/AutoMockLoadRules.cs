@@ -79,6 +79,13 @@ public sealed class AutoMockLoadRulesBuilder
         return this;
     }
 
+    /// <summary>Import a validated rule, for example from a JSON rule document.</summary>
+    public AutoMockLoadRulesBuilder AddRule(AutoMockLoadRule rule)
+    {
+        Add(rule);
+        return this;
+    }
+
     private void Add(AutoMockLoadRule rule)
     {
         rule.Validate();
