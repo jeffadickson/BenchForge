@@ -7,8 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
 builder.Services.AddSingleton<HostResourceRegistry>();
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapGet("/", () => Results.Redirect("/dashboard/"));
 
 app.MapGet("/health", () => Results.Ok(new { status = "ready" }));
+app.MapGet("/api/v1/monitor", (HostResourceRegistry resources) =>
+    Results.Ok(resources.Monitor()));
 app.MapGet("/api/v1/instruments", (HostResourceRegistry resources) =>
     Results.Ok(resources.List()));
 app.MapPost("/api/v1/reservations", (ReservationRequest request, HostResourceRegistry resources) =>
@@ -40,6 +45,29 @@ public sealed class HostResourceRegistry
     };
     private readonly Dictionary<string, Guid> _reservations = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<Guid, string> _byLease = new();
+    private readonly List<HostActivity> _activity = new();
+    private const int MaxEvents = 200;
+
+    /// <summary>Read-only local host snapshot; contains no raw SCPI commands or credentials.</summary>
+    public HostMonitorSnapshot Monitor()
+    {
+        lock (_gate)
+        {
+            var instruments = List().Select(d => new HostInstrumentStatus(
+                d.ResourceId, d.InstrumentClass, d.Backend, "localhost:5278",
+                _reservations.ContainsKey(d.ResourceId) ? "Reserved" : "Idle",
+                _activity.Where(a => a.ResourceId == d.ResourceId)
+                    .TakeLast(15).ToArray())).ToArray();
+            return new HostMonitorSnapshot(DateTimeOffset.UtcNow, instruments);
+        }
+    }
+
+    private void Record(string resourceId, string action, string message)
+    {
+        // Call only under _gate. Do not log command text or measurement payloads.
+        _activity.Add(new HostActivity(DateTimeOffset.UtcNow, resourceId, action, message));
+        if (_activity.Count > MaxEvents) _activity.RemoveRange(0, _activity.Count - MaxEvents);
+    }
 
     public InstrumentDescriptor[] List() => new[]
     {
@@ -55,6 +83,7 @@ public sealed class HostResourceRegistry
             var lease = Guid.NewGuid();
             _reservations[resourceId] = lease;
             _byLease[lease] = resourceId;
+            Record(resourceId, "Reserved", "Exclusive local demonstration lease acquired");
             return new ReservationGrant(resourceId, lease);
         }
     }
@@ -65,6 +94,7 @@ public sealed class HostResourceRegistry
         {
             if (!_byLease.Remove(lease, out var resource)) return false;
             _reservations.Remove(resource);
+            Record(resource, "Released", "Local demonstration lease released");
             return true;
         }
     }
@@ -77,7 +107,18 @@ public sealed class HostResourceRegistry
             if (!_byLease.TryGetValue(lease, out var owned) ||
                 !string.Equals(owned, resourceId, StringComparison.OrdinalIgnoreCase))
                 throw new UnauthorizedAccessException();
-            return device.Query(command);
+            var result = device.Query(command);
+            Record(resourceId, "Query", "One instrument query completed");
+            return result;
         }
     }
 }
+
+
+/// <summary>Public read-only host status for the operator dashboard.</summary>
+public sealed record HostMonitorSnapshot(DateTimeOffset CapturedUtc,
+    IReadOnlyList<HostInstrumentStatus> Instruments);
+public sealed record HostInstrumentStatus(string ResourceId, string InstrumentClass,
+    string Backend, string Host, string Status, IReadOnlyList<HostActivity> Activity);
+public sealed record HostActivity(DateTimeOffset TimestampUtc, string ResourceId,
+    string Action, string Message);
