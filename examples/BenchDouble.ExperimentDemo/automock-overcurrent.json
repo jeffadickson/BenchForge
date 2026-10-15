@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "late-overcurrent",
+      "priority": 100,
+      "action": "FixedCurrent",
+      "value": 2.5,
+      "fromSeconds": 7200
+    },
+    {
+      "name": "voltage-gain",
+      "priority": 10,
+      "action": "MultiplyBaseline",
+      "value": 1.1,
+      "minimumVolts": 11.0,
+      "maximumVolts": 13.0,
+      "untilSeconds": 7200
+    }
+  ]
+}
