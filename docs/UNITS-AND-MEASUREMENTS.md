@@ -38,3 +38,7 @@ Prefer UnitsNet's quantity/extension mechanism and upstream contributions for br
 - Test physical quantities in mocks and IVI bridges with identical semantics.
 
 **Current status:** typed facades and unit conversion tests committed, .NET builds not yet verified.
+
+## Mock measurements and simulated time
+
+Mock configuration and generated behaviors must use UnitsNet for voltage, resistance, current, frequency and duration. Record **acquisition simulation timestamp** separately from **wall-clock timestamp** and retain physical quantity, quality, waveform basis, seed and provenance. Integration/warmup/latency durations are explicit; simulation speed changes wall execution pacing without changing simulated physical dynamics. Neither UnitsNet quantity conversion nor random noise alone establishes calibrated measurement uncertainty. See [mock lifecycle and clock specification](MOCK-TIME-AND-LIFECYCLE.md).
