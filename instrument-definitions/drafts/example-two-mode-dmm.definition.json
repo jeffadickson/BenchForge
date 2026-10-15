@@ -47,7 +47,10 @@
       "mockDefault": 0.25,
       "sourceLine": null,
       "notes": "250 mV mock default",
-      "reviewStatus": "unreviewed"
+      "reviewStatus": "unreviewed",
+      "description": "Measure DC voltage.",
+      "originalDescription": "250 mV mock default",
+      "unitReviewStatus": "candidate-unreviewed"
     },
     {
       "name": "resistance",
@@ -63,7 +66,10 @@
       "mockDefault": 4700,
       "sourceLine": null,
       "notes": "4.7 kOhm mock default",
-      "reviewStatus": "unreviewed"
+      "reviewStatus": "unreviewed",
+      "description": "Measure resistance.",
+      "originalDescription": "4.7 kOhm mock default",
+      "unitReviewStatus": "candidate-unreviewed"
     }
   ],
   "operations": [],
