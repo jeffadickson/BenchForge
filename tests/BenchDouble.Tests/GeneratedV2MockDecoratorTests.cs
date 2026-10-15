@@ -1,0 +1,34 @@
+using BenchDouble.Generated;
+using UnitsNet;
+using Xunit;
+
+namespace BenchDouble.Tests;
+
+/// <summary>Generated mock-decorator behavior and provenance regression tests.</summary>
+public sealed class GeneratedV2MockDecoratorTests
+{
+    /// <summary>Injected readings are typed and cannot bypass mode validation.</summary>
+    [Fact]
+    public async Task DecoratorUsesInjectedReadingsOnlyInValidMode()
+    {
+        var preview = new ExampleTwoModeDmmPreview();
+        var mock = new ExampleTwoModeDmmMockDecorator(preview);
+        mock.SetvoltageBehavior(_ => ValueTask.FromResult(ElectricPotential.FromMillivolts(750)));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await mock.GetvoltageAsync());
+        await mock.ConfigureModeAsync("voltage");
+        Assert.Equal(0.75, (await mock.GetvoltageAsync()).Volts, 10);
+        mock.SetvoltageBehavior(null);
+        Assert.Equal(0.25, (await mock.GetvoltageAsync()).Volts, 10);
+        await mock.ConfigureModeAsync("resistance");
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await mock.GetvoltageAsync());
+    }
+
+    /// <summary>Definition hash and missing upstream revision are explicitly recorded.</summary>
+    [Fact]
+    public void ProvenanceContainsDefinitionDigestAndDoesNotInventUpstreamRevision()
+    {
+        Assert.Equal(64, ExampleTwoModeDmmPreview.DefinitionSha256.Length);
+        Assert.Equal("unverified", ExampleTwoModeDmmPreview.UpstreamRevision);
+        Assert.Equal("v2-decorator-1", ExampleTwoModeDmmPreview.GeneratorVersion);
+    }
+}
