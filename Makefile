@@ -3,7 +3,7 @@
 DOTNET ?= dotnet
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check
 
 setup:
 	bash scripts/bootstrap.sh
@@ -86,3 +86,9 @@ demo-procedure:
 
 demo-generated-mock:
 	$(DOTNET) run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj
+
+# Pure-Python source extraction tests; does not require GitHub-hosted runners.
+definer-check:
+	$(PYTHON) -m unittest discover -s tests/instrument_definer -p 'test_*.py' -v
+	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/keithley2400.definition.json
+	$(PYTHON) tools/InstrumentDefiner/definer.py validate instrument-definitions/drafts/example-two-mode-dmm.definition.json
