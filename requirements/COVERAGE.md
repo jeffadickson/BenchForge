@@ -1,6 +1,6 @@
 # Requirements coverage — 2026-10-15 revision 4
 
-**220 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
+**223 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
 
 | Status | Count |
 |---|---:|
@@ -8,7 +8,7 @@
 | NoImplementationEvidence | 39 |
 | PartialSourceUnverified | 58 |
 | Planned | 49 |
-| SourceCommittedUnverified | 67 |
+| SourceCommittedUnverified | 70 |
 
 The original 90 TR findings are retained in [legacy-runner-audit.csv](legacy-runner-audit.csv). New lifecycle, heartbeat, command, resilience, identification, ownership and change-control requirements have explicit acceptance conditions.
 
@@ -19,3 +19,5 @@ Local-first routing increment: BD-CFG-001..007 and issues #59/#60. Host projects
 API documentation/artifact increment: BD-DOC-003..005 and BD-ART-001..005 (#61/#62). Documentation pipeline and generated comments implemented with an explicit legacy backlog. That increment specified the binary storage design; see the local backend update below. No Verified promotion. See docs/API-DOCUMENTATION-AUDIT-2026-10-15.md for local execution scope.
 
 Local capture backend: BD-ART-001..004 now PartialSourceUnverified (125 source-linked requirements total). Twelve in-process xUnit Fact methods and an independent process-exit recovery probe passed. Standard VSTest remains blocked; remote storage, backup/retention, power-loss and performance acceptance remain open. See docs/ARTIFACT-STORAGE-VALIDATION-2026-10-15.md. No Verified promotion; total remains 220.
+
+Instrument Definer increment BD-DEF-009..011: review gate, conservative inherited/dynamic member coverage, and manifest-driven batch extraction with tests. Source and test files are committed but these **new tests have not been executed**. Existing local Python and .NET evidence from earlier increments remains separate; none of these additions is marked Verified. See [Instrument Definer instructions](../tools/InstrumentDefiner/README.md).
