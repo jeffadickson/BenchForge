@@ -57,7 +57,7 @@ class BatchExtractTests(unittest.TestCase):
             manifest = root / "manifest.csv"
             manifest.write_text(
                 "manufacturer,model,className,sourcePath,revision\n"
-                "Acme,A,A,a.py,rev\n", encoding="utf-8")
+                "Acme,A,A,a.py," + "a"*40 + "\n", encoding="utf-8")
             destination = root / "out"
             destination.mkdir()
             existing = destination / "acme-a.definition.json"
