@@ -51,6 +51,8 @@ app.MapPost("/api/v1/scopes/{resourceId}/acquire", async (string resourceId, Hos
     catch (InvalidOperationException) { return Results.Conflict(); }
     catch (ArgumentOutOfRangeException) { return Results.BadRequest(); }
 });
+app.MapPost("/api/v1/scopes/{resourceId}/reserve/{leaseId:guid}/renew", (string resourceId, Guid leaseId,
+    HostedOscilloscopeRegistry scopes) => scopes.Renew(resourceId, leaseId) ? Results.NoContent() : Results.StatusCode(403));
 app.MapDelete("/api/v1/scopes/{resourceId}/reserve/{leaseId:guid}", (string resourceId, Guid leaseId,
     HostedOscilloscopeRegistry scopes) => scopes.Release(resourceId, leaseId) ? Results.NoContent() : Results.NotFound());
 app.Run();
