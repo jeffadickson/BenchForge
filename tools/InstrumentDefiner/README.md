@@ -12,7 +12,7 @@ Prefer one JSON file per instrument in `instrument-definitions/drafts/`. A two-t
 # No third-party Python dependencies. Never executes the upstream file.
 python3 tools/InstrumentDefiner/definer.py extract-pymeasure \
   pymeasure/instruments/keithley/keithley2400.py \
-  --manufacturer Keithley --model 2400 --revision <PINNED_COMMIT_SHA> \
+  --manufacturer Keithley --model 2400 --revision PINNED_COMMIT_SHA \
   --output instrument-definitions/drafts/keithley2400.extracted.json
 
 # Validate a reviewed or extracted v2 definition.
