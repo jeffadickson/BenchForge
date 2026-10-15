@@ -54,6 +54,15 @@ internal static class V2MockEmitter
             s.AppendLine("    return behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;");
             s.AppendLine("  }");
         }
+        s.AppendLine("  /// <summary>Clear all injected scalar readings and restore definition defaults.</summary>");
+        s.AppendLine("  public void ResetAllMockReadings()");
+        s.AppendLine("  {");
+        s.AppendLine("    lock (_stateGate)");
+        s.AppendLine("    {");
+        foreach (var cap in capabilities.Where(c => c.Initial.HasValue))
+            s.AppendLine($"      _{cap.Name}State = null;");
+        s.AppendLine("    }");
+        s.AppendLine("  }");
         s.AppendLine("}");
         return s.ToString();
     }
