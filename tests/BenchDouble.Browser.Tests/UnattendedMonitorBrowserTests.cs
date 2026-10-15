@@ -80,6 +80,31 @@ public sealed class UnattendedMonitorBrowserTests
         }
     }
 
+
+    [Fact]
+    public async Task ThermalCycleShowsSetpointAndFilteredSensorTraces()
+    {
+        using var playwright = await Playwright.CreateAsync();
+        await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        var page = await browser.NewPageAsync();
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName,
+                   "examples/ThermalCycleMonitor/index.html")))
+            dir = dir.Parent;
+        Assert.NotNull(dir);
+        await page.GotoAsync(new Uri(Path.Combine(dir!.FullName,
+            "examples/ThermalCycleMonitor/index.html")).AbsoluteUri);
+        Assert.True(await page.Locator("#tempPlot polyline").CountAsync() >= 2);
+        Assert.True(await page.Locator("#currentPlot polyline").CountAsync() >= 2);
+        await page.Locator("#advance").ClickAsync();
+        Assert.Equal("0.25", await page.Locator("#elapsed").InnerTextAsync());
+        var setpoint = double.Parse(await page.Locator("#temperature").InnerTextAsync(),
+            System.Globalization.CultureInfo.InvariantCulture);
+        var sensor = double.Parse(await page.Locator("#sensor").InnerTextAsync(),
+            System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(sensor < setpoint, "First-order thermal sensor must lag heating setpoint.");
+    }
+
     private static async Task CaptureFailureAsync(IPage page, string name)
     {
         Directory.CreateDirectory("TestResults/browser");
