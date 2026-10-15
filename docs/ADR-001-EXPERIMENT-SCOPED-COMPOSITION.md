@@ -52,3 +52,7 @@ Proposed brand **Framework.Test** is understandable but very generic, may read a
 
 ## Status
 Architecture recommendation only; no experiment-scoped composition root was implemented by this ADR. External human review is requested but not performed.
+
+## Prototype implementation update (2026-10-15)
+
+The simulation-only composition-root prototype has been committed in `src/BenchDouble.Experiments/ExperimentDefinition.cs`, with a C# thermal demo and xUnit tests. It demonstrates named keyed instrument registrations and isolated run scopes. **ADR status remains proposed pending external human architecture review**, and physical discovery/leases, durable definition revisions and isolated Roslyn package deployment remain open. See [experiment implementation guide](EXPERIMENT-COMPOSITION.md) and [issue #35](https://github.com/jeffadickson/BenchDouble/issues/35).
