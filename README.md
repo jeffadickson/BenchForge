@@ -104,11 +104,11 @@ BenchForge is being developed as a **production instrument-control framework**, 
 
 ## Generic instrument interfaces and research
 
-The library now includes initial `BenchForge.Contracts` interfaces for DMMs, function generators (with channels), and oscilloscopes, plus optional NPLC/aperture integration and vendor-extension contracts. The first DMM and FGEN SCPI-backed generic adapters and xUnit tests are committed. See [instrument interface research](docs/INSTRUMENT-INTERFACES-RESEARCH.md) for IVI Foundation, PyMeasure, QCoDeS, pyvisa-sim and Scpi.NET comparisons. The classes are currently part of the original assembly, not yet separate NuGet packages.
+The library now includes initial `BenchForge.Contracts` interfaces for DMMs, function generators (with channels), and oscilloscopes, plus optional NPLC/aperture integration and vendor-extension contracts. The first DMM and FGEN SCPI-backed generic adapters and xUnit tests are committed. See [instrument interface research](docs/INSTRUMENT-INTERFACES-RESEARCH.md) for IVI Foundation, external instrument catalog, QCoDeS, pyvisa-sim and Scpi.NET comparisons. The classes are currently part of the original assembly, not yet separate NuGet packages.
 
 ## Declarative SCPI parameters (experimental)
 
-The new `BenchForge.Declarative` namespace provides PyMeasure-inspired **`ScpiParameter.Control`**, **`Measurement`** and **`Setting`** factories, with immutable metadata, validated get/set commands, typed wire codecs and channel binding. See [design patterns](docs/DESIGN-PATTERNS.md) and [regression tests](tests/BenchForge.Tests/DeclarativeScpiTests.cs).
+The new `BenchForge.Declarative` namespace provides declarative **`ScpiParameter.Control`**, **`Measurement`** and **`Setting`** factories, with immutable metadata, validated get/set commands, typed wire codecs and channel binding. See [design patterns](docs/DESIGN-PATTERNS.md) and [regression tests](tests/BenchForge.Tests/DeclarativeScpiTests.cs).
 
 ```csharp
 using BenchForge.Declarative;
@@ -127,11 +127,11 @@ The new `BenchForge.Observability.LoggingScpiSession` decorator uses `Microsoft.
 
 The library also has a [design-pattern guide](docs/DESIGN-PATTERNS.md) covering Adapter, Strategy, Abstract Factory, Composite, Decorator, Command, State, Builder, Specification and Observer; the [main software description](docs/SOFTWARE-DESCRIPTION.md) now incorporates the decisions and status directly.
 
-## PyMeasure-inspired drivers + official IVI interoperability
+## declarative drivers + official IVI interoperability
 
-**Architecture decision:** use official IVI instrument classes and vendor adapters for standardized real control; selectively adapt PyMeasure's tested driver patterns into idiomatic C#, not a wholesale port of Python experiments and GUI tooling. The [port strategy](docs/PYMEASURE-PORT-STRATEGY.md) details evaluated upstream sources, copyright obligations, target drivers and milestones.
+**Architecture decision:** use official IVI instrument classes and vendor adapters for standardized real control; selectively adapt external instrument catalog's tested driver patterns into idiomatic C#, not a wholesale port of Python experiments and GUI tooling. The [port strategy](docs/external instrument catalog-PORT-STRATEGY.md) details evaluated upstream sources, copyright obligations, target drivers and milestones.
 
-Initial C# functionality includes `ScpiParameter` factories, `MappedCodec<T>` for vendor SCPI enumeration tokens and composable `ParameterValidators` for bounded and discrete settings (e.g. NPLC). See [tests](tests/BenchForge.Tests/DeclarativeValidationTests.cs). No complete PyMeasure checkout or general-purpose Python-to-C# conversion has been made.
+Initial C# functionality includes `ScpiParameter` factories, `MappedCodec<T>` for vendor SCPI enumeration tokens and composable `ParameterValidators` for bounded and discrete settings (e.g. NPLC). See [tests](tests/BenchForge.Tests/DeclarativeValidationTests.cs). No complete external instrument catalog checkout or general-purpose Python-to-C# conversion has been made.
 
 ## Async instrument APIs
 
@@ -171,7 +171,7 @@ Drivers will be authored from versioned, validated [instrument description files
 
 ## Standalone driver generator and programmable mocks
 
-The driver-generation approach is now an **explicit build step**, not a Roslyn incremental generator. Run `make generate` or `dotnet run --project tools/BenchForge.DriverGen -- instrument-definitions src/BenchForge/Generated` to emit ordinary editor-visible C# source. The generator currently supports a limited subset of SCPI numeric properties and UnitsNet types; it is not a fully validated IVI/PyMeasure converter. The simulation library also includes programmable `SineBehavior`, seeded random voltage-style readings, and composed signal/noise behaviors; JSON-driven mock generation is planned. See [Driver Generation](docs/DRIVER-GENERATION.md). Build verification is outstanding.
+The driver-generation approach is now an **explicit build step**, not a Roslyn incremental generator. Run `make generate` or `dotnet run --project tools/BenchForge.DriverGen -- instrument-definitions src/BenchForge/Generated` to emit ordinary editor-visible C# source. The generator currently supports a limited subset of SCPI numeric properties and UnitsNet types; it is not a fully validated IVI/external instrument catalog converter. The simulation library also includes programmable `SineBehavior`, seeded random voltage-style readings, and composed signal/noise behaviors; JSON-driven mock generation is planned. See [Driver Generation](docs/DRIVER-GENERATION.md). Build verification is outstanding.
 
 ## Timed, programmable instrument mocks
 
@@ -181,13 +181,13 @@ The mock design now explicitly separates instrument initialization from operatio
 
 The [Test-Lab Runner Requirements baseline](docs/TEST-LAB-RUNNER-REQUIREMENTS.md) consolidates **TR-001 through TR-090** across structured authoring, async execution, distributed hosts, instrument sharing, simulation, durable results, redlines, signatures, unified UI, observability and verification. Requirements are prioritized and distinguish implemented prototypes from planned work. The runner and editor share one structured procedure representation; TestForge may integrate formal qualification/evidence functions without duplicating the execution engine.
 
-## Unified instrument operations: 25 real PyMeasure examples
+## Unified instrument operations: 25 real external instrument catalog examples
 
-The [source-verified 25-operation PyMeasure comparison](docs/INSTRUMENT-OPERATIONS-25-PYMEASURE-EXAMPLES.md) demonstrates how one typed UnitsNet instrument API can work with local hardware, local stateful mocks, and a generic remote proxy to a host using either physical or simulated drivers. Examples come from Agilent 34410A, Agilent 33500 and Keithley 2000 source files, with real SCPI command mappings and separate proposed BenchForge mock behavior. This is an architecture reference; the 25 operations have not all been ported.
+The [source-verified 25-operation external instrument catalog comparison](docs/INSTRUMENT-OPERATIONS-25-external instrument catalog-EXAMPLES.md) demonstrates how one typed UnitsNet instrument API can work with local hardware, local stateful mocks, and a generic remote proxy to a host using either physical or simulated drivers. Examples come from Agilent 34410A, Agilent 33500 and Keithley 2000 source files, with real SCPI command mappings and separate proposed BenchForge mock behavior. This is an architecture reference; the 25 operations have not all been ported.
 
-## 25 real PyMeasure instruments and Keithley 236
+## 25 real external instrument catalog instruments and Keithley 236
 
-The [25-instrument PyMeasure catalog and Keithley 236 coverage report](docs/PYMEASURE-25-INSTRUMENTS-AND-KEITHLEY-236.md) corrects the earlier 25-property comparison: it inventories **25 distinct PyMeasure instrument driver entries**, with explicit source-check status. PyMeasure does not currently list a Keithley 236 driver, so BenchForge's [236 typed DC source/measure driver](src/BenchForge/Instruments/Keithley/Keithley236.cs) is based on Keithley's own legacy IEEE-488 command manual, **not SCPI**. The [236 resistive-DUT mock](src/BenchForge/Simulation/Keithley236MockBus.cs) and [tests](tests/BenchForge.Tests/Keithley236Tests.cs) cover a substantial DC core, but sweeps, triggers, status, actual GPIB transport and hardware safety verification remain unfinished.
+The [25-instrument external instrument catalog catalog and Keithley 236 coverage report](docs/external instrument catalog-25-INSTRUMENTS-AND-KEITHLEY-236.md) corrects the earlier 25-property comparison: it inventories **25 distinct external instrument catalog instrument driver entries**, with explicit source-check status. external instrument catalog does not currently list a Keithley 236 driver, so BenchForge's [236 typed DC source/measure driver](src/BenchForge/Instruments/Keithley/Keithley236.cs) is based on Keithley's own legacy IEEE-488 command manual, **not SCPI**. The [236 resistive-DUT mock](src/BenchForge/Simulation/Keithley236MockBus.cs) and [tests](tests/BenchForge.Tests/Keithley236Tests.cs) cover a substantial DC core, but sweeps, triggers, status, actual GPIB transport and hardware safety verification remain unfinished.
 
 ## Unit-aware plotting (ScottPlot + Plotly.js)
 
@@ -249,7 +249,7 @@ The optional [experiment composition project](src/BenchForge.Experiments/) provi
 
 The existing loopback-only instrument host now serves a [read-only HTML instrument dashboard](src/BenchForge.Host.Server/wwwroot/dashboard/index.html). Run `make demo-dashboard` (or `dotnet run --project src/BenchForge.Host.Server`) and open **http://127.0.0.1:5278/dashboard/**. It shows registered local simulated instruments, reservation state, and bounded sanitized per-instrument activity logs. The [dashboard guide](docs/INSTRUMENT-DASHBOARD.md) documents current scope and security limitations. This is not yet a network-wide authenticated operations console.
 
-At the earlier experiment/dashboard increment, the [requirements baseline](requirements/benchforge.sdoc) contained **138** stable IDs; it has since expanded to 167. New GitHub issues [#35–#39](https://github.com/jeffadickson/BenchForge/issues) cover remote composition, dashboard aggregation, CI, versioning and evidence-based PyMeasure comparison. BenchForge has interesting architectural differentiators but has **not yet demonstrated overall feature parity or superiority to PyMeasure** in validated driver coverage and production operation.
+At the earlier experiment/dashboard increment, the [requirements baseline](requirements/benchforge.sdoc) contained **138** stable IDs; it has since expanded to 167. New GitHub issues [#35–#39](https://github.com/jeffadickson/BenchForge/issues) cover remote composition, dashboard aggregation, CI, versioning and evidence-based external instrument catalog comparison. BenchForge has interesting architectural differentiators but has **not yet demonstrated overall feature parity or superiority to external instrument catalog** in validated driver coverage and production operation.
 
 ## AutoMock — rule-driven instrument behavior (2026-10-15)
 
@@ -271,11 +271,11 @@ The [2026-10-15 evidence audit](docs/REQUIREMENTS-AUDIT-2026-10-15.md) reviewed 
 
 ## Instrument definitions → typed drivers and default mocks (2026-10-15)
 
-The offline `BenchForge.DriverGen` now generates a **typed UnitsNet driver and matching stateful SCPI mock** from the same instrument definition. The checked-in [Keysight33522B driver](src/BenchForge/Generated/Keysight33522B.g.cs) and [mock](src/BenchForge/Generated/Keysight33522BMock.g.cs) share SCPI templates, channels and quantities; the mock provides typed `SetMockFrequency` and `SetMockAmplitude` methods without duplicating the driver. Try `make demo-generated-mock`, `make generate` and `make check-generated`. A [machine-readable catalog](instrument-definitions/instrument-catalog.json) contains 25 PyMeasure inventory entries plus our partial legacy Keithley 236 driver; **these are not 25 ported drivers**. Keithley 236 now resets compliance/bias when changing source modes and refuses OPERATE without all prerequisites. [Implementation and limitations](docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md). The baseline has **175 requirements**; CI/hardware verification remains blocked.
+The offline `BenchForge.DriverGen` now generates a **typed UnitsNet driver and matching stateful SCPI mock** from the same instrument definition. The checked-in [Keysight33522B driver](src/BenchForge/Generated/Keysight33522B.g.cs) and [mock](src/BenchForge/Generated/Keysight33522BMock.g.cs) share SCPI templates, channels and quantities; the mock provides typed `SetMockFrequency` and `SetMockAmplitude` methods without duplicating the driver. Try `make demo-generated-mock`, `make generate` and `make check-generated`. A [machine-readable catalog](instrument-definitions/instrument-catalog.json) contains 25 external instrument catalog inventory entries plus our partial legacy Keithley 236 driver; **these are not 25 ported drivers**. Keithley 236 now resets compliance/bias when changing source modes and refuses OPERATE without all prerequisites. [Implementation and limitations](docs/INSTRUMENT-DEFINITIONS-AND-MOCK-GENERATION.md). The baseline has **175 requirements**; CI/hardware verification remains blocked.
 
-## Instrument Definer — PyMeasure intake and mode-aware mock previews
+## Instrument Definer — external instrument catalog intake and mode-aware mock previews
 
-The new [Instrument Definer](tools/InstrumentDefiner/) is a separate, stdlib-only Python CLI for **static** PyMeasure descriptor/method extraction and spreadsheet CSV import. It writes [schema-v2 JSON review drafts](instrument-definitions/schema/instrument-definition-v2.schema.json) with pinned source provenance, UnitsNet quantity/unit metadata, mode declarations and unresolved review items; it never executes upstream driver code. An intern can use the [extraction instructions](docs/INSTRUMENT-DEFINER.md) and [CSV templates](tools/InstrumentDefiner/templates/). The core now also has `ModeAwareMockInstrument` and `InstrumentDefinitionMockLoader.CreatePreview`: schema-v2 modes and explicit mock defaults become typed, mode-checked simulation readings without physical I/O. The v1 production generator and v2 intake remain separate until manual review and generator integration. Try `make definer-check`. Tracked in [#52](https://github.com/jeffadickson/BenchForge/issues/52) and [#53](https://github.com/jeffadickson/BenchForge/issues/53); requirements baseline **175**, no new requirement Verified.
+The new [Instrument Definer](tools/InstrumentDefiner/) is a separate, stdlib-only Python CLI for **static** external instrument catalog descriptor/method extraction and spreadsheet CSV import. It writes [schema-v2 JSON review drafts](instrument-definitions/schema/instrument-definition-v2.schema.json) with pinned source provenance, UnitsNet quantity/unit metadata, mode declarations and unresolved review items; it never executes upstream driver code. An intern can use the [extraction instructions](docs/INSTRUMENT-DEFINER.md) and [CSV templates](tools/InstrumentDefiner/templates/). The core now also has `ModeAwareMockInstrument` and `InstrumentDefinitionMockLoader.CreatePreview`: schema-v2 modes and explicit mock defaults become typed, mode-checked simulation readings without physical I/O. The v1 production generator and v2 intake remain separate until manual review and generator integration. Try `make definer-check`. Tracked in [#52](https://github.com/jeffadickson/BenchForge/issues/52) and [#53](https://github.com/jeffadickson/BenchForge/issues/53); requirements baseline **175**, no new requirement Verified.
 
 
 
