@@ -117,3 +117,39 @@ The existing `InstrumentReservationManager` is an **in-process prototype**, not 
 
 ## Non-goals for first iteration
 No automatic bypass of local hardware locks, no cross-host atomic transaction claim, no open network listener without authentication, no arbitrary SCPI over unauthenticated endpoints, no assumption that a Raspberry Pi runs proprietary Windows-only IVI drivers.
+
+## Bidirectional operational observability: host display and remote client log stream
+
+**Requirement:** Every instrument host must publish instrument-control diagnostic events locally **and** to authorized connected clients. The host remains the source of truth for logging; clients may disconnect and reconnect without suppressing server-side event collection. The same event must be visible in host operator UI and the client's experiment/notebook UI.
+
+### Event schema
+- EventId (host instance ID + monotonic sequence); timestamp UTC + monotonic elapsed clock; severity; category; message template + safe structured fields.
+- HostId, InstrumentId, physical resource ID (redacted as policy requires), driver/model/firmware, backend, session ID.
+- ExperimentRunId, ProcedureStepId, LeaseId (public correlation ID, not credential/token), operation/request ID, trace/span IDs.
+- Direction (command, response, state, measurement, lease, alarm); duration, status, outcome (`Succeeded`, `Failed`, `Cancelled`, `OutcomeUnknown`), optional measurement summary.
+- **No raw lease tokens, user secrets, or SCPI responses by default.** Payload capture requires administrator policy and explicit authorization.
+
+### Delivery
+- `ILogger` structured events sent to a host-local sink and a bounded fan-out channel. Host UI and authorized client subscriptions read the same canonical event stream.
+- Use gRPC server streaming `SubscribeEvents` with filtered host/instrument/run scopes, severity and category; optionally add SignalR/WebSocket to a browser dashboard via host API.
+- Include a bounded local durable ring/spool (e.g. SQLite) for last N events and reconnection replay from cursor. Guarantee **at-least-once** replay where retention permits; deduplicate by event ID. Do not promise lossless logs after retention expiry.
+- Each subscription has independent bounded queue and backpressure policy: coalesce/drop low-priority debug traffic first with explicit gap events and counters; never silently lose safety alarms or failure records. Slow clients may be disconnected but cannot stall VISA control loops.
+- Access enforcement happens on the host: per-instrument permissions, authenticated identity, filter authorization and audit of log subscriptions. Remote clients must not be able to change host log-level/redaction or see unrelated experiments without authorization.
+- Ordering is guaranteed per host event sequence; merging across hosts uses timestamps/trace IDs but does **not** guarantee global time order. Preserve distributed-trace causality.
+- Host restart uses a new instance generation and durable sequence scheme to keep IDs unique.
+
+### Host display
+A lightweight host operator dashboard shows online/offline resources, owner/lease state (without secrets), instrument commands/status (redacted), errors, reconnects and performance, and a searchable time-filtered log with pause/autoscroll. CLI tailing is required for headless Raspberry Pi hosts; browser UI may be accessed remotely with authentication. The UI shall distinguish issued commands from confirmed physical state.
+
+### Client display
+The notebook/experiment-runner client displays live instrument logs alongside experiment steps, measurements, plots and alarms, with per-instrument filters and cross-host correlation. A reconnect first replays retained events from its cursor and then resumes live events; gaps in retention must be made visible.
+
+### Reliability, observability and testing
+- Log emission must be nonblocking on the instrument I/O hot path, bounded-memory, independent of client connectivity.
+- Document retention, rotation, timestamp synchronization and redaction policies.
+- OpenTelemetry `ActivitySource`, `ILogger`, trace propagation and metrics must share correlation IDs.
+- Test multiple subscribers, slow subscriber, disconnect/reconnect, retention truncation, unauthorized streams, host restart, simultaneous instrument operation, and privacy defaults.
+- Confirm host and client show the **same event ID and structured details** (subject to per-view authorization/redaction).
+- Logs do not constitute an audit-grade measurement record by default; signed/immutable evidence requires a separate recorder.
+
+**Implementation status:** architectural requirement only. The existing `LoggingScpiSession` emits structured local `ILogger` events, but there is no gRPC remote event stream, durable spool, host dashboard, or client log display yet.
