@@ -1,6 +1,6 @@
 # BenchDouble Feature-to-Requirement Audit
 
-**Date:** 2026-10-15 · **Basis:** 90 previously consolidated runner requirements plus 32 new cross-subsystem requirements, selected implementation files and existing GitHub Issues #1–#26. **Scope:** repository architecture/feature inventory; not an exhaustive line-by-line verification or executed test report.
+**Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 64 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
 
 | Feature family | Requirements baseline | Committed evidence | Outstanding work |
 |---|---|---|---|
