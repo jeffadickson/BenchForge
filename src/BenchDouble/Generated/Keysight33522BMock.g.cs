@@ -9,16 +9,16 @@ public sealed class Keysight33522BMock : DefinitionDrivenScpiMockSession
   {
     new MockScpiParameter("Frequency", "Frequency", "Hertz", "SOUR{channel}:FREQ?", "SOUR{channel}:FREQ {value}", 1000, 1, 20000000),
     // Frequency: Frequency in Hertz
+    new MockScpiParameter("Amplitude", "ElectricPotential", "Volt", "SOUR{channel}:VOLT?", "SOUR{channel}:VOLT {value}", 1, null, null),
+    // Amplitude: ElectricPotential in Volt
+  }) { }
   public void SetMockFrequency(int channel, Frequency value)
   {
     SetReading("Frequency", channel, value.Hertz);
   }
-    new MockScpiParameter("Amplitude", "ElectricPotential", "Volt", "SOUR{channel}:VOLT?", "SOUR{channel}:VOLT {value}", 1, null, null),
-    // Amplitude: ElectricPotential in Volt
   public void SetMockAmplitude(int channel, ElectricPotential value)
   {
     SetReading("Amplitude", channel, value.Volts);
   }
-  }) { }
   public Keysight33522B CreateDriver() => new(this);
 }
