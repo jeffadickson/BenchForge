@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../BenchDouble/BenchDouble.csproj"/>
+    <ProjectReference Include="../BenchDouble.Experiments/BenchDouble.Experiments.csproj"/>
+    <PackageReference Include="Parlot" Version="1.5.9"/>
+  </ItemGroup>
+</Project>
