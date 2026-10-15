@@ -135,9 +135,17 @@ pymeasure-normalize:
 
 # Schema-v2 simulation-only emitter. Never enables physical I/O from unreviewed data.
 .PHONY: generate-v2-preview check-v2-preview
-V2_PREVIEW_DIR ?= build/v2-preview
+V2_PREVIEW_DIR ?= generated/BenchForge.Instruments/Code
 generate-v2-preview:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR)
 
-check-v2-preview: generate-v2-preview
+check-v2-preview:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR) --check
+
+# Dedicated disposable schema-v2 generated C# project.
+.PHONY: build-generated clean-generated
+build-generated: generate-v2-preview
+	$(DOTNET) build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
+
+clean-generated:
+	$(PYTHON) scripts/clean_generated.py
