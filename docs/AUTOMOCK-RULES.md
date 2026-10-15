@@ -113,3 +113,7 @@ Do not introduce any of these into the core by default. If adopted, hide them be
 7. Verify on Windows, macOS and Linux and demonstrate the same experiment with normal, AutoMock and custom C# behavior.
 
 **Safety:** AutoMock is test simulation, not a safety interlock. Physical instrument control, leases and safe-state verification are separate.
+
+## Generated mock adapters (planned)
+
+**BD-AM-011** will use the existing instrument-definition/code-generation pipeline to create default typed mock adapters for DMM, SMU, generator, chamber and other instrument classes. The goal is to avoid writing command boilerplate twice: generated adapters preserve compile-time method/property signatures, while AutoMock rules override selected measurements, command responses and fault behavior. This generator integration has **not** yet been implemented. See [issue #40](https://github.com/jeffadickson/BenchDouble/issues/40).
