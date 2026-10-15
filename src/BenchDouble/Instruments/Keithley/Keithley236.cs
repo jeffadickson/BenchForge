@@ -46,6 +46,10 @@ public sealed class Keithley236
             // Mode changes can affect the output; always request standby first.
             await _bus.WriteAsync("N0X", ct).ConfigureAwait(false);
             _operating = false;
+            // A mode change invalidates the previous compliance setting.
+            // Do not allow OPERATE with a stale limit from another source mode.
+            _mode = null;
+            _compliance = 0;
             await _bus.WriteAsync(mode == SourceMeasureMode.SourceVoltageMeasureCurrent ? "F0,0X" : "F1,0X", ct).ConfigureAwait(false);
             _mode = mode;
         }
@@ -55,24 +59,27 @@ public sealed class Keithley236
     /// <summary>Set DC bias; auto range (range=0), delay in milliseconds.</summary>
     public async ValueTask SetBiasAsync(ElectricPotential voltage, TimeSpan delay, CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceVoltageMeasureCurrent) throw new InvalidOperationException("Configure voltage sourcing first.");
-        await SetBiasCoreAsync(voltage.Volts, 110, delay, ct).ConfigureAwait(false);
+        await SetBiasCoreAsync(voltage.Volts, 110, delay,
+            SourceMeasureMode.SourceVoltageMeasureCurrent, ct).ConfigureAwait(false);
     }
 
     /// <summary>Set DC current bias; auto range (range=0), delay in milliseconds.</summary>
     public async ValueTask SetBiasAsync(ElectricCurrent current, TimeSpan delay, CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceCurrentMeasureVoltage) throw new InvalidOperationException("Configure current sourcing first.");
-        await SetBiasCoreAsync(current.Amperes, 0.1, delay, ct).ConfigureAwait(false);
+        await SetBiasCoreAsync(current.Amperes, 0.1, delay,
+            SourceMeasureMode.SourceCurrentMeasureVoltage, ct).ConfigureAwait(false);
     }
 
-    private async ValueTask SetBiasCoreAsync(double level, double limit, TimeSpan delay, CancellationToken ct)
+    private async ValueTask SetBiasCoreAsync(double level, double limit, TimeSpan delay,
+        SourceMeasureMode expectedMode, CancellationToken ct)
     {
         if (!double.IsFinite(level) || Math.Abs(level) > limit) throw new ArgumentOutOfRangeException(nameof(level));
         if (delay < TimeSpan.Zero || delay.TotalMilliseconds > 65000) throw new ArgumentOutOfRangeException(nameof(delay));
         await _lock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            if (_mode != expectedMode)
+                throw new InvalidOperationException("Source mode changed before bias command.");
             // B(level),(range),(delay), range 0=auto; execute with X.
             await _bus.WriteAsync($"B{level.ToString("G17", CultureInfo.InvariantCulture)},0,{delay.TotalMilliseconds.ToString("0.###", CultureInfo.InvariantCulture)}X", ct).ConfigureAwait(false);
         }
@@ -82,22 +89,25 @@ public sealed class Keithley236
     /// <summary>Configure measurement compliance (auto range). Always call before Operate.</summary>
     public async ValueTask SetComplianceAsync(ElectricCurrent current, CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceVoltageMeasureCurrent) throw new InvalidOperationException("Current compliance requires voltage source mode.");
-        await SetComplianceCoreAsync(current.Amperes, 0.1, ct).ConfigureAwait(false);
+        await SetComplianceCoreAsync(current.Amperes, 0.1,
+            SourceMeasureMode.SourceVoltageMeasureCurrent, ct).ConfigureAwait(false);
     }
 
     public async ValueTask SetComplianceAsync(ElectricPotential voltage, CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceCurrentMeasureVoltage) throw new InvalidOperationException("Voltage compliance requires current source mode.");
-        await SetComplianceCoreAsync(voltage.Volts, 110, ct).ConfigureAwait(false);
+        await SetComplianceCoreAsync(voltage.Volts, 110,
+            SourceMeasureMode.SourceCurrentMeasureVoltage, ct).ConfigureAwait(false);
     }
 
-    private async ValueTask SetComplianceCoreAsync(double level, double max, CancellationToken ct)
+    private async ValueTask SetComplianceCoreAsync(double level, double max,
+        SourceMeasureMode expectedMode, CancellationToken ct)
     {
         if (!double.IsFinite(level) || level <= 0 || level > max) throw new ArgumentOutOfRangeException(nameof(level));
         await _lock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            if (_mode != expectedMode)
+                throw new InvalidOperationException("Source mode changed before compliance command.");
             await _bus.WriteAsync($"L{level.ToString("G17", CultureInfo.InvariantCulture)},0X", ct).ConfigureAwait(false);
             _compliance = level;
         }
@@ -135,21 +145,24 @@ public sealed class Keithley236
     /// </summary>
     public async ValueTask<ElectricCurrent> MeasureCurrentAsync(CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceVoltageMeasureCurrent) throw new InvalidOperationException("Current measurement requires voltage sourcing.");
-        return ElectricCurrent.FromAmperes(await MeasureScalarAsync(ct).ConfigureAwait(false));
+        return ElectricCurrent.FromAmperes(await MeasureScalarAsync(
+            SourceMeasureMode.SourceVoltageMeasureCurrent, ct).ConfigureAwait(false));
     }
 
     public async ValueTask<ElectricPotential> MeasureVoltageAsync(CancellationToken ct = default)
     {
-        if (_mode != SourceMeasureMode.SourceCurrentMeasureVoltage) throw new InvalidOperationException("Voltage measurement requires current sourcing.");
-        return ElectricPotential.FromVolts(await MeasureScalarAsync(ct).ConfigureAwait(false));
+        return ElectricPotential.FromVolts(await MeasureScalarAsync(
+            SourceMeasureMode.SourceCurrentMeasureVoltage, ct).ConfigureAwait(false));
     }
 
-    private async ValueTask<double> MeasureScalarAsync(CancellationToken ct)
+    private async ValueTask<double> MeasureScalarAsync(SourceMeasureMode expectedMode,
+        CancellationToken ct)
     {
         await _lock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            if (_mode != expectedMode)
+                throw new InvalidOperationException("Measurement mode changed before acquisition.");
             // G(items=4 measurement, format=2 bare ASCII, lines=0 DC)
             await _bus.WriteAsync("G4,2,0X", ct).ConfigureAwait(false);
             string raw = (await _bus.ReadAsync(ct).ConfigureAwait(false)).Trim();
