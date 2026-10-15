@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace BenchDouble.Experiments;
 
 /// <summary>Terminal or active experiment lifecycle state.</summary>
-public enum ExperimentStatus { Created, Running, Completed, Cancelled, Failed }
+public enum ExperimentStatus { Created, Running, Completed, Cancelled, Failed, RecoveryRequired }
 
 /// <summary>A typed measurement row with independent field values and units.</summary>
 public sealed record ExperimentSample(DateTimeOffset Timestamp, IReadOnlyDictionary<string, double> Values,
@@ -72,6 +72,22 @@ public abstract class ExperimentProcedure : IExperimentProcedure
 }
 
 /// <summary>
+/// Limits how long the runner waits for best-effort shutdown. A timeout means
+/// physical state is unknown; cancellation does not imply instrument abort.
+/// </summary>
+public sealed record ExperimentRunnerOptions
+{
+    public TimeSpan ShutdownTimeout { get; init; } = TimeSpan.FromSeconds(10);
+
+    public void Validate()
+    {
+        if (ShutdownTimeout <= TimeSpan.Zero || ShutdownTimeout == Timeout.InfiniteTimeSpan)
+            throw new ArgumentOutOfRangeException(nameof(ShutdownTimeout),
+                "Shutdown timeout must be finite and positive.");
+    }
+}
+
+/// <summary>
 /// Executes startup/execute/shutdown with exactly one active procedure per runner.
 /// A separate runner can execute independently. No implicit hardware fallback.
 /// </summary>
@@ -80,11 +96,15 @@ public sealed class ExperimentRunner
     private readonly IExperimentResultSink _sink;
     private readonly ILogger<ExperimentRunner> _logger;
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly ExperimentRunnerOptions _options;
 
-    public ExperimentRunner(IExperimentResultSink sink, ILogger<ExperimentRunner> logger)
+    public ExperimentRunner(IExperimentResultSink sink, ILogger<ExperimentRunner> logger,
+        ExperimentRunnerOptions? options = null)
     {
         _sink = sink ?? throw new ArgumentNullException(nameof(sink));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options ?? new ExperimentRunnerOptions();
+        _options.Validate();
     }
 
     public async Task<ExperimentRun> RunAsync(IExperimentProcedure procedure, CancellationToken cancellationToken = default)
@@ -119,17 +139,42 @@ public sealed class ExperimentRunner
             }
             finally
             {
-                // Cleanup is independent of cancellation. Explicit timeout policy to be introduced.
+                // Use an independent, bounded cleanup policy. Cancellation of
+                // the original run cannot suppress best-effort shutdown.
+                // A timeout/fault never establishes a physical safe state.
+                using var cleanupCts = new CancellationTokenSource();
+                Task? cleanup = null;
                 try
                 {
-                    await procedure.ShutdownAsync(context, CancellationToken.None).ConfigureAwait(false);
+                    cleanup = procedure.ShutdownAsync(context, cleanupCts.Token);
+                    await cleanup.WaitAsync(_options.ShutdownTimeout).ConfigureAwait(false);
+                }
+                catch (TimeoutException timeout)
+                {
+                    cleanupCts.Cancel();
+                    // If the driver ignores cancellation, shutdown may still
+                    // be executing. Observe later faults; do not falsely
+                    // report Completed, Failed or safe-state confirmation.
+                    if (cleanup is not null)
+                    {
+                        _ = cleanup.ContinueWith(
+                            task => { _ = task.Exception; },
+                            CancellationToken.None,
+                            TaskContinuationOptions.OnlyOnFaulted |
+                                TaskContinuationOptions.ExecuteSynchronously,
+                            TaskScheduler.Default);
+                    }
+                    _logger.LogCritical(timeout,
+                        "Experiment {ExperimentId} cleanup timed out; physical state unknown", id);
+                    error = error is null ? timeout : new AggregateException(error, timeout);
+                    status = ExperimentStatus.RecoveryRequired;
                 }
                 catch (Exception shutdownError)
                 {
-                    _logger.LogError(shutdownError, "Experiment {ExperimentId} shutdown failed; hardware state may be unknown", id);
-                    if (error is null) error = shutdownError;
-                    else error = new AggregateException(error, shutdownError);
-                    status = ExperimentStatus.Failed;
+                    _logger.LogCritical(shutdownError,
+                        "Experiment {ExperimentId} cleanup failed; physical state unknown", id);
+                    error = error is null ? shutdownError : new AggregateException(error, shutdownError);
+                    status = ExperimentStatus.RecoveryRequired;
                 }
             }
             _logger.LogInformation("Experiment {ExperimentId} finished with status {Status}", id, status);
