@@ -1004,3 +1004,51 @@ UID: BD-GEN-006
 STATUS: Active
 TITLE: BD-GEN-006 P0
 STATEMENT: Keithley 236 source-mode changes shall invalidate old compliance and bias configuration and prevent unsafe OPERATE requests.
+
+[REQUIREMENT]
+UID: BD-DEF-001
+STATUS: Active
+TITLE: BD-DEF-001 P0
+STATEMENT: Instrument definitions shall have a versioned machine-readable schema describing identity, source provenance, capabilities, methods, modes, mock models and review state.
+
+[REQUIREMENT]
+UID: BD-DEF-002
+STATUS: Active
+TITLE: BD-DEF-002 P1
+STATEMENT: Instrument Definer shall extract PyMeasure descriptors and public methods using static parsing without executing upstream Python source.
+
+[REQUIREMENT]
+UID: BD-DEF-003
+STATUS: Active
+TITLE: BD-DEF-003 P1
+STATEMENT: Instrument Definer shall accept spreadsheet-exported properties and methods CSV files and preserve explicit quantities, modes, commands and source references.
+
+[REQUIREMENT]
+UID: BD-DEF-004
+STATUS: Active
+TITLE: BD-DEF-004 P0
+STATEMENT: Instrument Definer shall reject duplicate or invalid identifiers, incompatible physical units, invalid ranges and unsafe unsupported validation claims.
+
+[REQUIREMENT]
+UID: BD-DEF-005
+STATUS: Active
+TITLE: BD-DEF-005 P0
+STATEMENT: Extracted definitions shall remain unreviewed and shall not be promoted to physical hardware drivers without source/manual and safety review evidence.
+
+[REQUIREMENT]
+UID: BD-DEF-006
+STATUS: Active
+TITLE: BD-DEF-006 P0
+STATEMENT: A schema-v2 definition shall support a simulated mode-aware UnitsNet mock preview with strict quantity/mode validation and no physical access.
+
+[REQUIREMENT]
+UID: BD-DEF-007
+STATUS: Active
+TITLE: BD-DEF-007 P1
+STATEMENT: Reviewed schema-v2 definitions shall generate typed asynchronous driver and mode-aware mock source with lifecycle, unit and command validation.
+
+[REQUIREMENT]
+UID: BD-DEF-008
+STATUS: Active
+TITLE: BD-DEF-008 P1
+STATEMENT: PyMeasure extraction shall report inherited/dynamic methods, parser coverage and unresolved mappings before a definition can be reviewed.
