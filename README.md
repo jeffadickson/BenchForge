@@ -172,3 +172,7 @@ The mock design now explicitly separates instrument initialization from operatio
 ## Consolidated test-lab runner requirements
 
 The [Test-Lab Runner Requirements baseline](docs/TEST-LAB-RUNNER-REQUIREMENTS.md) consolidates **TR-001 through TR-090** across structured authoring, async execution, distributed hosts, instrument sharing, simulation, durable results, redlines, signatures, unified UI, observability and verification. Requirements are prioritized and distinguish implemented prototypes from planned work. The runner and editor share one structured procedure representation; TestForge may integrate formal qualification/evidence functions without duplicating the execution engine.
+
+## Unified instrument operations: 25 real PyMeasure examples
+
+The [source-verified 25-operation PyMeasure comparison](docs/INSTRUMENT-OPERATIONS-25-PYMEASURE-EXAMPLES.md) demonstrates how one typed UnitsNet instrument API can work with local hardware, local stateful mocks, and a generic remote proxy to a host using either physical or simulated drivers. Examples come from Agilent 34410A, Agilent 33500 and Keithley 2000 source files, with real SCPI command mappings and separate proposed BenchDouble mock behavior. This is an architecture reference; the 25 operations have not all been ported.
