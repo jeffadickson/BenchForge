@@ -73,12 +73,21 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
                 template.Replace("{channel}", "").Replace("{value}", "").Contains('}'))
                 throw new InvalidDataException($"Unsupported command template in {file}");
         }
+        if (query.Length == 0 && set.Length == 0)
+            throw new InvalidDataException($"Parameter {propertyName} needs a query or setter.");
+        if (channelCount > 1 &&
+            (query.Length > 0 && !query.Contains("{channel}", StringComparison.Ordinal) ||
+             set.Length > 0 && !set.Contains("{channel}", StringComparison.Ordinal)))
+            throw new InvalidDataException($"Multi-channel command for {propertyName} lacks channel placeholder.");
         double? minimum = param.TryGetProperty("minimum", out var minValue) ? minValue.GetDouble() : null;
         double? maximum = param.TryGetProperty("maximum", out var maxValue) ? maxValue.GetDouble() : null;
         double initial = param.TryGetProperty("mock", out var mockNode) &&
             mockNode.TryGetProperty("defaultValue", out var mockValue)
             ? mockValue.GetDouble() : minimum is { } lower ? Math.Max(0, lower) : 0;
-        if (!double.IsFinite(initial) || (minimum is { } lo && initial < lo) ||
+        if (!double.IsFinite(initial) ||
+            (minimum is { } finiteMin && !double.IsFinite(finiteMin)) ||
+            (maximum is { } finiteMax && !double.IsFinite(finiteMax)) ||
+            (minimum is { } lo && initial < lo) ||
             (maximum is { } hi && initial > hi) ||
             (minimum is { } minBound && maximum is { } maxBound && minBound > maxBound))
             throw new InvalidDataException($"Invalid mock default or range for {propertyName}: {file}");
