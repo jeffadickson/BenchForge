@@ -152,7 +152,7 @@ public sealed class SqliteTimeSeriesStore : ITimeSeriesWriter, ITimeSeriesReader
                     insert.Parameters.AddWithValue("$value", sample.CanonicalValue);
                     insert.Parameters.AddWithValue("$kind", sample.QuantityKind);
                     insert.Parameters.AddWithValue("$unit", sample.UnitCode);
-                    insert.Parameters.AddWithValue("$sim", sample.SimulationElapsed is { } elapsed ? elapsed.Ticks : DBNull.Value);
+                    insert.Parameters.AddWithValue("$sim", sample.SimulationElapsed is { } elapsed ? (object)elapsed.Ticks : DBNull.Value);
                     insert.Parameters.AddWithValue("$quality", sample.Quality);
                     insert.Parameters.AddWithValue("$basis", (object?)sample.MeasurementBasis ?? DBNull.Value);
                     insert.Parameters.AddWithValue("$ingested", DateTime.UtcNow.Ticks);
