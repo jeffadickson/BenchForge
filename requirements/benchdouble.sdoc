@@ -926,3 +926,45 @@ UID: BD-AM-016
 STATUS: Active
 TITLE: BD-AM-016 P1
 STATEMENT: Typed measurement mock behaviors shall support deterministic experiment-clock-indexed values and explicit constant defaults.
+
+[REQUIREMENT]
+UID: BD-DSL-001
+STATUS: Active
+TITLE: BD-DSL-001 P1
+STATEMENT: The test framework shall provide a separate optional Parlot-based procedure parsing project with no parser dependency in the instrument core.
+
+[REQUIREMENT]
+UID: BD-DSL-002
+STATUS: Active
+TITLE: BD-DSL-002 P0
+STATEMENT: Procedure text shall parse into a typed AST with line-addressable syntax diagnostics and shall reject unsupported statements.
+
+[REQUIREMENT]
+UID: BD-DSL-003
+STATUS: Active
+TITLE: BD-DSL-003 P0
+STATEMENT: Procedure validation shall reject unknown instrument roles, incompatible measurement modes and physical units, and undefined variables before execution.
+
+[REQUIREMENT]
+UID: BD-DSL-004
+STATUS: Active
+TITLE: BD-DSL-004 P1
+STATEMENT: A mock-only procedure shall execute against registered typed instrument mocks through the existing experiment runner and virtual clock.
+
+[REQUIREMENT]
+UID: BD-DSL-005
+STATUS: Active
+TITLE: BD-DSL-005 P1
+STATEMENT: Procedure measurements and limit assertions shall preserve UnitsNet dimensions and produce attributable result records.
+
+[REQUIREMENT]
+UID: BD-DSL-006
+STATUS: Active
+TITLE: BD-DSL-006 P1
+STATEMENT: The procedure editor and text DSL shall share stable step IDs, revision history and comment-preserving round-trip representation.
+
+[REQUIREMENT]
+UID: BD-DSL-007
+STATUS: Active
+TITLE: BD-DSL-007 P0
+STATEMENT: The DSL shall not permit arbitrary code or physical instrument control without explicit authorization, capability checks and safe-state handling.
