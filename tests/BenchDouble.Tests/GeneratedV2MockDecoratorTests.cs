@@ -18,6 +18,9 @@ public sealed class GeneratedV2MockDecoratorTests
         await mock.ConfigureModeAsync("voltage");
         Assert.Equal(0.75, (await mock.GetvoltageAsync()).Volts, 10);
         mock.SetvoltageBehavior(null);
+        mock.SetMockvoltage(ElectricPotential.FromVolts(1.25));
+        Assert.Equal(1.25, (await mock.GetvoltageAsync()).Volts, 10);
+        mock.ResetMockvoltage();
         Assert.Equal(0.25, (await mock.GetvoltageAsync()).Volts, 10);
         await mock.ConfigureModeAsync("resistance");
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await mock.GetvoltageAsync());
