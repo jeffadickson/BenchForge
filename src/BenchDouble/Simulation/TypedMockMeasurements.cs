@@ -13,6 +13,13 @@ public interface ITypedMeasurementSource
         where TQuantity : struct, IQuantity;
 }
 
+/// <summary>Generic measurement source with explicit instrument mode selection.</summary>
+public interface ITypedConfigurableMeasurementSource : ITypedMeasurementSource
+{
+    ValueTask ConfigureAsync<TQuantity>(CancellationToken ct = default)
+        where TQuantity : struct, IQuantity;
+}
+
 /// <summary>
 /// Configures which quantity types a mock instrument supports. Registering a
 /// quantity binds a strongly typed behavior; unregistered quantities fail
@@ -79,7 +86,7 @@ public sealed class TypedMockMeasurements
 /// </summary>
 public sealed class TypedMockMeter(
     TypedMockMeasurements measurements,
-    ISimulationClock clock) : ITypedMeasurementSource
+    ISimulationClock clock) : ITypedConfigurableMeasurementSource
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private Type? _selectedQuantity;
