@@ -126,3 +126,15 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add atomic multi-instrument reservations with deadlock-free acquisition
 - [ ] Add cross-process/instrument-host locking and optional VISA resource locks
 - [ ] Add lease telemetry, timeouts and physical safe-state cleanup policy
+
+### Distributed instrument-host system
+- [x] Define host-owned instrument reservations and remote API architecture
+- [x] Document Pi/Linux ARM64, low-cost PC and network deployment considerations
+- [ ] Implement standalone ASP.NET Core gRPC host and remote proxy for simulated DMM/FGEN
+- [ ] Enforce authenticated exclusive server-side leases and fencing tokens
+- [ ] Add bounded heartbeat, expiry and RecoveryRequired state handling
+- [ ] Support safe reconnect, durable operation identity and unknown-outcome reporting
+- [ ] Provide Linux ARM64/systemd deployment package
+- [ ] Add optional native VISA provider with real USB/GPIB/TCPIP resource enumeration
+- [ ] Add cross-host coordinator without claiming premature global atomicity
+- [ ] Verify tests for contention, lost network, host restart and safe cleanup
