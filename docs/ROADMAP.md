@@ -222,3 +222,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Integrate mock state transitions with operation definitions (mode-aware measurement)
 - [ ] Implement typed versioned remote proxy without client-side vendor SCPI duplication
 - [ ] Verify source-to-C# operation parity and real-device behavior where authorized
+
+### 25 instrument port inventory and Keithley 236
+- [x] Correct 25 PyMeasure properties to 25 distinct catalog instrument driver entries
+- [x] Document which instrument source files were actually inspected
+- [x] Implement first Keithley 236 legacy IEEE-488 DC source/measure subset and resistive DUT mock
+- [x] Add typed UnitsNet protocol and mock tests (source committed, not executed)
+- [ ] Build and execute 236 tests in CI
+- [ ] Complete 236 sweep, trigger, status, range, sense, error and output-data format commands
+- [ ] Add actual GPIB TALK/EOI transport and hardware acceptance tests
+- [ ] Validate physical safety/interlocks and fault recovery before production enable
+- [ ] Inspect and port remaining 25 catalog instrument drivers individually with attribution
