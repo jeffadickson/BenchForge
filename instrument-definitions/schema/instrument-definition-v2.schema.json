@@ -398,9 +398,60 @@
           "items": {
             "type": "string"
           }
+        },
+        "manualEvidence": {
+          "type": "string"
+        },
+        "hardwareEvidence": {
+          "type": "string"
+        },
+        "testFixture": {
+          "type": "string"
+        },
+        "inheritanceEvidence": {
+          "type": "string"
+        },
+        "dynamicEvidence": {
+          "type": "string"
         }
       },
       "additionalProperties": false
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "baseClasses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inheritedCandidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dynamicCandidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolvedInheritedMembers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unresolvedDynamicMembers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "directMembers": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     }
   }
 }
