@@ -1,4 +1,5 @@
 using BenchDouble.Simulation;
+using BenchDouble.DiDemo;
 using Microsoft.Extensions.DependencyInjection;
 using UnitsNet;
 
@@ -21,12 +22,14 @@ services.AddScoped<ILoadBehavior>(sp =>
         : baseline;
 });
 services.AddScoped<MockPowerSupply>();
+services.AddScoped<IOperatorNotificationSink, SimulatedOperatorNotificationSink>();
 
 using var provider = services.BuildServiceProvider(
     new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
 using var run = provider.CreateScope();
 var supply = run.ServiceProvider.GetRequiredService<MockPowerSupply>();
 var clock = run.ServiceProvider.GetRequiredService<ManualSimulationClock>();
+var notifications = run.ServiceProvider.GetRequiredService<IOperatorNotificationSink>();
 
 await supply.ConfigureAsync(ElectricPotential.FromVolts(12),
     ElectricCurrent.FromAmperes(3));
@@ -46,6 +49,7 @@ try
         if (sample.Current.Amperes > 2)
         {
             Console.WriteLine($"OVERCURRENT detected at virtual t={clock.Elapsed.TotalSeconds:F2}s; requesting output off.");
+            await notifications.NotifyAsync("DI-DEMO-001", $"Current {sample.Current.Amperes:F2} A exceeded 2 A threshold at virtual t={clock.Elapsed.TotalSeconds:F2}s.");
             await supply.SetOutputAsync(false);
             break;
         }
