@@ -51,6 +51,10 @@ jobs:
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock
       - name: Run AutoMock JSON experiment demonstration
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock-json
+      - name: Test Parlot mock-backed procedures
+        run: dotnet test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj --configuration Release
+      - name: Run mock-backed procedure example
+        run: dotnet run --project examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj --configuration Release
       - name: Run Reqnroll executable acceptance scenarios
         run: dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj --configuration Release
       - name: Build browser test project
