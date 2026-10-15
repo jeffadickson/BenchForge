@@ -124,3 +124,7 @@ The library also has a [design-pattern guide](docs/DESIGN-PATTERNS.md) covering 
 **Architecture decision:** use official IVI instrument classes and vendor adapters for standardized real control; selectively adapt PyMeasure's tested driver patterns into idiomatic C#, not a wholesale port of Python experiments and GUI tooling. The [port strategy](docs/PYMEASURE-PORT-STRATEGY.md) details evaluated upstream sources, copyright obligations, target drivers and milestones.
 
 Initial C# functionality includes `ScpiParameter` factories, `MappedCodec<T>` for vendor SCPI enumeration tokens and composable `ParameterValidators` for bounded and discrete settings (e.g. NPLC). See [tests](tests/BenchDouble.Tests/DeclarativeValidationTests.cs). No complete PyMeasure checkout or general-purpose Python-to-C# conversion has been made.
+
+## Async instrument APIs
+
+The first asynchronous APIs now live in [`BenchDouble.Async`](src/BenchDouble/Async/AsyncInstruments.cs). They provide `IAsyncScpiSession`, a session-serialization decorator, typed async DMM/generator drivers and a compatibility adapter for existing synchronous simulators. See [tests](tests/BenchDouble.Tests/AsyncInstrumentTests.cs). The compatibility adapter remains synchronous underneath and does not create true nonblocking VISA operations. Cancellation does not guarantee hardware abort or a confirmed safe state. The implementation has been committed but is not yet verified by a successful .NET build.
