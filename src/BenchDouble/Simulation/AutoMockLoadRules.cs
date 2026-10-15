@@ -16,12 +16,12 @@ public sealed record AutoMockLoadCondition(
     {
         if (From is { } start && start < TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(From));
-        if (Until is { } end && (end < TimeSpan.Zero || (From is { } start && end <= start)))
+        if (Until is { } end && (end < TimeSpan.Zero || (From is { } beginning && end <= beginning)))
             throw new ArgumentOutOfRangeException(nameof(Until));
         if (MinimumVoltage is { } low && (!double.IsFinite(low.Volts) || low.Volts < 0))
             throw new ArgumentOutOfRangeException(nameof(MinimumVoltage));
         if (MaximumVoltage is { } high && (!double.IsFinite(high.Volts) ||
-            (MinimumVoltage is { } low && high.Volts < low.Volts)))
+            (MinimumVoltage is { } minimum && high.Volts < minimum.Volts)))
             throw new ArgumentOutOfRangeException(nameof(MaximumVoltage));
     }
 
