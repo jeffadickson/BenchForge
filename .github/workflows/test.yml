@@ -26,6 +26,8 @@ jobs:
         run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release
       - name: Run dependency-injection normal demo
         run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release -- --normal
+      - name: Run seven-hour thermal-cycle simulation demo
+        run: dotnet run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj --configuration Release
       - name: Build ScottPlot visualization adapter
         run: dotnet build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj --configuration Release
 
