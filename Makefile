@@ -29,12 +29,12 @@ generate:
 	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
 
 # Discover projects so new libraries/examples/tools participate automatically.
-build: generate
+build: generate build-generated
 	@set -e; for project in src/*/*.csproj examples/*/*.csproj tools/*/*.csproj; do \
 		[ ! -f "$$project" ] || $(DOTNET) build "$$project"; \
 	done
 
-test: generate
+test: generate generate-v2-preview
 	@set -e; for project in tests/*/*.csproj; do \
 		case "$$project" in *BenchDouble.Browser.Tests*) continue ;; esac; \
 		[ ! -f "$$project" ] || $(DOTNET) test "$$project"; \
