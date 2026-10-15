@@ -101,6 +101,35 @@ public sealed class SqliteRecorderTests
         finally { DeleteFiles(path); }
     }
 
+
+    [Fact]
+    public async Task VirtualTimeQueryIgnoresWallClockPacing()
+    {
+        var path = TempDatabase();
+        try
+        {
+            await using var store = await SqliteTimeSeriesStore.OpenAsync(path);
+            // Both samples have the same UTC acquisition time but different
+            // logical times, as may occur during an accelerated test.
+            var first = Sample(0, 0.5);
+            var second = Sample(1, 0.55) with
+            {
+                AcquiredUtc = first.AcquiredUtc,
+                SimulationElapsed = TimeSpan.FromHours(3)
+            };
+            await store.AppendAsync(new[] { first, second });
+            var query = new SimulationTimeSeriesQuery("RUN-1", "current",
+                TimeSpan.FromHours(2), TimeSpan.FromHours(4));
+            var values = new List<TimeSeriesSample>();
+            await foreach (var sample in store.QuerySimulationAsync(query))
+                values.Add(sample);
+            Assert.Single(values);
+            Assert.Equal(0.55, values[0].CanonicalValue, 10);
+            Assert.Equal(TimeSpan.FromHours(3), values[0].SimulationElapsed);
+        }
+        finally { DeleteFiles(path); }
+    }
+
     private static async Task<List<TimeSeriesSample>> ReadAllAsync(SqliteTimeSeriesStore store)
     {
         var result = new List<TimeSeriesSample>();
