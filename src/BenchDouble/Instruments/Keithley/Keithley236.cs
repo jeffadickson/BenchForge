@@ -30,6 +30,7 @@ public sealed class Keithley236
     private SourceMeasureMode? _mode;
     private bool _operating;
     private double _compliance;
+    private bool _biasConfigured;
 
     public Keithley236(IKeithley236Bus bus) =>
         _bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -40,6 +41,7 @@ public sealed class Keithley236
     /// <summary>Configure DC sourcing mode; selecting mode requests standby first.</summary>
     public async ValueTask ConfigureAsync(SourceMeasureMode mode, CancellationToken ct = default)
     {
+        if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
         await _lock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
@@ -50,6 +52,7 @@ public sealed class Keithley236
             // Do not allow OPERATE with a stale limit from another source mode.
             _mode = null;
             _compliance = 0;
+            _biasConfigured = false;
             await _bus.WriteAsync(mode == SourceMeasureMode.SourceVoltageMeasureCurrent ? "F0,0X" : "F1,0X", ct).ConfigureAwait(false);
             _mode = mode;
         }
@@ -82,6 +85,7 @@ public sealed class Keithley236
                 throw new InvalidOperationException("Source mode changed before bias command.");
             // B(level),(range),(delay), range 0=auto; execute with X.
             await _bus.WriteAsync($"B{level.ToString("G17", CultureInfo.InvariantCulture)},0,{delay.TotalMilliseconds.ToString("0.###", CultureInfo.InvariantCulture)}X", ct).ConfigureAwait(false);
+            _biasConfigured = true;
         }
         finally { _lock.Release(); }
     }
@@ -131,8 +135,8 @@ public sealed class Keithley236
         await _lock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            if (enabled && (_mode is null || _compliance <= 0))
-                throw new InvalidOperationException("Configure source mode and compliance before operate.");
+            if (enabled && (_mode is null || _compliance <= 0 || !_biasConfigured))
+                throw new InvalidOperationException("Configure source mode, bias and compliance before operate.");
             await _bus.WriteAsync(enabled ? "N1X" : "N0X", ct).ConfigureAwait(false);
             _operating = enabled;
         }
