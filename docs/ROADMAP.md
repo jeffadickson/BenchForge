@@ -180,3 +180,12 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add unit-aware parameter definitions, range checking and result storage
 - [ ] Define protobuf quantity wire DTOs and reject dimensional mismatch
 - [ ] Model RMS/Vpp/peak and uncertainty independently of UnitsNet quantities
+
+### Generated instrument drivers
+- [x] Define IVI-aligned, PyMeasure-inspired descriptor-to-code architecture
+- [x] Add sample versioned Keysight instrument JSON profile
+- [ ] Implement JSON schema and semantic validator with diagnostics
+- [ ] Implement Roslyn incremental generator with compile-time typed UnitsNet APIs
+- [ ] Generate test fixtures and XML docs; integrate with simulator expectations
+- [ ] Validate Keysight and Tektronix profile SCPI against vendor manuals
+- [ ] Convert selected PyMeasure device profiles with attribution and parity tests
