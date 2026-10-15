@@ -43,9 +43,11 @@ jobs:
       - name: Generate instrument drivers
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
       - name: Validate schema-v2 preview emission (simulation only)
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts build/v2-preview
+        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code
       - name: Verify deterministic schema-v2 preview
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts build/v2-preview --check
+        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
+      - name: Compile committed schema-v2 generated preview
+        run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
       - name: Audit API documentation
         run: dotnet run --project tools/BenchDouble.DocumentationAudit -- . build/api-audit.json
       - name: Reject new documentation gaps
