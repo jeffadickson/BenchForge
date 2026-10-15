@@ -30,7 +30,7 @@ class Meter(Instrument):
             self.assertEqual(1, len(doc["operations"]))
             self.assertEqual("MEAS:VOLT?", doc["capabilities"][0]["query"])
             self.assertEqual("SOUR:CURR %g", doc["capabilities"][1]["set"])
-            self.assertEqual(5, doc["capabilities"][0]["sourceLine"])
+            self.assertEqual(4, doc["capabilities"][0]["sourceLine"])
             self.assertEqual([], definer.validate(doc))
             self.assertEqual("unreviewed", doc["review"]["status"])
 
