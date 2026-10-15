@@ -15,6 +15,7 @@ public sealed class HostedOscilloscopeRegistry
             ["SCOPE1"] = new(new SimulatedOscilloscopeSession(channels: 2, samples: 128))
         };
     private readonly Dictionary<string, Guid> _leases = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _inFlight = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Reserve the entire instrument for one client.</summary>
     public Guid? Reserve(string resourceId)
@@ -36,7 +37,8 @@ public sealed class HostedOscilloscopeRegistry
     {
         lock (_gate)
         {
-            if (!_leases.TryGetValue(resourceId, out var active) || active != leaseId) return false;
+            if (!_leases.TryGetValue(resourceId, out var active) || active != leaseId ||
+                _inFlight.GetValueOrDefault(resourceId) != 0) return false;
             _leases.Remove(resourceId);
             return true;
         }
@@ -52,7 +54,15 @@ public sealed class HostedOscilloscopeRegistry
             if (!_coordinators.TryGetValue(resourceId, out coordinator!)) throw new KeyNotFoundException();
             if (!_leases.TryGetValue(resourceId, out var active) || active != leaseId)
                 throw new UnauthorizedAccessException();
+            _inFlight[resourceId] = _inFlight.GetValueOrDefault(resourceId) + 1;
         }
-        return await new CoordinatedOscilloscope(coordinator).AcquireAsync(channel, Guid.NewGuid(), cancellationToken);
+        try
+        {
+            return await new CoordinatedOscilloscope(coordinator).AcquireAsync(channel, Guid.NewGuid(), cancellationToken);
+        }
+        finally
+        {
+            lock (_gate) _inFlight[resourceId]--;
+        }
     }
 }
