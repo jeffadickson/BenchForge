@@ -288,3 +288,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Verify browser visual behavior and run .NET demo/tests in cross-platform CI
 - [ ] Add chamber thermal lag, actual sensor stabilization/dwell qualification and independent DUT temperature
 - [ ] Connect browser monitor to actual runner/host streaming, alerts and durable measurements
+
+### Typed physical signals between mocks
+- [x] Introduce ITemperatureSignal / ITemperatureProgram with UnitsNet temperatures
+- [x] Add first-order thermal sensor using exact piecewise-linear integration and configurable tau
+- [x] Inject shared chamber program into thermal sensor via run-scoped DI
+- [x] Add sensor trace/readout to thermal HTML and console demos
+- [x] Add tests for thermal lag, repeatability, phase transitions and backward-time rejection
+- [ ] Validate builds, browser rendering and cross-platform execution
+- [ ] Add coherent multi-signal snapshots, typed graph registration and cycle detection
+- [ ] Model separate chamber/fixture/DUT temperatures, sensor noise and calibration offset
+- [ ] Wire sensor-driven load behavior and live host streaming as optional scenario
