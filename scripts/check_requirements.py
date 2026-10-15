@@ -8,7 +8,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DOC = ROOT / "requirements/benchdouble.sdoc"
 TRACE = ROOT / "requirements/traceability.csv"
-VALID = {"Planned", "SourceCommittedUnverified", "Verified", "Blocked"}
+VALID = {"Planned", "Unverified", "SourceCommittedUnverified", "Verified", "Blocked"}
 UID_PATTERN = re.compile(r"^UID:\s+([A-Z][A-Z0-9-]+)$", re.M)
 
 
