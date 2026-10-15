@@ -158,3 +158,14 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Add non-loopback TLS/gRPC and instrument permissions only after security is tested
 - [ ] Implement structured host/client log streaming and UI
 - [ ] Integrate physical VISA adapter under controlled host ownership
+
+### Protocol evolution, portable drivers and shared access
+- [x] Specify versioned protobuf contract and avoid serialized .NET object graphs
+- [x] Add v1 host proto schema and host access-policy DTOs
+- [x] Define signed content-addressed driver package approval/isolation design
+- [x] Define exclusive controller and shared observer/host-sampled policies
+- [ ] Generate gRPC client/server from v1 proto and implement feature negotiation
+- [ ] Implement server-enforced policy checks, observer streaming and sampled sensor fan-out
+- [ ] Add host-owned driver package cache, trusted signatures and process isolation
+- [ ] Add old/new client and host compatibility CI matrix, schema-breaking checks
+- [ ] Validate crash recovery, unknown physical state and resource fencing across versions
