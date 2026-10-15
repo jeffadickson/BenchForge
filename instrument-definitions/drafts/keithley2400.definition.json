@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 2,
+  "definitionStatus": "extracted",
+  "identity": {
+    "manufacturer": "Keithley",
+    "model": "2400",
+    "driverName": "Keithley2400",
+    "instrumentClass": "SourceMeasureUnit",
+    "protocol": "SCPI",
+    "interfaces": [
+      "GPIB"
+    ]
+  },
+  "provenance": {
+    "upstreamProject": "PyMeasure",
+    "sourcePath": "pymeasure/instruments/keithley/keithley2400.py",
+    "sourceRevision": "pin-upstream-commit-before-review",
+    "license": "MIT (verify notice and dependency provenance)",
+    "manualReference": "Keithley 2400 Series SourceMeter User's Manual",
+    "upstreamClass": "Keithley2400"
+  },
+  "modes": [
+    {
+      "id": "sourceCurrent",
+      "selectionCommand": ":SOURCE:FUNCTION CURR",
+      "initial": false,
+      "notes": "Extracted from source_mode mapping; requires manual review"
+    },
+    {
+      "id": "sourceVoltage",
+      "selectionCommand": ":SOURCE:FUNCTION VOLT",
+      "initial": false,
+      "notes": "Extracted from source_mode mapping; requires manual review"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "source_mode",
+      "kind": "control",
+      "access": "readwrite",
+      "quantity": null,
+      "unit": null,
+      "query": ":SOURCE:FUNCTION?",
+      "set": ":SOURCE:FUNCTION %s",
+      "allowedValues": {
+        "current": "CURR",
+        "voltage": "VOLT"
+      },
+      "modes": [],
+      "mockDefault": null,
+      "sourceLine": 78,
+      "notes": "SCPI syntax from PyMeasure; line reference illustrative, verify pinned revision",
+      "reviewStatus": "unreviewed"
+    },
+    {
+      "name": "source_delay",
+      "kind": "control",
+      "access": "readwrite",
+      "quantity": "Duration",
+      "unit": "Second",
+      "query": ":SOURCE:DELAY?",
+      "set": ":SOURCE:DELAY %g",
+      "minimum": 0,
+      "maximum": 999.9999,
+      "modes": [],
+      "mockDefault": null,
+      "sourceLine": 88,
+      "notes": "PyMeasure strict_range; setting may disable automatic delay",
+      "reviewStatus": "unreviewed"
+    },
+    {
+      "name": "source_enabled",
+      "kind": "control",
+      "access": "readwrite",
+      "quantity": null,
+      "unit": null,
+      "query": "OUTPUT?",
+      "set": "OUTPUT %d",
+      "allowedValues": {
+        "true": 1,
+        "false": 0
+      },
+      "modes": [],
+      "mockDefault": null,
+      "sourceLine": 59,
+      "notes": "Output enable is safety-critical; default mock disabled, never automatically enable physical hardware",
+      "reviewStatus": "unreviewed"
+    }
+  ],
+  "operations": [
+    {
+      "name": "enable_source",
+      "arguments": [],
+      "returnQuantity": null,
+      "returnUnit": null,
+      "sourceLine": 69,
+      "semantics": "manualReviewRequired",
+      "notes": "Physical output enable; must be guarded by host interlocks",
+      "reviewStatus": "unreviewed"
+    },
+    {
+      "name": "disable_source",
+      "arguments": [],
+      "returnQuantity": null,
+      "returnUnit": null,
+      "sourceLine": 73,
+      "semantics": "manualReviewRequired",
+      "notes": "Standby request is not proof of physical safe state",
+      "reviewStatus": "unreviewed"
+    }
+  ],
+  "mock": {
+    "initialize": [
+      {
+        "property": "source_enabled",
+        "value": false
+      }
+    ],
+    "measurementModels": [],
+    "virtualTime": true,
+    "realTimeDelayScale": 1
+  },
+  "review": {
+    "status": "unreviewed",
+    "reviewer": "",
+    "hardwareTested": false,
+    "unresolved": [
+      "Verify upstream source commit and line numbers",
+      "Verify SCPI commands, ranges and state transitions against manufacturer manual",
+      "Extract all public properties and methods, not only this representative subset",
+      "Review license and source attribution",
+      "Define mode-dependent mock behavior and compliance physics"
+    ]
+  }
+}
