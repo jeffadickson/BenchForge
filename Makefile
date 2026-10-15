@@ -132,3 +132,12 @@ pymeasure-inventory:
 PYMEASURE_DESCRIPTORS ?= build/pymeasure-descriptors.csv
 pymeasure-normalize:
 	$(PYTHON) tools/InstrumentDefiner/normalize_descriptions.py $(PYMEASURE_DESCRIPTORS) build/pymeasure-descriptors-normalized.csv
+
+# Schema-v2 simulation-only emitter. Never enables physical I/O from unreviewed data.
+.PHONY: generate-v2-preview check-v2-preview
+V2_PREVIEW_DIR ?= build/v2-preview
+generate-v2-preview:
+	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR)
+
+check-v2-preview: generate-v2-preview
+	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR) --check
