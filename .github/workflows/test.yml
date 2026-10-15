@@ -39,6 +39,8 @@ jobs:
         run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release
       - name: Run experiment composition demonstration
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release
+      - name: Run generic UnitsNet meter demonstration
+        run: dotnet run --project examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj --configuration Release
       - name: Run AutoMock fluent experiment demonstration
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock
       - name: Run AutoMock JSON experiment demonstration
