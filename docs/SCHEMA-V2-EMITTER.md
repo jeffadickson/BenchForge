@@ -16,7 +16,7 @@ dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj --
 
 The v2 emitter uses bounded `TransformBlock` and `ActionBlock` stages to validate and render source in stable order. It validates all inputs before writing, rejects duplicate driver names, and atomically replaces changed files. Generated preview classes expose asynchronous mode selection and typed UnitsNet measurements for scalar capabilities with explicit mock defaults. The generated XML comments include concise descriptions, physical quantity, wire unit, measurement basis (or *unspecified*), and the source query string.
 
-The v2 schema now permits `description`, `originalDescription`, and `unitReviewStatus` for each capability. Preserve original PyMeasure text and evidence. Editorial unit suggestions are **not** accepted as reviewed units merely because they exist in a CSV. The v2 preview is intentionally read-only and simulation-only; it does not issue SCPI, enable outputs, or silently translate unknown quantities.
+The v2 schema now permits `description`, `originalDescription`, and `unitReviewStatus` for each capability. Preserve original external source text and evidence. Editorial unit suggestions are **not** accepted as reviewed units merely because they exist in a CSV. The v2 preview is intentionally read-only and simulation-only; it does not issue SCPI, enable outputs, or silently translate unknown quantities.
 
 ## Known limitations
 
