@@ -22,6 +22,10 @@ jobs:
       - name: Test standalone UnitsNet plotting adapter
         run: dotnet test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj --configuration Release
 
+      - name: Run dependency-injection overcurrent demo
+        run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release
+      - name: Run dependency-injection normal demo
+        run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release -- --normal
       - name: Build ScottPlot visualization adapter
         run: dotnet build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj --configuration Release
 
