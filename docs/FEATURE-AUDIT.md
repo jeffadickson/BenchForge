@@ -36,7 +36,7 @@ On each feature PR, add/update a requirement UID, source/test link, verification
 
 BD-AM-001..010 add declarative current rules, JSON parsing, DI injection, rule-set hash, instrument command/state backlog and end-to-end experiment verification. Typed source and tests exist, but have not been build-verified. Issues #40–#43 track unfinished command rules, optional advanced engine adapter, integrated backend demo and cross-platform validation.
 
-The requirements baseline now contains 149 items, including BD-AM-011 for generated typed mock adapters from instrument definitions. Generator integration is planned, not implemented.
+The baseline subsequently expanded beyond 149. BD-AM-011 now has an initial schema-driven SCPI driver/mock generator implementation for the illustrative Keysight 33522B; broad capability-aware generation remains planned. Current baseline: 167.
 
 ## Generic UnitsNet AutoMock foundation
 
