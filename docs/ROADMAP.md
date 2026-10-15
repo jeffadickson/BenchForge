@@ -334,3 +334,18 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Implement optional PostgreSQL/TimescaleDB adapter with integration tests
 
 - [x] Add indexed simulation-elapsed-time queries and a same-UTC/different-virtual-time test
+
+### Requirements audit, executable acceptance and project onboarding
+- [x] Import TR-001..TR-090 and 32 cross-subsystem requirements into StrictDoc source
+- [x] Add traceability CSV, Python integrity gate and GitHub issue mapping
+- [x] Add pure xUnit overcurrent alarm tests and Reqnroll.xUnit Given/When/Then scenarios
+- [x] Add Playwright browser tests for SVG/alarm/reset and failure screenshots
+- [x] Add Windows PowerShell and Unix bootstrap scripts for .NET SDK, StrictDoc and NuGet restore
+- [x] Add software development plan, user manual, feature audit and interactive HTML overview
+- [x] Extend Windows/Linux/macOS CI with StrictDoc, BDD and Chromium test jobs
+- [ ] Verify all builds/tests and archive actual CI evidence before marking requirements Verified
+- [ ] Pin StrictDoc and centralize NuGet versions with package lockfiles and dependency scanning
+- [ ] Replace standalone JavaScript browser simulation with C# backend event stream
+- [ ] Add approved visual screenshot baselines and accessibility audits
+- [ ] Prototype C# WebAssembly simulation without privileged instrument access
+- [ ] Complete unverified physical instrument, host, editor, safety and offline replication requirements tracked by issues #1–#33
