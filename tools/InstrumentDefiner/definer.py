@@ -90,6 +90,41 @@ def extract(path, manufacturer, model, revision, class_name=None):
     cls = candidates[0]
     result = draft(manufacturer, model, cls.name, str(path), revision)
     result["provenance"]["upstreamClass"] = cls.name
+    # Coverage is conservative: unresolved inherited and dynamic members
+    # remain explicit blockers until a reviewer reconciles them.
+    classes_by_name = {candidate.name: candidate for candidate in classes}
+    inherited = []
+    for base in cls.bases:
+        base_name = dotted(base)
+        if base_name in classes_by_name:
+            for member in classes_by_name[base_name].body:
+                if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)) and not member.name.startswith("_"):
+                    inherited.append(base_name + "." + member.name)
+                elif isinstance(member, ast.Assign):
+                    inherited.extend(base_name + "." + target.id
+                                     for target in member.targets if isinstance(target, ast.Name))
+        else:
+            inherited.append(base_name + " (external base; members unknown)")
+    dynamic = []
+    for member in ast.walk(cls):
+        if isinstance(member, ast.Call) and dotted(member.func) in {
+                "setattr", "exec", "eval", "globals", "locals"}:
+            dynamic.append(f"line {member.lineno}: dynamic {dotted(member.func)}")
+        elif isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if member.name in {"__getattr__", "__getattribute__", "__setattr__"} or any(
+                    dotted(dec) in {"property", "cached_property", "functools.cached_property"}
+                    for dec in member.decorator_list):
+                dynamic.append(f"line {member.lineno}: dynamic/property {member.name}")
+        elif isinstance(member, ast.AnnAssign) and isinstance(member.value, ast.Call) and (
+                dotted(member.value.func).startswith("Instrument.")):
+            dynamic.append(f"line {member.lineno}: annotated instrument descriptor")
+    result["extraction"] = {
+        "baseClasses": [ast.unparse(base) for base in cls.bases],
+        "inheritedCandidates": sorted(set(inherited)),
+        "dynamicCandidates": sorted(set(dynamic)),
+        "unresolvedInheritedMembers": len(set(inherited)),
+        "unresolvedDynamicMembers": len(set(dynamic))
+    }
     if cls.bases:
         result["review"]["unresolved"].append(
             "Inherited members are not extracted; review bases: "
@@ -134,6 +169,8 @@ def extract(path, manufacturer, model, revision, class_name=None):
                 "sourceLine": node.lineno, "semantics": "manualReviewRequired",
                 "reviewStatus": "unreviewed"
             })
+    result["extraction"]["directMembers"] = (
+        len(result["capabilities"]) + len(result["operations"]))
     return result
 
 
@@ -359,6 +396,11 @@ def main():
                 print(f"Unknown UnitsNet mappings ({len(unknown)}): " +
                       (", ".join(unknown) if unknown else "none"))
                 print("Review status: " + doc["review"]["status"])
+                coverage = doc.get("extraction", {})
+                print("Unresolved inherited candidates: " +
+                      str(coverage.get("unresolvedInheritedMembers", "not analyzed")))
+                print("Unresolved dynamic candidates: " +
+                      str(coverage.get("unresolvedDynamicMembers", "not analyzed")))
                 for item in doc["review"].get("unresolved", []):
                     print("TODO: " + item)
             else:
