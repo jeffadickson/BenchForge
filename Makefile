@@ -149,3 +149,8 @@ build-generated: generate-v2-preview
 
 clean-generated:
 	$(PYTHON) scripts/clean_generated.py
+
+# Shared-signal stateful mock integration tests (source, meter, oscilloscope).
+.PHONY: test-virtual-bench
+test-virtual-bench:
+	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
