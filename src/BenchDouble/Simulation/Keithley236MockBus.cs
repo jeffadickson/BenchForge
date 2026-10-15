@@ -24,8 +24,8 @@ public sealed class Keithley236MockBus : IKeithley236Bus
         Transcript.Add("W:" + command);
         if (command == "N0X") { Operate = false; return ValueTask.CompletedTask; }
         if (command == "N1X") { if (Compliance <= 0) throw new InvalidOperationException("Compliance not configured."); Operate = true; return ValueTask.CompletedTask; }
-        if (command == "F0,0X") { Mode = SourceMeasureMode.SourceVoltageMeasureCurrent; Operate = false; return ValueTask.CompletedTask; }
-        if (command == "F1,0X") { Mode = SourceMeasureMode.SourceCurrentMeasureVoltage; Operate = false; return ValueTask.CompletedTask; }
+        if (command == "F0,0X") { Mode = SourceMeasureMode.SourceVoltageMeasureCurrent; Operate = false; Compliance = 0; return ValueTask.CompletedTask; }
+        if (command == "F1,0X") { Mode = SourceMeasureMode.SourceCurrentMeasureVoltage; Operate = false; Compliance = 0; return ValueTask.CompletedTask; }
         if (command is "S0X" or "S1X" or "S2X" or "S3X") { Integration = (IntegrationSpeed)(command[1] - '0'); return ValueTask.CompletedTask; }
         if (command == "G4,2,0X") { _readPrepared = true; return ValueTask.CompletedTask; }
         if (command.StartsWith('B') && command.EndsWith('X'))
