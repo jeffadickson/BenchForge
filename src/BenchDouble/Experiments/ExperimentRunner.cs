@@ -97,6 +97,10 @@ public sealed class ExperimentRunner
     private readonly ILogger<ExperimentRunner> _logger;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly ExperimentRunnerOptions _options;
+    private bool _recoveryRequired;
+
+    /// <summary>True after an unconfirmed shutdown; this runner rejects subsequent runs.</summary>
+    public bool RequiresRecovery => _recoveryRequired;
 
     public ExperimentRunner(IExperimentResultSink sink, ILogger<ExperimentRunner> logger,
         ExperimentRunnerOptions? options = null)
@@ -113,6 +117,10 @@ public sealed class ExperimentRunner
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            if (_recoveryRequired)
+                throw new InvalidOperationException(
+                    "Runner is blocked: previous shutdown did not confirm completion. " +
+                    "Perform external equipment recovery before creating a new runner.");
             var id = Guid.NewGuid();
             var started = DateTimeOffset.UtcNow;
             var context = new ExperimentContext(id, _sink, _logger);
@@ -177,6 +185,8 @@ public sealed class ExperimentRunner
                     status = ExperimentStatus.RecoveryRequired;
                 }
             }
+            if (status == ExperimentStatus.RecoveryRequired)
+                _recoveryRequired = true;
             _logger.LogInformation("Experiment {ExperimentId} finished with status {Status}", id, status);
             return new ExperimentRun(id, procedure.Name, status, started, DateTimeOffset.UtcNow, error);
         }
