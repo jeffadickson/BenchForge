@@ -3,7 +3,7 @@
 DOTNET ?= dotnet
 PYTHON ?= python3
 
-.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-dashboard check-generated
+.PHONY: setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-dashboard check-generated
 
 setup:
 	bash scripts/bootstrap.sh
@@ -64,3 +64,9 @@ demo-experiment:
 demo-dashboard:
 	@echo "Open http://127.0.0.1:5278/dashboard/ after the server starts"
 	$(DOTNET) run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
+
+demo-automock:
+	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj -- --automock
+
+demo-automock-json:
+	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj -- --automock-json
