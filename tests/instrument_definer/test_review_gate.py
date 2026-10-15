@@ -84,6 +84,17 @@ class ReviewGateTests(unittest.TestCase):
         self.assertTrue(any("Inherited" in x for x in blockers))
         self.assertTrue(any("Dynamic" in x for x in blockers))
 
+    def test_reconciliation_requires_evidence_even_when_counts_are_zero(self):
+        doc = approved_fixture()
+        doc["extraction"]["inheritedCandidates"] = ["Base.read"]
+        doc["extraction"]["dynamicCandidates"] = ["line 21: setattr"]
+        findings = review_gate.audit(doc)["blockers"]
+        self.assertTrue(any("Inherited member reconciliation evidence" in x for x in findings))
+        self.assertTrue(any("Dynamic member reconciliation evidence" in x for x in findings))
+        doc["review"]["inheritanceEvidence"] = "reviews/base-members.md"
+        doc["review"]["dynamicEvidence"] = "reviews/dynamic-members.md"
+        self.assertTrue(review_gate.audit(doc)["ready"])
+
     def test_wrong_quantity_and_missing_commands_block(self):
         doc = approved_fixture()
         doc["capabilities"][0]["unit"] = "Ohm"
