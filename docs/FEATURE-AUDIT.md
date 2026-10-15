@@ -31,3 +31,7 @@
 
 ## Maintenance rule
 On each feature PR, add/update a requirement UID, source/test link, verification evidence status, and GitHub issue. CI checks file references and unique IDs. The StrictDoc HTML output is a navigable requirements artifact, not an automated proof of implementation.
+
+## AutoMock rule engine increment
+
+BD-AM-001..010 add declarative current rules, JSON parsing, DI injection, rule-set hash, instrument command/state backlog and end-to-end experiment verification. Typed source and tests exist, but have not been build-verified. Issues #40–#43 track unfinished command rules, optional advanced engine adapter, integrated backend demo and cross-platform validation.
