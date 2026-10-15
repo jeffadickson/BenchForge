@@ -67,4 +67,49 @@ public sealed class ExperimentCompositionTests
         Assert.Throws<KeyNotFoundException>(() => run.Instrument<IProbe>("Supply1"));
         Assert.Throws<KeyNotFoundException>(() => run.Instrument<IProbe>("missing"));
     }
+
+    public interface IAutoSupply { ElectricCurrent Read(); }
+    public sealed class AutoSupply(ILoadBehavior behavior, ISimulationClock clock) : IAutoSupply
+    {
+        public ElectricCurrent Read() =>
+            behavior.CurrentAt(ElectricPotential.FromVolts(12), clock.Elapsed);
+    }
+
+    [Fact]
+    public async Task AutoMockJsonInjectsFaultWithoutChangingInstrument()
+    {
+        const string json = """
+            {"version":1,"rules":[
+                {"name":"fault","priority":100,"action":"FixedCurrent",
+                 "value":2.5,"fromSeconds":5}
+            ]}
+            """;
+        var definition = new ExperimentDefinitionBuilder()
+            .AutoMockLoadFromJson(_ => new ResistiveLoadBehavior(
+                ElectricResistance.FromOhms(24)), json)
+            .Simulated<IAutoSupply, AutoSupply>("Supply1")
+            .Build("AutoMock");
+        await using var run = definition.StartSimulated();
+        var supply = run.Instrument<IAutoSupply>("Supply1");
+        Assert.Equal(0.5, supply.Read().Amperes, 10);
+        run.Clock.AdvanceBy(TimeSpan.FromSeconds(5));
+        Assert.Equal(2.5, supply.Read().Amperes, 10);
+    }
+
+    [Fact]
+    public async Task AutoMockRulesAndClockAreIsolatedAcrossRuns()
+    {
+        var definition = new ExperimentDefinitionBuilder()
+            .AutoMockLoad(_ => new ResistiveLoadBehavior(ElectricResistance.FromOhms(24)),
+                rules => rules.FixedCurrent("fault", ElectricCurrent.FromAmperes(2.5),
+                    new AutoMockLoadCondition(From: TimeSpan.FromSeconds(5))))
+            .Simulated<IAutoSupply, AutoSupply>("Supply1")
+            .Build("AutoMock isolation");
+        await using var first = definition.StartSimulated();
+        await using var second = definition.StartSimulated();
+        first.Clock.AdvanceBy(TimeSpan.FromSeconds(5));
+        Assert.Equal(2.5, first.Instrument<IAutoSupply>("Supply1").Read().Amperes, 10);
+        Assert.Equal(0.5, second.Instrument<IAutoSupply>("Supply1").Read().Amperes, 10);
+    }
+
 }
