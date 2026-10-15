@@ -45,6 +45,12 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Name);
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Quantity);
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Unit);
+            if (p.QueryTemplate is null && p.SetTemplate is null)
+                throw new ArgumentException($"No commands defined for {p.Name}.");
+            if ((p.Minimum is { } min && !double.IsFinite(min)) ||
+                (p.Maximum is { } max && !double.IsFinite(max)) ||
+                (p.Minimum is { } low && p.Maximum is { } high && low > high))
+                throw new ArgumentException($"Invalid range for {p.Name}.");
             ValidateNumber(p, p.DefaultValue);
             return new CompiledParameter(p,
                 Compile(p.QueryTemplate, false), Compile(p.SetTemplate, true));
