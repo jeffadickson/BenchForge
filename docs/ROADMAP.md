@@ -259,3 +259,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Split Plotly JSON renderer into optional adapter if API stability warrants
 - [ ] Complete unit/dimension compatibility, affine temperature, basis and uncertainty tests
 - [ ] Agree on public naming/license and submit upstream proposal after validation
+
+### Dependency injection and programmable mock behavior
+- [x] Introduce container-independent ILoadBehavior constructor injection and idealized MockPowerSupply
+- [x] Implement ResistiveLoadBehavior and timed-overcurrent decorator with virtual clock
+- [x] Add runnable .NET DI demo, normal/fault scenarios, and make demo targets
+- [x] Add xUnit tests for DI swapping, run-scope isolation, time-triggered faults and safe simulated output-off
+- [ ] Verify builds and tests on Windows, macOS and Linux
+- [ ] Implement configurable IV curves, realistic compliance/voltage droop and per-model output limits
+- [ ] Add explicit InitializeAsync/ResetAsync behavior lifecycle for stateful plugins
+- [ ] Add Roslyn DLL/PDB build, test and approved isolated-worker deployment pipeline
+- [ ] Integrate DI-backed mocks with remote host factory, run logging and versioned behavior hashes
