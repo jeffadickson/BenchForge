@@ -95,3 +95,7 @@ Run `make demo-typed-meter` or `dotnet run --project examples/BenchDouble.TypedM
 ## Requirement coverage and acceptance status
 
 The [full runner audit](REQUIREMENTS-AUDIT-2026-10-15.md) reviews all 90 original test-lab runner requirements and distinguishes partial source, design-only and missing implementation evidence. The [coverage summary](../requirements/COVERAGE.md) and [per-requirement CSV](../requirements/legacy-runner-audit.csv) are the current reference. **Do not interpret a committed C# test or dashboard demo as a validated procedure execution system.** At the time of this audit no requirement has reviewed passing verification evidence; recent cross-platform CI runs failed. To check the requirement files locally run `python3 scripts/check_requirements.py`. This static command checks traceability consistency, not test execution or hardware safety.
+
+## Experiment runner cleanup and recovery status
+
+`ExperimentRunnerOptions.ShutdownTimeout` sets a finite real-time shutdown wait (default 10 seconds). If the shutdown procedure fails or times out, the result is `RecoveryRequired`, and that runner instance refuses further runs. This is a **warning that physical equipment state may be unknown**, not proof that output was disabled. Operators must follow instrument-specific safe-state and host-lease recovery procedures; those production workflows are still under development. See [experiment runner design](EXPERIMENT-RUNNER.md).
