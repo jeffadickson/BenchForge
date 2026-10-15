@@ -126,4 +126,44 @@ public sealed class ExperimentCompositionTests
         Assert.Equal(AutoMockRuleFiles.Sha256(first), AutoMockRuleFiles.Sha256(first));
     }
 
+    [Fact]
+    public async Task TwoNamedSuppliesCanHaveDifferentAutoMockRules()
+    {
+        var builder = new ExperimentDefinitionBuilder();
+        builder.AutoMockLoadFor("SupplyA",
+            _ => new ResistiveLoadBehavior(ElectricResistance.FromOhms(24)),
+            rules => rules.FixedCurrent("fault-a", ElectricCurrent.FromAmperes(2.5),
+                new AutoMockLoadCondition(From: TimeSpan.FromSeconds(5))));
+        builder.AutoMockLoadFor("SupplyB",
+            _ => new ResistiveLoadBehavior(ElectricResistance.FromOhms(24)),
+            rules => rules.FixedCurrent("fault-b", ElectricCurrent.FromAmperes(3.0),
+                new AutoMockLoadCondition(From: TimeSpan.FromSeconds(10))));
+        builder.Simulated<IAutoSupply>("SupplyA", sp => new AutoSupply(
+            sp.GetRequiredKeyedService<ILoadBehavior>("SupplyA"),
+            sp.GetRequiredService<ISimulationClock>()));
+        builder.Simulated<IAutoSupply>("SupplyB", sp => new AutoSupply(
+            sp.GetRequiredKeyedService<ILoadBehavior>("SupplyB"),
+            sp.GetRequiredService<ISimulationClock>()));
+        var definition = builder.Build("Two independent supplies");
+        Assert.Equal(2, definition.AutoMockRuleHashes.Count);
+        Assert.NotEqual(definition.AutoMockRuleHashes["SupplyA"],
+            definition.AutoMockRuleHashes["SupplyB"]);
+        await using var run = definition.StartSimulated();
+        run.Clock.AdvanceBy(TimeSpan.FromSeconds(6));
+        Assert.Equal(2.5, run.Instrument<IAutoSupply>("SupplyA").Read().Amperes, 10);
+        Assert.Equal(0.5, run.Instrument<IAutoSupply>("SupplyB").Read().Amperes, 10);
+        run.Clock.AdvanceBy(TimeSpan.FromSeconds(4));
+        Assert.Equal(3.0, run.Instrument<IAutoSupply>("SupplyB").Read().Amperes, 10);
+    }
+
+    [Fact]
+    public void RejectsOrphanNamedAutoMockBeforeStartingRun()
+    {
+        var builder = new ExperimentDefinitionBuilder();
+        builder.AutoMockLoadFor("Missing",
+            _ => new ResistiveLoadBehavior(ElectricResistance.FromOhms(24)),
+            rules => rules.ScaleBaseline("gain", 1.1));
+        Assert.Throws<InvalidOperationException>(() => builder.Build("Bad wiring"));
+    }
+
 }
