@@ -47,6 +47,19 @@ class BatchExtractTests(unittest.TestCase):
             self.assertEqual(1, result["failed"])
             self.assertIn("outside source root", result["entries"][0]["error"])
 
+    def test_incomplete_manifest_row_reports_failure_without_crashing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / "sources"
+            source.mkdir()
+            manifest = root / "manifest.csv"
+            manifest.write_text(
+                "manufacturer,model,className,sourcePath,revision\\n"
+                "Acme,X,,,\\n", encoding="utf-8")
+            result = batch_extract.process(manifest, source, root / "out")
+            self.assertEqual(1, result["failed"])
+            self.assertIn("required", result["entries"][0]["error"])
+
     def test_does_not_overwrite_existing_definition(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
