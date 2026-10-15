@@ -390,3 +390,12 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Verify .NET compilation and tests on all three platforms
 - [ ] Generate typed capabilities, defaults and mode transitions from instrument definition dataset (issue #44)
 - [ ] Add measurement range, accuracy, integration time, overload and SCPI state validation
+
+### Formal 90-requirement runner audit (2026-10-15)
+- [x] Inspect actual repository tree, runner/host/mock/storage code and test artifacts
+- [x] Classify all TR-001..TR-090 with evidence, gap and linked GitHub task
+- [x] Reconcile legacy audit into canonical StrictDoc traceability statuses
+- [x] Add static audit coverage/consistency gate to requirements checker
+- [x] Open focused P0 issues #45–#50 for structured procedures, secure hosts, safe runner lifecycle, evidence, browser/telemetry and CI
+- [ ] Resolve failing Windows/Linux/macOS GitHub Actions jobs and capture successful logs
+- [ ] Verify every P0 acceptance criterion before a controlled beta or production claim
