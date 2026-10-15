@@ -36,6 +36,10 @@ jobs:
           name: requirements-${{ matrix.os }}
           path: build/requirements/
           if-no-files-found: ignore
+      - name: Validate 25-instrument porting catalog
+        run: python scripts/check_instrument_catalog.py
+      - name: Verify checked-in typed drivers and mocks
+        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
       - name: Generate instrument drivers
         run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
       - name: Run tests
