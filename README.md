@@ -156,3 +156,7 @@ The target network protocol uses versioned protobuf/gRPC contracts instead of se
 ## UnitsNet quantities
 
 BenchDouble now references stable `UnitsNet` and includes [typed instrument facades](src/BenchDouble/Quantities/TypedInstruments.cs) for voltage and sine-generator quantities. Examples: `ElectricPotential.FromMillivolts(500)`, `Frequency.FromKilohertz(10)`. The existing `double` methods are unchanged for compatibility. See [units and measurements](docs/UNITS-AND-MEASUREMENTS.md). Resistance/current typed contracts are present but their SCPI implementations are not yet supported.
+
+## Declarative instrument definitions and generated C# drivers
+
+Drivers will be authored from versioned, validated [instrument description files](instrument-definitions/keysight/33522b.instrument.json), then compiled into strongly typed C# using a planned **Roslyn incremental generator**. The input specifies IVI class, SCPI commands, UnitsNet quantity types, channel templates, validation limits and feature metadata. See [Driver Generation Architecture](docs/DRIVER-GENERATION.md). This phase introduces the description format and generator specification; it does **not** yet implement source generation.
