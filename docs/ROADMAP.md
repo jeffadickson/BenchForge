@@ -310,3 +310,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Integrate graph-backed DUT current into injected MockPowerSupply behavior
 - [ ] Add immutable thread-safe snapshot publication and scheduler-owned state
 - [ ] Add versioned graph schema, editor and delayed feedback/solver support
+
+### Time-series persistence and analysis
+- [x] Define backend-neutral ITimeSeriesWriter / ITimeSeriesReader interfaces and canonical sample DTO
+- [x] Add test-only in-memory store with replay deduplication and bounded queries
+- [x] Add basic query/validation/idempotency tests (not yet run)
+- [ ] Validate UnitsNet quantity dimensions and canonical unit conversions on ingestion
+- [ ] Implement local SQLite WAL spool with durable outbox, migrations and crash recovery
+- [ ] Add optional PostgreSQL/TimescaleDB writer and idempotent background replication
+- [ ] Add bounded ingestion pipeline, critical disk-full behavior, virtual-time queries and min/max downsampling
+- [ ] Connect thermal cycle, unattended monitor and Plotly/ScottPlot with stored measurement streams
+- [ ] Benchmark alternative InfluxDB/QuestDB adapters only if justified
