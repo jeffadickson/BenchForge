@@ -15,6 +15,7 @@ public sealed class ExperimentDefinitionBuilder
     private readonly ServiceCollection _services = new();
     private readonly List<ExperimentInstrument> _instruments = new();
     private string? _autoMockRuleHash;
+    private bool _hasAutoMockLoad;
     private bool _built;
 
     public ExperimentDefinitionBuilder()
@@ -62,10 +63,13 @@ public sealed class ExperimentDefinitionBuilder
         EnsureMutable();
         ArgumentNullException.ThrowIfNull(baselineFactory);
         ArgumentNullException.ThrowIfNull(configure);
+        if (_hasAutoMockLoad)
+            throw new InvalidOperationException("Only one default ILoadBehavior AutoMock is supported; keyed per-instrument rules are planned.");
         var rulesBuilder = new AutoMockLoadRulesBuilder();
         configure(rulesBuilder);
         var rules = rulesBuilder.Build();
         _autoMockRuleHash = AutoMockRuleFiles.Sha256(rules);
+        _hasAutoMockLoad = true;
         _services.AddScoped<ILoadBehavior>(sp =>
             new RuleBasedLoadBehavior(baselineFactory(sp), rules));
         return this;
