@@ -9,8 +9,8 @@ public sealed class VirtualSignalBus
 {
     private readonly object _gate = new();
     private Frequency _frequency = Frequency.FromHertz(1_000);
-    private ElectricPotential _peak = ElectricPotential.Zero;
-    private ElectricPotential _offset = ElectricPotential.Zero;
+    private ElectricPotential _peak = ElectricPotential.FromVolts(0);
+    private ElectricPotential _offset = ElectricPotential.FromVolts(0);
     private ElectricResistance _load = ElectricResistance.FromOhms(1_000);
     private ElectricCurrent _compliance = ElectricCurrent.FromAmperes(1);
     private bool _enabled;
@@ -69,7 +69,7 @@ public sealed record VirtualSignalState(Frequency Frequency, ElectricPotential P
     public ElectricPotential VoltageAt(Time time)
     {
         if (!double.IsFinite(time.Seconds)) throw new ArgumentOutOfRangeException(nameof(time));
-        if (!Enabled) return ElectricPotential.Zero;
+        if (!Enabled) return ElectricPotential.FromVolts(0);
         double ideal = Offset.Volts + Peak.Volts * Math.Sin(2 * Math.PI * Frequency.Hertz * time.Seconds);
         double limit = Compliance.Amperes * Load.Ohms;
         return ElectricPotential.FromVolts(Math.Clamp(ideal, -limit, limit));
