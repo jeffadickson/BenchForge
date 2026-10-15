@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jeffadickson/BenchDouble/blob/main/instrument-definitions/schema/instrument-definition-v2.schema.json",
-  "title": "BenchDouble Instrument Definer draft v2",
+  "$id": "https://github.com/jeffadickson/BenchForge/blob/main/instrument-definitions/schema/instrument-definition-v2.schema.json",
+  "title": "BenchForge Instrument Definer schema v2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -253,6 +253,23 @@
           },
           "sourceRevision": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "Concise, reviewed API documentation; never used as a command."
+          },
+          "originalDescription": {
+            "type": "string",
+            "description": "Unmodified upstream description for provenance."
+          },
+          "unitReviewStatus": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "candidate-unreviewed",
+              "manualReviewed",
+              "hardwareValidated"
+            ]
           }
         },
         "additionalProperties": false
