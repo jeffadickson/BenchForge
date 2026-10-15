@@ -1,17 +1,17 @@
 # BenchDouble Requirements Coverage Snapshot
 
-**Date:** 2026-10-15 · **Scope:** 138 machine-readable StrictDoc requirements.
+**Date:** 2026-10-15 · **Scope:** 148 machine-readable StrictDoc requirements.
 
 | Traceability status | Count | Meaning |
 |---|---:|---|
-| Unverified | 90 | Earlier runner requirements pending granular code/test evidence audit |
-| SourceCommittedUnverified | 31 | Relevant source/tests exist; no reviewed successful CI evidence |
-| Planned | 17 | Requirement not implemented in the tracked scope |
-| Verified | 0 | No actual passing CI evidence reviewed in this audit |
-| **Total** | **138** | Every requirement has a GitHub issue link |
+| Unverified | 90 | Earlier runner requirements awaiting granular evidence audit |
+| SourceCommittedUnverified | 37 | Source and/or tests committed; no reviewed passing CI evidence |
+| Planned | 21 | Requirements awaiting implementation |
+| Verified | 0 | Requirements with reviewed passing verification evidence |
+| **Total** | **148** | Each requirement has a linked GitHub issue |
 
-The existing 90 runner requirements include a mix of prototype source and unfinished features. Their conservative `Unverified` status does not imply none are implemented.
+New requirements BD-AM-001..010 cover declarative AutoMock, JSON rules, virtual-time predicates, typed DI injection, rule SHA-256, instrument command/state extension, advanced rules and end-to-end acceptance. Issues #40–#43 track the next increments.
 
-New requirements **BD-EXP-001..005**, **BD-DASH-001..006**, **BD-VERSION-001..004** and **BD-PARITY-001** describe experiment-scoped DI, registered instrument dashboard, versioning and comparative evidence. Issues [#35–#39](https://github.com/jeffadickson/BenchDouble/issues) track outstanding integration, security and verification.
+The 90 existing runner requirements remain conservatively Unverified pending granular review. **These counts represent a source audit, not executed tests.** Do not change status to Verified without passing CI evidence and review.
 
-The static source is [traceability.csv](traceability.csv). This is a source audit snapshot, **not** an automated passing-test report. Run `python3 scripts/check_requirements.py` and review CI before changing any requirement to Verified.
+[Traceability CSV](traceability.csv) · [AutoMock requirements and tutorial](../docs/AUTOMOCK-RULES.md) · [Open issues](https://github.com/jeffadickson/BenchDouble/issues)
