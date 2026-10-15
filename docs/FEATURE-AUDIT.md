@@ -1,6 +1,6 @@
 # BenchDouble Feature-to-Requirement Audit
 
-**Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 71 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
+**Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 77 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
 
 | Feature family | Requirements baseline | Committed evidence | Outstanding work |
 |---|---|---|---|
@@ -40,7 +40,7 @@ The requirements baseline now contains 149 items, including BD-AM-011 for genera
 
 ## Generic UnitsNet AutoMock foundation
 
-BD-AM-013..016 add explicit quantity-typed measurement registration and mode-safe DMM mocks. Source/tests/demo committed; instrument-definition generator and actual CI verification remain open in issue #44. The baseline now contains 161 requirements.
+BD-AM-013..016 add explicit quantity-typed measurement registration and mode-safe DMM mocks. Source/tests/demo committed; instrument-definition generator and actual CI verification remain open in issue #44. The baseline now contains 167 requirements.
 
 ## Original runner requirements: detailed evidence audit
 
@@ -49,3 +49,7 @@ A full [90-row source-evidence matrix](../requirements/legacy-runner-audit.csv) 
 ## Parlot procedure language prototype
 
 BD-DSL-001..007 introduce a separate optional `BenchDouble.Procedures` project with typed AST, Parlot grammar, semantic checks and mock-only execution through `ExperimentRunner`. The source and xUnit tests are committed but not executed. It does not satisfy the full original TR-001..014 structured editor/revision/signature requirements; the gap remains tracked in issue #51.
+
+## Generated instrument and default mock reference
+
+BD-GEN-001..006 add one checked-in typed driver/mock pair from an illustrative Keysight 33522B definition, a 25-entry PyMeasure porting inventory, and safer Keithley 236 mode/bias/compliance transitions. The inventory is not driver coverage. All source/tests are committed but unverified; physical hardware qualification is absent.
