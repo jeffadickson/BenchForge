@@ -65,3 +65,7 @@ Prototype → hardware-free alpha → controlled bench beta → lab pilot → pr
 
 ## 9. Dependency baseline
 The [dependency inventory](DEPENDENCIES.md) is the maintained source for SDK/tool/package versions, platform assumptions and supply-chain risks. Issue #28 tracks locked NuGet/Python dependencies, clean-host provisioning, SBOM and cross-platform evidence. Until that work passes CI, the bootstrap scripts are a best-effort convenience rather than a fully reproducible build guarantee.
+
+## 10. Experiment composition and dashboard verification increment
+
+New requirements **BD-EXP-001..005**, **BD-DASH-001..006**, **BD-VERSION-001..004** and **BD-PARITY-001** expand the StrictDoc baseline to 138. Source/test commits provide a simulation-only experiment composition root and a read-only local host dashboard. Before declaring this increment complete, run xUnit experiment composition and host dashboard tests on Windows/macOS/Linux; start the host and verify dashboard refresh, reservation state transitions, sanitized logs and offline behavior in a real browser; validate all StrictDoc/traceability links; review lifecycle, host authentication and safe-state boundaries. Issues #35–#39 track remote host resolution, dashboard aggregation, CI evidence, versioned experiment manifests and evidence-based PyMeasure comparison. **Do not claim broad product superiority based on proposed features alone.** See [version control tutorial](VERSION-CONTROL-TUTORIAL.md) and [dashboard guide](INSTRUMENT-DASHBOARD.md).
