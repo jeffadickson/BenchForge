@@ -148,3 +148,7 @@ An instrument host can be **any computer with a supported BenchDouble runtime an
 ## Separate instrument host service
 
 The repository now has independent projects for [Host.Contracts](src/BenchDouble.Host.Contracts/), [Host.Server](src/BenchDouble.Host.Server/), and [Host.Client](src/BenchDouble.Host.Client/), plus [host tests](tests/BenchDouble.Host.Tests/). The initial HTTP API demonstrates instrument discovery, simulation-backed exclusive reservation, leased SCPI queries and release. Run `dotnet run --project src/BenchDouble.Host.Server` and use `http://127.0.0.1:5278` locally. **Not safe for network exposure:** authentication, TLS, fenced expiring leases, logging streams and physical VISA are not yet implemented. See [host structure and next steps](docs/HOST-REPO-STRUCTURE.md).
+
+## Versioned host protocol and shared instruments
+
+The target network protocol uses versioned protobuf/gRPC contracts instead of serialized .NET objects. The [v1 schema draft](proto/benchdouble/host/v1/host.proto) and [sharing policy contracts](src/BenchDouble.Host.Contracts/SharingPolicies.cs) define exclusive, read-only, observer and host-sampled subscription modes. Future optional driver uploads are identified by content hash and require trusted signatures and isolated execution; untrusted code must never run inside the privileged host. See [Versioned Drivers and Sharing](docs/VERSIONED-DRIVERS-AND-SHARING.md). These are **contracts/design only**; the current HTTP server still supports exclusive in-memory leases only.
