@@ -26,6 +26,9 @@ jobs:
         run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release
       - name: Run dependency-injection normal demo
         run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release -- --normal
+      - name: Test durable SQLite time-series recorder
+        run: dotnet test tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj --configuration Release
+
       - name: Run seven-hour thermal-cycle simulation demo
         run: dotnet run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj --configuration Release
       - name: Build ScottPlot visualization adapter
