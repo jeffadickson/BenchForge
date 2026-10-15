@@ -2,15 +2,16 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-if (args.Length != 2)
+if (args.Length is < 2 or > 3 || (args.Length == 3 && args[2] != "--check"))
 {
-    Console.Error.WriteLine("Usage: BenchDouble.DriverGen <instrument-definitions-directory> <output-directory>");
+    Console.Error.WriteLine("Usage: BenchDouble.DriverGen <instrument-definitions-directory> <output-directory> [--check]");
     return 2;
 }
+bool checkOnly = args.Length == 3;
 var input = Path.GetFullPath(args[0]);
 var output = Path.GetFullPath(args[1]);
 if (!Directory.Exists(input)) { Console.Error.WriteLine("Definitions folder not found."); return 2; }
-Directory.CreateDirectory(output);
+if (!checkOnly) Directory.CreateDirectory(output);
 int generated = 0;
 foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
 {
@@ -124,17 +125,28 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
     body.AppendLine("}");
     var destination = Path.Combine(output, name + ".g.cs");
     var source = body.ToString().Replace("\r\n", "\n");
-    if (!File.Exists(destination) || File.ReadAllText(destination) != source) File.WriteAllText(destination, source, new UTF8Encoding(false));
+    if (checkOnly)
+    {
+        if (!File.Exists(destination) || File.ReadAllText(destination) != source)
+            throw new InvalidDataException($"Generated driver is stale: {destination}");
+    }
+    else if (!File.Exists(destination) || File.ReadAllText(destination) != source)
+        File.WriteAllText(destination, source, new UTF8Encoding(false));
     mock.AppendLine("  }) { }");
     mock.Append(mockMethods);
     mock.AppendLine($"  public {name} CreateDriver() => new(this);");
     mock.AppendLine("}");
     var mockDestination = Path.Combine(output, name + "Mock.g.cs");
     var mockSource = mock.ToString().Replace("\r\n", "\n");
-    if (!File.Exists(mockDestination) || File.ReadAllText(mockDestination) != mockSource)
+    if (checkOnly)
+    {
+        if (!File.Exists(mockDestination) || File.ReadAllText(mockDestination) != mockSource)
+            throw new InvalidDataException($"Generated mock is stale: {mockDestination}");
+    }
+    else if (!File.Exists(mockDestination) || File.ReadAllText(mockDestination) != mockSource)
         File.WriteAllText(mockDestination, mockSource, new UTF8Encoding(false));
     Console.WriteLine($"Generated {destination} and {mockDestination}");
     generated++;
 }
-Console.WriteLine($"Generated {generated} typed driver/mock pair(s).");
+Console.WriteLine($"{(checkOnly ? "Verified" : "Generated")} {generated} typed driver/mock pair(s).");
 return 0;
