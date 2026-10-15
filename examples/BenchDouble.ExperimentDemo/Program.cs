@@ -40,6 +40,8 @@ builder.Simulated<IPowerSupply, SimulatedSupply>("Supply1");
 
 var definition = builder.Build("Thermal qualification");
 Console.WriteLine($"Experiment: {definition.Name}");
+if (definition.AutoMockRuleSha256 is { } digest)
+    Console.WriteLine($"AutoMock rule SHA-256: {digest}");
 foreach (var instrument in definition.Instruments)
     Console.WriteLine($"Registered: {instrument.Role} @ {instrument.HostId} [{instrument.Backend}]");
 
