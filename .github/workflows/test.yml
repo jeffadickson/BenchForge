@@ -45,6 +45,8 @@ jobs:
       - name: Run tests
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
 
+      - name: Run generated typed driver/mock demonstration
+        run: dotnet run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj --configuration Release
       - name: Test experiment-scoped dependency injection
         run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release
       - name: Run experiment composition demonstration
