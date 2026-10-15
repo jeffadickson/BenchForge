@@ -90,6 +90,9 @@ public sealed class ExperimentCompositionTests
             .Simulated<IAutoSupply, AutoSupply>("Supply1")
             .Build("AutoMock");
         await using var run = definition.StartSimulated();
+        Assert.NotNull(run.AutoMockRuleSha256);
+        Assert.Equal(64, run.AutoMockRuleSha256!.Length);
+        Assert.Equal(definition.AutoMockRuleSha256, run.AutoMockRuleSha256);
         var supply = run.Instrument<IAutoSupply>("Supply1");
         Assert.Equal(0.5, supply.Read().Amperes, 10);
         run.Clock.AdvanceBy(TimeSpan.FromSeconds(5));
@@ -110,6 +113,17 @@ public sealed class ExperimentCompositionTests
         first.Clock.AdvanceBy(TimeSpan.FromSeconds(5));
         Assert.Equal(2.5, first.Instrument<IAutoSupply>("Supply1").Read().Amperes, 10);
         Assert.Equal(0.5, second.Instrument<IAutoSupply>("Supply1").Read().Amperes, 10);
+    }
+
+    [Fact]
+    public void DifferentRuleSetsHaveDifferentHashes()
+    {
+        var first = new AutoMockLoadRulesBuilder()
+            .FixedCurrent("fault", ElectricCurrent.FromAmperes(2.5)).Build();
+        var second = new AutoMockLoadRulesBuilder()
+            .FixedCurrent("fault", ElectricCurrent.FromAmperes(3.0)).Build();
+        Assert.NotEqual(AutoMockRuleFiles.Sha256(first), AutoMockRuleFiles.Sha256(second));
+        Assert.Equal(AutoMockRuleFiles.Sha256(first), AutoMockRuleFiles.Sha256(first));
     }
 
 }
