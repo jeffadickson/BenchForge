@@ -125,3 +125,7 @@ The composition root supports independently keyed rules using `AutoMockLoadFor("
 ## Integrated unattended-monitor verification increment
 
 `tests/BenchDouble.Tests/AutoMockUnattendedIntegrationTests.cs` exercises the **same C# backend** from declarative AutoMock timed fault through `MockPowerSupply`, `UnattendedCurrentMonitor`, one alarm and explicit simulated output-off. It also asserts the matched rule name and virtual timestamp. This advances issue #42, but it does not yet connect SQLite, host dashboard or browser plots to the same run. No physical shutdown is claimed.
+
+## Typed quantity selection (new foundation)
+
+A new `TypedMockMeasurementsBuilder` registers a DMM's supported UnitsNet quantity types and behaviors. `TypedMockMeter` uses generic `MeasureAsync<TQuantity>()` but requires an explicit matching `ConfigureAsync<TQuantity>()`. This is intentionally separate from current-load AutoMock rules: the requested generic type selects a **supported measurement capability**, while instrument state determines whether it is legal. The instrument-definition dataset will eventually generate both capabilities and default mocks. See [generic unit-aware mock tutorial](GENERIC-UNIT-AWARE-MOCKS.md) and issue #44.
