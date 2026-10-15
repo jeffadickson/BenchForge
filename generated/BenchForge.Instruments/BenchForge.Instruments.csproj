@@ -7,6 +7,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="BenchForgeGitCommit" Value="$(SourceRevisionId)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../src/BenchDouble/BenchDouble.csproj" />
   </ItemGroup>
 </Project>
