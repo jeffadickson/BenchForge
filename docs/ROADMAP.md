@@ -241,3 +241,13 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Test concurrent clients, cancellation, faulted block, fencing and command completion
 - [ ] Benchmark ActionBlock against Channel<T> and existing SemaphoreSlim design
 - [ ] Adopt only if it simplifies the implementation and passes safety/concurrency tests
+
+### Scientific plotting and UnitsNet visualization
+- [x] Separate unit-aware plot conversion from instrument and experiment core
+- [x] Add ScottPlot optional PNG renderer and Plotly.js-compatible JSON exporter
+- [x] Add conversion, axis labeling and Plotly JSON tests
+- [ ] Verify optional ScottPlot package restore/build and render PNG in CI
+- [ ] Integrate timestamp, quality, uncertainty and measurement basis in plot traces
+- [ ] Add dimension-aware multi-trace validation and mixed-axis support
+- [ ] Build browser live Plotly.js charts with bounded streaming and cursor/limit overlays
+- [ ] Add waveform/downsampling policies preserving limit excursions
