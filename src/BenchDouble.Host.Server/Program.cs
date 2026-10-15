@@ -1,6 +1,8 @@
 using BenchDouble;
 using BenchDouble.Host.Contracts;
 using System.Collections.Concurrent;
+using BenchDouble.Observability;
+using Microsoft.Extensions.Logging.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 // Intentionally loopback-only. Remote listeners require TLS and authentication first.
@@ -46,7 +48,23 @@ public sealed class HostResourceRegistry
     private readonly Dictionary<string, Guid> _reservations = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<Guid, string> _byLease = new();
     private readonly List<HostActivity> _activity = new();
+    private readonly Dictionary<string, InstrumentIdentification> _identities = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ILogger<HostResourceRegistry> _logger;
     private const int MaxEvents = 200;
+
+    /// <summary>Open the demo devices and identify once, before granting any lease.</summary>
+    public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null)
+    {
+        _logger = logger ?? NullLogger<HostResourceRegistry>.Instance;
+        foreach (var (resource, session) in _devices)
+        {
+            // Both registered simulators explicitly implement *IDN?. Never probe unknown hardware.
+            var identity = InstrumentIdentificationReader.Capture(resource, "Simulated",
+                () => session.Query("*IDN?"), _logger);
+            _identities.Add(resource, identity);
+            Record(resource, "Identified", identity.Response ?? identity.Status);
+        }
+    }
 
     /// <summary>Read-only local host snapshot; contains no raw SCPI commands or credentials.</summary>
     public HostMonitorSnapshot Monitor()
@@ -57,7 +75,8 @@ public sealed class HostResourceRegistry
                 d.ResourceId, d.InstrumentClass, d.Backend, "localhost:5278",
                 _reservations.ContainsKey(d.ResourceId) ? "Reserved" : "Idle",
                 _activity.Where(a => a.ResourceId == d.ResourceId)
-                    .TakeLast(15).ToArray())).ToArray();
+                    .TakeLast(15).ToArray(), _identities[d.ResourceId],
+                "ExclusiveControl", _reservations.ContainsKey(d.ResourceId))).ToArray();
             return new HostMonitorSnapshot(DateTimeOffset.UtcNow, instruments);
         }
     }
@@ -66,6 +85,7 @@ public sealed class HostResourceRegistry
     {
         // Call only under _gate. Do not log command text or measurement payloads.
         _activity.Add(new HostActivity(DateTimeOffset.UtcNow, resourceId, action, message));
+        _logger.LogInformation("Instrument {ResourceId}: {Action}; {Message}", resourceId, action, message);
         if (_activity.Count > MaxEvents) _activity.RemoveRange(0, _activity.Count - MaxEvents);
     }
 
@@ -119,6 +139,9 @@ public sealed class HostResourceRegistry
 public sealed record HostMonitorSnapshot(DateTimeOffset CapturedUtc,
     IReadOnlyList<HostInstrumentStatus> Instruments);
 public sealed record HostInstrumentStatus(string ResourceId, string InstrumentClass,
-    string Backend, string Host, string Status, IReadOnlyList<HostActivity> Activity);
+    string Backend, string Host, string Status, IReadOnlyList<HostActivity> Activity,
+    InstrumentIdentification? Identification = null, string AccessPolicy = "ExclusiveControl",
+    bool IsLocked = false);
 public sealed record HostActivity(DateTimeOffset TimestampUtc, string ResourceId,
     string Action, string Message);
+

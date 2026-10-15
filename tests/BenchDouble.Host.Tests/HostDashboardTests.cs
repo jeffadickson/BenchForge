@@ -5,6 +5,23 @@ namespace BenchDouble.Host.Tests;
 public sealed class HostDashboardTests
 {
     [Fact]
+    public void IdentificationIsCapturedBeforeReservationAndRetainedAfterRelease()
+    {
+        var registry = new HostResourceRegistry();
+        var initial = registry.Monitor().Instruments.Single(x => x.ResourceId == "DMM1");
+        Assert.Equal("Identified", initial.Identification!.Status);
+        Assert.Equal("SIM0002", initial.Identification.Identity!.SerialNumber);
+        Assert.False(initial.IsLocked);
+        Assert.Contains(initial.Activity, x => x.Action == "Identified");
+        var lease = registry.Reserve("DMM1")!;
+        Assert.True(registry.Monitor().Instruments.Single(x => x.ResourceId == "DMM1").IsLocked);
+        registry.Release(lease.LeaseId);
+        var released = registry.Monitor().Instruments.Single(x => x.ResourceId == "DMM1");
+        Assert.Equal(initial.Identification, released.Identification);
+        Assert.False(released.IsLocked);
+    }
+
+    [Fact]
     public void DashboardShowsRegisteredInstrumentsAndReservationState()
     {
         var registry = new HostResourceRegistry();
@@ -31,3 +48,4 @@ public sealed class HostDashboardTests
         Assert.DoesNotContain(events, x => x.Message.Contains("MEAS:", StringComparison.Ordinal));
     }
 }
+
