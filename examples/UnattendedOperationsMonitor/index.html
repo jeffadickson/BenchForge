@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unattended Operations Monitor | BenchDouble Demo</title>
+<style>
+:root{color-scheme:dark;--bg:#0b111c;--surface:#151f2d;--panel:#1b2838;--border:#314154;--muted:#9eafc1;--text:#f3f6fa;--teal:#6be3cc;--red:#ff857e;--yellow:#ffcb77}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#1a2e3d,#0b111c 58%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1190px;margin:0 auto;padding:28px 22px 50px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-size:11px;font-weight:750}h1{font-size:clamp(26px,4vw,42px);letter-spacing:-.035em;margin:4px 0 8px}p{color:var(--muted);margin:0}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}.tag{padding:9px 13px;border:1px solid var(--border);border-radius:99px;color:var(--muted);font-size:12px}.tag b{color:var(--yellow)}.banner{margin:20px 0;background:#202b38;border:1px solid #57616b;border-radius:12px;padding:12px 16px;color:#dce5eb;font-size:13px}.grid{display:grid;grid-template-columns:1.65fr 1fr;gap:16px}.card{border:1px solid var(--border);background:rgba(21,31,45,.94);border-radius:16px;padding:21px;min-width:0}.card h2{font-size:16px;margin:0 0 16px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:15px}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:27px;font-weight:680;letter-spacing:-.025em}.stat .unit{font-size:14px;color:var(--muted)}.stat strong.red{color:var(--red)}.stat strong.teal{color:var(--teal)}.chart{width:100%;height:270px;display:block;border-radius:10px;background:#111b29}.legend{display:flex;gap:20px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}.swatch{display:inline-block;width:13px;height:3px;vertical-align:middle;margin-right:6px;background:var(--teal)}.swatch.red{background:var(--red)}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}button,select,input{font:inherit}button{cursor:pointer;border:1px solid var(--border);border-radius:9px;background:#2a3c4f;color:white;padding:10px 14px;font-weight:650}button.primary{background:#327c72;border-color:#54b6a5}button:hover:not(:disabled){filter:brightness(1.18)}button:disabled{opacity:.45;cursor:not-allowed}label{color:var(--muted);font-size:12px;display:block;margin:13px 0 5px}select,input{background:#0d1825;color:white;border:1px solid var(--border);border-radius:8px;padding:10px;width:100%}input[type=checkbox]{width:auto;accent-color:var(--teal)}.checkbox{display:flex;align-items:center;gap:9px;margin:13px 0;color:var(--text)}.checkbox label{margin:0;color:var(--text)}.status{border-radius:10px;padding:12px 14px;background:#15372f;border:1px solid #28685a;color:#b7f6e4;font-weight:650;margin:12px 0}.status.alarm{background:#4b252a;border-color:#9c4548;color:#ffc5c0}.status.off{background:#2c3340;border-color:#4d5868;color:#e1e7ef}.log{max-height:265px;overflow:auto;background:#0d1825;border:1px solid var(--border);border-radius:10px;padding:10px 13px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}.event{padding:6px 0;border-bottom:1px solid #233346}.event:last-child{border:0}.event time{color:#8ca3ba}.event.alert{color:#ffc0a6}.event.sent{color:#8ee9d8}.note{font-size:12px;color:var(--muted);margin-top:13px}.badge{display:inline-block;border:1px solid #416b61;background:#1b403a;border-radius:5px;padding:2px 7px;color:#aaf6dd;font-size:11px}.flow{margin:18px 0 0;padding-left:20px;color:var(--muted);font-size:13px}.flow li{margin-bottom:8px}@media(max-width:820px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat strong{font-size:22px}}@media(max-width:470px){main{padding:18px 12px}.card{padding:14px}.stats{gap:6px}.stat{padding:9px}.stat strong{font-size:18px}}
+</style>
+</head>
+<body><main>
+<div class="top"><div><div class="eyebrow">BenchDouble / Example application</div><h1>Unattended Operations Monitor</h1><p>Watch simulated power-supply current, detect overcurrent, and demonstrate operator notifications.</p></div><div class="tag">DEMO MODE · <b>No messages are sent</b></div></div>
+<div class="banner"><b>Simulation only.</b> This page has no instrument connection, external notification service, or physical safety interlock. Email/SMS entries are illustrative log events, not actual deliveries.</div>
+<div class="stats">
+<div class="stat"><small>Output voltage</small><strong id="voltage">12.0</strong> <span class="unit">V</span></div>
+<div class="stat"><small>Measured current</small><strong class="teal" id="current">0.50</strong> <span class="unit">A</span></div>
+<div class="stat"><small>Simulation elapsed</small><strong id="elapsed">0.00</strong> <span class="unit">s</span></div>
+</div>
+<div class="grid">
+<section class="card"><h2>Live current monitoring</h2><svg id="plot" class="chart" viewBox="0 0 760 270" role="img" aria-label="Simulated current against time with an overcurrent threshold"></svg><div class="legend"><span><i class="swatch"></i>Measured current (A)</span><span><i class="swatch red"></i>Overcurrent threshold (2.0 A)</span></div><div id="status" class="status" role="status" aria-live="polite">Monitoring · output enabled</div><div class="controls"><button id="start" class="primary">▶ Start</button><button id="pause" disabled>Pause</button><button id="reset">↺ Reset</button><button id="fault">Inject fault now</button></div><div class="note">Default scenario: 12 V into 24 Ω (0.5 A). At simulated t = 5 s, the injected load requests 2.5 A. The demo controller trips at 2.0 A and requests output shutdown.</div></section>
+<aside class="card"><h2>Alert configuration</h2><label for="threshold">Overcurrent threshold (A)</label><input id="threshold" type="number" min="0.1" max="10" step="0.1" value="2"><label for="speed">Simulation speed</label><select id="speed"><option value="1">1× real time</option><option value="5" selected>5× accelerated</option><option value="20">20× accelerated</option></select><div class="checkbox"><input id="email" type="checkbox" checked><label for="email">Simulate operator email notification</label></div><div class="checkbox"><input id="sms" type="checkbox" checked><label for="sms">Simulate operator SMS notification</label></div><div class="checkbox"><input id="shutdown" type="checkbox" checked><label for="shutdown">Request simulated output shutdown on alarm</label></div><h2 style="margin-top:25px">System event log</h2><div id="log" class="log" role="log" aria-label="Simulated event log"></div><p class="note">No email address, phone number or credentials are requested. The log records only simulated notification attempts.</p></aside>
+</div>
+<section class="card" style="margin-top:16px"><h2>How this maps to BenchDouble</h2><ol class="flow"><li>The DI container injects a <code>ResistiveLoadBehavior</code> or <code>TimedOvercurrentBehavior</code> into the mock power supply.</li><li>A run-scoped simulation clock advances the load and produces UnitsNet current/voltage samples.</li><li>The monitor evaluates the overcurrent rule and records a timestamped event.</li><li>A future <code>INotificationSink</code> would send through configured email/SMS providers, with delivery status, retries and authorization; this demo uses only an in-browser simulated sink.</li><li>In a production system, safety shutdown must be independent of email delivery and must verify physical instrument state.</li></ol></section>
+</main>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+let elapsed=0, current=0.5, output=true, alarm=false, injected=false, running=false, timer=null, samples=[], events=[];
+const width=760,height=270,L=55,R=18,T=18,B=37,maxTime=10,maxCurrent=3.2;
+function addEvent(message,kind="info"){
+  events.push({time:elapsed.toFixed(2),message,kind});
+  const log=$("log");log.replaceChildren();
+  for(const event of events.slice(-100)){
+    const line=document.createElement("div");line.className="event "+event.kind;
+    const time=document.createElement("time");time.textContent="t="+event.time+"s  ";
+    line.append(time,document.createTextNode(event.message));log.append(line);
+  }
+  log.scrollTop=log.scrollHeight;
+}
+function renderPlot(){
+ const svg=$("plot"),ns="http://www.w3.org/2000/svg";svg.replaceChildren();
+ const X=t=>L+(Math.min(maxTime,t)/maxTime)*(width-L-R);
+ const Y=a=>height-B-(a/maxCurrent)*(height-T-B);
+ function el(tag,attrs,text){const node=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;svg.append(node);return node;}
+ for(let a=0;a<=3;a++){el("line",{x1:L,x2:width-R,y1:Y(a),y2:Y(a),stroke:"#26384a","stroke-width":1});el("text",{x:L-10,y:Y(a)+4,fill:"#a3b5c6","font-size":12,"text-anchor":"end"},String(a));}
+ for(let t=0;t<=10;t+=2){el("text",{x:X(t),y:height-12,fill:"#a3b5c6","font-size":12,"text-anchor":"middle"},String(t));}
+ el("text",{x:width/2,y:height-1,fill:"#a3b5c6","font-size":11,"text-anchor":"middle"},"Simulation time (s)");
+ el("line",{x1:L,x2:width-R,y1:Y(Number($("threshold").value)||2),y2:Y(Number($("threshold").value)||2),stroke:"#ff857e","stroke-width":2,"stroke-dasharray":"7 5"});
+ if(samples.length>1)el("polyline",{points:samples.map(p=>X(p.t)+","+Y(p.i)).join(" "),fill:"none",stroke:"#6be3cc","stroke-width":3,"stroke-linejoin":"round"});
+ if(samples.length){const last=samples.at(-1);el("circle",{cx:X(last.t),cy:Y(last.i),r:4,fill:"#a7ffec"});}
+}
+function stop(){running=false;clearInterval(timer);timer=null;$("start").disabled=false;$("pause").disabled=true;}
+function sample(){
+ if(!running)return;
+ elapsed=Math.min(10,elapsed+0.1*Number($("speed").value));
+ if(!injected&&elapsed>=5){injected=true;addEvent("Injected timed overcurrent behavior: requested load current 2.5 A.","alert");}
+ current=output?(injected?2.5:0.5):0;
+ samples.push({t:elapsed,i:current});
+ if(!alarm&&current>Number($("threshold").value)){
+   alarm=true;addEvent("ALARM: measured current "+current.toFixed(2)+" A exceeds configured threshold.","alert");
+   if($("email").checked)addEvent("SIMULATED EMAIL: notifying operator@example.invalid — not actually sent.","sent");
+   if($("sms").checked)addEvent("SIMULATED SMS: notifying operator — not actually sent.","sent");
+   if($("shutdown").checked){output=false;addEvent("SIMULATED ACTION: output shutdown requested; output now off.","alert");}
+ }
+ if(!output)samples.push({t:elapsed+0.001,i:0});
+ $("current").textContent=(output?current:0).toFixed(2);
+ $("current").className=alarm?"red":"teal";
+ $("voltage").textContent=output?"12.0":"0.0";
+ $("elapsed").textContent=elapsed.toFixed(2);
+ const status=$("status");
+ status.textContent=alarm?(output?"ALARM · overcurrent detected":"ALARM · simulated output disabled"):"Monitoring · output enabled";
+ status.className="status"+(alarm?" alarm":"");
+ renderPlot();
+ if(elapsed>=10||(!output&&alarm)){stop();addEvent("Scenario complete. Simulation stopped.");}
+}
+function start(){if(running)return;running=true;$("start").disabled=true;$("pause").disabled=false;addEvent("Simulation running.");timer=setInterval(sample,100);}
+function reset(){stop();elapsed=0;current=0.5;output=true;alarm=false;injected=false;samples=[{t:0,i:0.5}];events=[];$("current").textContent="0.50";$("current").className="teal";$("voltage").textContent="12.0";$("elapsed").textContent="0.00";$("status").className="status";$("status").textContent="Monitoring · output enabled";addEvent("New simulated run initialized. No external notifications enabled.");renderPlot();}
+$("start").addEventListener("click",start);$("pause").addEventListener("click",()=>{stop();addEvent("Simulation paused.");});$("reset").addEventListener("click",reset);
+$("fault").addEventListener("click",()=>{if(!injected){injected=true;addEvent("Operator injected immediate simulated fault.","alert");if(!running)start();}});
+$("threshold").addEventListener("change",renderPlot);reset();
+})();
+</script>
+</body></html>
