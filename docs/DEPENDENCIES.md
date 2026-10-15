@@ -42,3 +42,7 @@ The standalone HTML demos run in current browsers with no server; they are JavaS
 - Keep Roslyn-compiled user behaviors out of privileged host processes.
 
 **No package compatibility or security audit is considered complete until a successful dependency restore, build and scan is recorded.**
+
+## Experiment composition and local dashboard increment
+
+`src/BenchDouble.Experiments` depends on `BenchDouble` and **Microsoft.Extensions.DependencyInjection 8.0.1**; the core does not depend on the DI container. The example `BenchDouble.ExperimentDemo` depends on the experiment project. The dashboard is static HTML/CSS/JavaScript served by the existing ASP.NET Core `BenchDouble.Host.Server`; **no charting or UI NuGet package** is added. `tests/BenchDouble.Experiments.Tests` uses xUnit 2.9.2, xunit.runner.visualstudio 2.8.2 and Microsoft.NET.Test.Sdk 17.12.0. Bootstrap scripts already restore recursively discovered C# projects. The Makefile and three-OS CI now explicitly build/run the experiment demo and its tests. Versioned behavior manifests, dependency lockfiles and external host TLS/auth are still outstanding.
