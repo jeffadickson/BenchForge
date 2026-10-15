@@ -24,7 +24,7 @@ The imported snapshot has **484 top-level Python classes**, including helpers an
 
 ## Naming and attribution
 
-Generated public API names and documentation use BenchForge terminology only. Third-party source provenance is retained separately for traceability and pending licensing review. Do not remove mandatory attribution or claim independent provenance for imported source material.
+Generated public API names and documentation use BenchForge terminology only. import metadata is retained separately for traceability and pending licensing review. Do not remove mandatory attribution or claim independent provenance for imported source material.
 
 ## Verification
 
