@@ -153,3 +153,10 @@ The notebook/experiment-runner client displays live instrument logs alongside ex
 - Logs do not constitute an audit-grade measurement record by default; signed/immutable evidence requires a separate recorder.
 
 **Implementation status:** architectural requirement only. The existing `LoggingScpiSession` emits structured local `ILogger` events, but there is no gRPC remote event stream, durable spool, host dashboard, or client log display yet.
+
+## Host platform neutrality (normative)
+An **instrument host** is any supported computing environment capable of running the BenchDouble host service and accessing the required instrument hardware/driver stack. It may be a Windows, Linux, or macOS workstation, server, VM with supported device passthrough, industrial PC, mini PC, laptop, Raspberry Pi, or other supported ARM/x64 system. Raspberry Pi is merely one deployment example, **not** an architecture dependency or preferred/default host.
+
+Compatibility is determined by the intersection of: (1) .NET runtime/OS/CPU support; (2) available VISA, USB/GPIB/serial, IVI and vendor drivers; (3) transport/device permissions; (4) resource ownership and operational security; (5) reliability and deployment requirements. A host need not have a monitor or local browser; its logging shall remain locally accessible through an appropriate CLI/service mechanism and remotely through authorized clients. Do not assert that all drivers work on every OS/CPU.
+
+The protocol, leases, logging, instrument model, authentication, and test-runner interfaces must be platform-independent. Platform-specific driver adapters belong in optional packages. Test support on each OS/architecture before listing it as validated.
