@@ -7,6 +7,8 @@ namespace BenchDouble.Tests;
 public sealed class GeneratedV2PreviewTests
 {
     /// <summary>Verify generated mode-safe, UnitsNet-typed DMM measurements.</summary>
+    /// <summary>Verify generated UnitsNet measurements respect selected DMM modes.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task ExampleMeterModesAndUnits()
     {
@@ -24,6 +26,8 @@ public sealed class GeneratedV2PreviewTests
     }
 
     /// <summary>Verify the Keithley draft emits no unreviewed physical operations.</summary>
+    /// <summary>Verify the draft preview exposes mode selection without hardware commands.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task KeithleyDraftExposesModesButNoHardwareCommands()
     {
