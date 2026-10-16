@@ -95,6 +95,53 @@ public sealed class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Read a compatible voltage or current capability from a fixed acquisition snapshot.</summary>
+    /// <remarks>
+    /// The acquisition's immutable physical state is used rather than the live signal bus.
+    /// Mode validation precedes one-shot fault consumption; this does not change overrides
+    /// or behavior registrations. The same acquisition may be read by several meters.
+    /// </remarks>
+    /// <param name="capability">Declared voltage or current capability.</param>
+    /// <param name="acquisition">Coherent, correlated source and waveform acquisition.</param>
+    /// <param name="ct">Cancellation while waiting for exclusive mock access.</param>
+    /// <returns>Reading in the capability's canonical unit at acquisition time.</returns>
+    public async ValueTask<double> MeasureCapturedAsync(string capability,
+        BenchDouble.Simulation.VirtualCoherentAcquisition acquisition, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(acquisition);
+        var metadata = _definition.Capability(capability);
+        if (acquisition.AcquisitionId == Guid.Empty ||
+            acquisition.Waveform.AcquisitionId != acquisition.AcquisitionId ||
+            acquisition.SourceRevision != acquisition.Measurement.Revision)
+            throw new ArgumentException("Inconsistent acquisition provenance.", nameof(acquisition));
+        double value = (metadata.Quantity, metadata.Unit) switch
+        {
+            ("ElectricPotential", "Volt") => acquisition.Voltmeter.Volts,
+            ("ElectricCurrent", "Ampere") => acquisition.Ammeter.Amperes,
+            _ => throw new NotSupportedException("Only voltage and current are derived from the shared source snapshot.")
+        };
+        if (!double.IsFinite(value))
+            throw new InvalidOperationException("Nonfinite captured measurement.");
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            if (_mode is null || !metadata.Modes.Contains(_mode))
+                throw new InvalidOperationException("Incompatible measurement mode.");
+            if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
+            {
+                var error = faults.Dequeue();
+                _logger.LogWarning(error,
+                    "Mock {Instrument} acquisition {AcquisitionId} fault on {Capability}",
+                    _definition.DriverName, acquisition.AcquisitionId, capability);
+                throw error;
+            }
+            _logger.LogDebug("Mock {Instrument} acquisition {AcquisitionId} revision {Revision} capability {Capability}",
+                _definition.DriverName, acquisition.AcquisitionId, acquisition.SourceRevision, capability);
+            return value;
+        }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Override a capability with a finite canonical-unit reading.</summary>
     /// <param name="capability">Declared capability.</param>
     /// <param name="value">Finite scalar in the declared unit.</param>
