@@ -23,7 +23,7 @@ public sealed class VirtualBench(VirtualSignalBus signal)
     /// <param name="voltsPerCode">ADC scale; values exceeding signed 16-bit range saturate.</param>
     /// <param name="acquisitionId">Optional externally assigned acquisition identity.</param>
     /// <returns>A self-contained waveform with UnitsNet scaling metadata.</returns>
-    public WaveformCapture Capture(int channel, int sampleCount, Time interval,
+    public WaveformCapture Capture(int channel, int sampleCount, Duration interval,
         double voltsPerCode = 0.001, Guid? acquisitionId = null)
     {
         if (channel < 1) throw new ArgumentOutOfRangeException(nameof(channel));
@@ -36,7 +36,7 @@ public sealed class VirtualBench(VirtualSignalBus signal)
         var bytes = new byte[checked(sampleCount * 2)];
         for (int i = 0; i < sampleCount; i++)
         {
-            double volts = snapshot.VoltageAt(Time.FromSeconds(i * interval.Seconds)).Volts;
+            double volts = snapshot.VoltageAt(Duration.FromSeconds(i * interval.Seconds)).Volts;
             double code = Math.Round(volts / voltsPerCode, MidpointRounding.AwayFromZero);
             short clipped = (short)Math.Clamp(code, short.MinValue, short.MaxValue);
             BinaryPrimitives.WriteInt16LittleEndian(bytes.AsSpan(i * 2, 2), clipped);
