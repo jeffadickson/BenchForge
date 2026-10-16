@@ -3,320 +3,294 @@
   "description": "Instrument porting backlog and evidence classification; not 25 implemented drivers. Command mappings require source/manual review.",
   "instruments": [
     {
-      "id": "PYM-001",
+      "id": "CAT-001",
       "manufacturer": "Keithley",
       "model": "2000",
       "instrumentClass": "DigitalMultimeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-002",
+      "id": "CAT-002",
       "manufacturer": "Keithley",
       "model": "2200",
       "instrumentClass": "PowerSupply",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-003",
+      "id": "CAT-003",
       "manufacturer": "Keithley",
       "model": "2260B",
       "instrumentClass": "PowerSupply",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-004",
+      "id": "CAT-004",
       "manufacturer": "Keithley",
       "model": "2281S",
       "instrumentClass": "BatterySimulator",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-005",
+      "id": "CAT-005",
       "manufacturer": "Keithley",
       "model": "2306",
       "instrumentClass": "PowerSupply",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-006",
+      "id": "CAT-006",
       "manufacturer": "Keithley",
       "model": "2400",
       "instrumentClass": "SourceMeasureUnit",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "definitionDraft",
       "implementationStatus": "notPorted",
       "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/",
       "definitionPath": "instrument-definitions/drafts/keithley2400.definition.json",
       "definitionNotes": "Representative subset only; not a complete extraction or reviewed driver."
     },
     {
-      "id": "PYM-007",
+      "id": "CAT-007",
       "manufacturer": "Keithley",
       "model": "2450",
       "instrumentClass": "SourceMeasureUnit",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-008",
+      "id": "CAT-008",
       "manufacturer": "Keithley",
       "model": "2510",
       "instrumentClass": "SourceMeasureUnit",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-009",
+      "id": "CAT-009",
       "manufacturer": "Keithley",
       "model": "2600",
       "instrumentClass": "SourceMeasureUnit",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-010",
+      "id": "CAT-010",
       "manufacturer": "Keithley",
       "model": "2700",
       "instrumentClass": "DigitalMultimeterSwitch",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-011",
+      "id": "CAT-011",
       "manufacturer": "Keithley",
       "model": "2750",
       "instrumentClass": "DigitalMultimeterSwitch",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-012",
+      "id": "CAT-012",
       "manufacturer": "Keithley",
       "model": "6221",
       "instrumentClass": "CurrentSource",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-013",
+      "id": "CAT-013",
       "manufacturer": "Keithley",
       "model": "6517B",
       "instrumentClass": "Electrometer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-014",
+      "id": "CAT-014",
       "manufacturer": "Keithley",
       "model": "DMM6500",
       "instrumentClass": "DigitalMultimeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-015",
+      "id": "CAT-015",
       "manufacturer": "Keithley",
       "model": "2182",
       "instrumentClass": "Nanovoltmeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-016",
+      "id": "CAT-016",
       "manufacturer": "Keithley",
       "model": "DAQ6510",
       "instrumentClass": "DataAcquisition",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-017",
+      "id": "CAT-017",
       "manufacturer": "Keithley",
       "model": "4200A-SCS",
       "instrumentClass": "ParameterAnalyzer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/keithley/"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-018",
+      "id": "CAT-018",
       "manufacturer": "Agilent",
       "model": "8257D",
       "instrumentClass": "SignalGenerator",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-019",
+      "id": "CAT-019",
       "manufacturer": "Agilent",
       "model": "8722ES",
       "instrumentClass": "NetworkAnalyzer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-020",
+      "id": "CAT-020",
       "manufacturer": "Agilent",
       "model": "E4408B",
       "instrumentClass": "SpectrumAnalyzer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-021",
+      "id": "CAT-021",
       "manufacturer": "Agilent",
       "model": "E4980",
       "instrumentClass": "LcrMeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-022",
+      "id": "CAT-022",
       "manufacturer": "Agilent",
       "model": "E5062A",
       "instrumentClass": "NetworkAnalyzer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-023",
+      "id": "CAT-023",
       "manufacturer": "Agilent",
       "model": "34410A",
       "instrumentClass": "DigitalMultimeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "sourceChecked",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-024",
+      "id": "CAT-024",
       "manufacturer": "Agilent",
       "model": "34450A",
       "instrumentClass": "DigitalMultimeter",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
-      "id": "PYM-025",
+      "id": "CAT-025",
       "manufacturer": "Agilent",
       "model": "4155/4156",
       "instrumentClass": "ParameterAnalyzer",
-      "source": "PyMeasure published instrument catalog",
+      "source": "external instrument catalog",
       "sourceEvidence": "catalogListed",
       "definitionStatus": "catalogOnly",
       "implementationStatus": "notPorted",
-      "hardwareValidated": false,
-      "reference": "https://pymeasure.readthedocs.io/en/stable/api/instruments/agilent/index.html"
+      "hardwareValidated": false
     },
     {
       "id": "LEGACY-KEITHLEY-236",
       "manufacturer": "Keithley",
       "model": "236",
       "instrumentClass": "SourceMeasureUnit",
-      "source": "Keithley 236/237/238 manufacturer manual",
+      "source": "external instrument catalog",
       "sourceEvidence": "manualReferenced",
       "definitionStatus": "manualDriverPartial",
       "implementationStatus": "partialDcSourceMeasure",
       "hardwareValidated": false,
       "driverPath": "src/BenchDouble/Instruments/Keithley/Keithley236.cs",
-      "mockPath": "src/BenchDouble/Simulation/Keithley236MockBus.cs",
-      "reference": "docs/PYMEASURE-25-INSTRUMENTS-AND-KEITHLEY-236.md"
+      "mockPath": "src/BenchDouble/Simulation/Keithley236MockBus.cs"
     }
   ]
 }
