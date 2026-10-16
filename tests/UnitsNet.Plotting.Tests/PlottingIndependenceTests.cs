@@ -1,5 +1,6 @@
 using BenchDouble.Plotting;
 using UnitsNet;
+using System.Text.Json;
 using Xunit;
 
 namespace UnitsNet.Plotting.Tests;
@@ -31,7 +32,9 @@ public sealed class PlottingIndependenceTests
             (Duration.FromSeconds(1), ElectricResistance.FromOhms(1000))
         }, QuantityAxes.Seconds(), QuantityAxes.Ohms());
         var json = PlotlyFigure.ToJson(series);
-        Assert.Contains("ElectricResistance", json);
-        Assert.Contains("Ω", json);
+        using var document = JsonDocument.Parse(json);
+        var meta = document.RootElement.GetProperty("meta");
+        Assert.Equal("ElectricResistance", meta.GetProperty("yDimension").GetString());
+        Assert.Equal("Ω", meta.GetProperty("yUnit").GetString());
     }
 }

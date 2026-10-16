@@ -6,6 +6,8 @@ from pathlib import Path
 import sqlite3
 import subprocess
 import tempfile
+import time
+import shutil
 
 
 def main():
@@ -17,8 +19,11 @@ def main():
     probe = Path(args.probe).resolve()
     if not probe.is_file():
         parser.error("Build tools/BenchDouble.ArtifactCrashProbe before running recovery checks.")
-    with tempfile.TemporaryDirectory(prefix="benchdouble-crash-") as directory:
-        database = Path(directory) / "captures.sqlite"
+    # Windows may retain a native SQLite handle briefly after the crash probe exits.
+    # Keep integrity and outbox assertions strict; retry only final directory cleanup.
+    directory = Path(tempfile.mkdtemp(prefix="benchdouble-crash-"))
+    try:
+        database = directory / "captures.sqlite"
         result = subprocess.run([args.dotnet, "exec", str(probe), str(database)], capture_output=True, text=True, timeout=30)
         if result.returncode != 97:
             raise RuntimeError(f"Probe failed to reach injected exit (code {result.returncode}): {result.stdout}\n{result.stderr}")
@@ -33,6 +38,15 @@ def main():
                 raise AssertionError("Committed payload digest mismatch")
             if connection.execute("SELECT artifact_id,state FROM artifact_outbox").fetchall() != [(artifact_id, "pending")]:
                 raise AssertionError("Outbox is inconsistent with committed captures")
+    finally:
+        for attempt in range(15):
+            try:
+                shutil.rmtree(directory)
+                break
+            except PermissionError:
+                if attempt == 14:
+                    raise
+                time.sleep(0.2)
     print("Process-exit recovery passed: prior capture intact, interrupted transaction absent, outbox consistent.")
     return 0
 
