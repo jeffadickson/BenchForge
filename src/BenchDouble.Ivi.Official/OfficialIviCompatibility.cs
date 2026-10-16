@@ -60,6 +60,13 @@ public sealed class OfficialDmmBridge : IIviDigitalMultimeter
     private readonly Action<global::Ivi.Dmm.IIviDmm> _reset;
     private readonly Func<global::Ivi.Dmm.IIviDmm, string> _identity;
 
+    /// <summary>Wrap a caller-owned official DMM driver with explicit operations.</summary>
+    /// <param name="driver">Official IVI DMM driver, owned and disposed by the caller.</param>
+    /// <param name="configure">Delegate configuring the selected measurement function, range and resolution.</param>
+    /// <param name="measure">Delegate returning one measurement from the official driver.</param>
+    /// <param name="reset">Delegate restoring the instrument's default configuration.</param>
+    /// <param name="identity">Delegate retrieving the vendor driver identity.</param>
+    /// <exception cref="ArgumentNullException">A required driver or delegate is null.</exception>
     public OfficialDmmBridge(
         global::Ivi.Dmm.IIviDmm driver,
         Action<global::Ivi.Dmm.IIviDmm, IviMeasurementFunction, double?, double?> configure,
@@ -97,6 +104,13 @@ public sealed class OfficialFgenBridge : IIviFunctionGenerator
     private readonly Action<global::Ivi.Fgen.IIviFgen> _reset;
     private readonly Func<global::Ivi.Fgen.IIviFgen, string> _identity;
 
+    /// <summary>Wrap a caller-owned official function generator with explicit operations.</summary>
+    /// <param name="driver">Official IVI function generator, owned and disposed by the caller.</param>
+    /// <param name="configure">Delegate configuring channel, waveform, frequency in hertz and amplitude in peak-to-peak volts.</param>
+    /// <param name="output">Delegate controlling the selected channel's output enable state.</param>
+    /// <param name="reset">Delegate restoring the function generator's default configuration.</param>
+    /// <param name="identity">Delegate retrieving the vendor driver identity.</param>
+    /// <exception cref="ArgumentNullException">A required driver or delegate is null.</exception>
     public OfficialFgenBridge(
         global::Ivi.Fgen.IIviFgen driver,
         Action<global::Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> configure,
