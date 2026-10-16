@@ -1,3 +1,3 @@
 name,arguments,returnQuantity,returnUnit,sourceLine,notes,commands,preconditions,postconditions,timeoutMs,sourcePath,sourceRevision
-enable_source,,,,,Safety critical,OUTPUT 1,Mode and compliance configured,Output requested on,,pymeasure/instruments/keithley/keithley2400.py,PINNED_SHA
-disable_source,,,,,Standby is not proof of safe state,OUTPUT 0,Instrument connected,Output requested off,,pymeasure/instruments/keithley/keithley2400.py,PINNED_SHA
+enable_source,,,,,Safety critical,OUTPUT 1,Mode and compliance configured,Output requested on,,external instrument source/instruments/keithley/keithley2400.py,PINNED_SHA
+disable_source,,,,,Standby is not proof of safe state,OUTPUT 0,Instrument connected,Output requested off,,external instrument source/instruments/keithley/keithley2400.py,PINNED_SHA
