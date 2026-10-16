@@ -8,7 +8,7 @@ Capture instrument semantics once, then generate strongly typed asynchronous C# 
 
 ## What the intern should deliver
 
-**Preferred:** one UTF-8 JSON definition per model, named `manufacturer/model.definition.json`, conforming to [schema v2](../instrument-definitions/schema/instrument-definition-v2.schema.json). A spreadsheet is acceptable as an intermediate source: export a properties CSV and methods CSV using the [templates](../tools/InstrumentDefiner/templates/). Each instrument should have a pinned PyMeasure commit SHA and exact source path, upstream class and parent classes, manufacturer manual reference, and notes about uncertain mappings.
+**Preferred:** one UTF-8 JSON definition per model, named `manufacturer/model.definition.json`, conforming to [schema v2](../instrument-definitions/schema/instrument-definition-v2.schema.json). A spreadsheet is acceptable as an intermediate source: export a properties CSV and methods CSV using the [templates](../tools/InstrumentDefiner/templates/). Each instrument should have a pinned external instrument source commit SHA and exact source path, upstream class and parent classes, manufacturer manual reference, and notes about uncertain mappings.
 
 For **every property**, capture name, type (control, measurement, setting, status), access, getter and setter command templates, C# UnitsNet quantity/unit (or null if unknown), valid values, minimum/maximum, source line, operating modes, and any side effects (such as auto-range disabled by setting range). For **every method**, capture name, argument names/types/defaults, return quantity and units, instrument commands, preconditions, postconditions, exceptions, timeouts, triggers, and source line. Methods that implement complex algorithms (sweeps, buffers, ramps) should be marked manual-review-required rather than reduced to a single SCPI command.
 
@@ -16,19 +16,19 @@ For **each operating mode**, document legal transitions, mode-selection commands
 
 For **mocks**, specify initialization behavior, per-command state transitions, measurement behavior, optional noise/IV curves, shared simulated signals, virtual-time response and realistic delays. Unknown measurements must fail rather than return invented zeroes.
 
-## Example: extracted PyMeasure Keithley 2400
+## Example: extracted external instrument source Keithley 2400
 
-[Representative draft](../instrument-definitions/drafts/keithley2400.definition.json) includes source-mode selection, source delay, source enable and public methods from PyMeasure. This is a **subset for illustrating the format**, not a complete extraction. Source commands are visible in [PyMeasure's Keithley 2400 driver](https://github.com/pymeasure/pymeasure/blob/master/pymeasure/instruments/keithley/keithley2400.py). Pin the actual upstream revision before review; source-line numbers in the illustrative draft must be checked against that revision.
+[Representative draft](../instrument-definitions/drafts/keithley2400.definition.json) includes source-mode selection, source delay, source enable and public methods from external instrument source. This is a **subset for illustrating the format**, not a complete extraction. Source commands are visible in [external instrument source's Keithley 2400 driver](https://github.com/external instrument source/external instrument source/blob/master/external instrument source/instruments/keithley/keithley2400.py). Pin the actual upstream revision before review; source-line numbers in the illustrative draft must be checked against that revision.
 
-PyMeasure source files include license notices. The intern should record the source revision and preserve required attribution. We should primarily extract facts about instrument behavior and independently generate code; do not blindly copy third-party Python implementations into generated C#.
+external instrument source source files include license notices. The intern should record the source revision and preserve required attribution. We should primarily extract facts about instrument behavior and independently generate code; do not blindly copy third-party Python implementations into generated C#.
 
 ## Automated extraction and review
 
 ```bash
-python3 tools/InstrumentDefiner/definer.py extract-pymeasure \
-  path/to/pymeasure/instruments/keithley/keithley2400.py \
+python3 tools/InstrumentDefiner/definer.py extract-external instrument source \
+  path/to/external instrument source/instruments/keithley/keithley2400.py \
   --manufacturer Keithley --model 2400 \
-  --revision YOUR_PINNED_PYMEASURE_COMMIT \
+  --revision YOUR_PINNED_external instrument source_COMMIT \
   --output instrument-definitions/drafts/keithley2400.extracted.json
 
 python3 tools/InstrumentDefiner/definer.py validate \
@@ -46,7 +46,7 @@ The extraction tool uses Python's **AST** to inspect descriptors and public meth
 ## Separation of maturity levels
 
 1. **Extracted:** AST/CSV facts with unresolved mappings; cannot generate production drivers.
-2. **Source reviewed:** descriptors and methods checked against pinned PyMeasure revision; provenance complete.
+2. **Source reviewed:** descriptors and methods checked against pinned external instrument source revision; provenance complete.
 3. **Manual reviewed:** commands, ranges, modes, safety, timeouts and response formats checked against vendor documentation; eligible for future v2 generator.
 4. **Hardware validated:** tested on the actual instrument with signed-off results and safety controls.
 
@@ -61,7 +61,7 @@ The existing `BenchForge.DriverGen` continues to support schema-v1 scalar SCPI d
 ## 2026-10-15: batch intake, coverage evidence and review gating
 
 The next increment adds [batch_extract.py](../tools/InstrumentDefiner/batch_extract.py)
-for a manifest of pinned PyMeasure files and
+for a manifest of pinned external instrument source files and
 [review_gate.py](../tools/InstrumentDefiner/review_gate.py) for a stricter
 metadata-readiness check. The batch tool produces separate draft definitions,
 never overwrites previous work, and emits a JSON report for every requested
