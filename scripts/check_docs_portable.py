@@ -139,6 +139,7 @@ def scan_python(path: Path, root: Path) -> list[dict]:
     tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
     findings = []
     def visit(node, prefix=""):
+        """Visit nested Python declarations and record missing docstrings."""
         if node is tree or isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
             name = "<module>" if node is tree else prefix + node.name
             if not ast.get_docstring(node):
