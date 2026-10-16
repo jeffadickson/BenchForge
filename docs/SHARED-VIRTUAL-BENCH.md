@@ -14,7 +14,7 @@ signal.SetOutput(true);
 
 var bench = new VirtualBench(signal);
 var (dc, rms) = bench.MeasureVoltage();
-var trace = bench.Capture(1, 1_000, Time.FromMicroseconds(1));
+var trace = bench.Capture(1, 1_000, Duration.FromMicroseconds(1));
 Console.WriteLine($"Meter: {rms.Volts:F4} Vrms; scope samples: {trace.SampleCount}");
 ```
 
