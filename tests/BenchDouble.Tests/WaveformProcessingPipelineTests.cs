@@ -6,6 +6,8 @@ namespace BenchDouble.Tests;
 /// <summary>Bounded waveform Dataflow verification.</summary>
 public sealed class WaveformProcessingPipelineTests
 {
+    /// <summary>Parallel RMS processing preserves acquisition identity and submission order.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task ParallelRmsRetainsAcquisitionOrder()
     {
@@ -19,6 +21,8 @@ public sealed class WaveformProcessingPipelineTests
         Assert.All(results, r => Assert.InRange(r.RmsVolts, 0.705, 0.709));
     }
 
+    /// <summary>Reject empty waveform captures rather than returning a misleading RMS reading.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task EmptyCaptureFails()
     {
