@@ -31,7 +31,7 @@ public static class ScpiBinaryBlock
 }
 
 /// <summary>Oscilloscope preamble for linearly scaled integer ADC samples.</summary>
-/// <param name="XIncrementSeconds">Time between samples, in seconds.</param>
+/// <param name="XIncrementSeconds">Duration between samples, in seconds.</param>
 /// <param name="XOriginSeconds">Trigger-relative origin of the waveform time axis, in seconds.</param>
 /// <param name="XReference">Sample index corresponding to the origin.</param>
 /// <param name="YIncrementVolts">Voltage per ADC code, in volts.</param>
@@ -80,10 +80,10 @@ public sealed class WaveformCapture
     }
 
     /// <summary>Return the trigger-relative sample timestamp.</summary>
-    public Time TimeAt(int index)
+    public Duration TimeAt(int index)
     {
         ValidateIndex(index);
-        return Time.FromSeconds((index - Preamble.XReference) * Preamble.XIncrementSeconds + Preamble.XOriginSeconds);
+        return Duration.FromSeconds((index - Preamble.XReference) * Preamble.XIncrementSeconds + Preamble.XOriginSeconds);
     }
 
     /// <summary>Convert one signed 16-bit ADC sample to physical voltage.</summary>
