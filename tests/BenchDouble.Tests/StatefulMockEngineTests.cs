@@ -32,6 +32,36 @@ public sealed class StatefulMockEngineTests
         Assert.Equal(0.25, await engine.MeasureAsync("voltage"));
     }
 
+    /// <summary>Step and ramp models use virtual time without wall-clock delays.</summary>
+    /// <returns>Completion of deterministic behavior verification.</returns>
+    [Fact]
+    public async Task VirtualTimeModelsAreDeterministic()
+    {
+        var clock = new ManualSimulationClock();
+        var mock = new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition), clock);
+        mock.SetBehavior("voltage", StatefulMockBehaviors.Step(TimeSpan.FromSeconds(5), 1, 2));
+        await mock.ConfigureModeAsync("voltage");
+        Assert.Equal(1, await mock.MeasureAsync("voltage"));
+        clock.AdvanceBy(TimeSpan.FromSeconds(5));
+        Assert.Equal(2, await mock.MeasureAsync("voltage"));
+        mock.SetBehavior("voltage", StatefulMockBehaviors.Ramp(
+            TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15), 2, 4));
+        clock.AdvanceBy(TimeSpan.FromSeconds(5));
+        Assert.Equal(3, await mock.MeasureAsync("voltage"));
+    }
+
+    /// <summary>Concurrent readings remain serialized and mode compatible.</summary>
+    /// <returns>Completion of concurrent state verification.</returns>
+    [Fact]
+    public async Task ConcurrentReadsAreSerialized()
+    {
+        var mock = new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition));
+        await mock.ConfigureModeAsync("voltage");
+        var results = await Task.WhenAll(Enumerable.Range(0, 64)
+            .Select(_ => mock.MeasureAsync("voltage").AsTask()));
+        Assert.All(results, value => Assert.Equal(0.25, value));
+    }
+
     /// <summary>Reset restores definition defaults without mutating old snapshots.</summary>
     /// <returns>Completion of snapshot verification.</returns>
     [Fact]
