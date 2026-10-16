@@ -1,12 +1,13 @@
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
 // Explicit schema-v2 preview mode is simulation-only; v1 generation remains unchanged.
 if (args.Length is 3 or 4 && args[0] == "--preview-v2")
 {
     if (args.Length == 4 && args[3] != "--check") throw new ArgumentException("Expected --check.");
     return await V2Emitter.RunAsync(args[1], args[2], args.Length == 4);
 }
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 
 if (args.Length is < 2 or > 3 || (args.Length == 3 && args[2] != "--check"))
 {
