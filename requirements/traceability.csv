@@ -125,7 +125,7 @@ BD-EXP-001,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDe
 BD-EXP-002,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,
 BD-EXP-003,P1,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,
 BD-EXP-004,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/35,
-BD-EXP-005,P1,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/35,
+BD-EXP-005,P1,PartialSourceUnverified,,tests/BenchDouble.Experiments.Tests/ExperimentStartupTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,
 BD-DASH-001,P1,SourceCommittedUnverified,src/BenchDouble.Host.Server/Program.cs,tests/BenchDouble.Host.Tests/HostDashboardTests.cs,https://github.com/jeffadickson/BenchDouble/issues/36,
 BD-DASH-002,P1,SourceCommittedUnverified,src/BenchDouble.Host.Server/Program.cs,tests/BenchDouble.Host.Tests/HostDashboardTests.cs,https://github.com/jeffadickson/BenchDouble/issues/36,
 BD-DASH-003,P1,SourceCommittedUnverified,src/BenchDouble.Host.Server/wwwroot/dashboard/index.html,,https://github.com/jeffadickson/BenchDouble/issues/37,

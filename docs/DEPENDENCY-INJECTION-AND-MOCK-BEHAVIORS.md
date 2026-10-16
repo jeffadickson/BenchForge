@@ -139,3 +139,16 @@ Committed unit tests cover a fault at virtual t=5s, changing behavior without ch
 - [Simulation clock specification](MOCK-TIME-AND-LIFECYCLE.md)
 - [Distributed host architecture](DISTRIBUTED-INSTRUMENT-HOST.md)
 - [Unified typed operations](INSTRUMENT-OPERATIONS-25-external instrument source-EXAMPLES.md)
+
+## 9. Starting a run with cleanup on failure
+
+Use the asynchronous startup entry point when every registered instrument must be constructed before the run is handed to the caller:
+
+```csharp
+await using var run = await definition.StartSimulatedAsync(cancellationToken);
+var meter = run.Instrument<ImportedInstrumentMock>("Meter");
+```
+
+The method resolves all roles in registration order (dependencies can resolve earlier). If a factory throws, it awaits disposal of the scope and provider before propagating the error. Cancellation is checked before startup, between factories and after the final factory. Factories are synchronous and cannot be interrupted mid-call. If startup and cleanup both fail, an `AggregateException` retains both errors. Provider cleanup is attempted even when scope cleanup fails.
+
+Factories must clean up resources they allocate but never successfully return to DI. Successful startup transfers session disposal responsibility to the caller. `StartSimulated()` retains lazy construction for existing callers, who must dispose their session if later resolution fails. Dispose and instrument access must be serialized by the caller. This is simulation resource cleanup; physical recovery and durable startup provenance remain tracked in issue #35.

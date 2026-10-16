@@ -6,9 +6,9 @@
 |---|---:|
 | DesignOnly | 7 |
 | NoImplementationEvidence | 39 |
-| PartialSourceUnverified | 58 |
+| PartialSourceUnverified | 59 |
 | Planned | 49 |
-| SourceCommittedUnverified | 70 |
+| SourceCommittedUnverified | 69 |
 
 The original 90 TR findings are retained in [legacy-runner-audit.csv](legacy-runner-audit.csv). New lifecycle, heartbeat, command, resilience, identification, ownership and change-control requirements have explicit acceptance conditions.
 
@@ -25,3 +25,7 @@ Instrument Definer increment BD-DEF-009..011: review gate, conservative inherite
 Captured-read validation increment (2026-10-16): BD-SIM-001 now explicitly covers incomplete acquisition records, correlation IDs, waveform/meter start-time agreement and fault preservation. Counts remain 223 requirements, 70 SourceCommittedUnverified and 0 Verified. Regression source is in StatefulMockEngineTests; execution results are recorded separately below.
 
 Local validation for this increment: .NET SDK 10.0.402 compiled the core test project and standard VSTest passed all 175 core tests (the focused stateful/virtual selection passed 26). Invoked the SDK CLI assembly explicitly because global.json permits only the 10.0.1xx feature band: `/tmp/testharbor-dotnet/dotnet /tmp/testharbor-dotnet/sdk/10.0.402/dotnet.dll test tests/BenchDouble.Tests/BenchDouble.Tests.csproj -c Release -m:1 -p:UseSharedCompilation=false -nr:false --no-restore`. Requirements gate and all 9 tracker tests passed. `make docs-check` with the same explicit SDK command passed: 0 new gaps, 0 generated gaps; 1,134 legacy gaps remain. All 10 documentation tests passed. This is local Linux core-suite evidence, not full-repository, cross-platform or hardware acceptance; no Verified promotion.
+
+Simulation startup cleanup increment (2026-10-16), BD-EXP-005 / issue #35: added eager async role resolution with cleanup on failure/cancellation and preservation of startup plus disposal errors. Status is PartialSourceUnverified because durable provenance and physical recovery are incomplete. Current totals: 223 requirements, 59 PartialSourceUnverified, 69 SourceCommittedUnverified, 0 Verified. Standard VSTest with local .NET SDK 10.0.402 passed all 22 experiment tests, including five new startup regressions. Command: `/tmp/testharbor-dotnet/dotnet /tmp/testharbor-dotnet/sdk/10.0.402/dotnet.dll test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj -c Release -m:1 -p:UseSharedCompilation=false -nr:false`.
+
+Startup increment gates: requirement consistency and all 9 tracker tests passed; `make docs-check` passed with 0 new documentation gaps and 0 generated gaps, and all 10 documentation tests passed. Existing documentation debt remains 1,130 gaps; this increment does not claim repository-wide documentation completion.

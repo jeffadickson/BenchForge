@@ -198,6 +198,9 @@ public sealed class ExperimentDefinition
     public string Name { get; }
     public IReadOnlyList<ExperimentInstrument> Instruments { get; }
 
+    /// <summary>Create a simulation scope with instrument factories resolved lazily on first access.</summary>
+    /// <returns>A session owned by the caller, who must dispose it even if later resolution fails.</returns>
+    /// <remarks>Use StartSimulatedAsync for eager role resolution and automatic failed-start cleanup.</remarks>
     public ExperimentSession StartSimulated()
     {
         // A new container per run prevents singleton-like model state leaking across runs.
@@ -207,6 +210,37 @@ public sealed class ExperimentDefinition
         });
         return new ExperimentSession(provider, provider.CreateAsyncScope(), Instruments,
             AutoMockRuleSha256, AutoMockRuleHashes);
+    }
+
+    /// <summary>Create a simulation run and resolve all registered instrument roles before returning it.</summary>
+    /// <remarks>
+    /// Factories are synchronous; cancellation is checked between factories and after the last one.
+    /// Failed startup disposes the DI scope and provider, including asynchronous disposable services.
+    /// Factories own resources that they allocate but do not successfully return to DI.
+    /// This method does not acquire physical leases or establish a hardware safe state.
+    /// </remarks>
+    /// <param name="ct">Cancellation before startup or between instrument resolutions.</param>
+    /// <returns>A fully resolved simulation session owned by the caller, who must dispose it.</returns>
+    /// <exception cref="OperationCanceledException">Startup was cancelled.</exception>
+    /// <exception cref="AggregateException">Startup and cleanup both failed; both errors are retained.</exception>
+    public async ValueTask<ExperimentSession> StartSimulatedAsync(CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        var session = StartSimulated();
+        try
+        {
+            session.ResolveInstruments(ct);
+            return session;
+        }
+        catch (Exception startupError)
+        {
+            try { await session.DisposeAsync().ConfigureAwait(false); }
+            catch (Exception cleanupError)
+            {
+                throw new AggregateException("Simulation startup and cleanup failed.", startupError, cleanupError);
+            }
+            throw;
+        }
     }
 }
 
@@ -250,11 +284,34 @@ public sealed class ExperimentSession : IAsyncDisposable
         return _scope.ServiceProvider.GetRequiredKeyedService<T>(role);
     }
 
+    internal void ResolveInstruments(CancellationToken ct)
+    {
+        foreach (var instrument in _instruments)
+        {
+            ct.ThrowIfCancellationRequested();
+            _scope.ServiceProvider.GetRequiredKeyedService(instrument.InterfaceType, instrument.Role);
+        }
+        ct.ThrowIfCancellationRequested();
+    }
+
+    /// <summary>Dispose the run scope and always attempt provider cleanup, even after a scope failure.</summary>
+    /// <returns>Completion of asynchronous resource cleanup.</returns>
+    /// <remarks>Repeated calls are ignored. Callers must serialize disposal with instrument access.</remarks>
+    /// <exception cref="AggregateException">Both scope and provider cleanup failed.</exception>
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
         _disposed = true;
-        await _scope.DisposeAsync().ConfigureAwait(false);
+        try { await _scope.DisposeAsync().ConfigureAwait(false); }
+        catch (Exception scopeError)
+        {
+            try { await _provider.DisposeAsync().ConfigureAwait(false); }
+            catch (Exception providerError)
+            {
+                throw new AggregateException("Simulation scope and provider cleanup failed.", scopeError, providerError);
+            }
+            throw;
+        }
         await _provider.DisposeAsync().ConfigureAwait(false);
     }
 }
