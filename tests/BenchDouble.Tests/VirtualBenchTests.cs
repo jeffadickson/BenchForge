@@ -18,7 +18,7 @@ public sealed class VirtualBenchTests
             ElectricCurrent.FromMilliamperes(10));
         bus.SetOutput(true);
         var bench = new VirtualBench(bus);
-        var waveform = bench.Capture(1, 1_000, Time.FromMicroseconds(1));
+        var waveform = bench.Capture(1, 1_000, Duration.FromMicroseconds(1));
         var rms = (await WaveformProcessingPipeline.CalculateRmsAsync(new[] { waveform }))[0];
         var meter = bench.MeasureVoltage(samples: 1_000);
         Assert.Equal(1_000, waveform.SampleCount);
@@ -34,7 +34,7 @@ public sealed class VirtualBenchTests
         bus.SetOutput(false);
         var bench = new VirtualBench(bus);
         Assert.Equal(0, bench.MeasureVoltage().Rms.Volts);
-        var waveform = bench.Capture(1, 8, Time.FromMicroseconds(1));
+        var waveform = bench.Capture(1, 8, Duration.FromMicroseconds(1));
         Assert.All(Enumerable.Range(0, waveform.SampleCount),
             i => Assert.Equal(0, waveform.VoltageAt(i).Volts));
     }
