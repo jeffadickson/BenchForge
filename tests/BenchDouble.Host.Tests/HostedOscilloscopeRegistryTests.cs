@@ -25,7 +25,6 @@ public sealed class HostedOscilloscopeRegistryTests
     }
     /// <summary>Verify concurrent requests on same lease are serialized.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task ConcurrentRequestsOnSameLeaseAreSerialized()
     {
@@ -43,7 +42,6 @@ public sealed class HostedOscilloscopeRegistryTests
     }
     /// <summary>Verify unknown resource cannot be acquired.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task UnknownResourceCannotBeAcquired()
     {

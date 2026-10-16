@@ -15,7 +15,6 @@ public sealed class WaveformCaptureTests
     }
     /// <summary>Verify invalid blocks are rejected.</summary>
     /// <param name="input">Binary framing test input.</param>
-
     [Theory]
     [InlineData("#0")]
     [InlineData("#13ab")]
@@ -26,7 +25,6 @@ public sealed class WaveformCaptureTests
         Assert.ThrowsAny<Exception>(() => ScpiBinaryBlock.Decode(System.Text.Encoding.ASCII.GetBytes(input)));
     }
     /// <summary>Verify binary block enforces limit.</summary>
-
     [Fact]
     public void BinaryBlockEnforcesLimit()
     {
@@ -34,7 +32,6 @@ public sealed class WaveformCaptureTests
     }
     /// <summary>Verify samples preserve trigger relative time and voltage.</summary>
     /// <param name="littleEndian">Whether sample bytes are little-endian.</param>
-
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -62,7 +59,6 @@ public sealed class WaveformCaptureTests
         Assert.Equal(1, capture.VoltageAt(0).Volts, 12);
     }
     /// <summary>Verify odd sample bytes are rejected.</summary>
-
     [Fact]
     public void OddSampleBytesAreRejected()
     {

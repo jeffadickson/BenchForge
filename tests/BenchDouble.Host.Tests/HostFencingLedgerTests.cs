@@ -27,7 +27,6 @@ public sealed class HostFencingLedgerTests
         finally { Directory.Delete(directory, recursive: true); }
     }
     /// <summary>Verify concurrent ledger owner is rejected.</summary>
-
     [Fact]
     public void ConcurrentLedgerOwnerIsRejected()
     {
@@ -40,7 +39,6 @@ public sealed class HostFencingLedgerTests
         finally { File.Delete(path); File.Delete(path + ".owner.lock"); }
     }
     /// <summary>Verify corrupted ledger fails closed.</summary>
-
     [Fact]
     public void CorruptedLedgerFailsClosed()
     {
@@ -53,7 +51,6 @@ public sealed class HostFencingLedgerTests
         finally { File.Delete(path); File.Delete(path + ".owner.lock"); }
     }
     /// <summary>Verify registry can allocate from durable ledger.</summary>
-
     [Fact]
     public void RegistryCanAllocateFromDurableLedger()
     {

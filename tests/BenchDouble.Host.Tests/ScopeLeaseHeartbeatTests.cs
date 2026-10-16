@@ -20,7 +20,6 @@ public sealed class ScopeLeaseHeartbeatTests
     /// <returns>Completion of the asynchronous verification.</returns>
     /// <param name="expected">Expected renewal status.</param>
     /// <param name="response">Simulated HTTP response status.</param>
-
     [Theory]
     [InlineData(HttpStatusCode.NoContent, ScopeHeartbeatStatus.Healthy)]
     [InlineData(HttpStatusCode.Forbidden, ScopeHeartbeatStatus.Lost)]

@@ -13,7 +13,6 @@ public sealed class HostedOscilloscopeLeaseTests
     }
     /// <summary>Verify expired lease cannot acquire and new lease gets new generation.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task ExpiredLeaseCannotAcquireAndNewLeaseGetsNewGeneration()
     {
@@ -33,7 +32,6 @@ public sealed class HostedOscilloscopeLeaseTests
     }
     /// <summary>Verify renewal extends valid lease but not expired lease.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task RenewalExtendsValidLeaseButNotExpiredLease()
     {

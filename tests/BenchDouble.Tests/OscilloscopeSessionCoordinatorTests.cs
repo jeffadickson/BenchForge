@@ -26,7 +26,6 @@ public sealed class OscilloscopeSessionCoordinatorTests
     }
     /// <summary>Verify failed transaction blocks further commands until recovery.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task FailedTransactionBlocksFurtherCommandsUntilRecovery()
     {
@@ -45,7 +44,6 @@ public sealed class OscilloscopeSessionCoordinatorTests
     }
     /// <summary>Verify cancelled waiter cannot enter active transaction.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task CancelledWaiterCannotEnterActiveTransaction()
     {

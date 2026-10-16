@@ -23,7 +23,6 @@ public sealed class AsyncOscilloscopeTests
     }
     /// <summary>Verify acquisition required and channels independent.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task AcquisitionRequiredAndChannelsIndependent()
     {
@@ -40,7 +39,6 @@ public sealed class AsyncOscilloscopeTests
     }
     /// <summary>Verify truncated streaming block is rejected.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task TruncatedStreamingBlockIsRejected()
     {
@@ -50,7 +48,6 @@ public sealed class AsyncOscilloscopeTests
     }
     /// <summary>Verify streaming limit is enforced before allocation.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task StreamingLimitIsEnforcedBeforeAllocation()
     {
@@ -60,7 +57,6 @@ public sealed class AsyncOscilloscopeTests
     }
     /// <summary>Verify cancellation before command does not acquire.</summary>
     /// <returns>Completion of the asynchronous verification.</returns>
-
     [Fact]
     public async Task CancellationBeforeCommandDoesNotAcquire()
     {
