@@ -763,7 +763,7 @@ STATEMENT: Physical instrument resolution shall use authenticated host discovery
 UID: BD-EXP-005
 STATUS: Active
 TITLE: BD-EXP-005 P1
-STATEMENT: Experiment start and disposal shall record resource provenance and recover safely after partial initialization failures. Acceptance: Async simulated startup shall resolve every registered role before returning; factory failure or cancellation shall await disposal of DI-owned resources. Startup and cleanup failures shall both remain observable, and provider cleanup shall be attempted after a scope disposal failure. Physical recovery and durable provenance remain separate acceptance work.
+STATEMENT: Experiment start and disposal shall record resource provenance and recover safely after partial initialization failures. Acceptance: Async simulated startup shall resolve every registered role before returning; factory failure or cancellation shall await disposal of DI-owned resources. Startup and cleanup failures shall both remain observable, and provider cleanup shall be attempted after a scope disposal failure. Physical recovery and durable provenance remain separate acceptance work. Concurrent and repeated session disposal calls shall share one cleanup completion and retain cleanup failures; new instrument and clock access shall be rejected after cleanup starts.
 
 [REQUIREMENT]
 UID: BD-DASH-001

@@ -253,7 +253,7 @@ public sealed class ExperimentSession : IAsyncDisposable
     private readonly ServiceProvider _provider;
     private readonly AsyncServiceScope _scope;
     private readonly IReadOnlyList<ExperimentInstrument> _instruments;
-    private bool _disposed;
+    private TaskCompletionSource? _disposalCompletion;
 
     internal ExperimentSession(ServiceProvider provider, AsyncServiceScope scope,
         IReadOnlyList<ExperimentInstrument> instruments, string? autoMockRuleHash,
@@ -273,11 +273,20 @@ public sealed class ExperimentSession : IAsyncDisposable
     /// <summary>Digest of declarative mock rules; excludes code, drivers and dependencies.</summary>
     public string? AutoMockRuleSha256 { get; }
     public IReadOnlyDictionary<string, string> AutoMockRuleHashes { get; }
-    public ManualSimulationClock Clock => _scope.ServiceProvider.GetRequiredService<ManualSimulationClock>();
+    /// <summary>Run-scoped virtual clock, available until disposal starts.</summary>
+    /// <exception cref="ObjectDisposedException">Run cleanup has started.</exception>
+    public ManualSimulationClock Clock
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposalCompletion) is not null, this);
+            return _scope.ServiceProvider.GetRequiredService<ManualSimulationClock>();
+        }
+    }
 
     public T Instrument<T>(string role) where T : class
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposalCompletion) is not null, this);
         var match = _instruments.FirstOrDefault(i => i.Role == role);
         if (match is null || match.InterfaceType != typeof(T))
             throw new KeyNotFoundException($"No instrument role '{role}' implementing {typeof(T).Name}.");
@@ -295,13 +304,35 @@ public sealed class ExperimentSession : IAsyncDisposable
     }
 
     /// <summary>Dispose the run scope and always attempt provider cleanup, even after a scope failure.</summary>
-    /// <returns>Completion of asynchronous resource cleanup.</returns>
-    /// <remarks>Repeated calls are ignored. Callers must serialize disposal with instrument access.</remarks>
+    /// <returns>Shared completion of asynchronous cleanup, including its failure if any.</returns>
+    /// <remarks>
+    /// Concurrent and repeated calls await the same cleanup operation; failures remain observable.
+    /// Callers must still serialize instrument access with disposal. Resource cleanup callbacks must
+    /// not await disposal of their owning session, which would wait on their own completion.
+    /// </remarks>
     /// <exception cref="AggregateException">Both scope and provider cleanup failed.</exception>
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_disposed) return;
-        _disposed = true;
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var existing = Interlocked.CompareExchange(ref _disposalCompletion, completion, null);
+        if (existing is not null) return new ValueTask(existing.Task);
+        // Publish completion before invoking user disposal callbacks, without holding a lock.
+        _ = CompleteDisposalAsync(completion);
+        return new ValueTask(completion.Task);
+    }
+
+    private async Task CompleteDisposalAsync(TaskCompletionSource completion)
+    {
+        try
+        {
+            await DisposeOwnedServicesAsync().ConfigureAwait(false);
+            completion.SetResult();
+        }
+        catch (Exception error) { completion.SetException(error); }
+    }
+
+    private async Task DisposeOwnedServicesAsync()
+    {
         try { await _scope.DisposeAsync().ConfigureAwait(false); }
         catch (Exception scopeError)
         {
