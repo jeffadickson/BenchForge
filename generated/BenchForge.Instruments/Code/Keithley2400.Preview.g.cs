@@ -6,7 +6,7 @@ namespace BenchDouble.Generated;
 public sealed class Keithley2400Preview
 {
   /// <summary>SHA-256 of the exact input definition bytes.</summary>
-  public const string DefinitionSha256 = "12ced85d27f46790ef54d4bc5d93ecd9615be729bddaf4942bda010492e99084";
+  public const string DefinitionSha256 = "bbc566b2a0e0f833a58a2978af91b5c3dae75995e41e2890e0e08c355e488dc8";
   /// <summary>Versioned generator implementation identifier.</summary>
   public const string GeneratorVersion = "v2-stateful-2";
   /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>
