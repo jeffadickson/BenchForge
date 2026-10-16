@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instrument Definer: extract PyMeasure metadata without importing or executing drivers."""
+"""Instrument Definer: extract ExternalInstrumentSource metadata without importing or executing drivers."""
 import argparse
 import ast
 import csv
@@ -52,7 +52,7 @@ def draft(manufacturer, model, name, source="", revision=""):
         "identity": {"manufacturer": manufacturer, "model": model,
                      "driverName": name, "instrumentClass": "Unclassified",
                      "protocol": "unknown", "interfaces": []},
-        "provenance": {"upstreamProject": "PyMeasure" if source else "manual",
+        "provenance": {"upstreamProject": "ExternalInstrumentSource" if source else "manual",
                        "sourcePath": source, "sourceRevision": revision,
                        "license": "verify-upstream-license", "manualReference": ""},
         "modes": [], "capabilities": [], "operations": [],
@@ -341,7 +341,7 @@ def main():
     """Run the extract, CSV import or validation command selected by CLI arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    ex = sub.add_parser("extract-pymeasure")
+    ex = sub.add_parser("extract-external_instrument_source")
     ex.add_argument("source", type=Path)
     ex.add_argument("--manufacturer", required=True)
     ex.add_argument("--model", required=True)
@@ -362,7 +362,7 @@ def main():
     report.add_argument("definition", type=Path)
     args = parser.parse_args()
     try:
-        if args.command == "extract-pymeasure":
+        if args.command == "extract-external_instrument_source":
             doc = extract(args.source, args.manufacturer, args.model, args.revision, args.class_name)
             errors = validate(doc)
             if errors:
