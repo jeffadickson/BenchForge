@@ -64,6 +64,6 @@ criteria and stale statement fingerprints. It cannot infer an unrecorded request
 from conversation or prove code semantics; developer review must enforce that part.
 
 [Reliability architecture](RELIABILITY-ARCHITECTURE.md) and
-[PyMeasure source comparison](PYMEASURE-REMOTE-RELIABILITY-REVIEW.md) establish the
+[external instrument source source comparison](external instrument source-REMOTE-RELIABILITY-REVIEW.md) establish the
 implementation order. No graphical expansion or runtime reliability implementation
 is claimed by this requirements-only increment.
