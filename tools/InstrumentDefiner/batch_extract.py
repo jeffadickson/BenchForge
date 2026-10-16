@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Batch-import a reviewed list of PyMeasure source files without executing them.
+"""Batch-import a reviewed list of ExternalInstrumentSource source files without executing them.
 
 Manifest CSV columns: manufacturer,model,className,sourcePath,revision.
 Writes one draft per entry and a deterministic JSON report. Existing drafts
