@@ -20,6 +20,19 @@ public sealed record MockReadingContext(string Mode, string Capability, TimeSpan
 /// <param name="Overrides">Explicit readings copied at capture.</param>
 public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan Elapsed, IReadOnlyDictionary<string, double> Overrides);
 
+/// <summary>Provenance-preserving scalar measurement from a coherent virtual acquisition.</summary>
+/// <param name="AcquisitionId">Shared SMU and oscilloscope acquisition identifier.</param>
+/// <param name="SourceRevision">Configuration revision selected at the acquisition boundary.</param>
+/// <param name="Elapsed">Virtual acquisition timestamp.</param>
+/// <param name="Capability">Imported capability identifier.</param>
+/// <param name="Quantity">Physical quantity name.</param>
+/// <param name="Unit">Canonical unit identifier.</param>
+/// <param name="Value">Finite captured scalar value.</param>
+/// <param name="Mode">Mock operating mode used to authorize the reading.</param>
+/// <param name="MockRevision">Mock state revision at authorization.</param>
+public sealed record CapturedMockReading(Guid AcquisitionId, long SourceRevision, TimeSpan Elapsed,
+    string Capability, string Quantity, string Unit, double Value, string Mode, long MockRevision);
+
 /// <summary>Exclusive mode-aware simulation state, with virtual-time behaviors and one-shot faults.</summary>
 /// <remarks>Callbacks execute inside the exclusive transaction and must never reenter this engine.</remarks>
 public sealed class StatefulMockEngine
@@ -95,18 +108,18 @@ public sealed class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
-    /// <summary>Read a compatible voltage or current capability from a fixed acquisition snapshot.</summary>
+    /// <summary>Measure voltage or current from a fixed acquisition with complete provenance.</summary>
     /// <remarks>
-    /// The acquisition's immutable physical state is used rather than the live signal bus.
-    /// Mode validation precedes one-shot fault consumption; this does not change overrides
-    /// or behavior registrations. The same acquisition may be read by several meters.
+    /// Values come from the immutable source snapshot, not a live bus or a mutable override.
+    /// Mode and quantity checks precede one-shot fault consumption. The engine's transaction
+    /// gate serializes authorization against mode changes and injected faults.
     /// </remarks>
     /// <param name="capability">Declared voltage or current capability.</param>
-    /// <param name="acquisition">Coherent, correlated source and waveform acquisition.</param>
+    /// <param name="acquisition">Correlated source and waveform snapshot.</param>
     /// <param name="ct">Cancellation while waiting for exclusive mock access.</param>
-    /// <returns>Reading in the capability's canonical unit at acquisition time.</returns>
-    public async ValueTask<double> MeasureCapturedAsync(string capability,
-        BenchDouble.Simulation.VirtualCoherentAcquisition acquisition, CancellationToken ct = default)
+    /// <returns>Canonical scalar reading with source and mock revision identifiers.</returns>
+    public async ValueTask<CapturedMockReading> ReadCapturedAsync(string capability,
+        VirtualCoherentAcquisition acquisition, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(acquisition);
         var metadata = _definition.Capability(capability);
@@ -118,7 +131,7 @@ public sealed class StatefulMockEngine
         {
             ("ElectricPotential", "Volt") => acquisition.Voltmeter.Volts,
             ("ElectricCurrent", "Ampere") => acquisition.Ammeter.Amperes,
-            _ => throw new NotSupportedException("Only voltage and current are derived from the shared source snapshot.")
+            _ => throw new NotSupportedException("Only voltage and current can be projected from a source snapshot.")
         };
         if (!double.IsFinite(value))
             throw new InvalidOperationException("Nonfinite captured measurement.");
@@ -135,12 +148,23 @@ public sealed class StatefulMockEngine
                     _definition.DriverName, acquisition.AcquisitionId, capability);
                 throw error;
             }
-            _logger.LogDebug("Mock {Instrument} acquisition {AcquisitionId} revision {Revision} capability {Capability}",
-                _definition.DriverName, acquisition.AcquisitionId, acquisition.SourceRevision, capability);
-            return value;
+            _logger.LogDebug(
+                "Mock {Instrument} acquisition {AcquisitionId} source revision {SourceRevision} mock revision {MockRevision} capability {Capability}",
+                _definition.DriverName, acquisition.AcquisitionId, acquisition.SourceRevision, _revision, capability);
+            return new CapturedMockReading(acquisition.AcquisitionId, acquisition.SourceRevision,
+                acquisition.Measurement.Elapsed, capability, metadata.Quantity, metadata.Unit, value, _mode, _revision);
         }
         finally { _gate.Release(); }
     }
+
+    /// <summary>Read a captured voltage or current value without discarding validation.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <param name="acquisition">Immutable coherent acquisition.</param>
+    /// <param name="ct">Cancellation while waiting for the transaction.</param>
+    /// <returns>Canonical scalar value.</returns>
+    public async ValueTask<double> MeasureCapturedAsync(string capability,
+        VirtualCoherentAcquisition acquisition, CancellationToken ct = default) =>
+        (await ReadCapturedAsync(capability, acquisition, ct).ConfigureAwait(false)).Value;
 
     /// <summary>Override a capability with a finite canonical-unit reading.</summary>
     /// <param name="capability">Declared capability.</param>

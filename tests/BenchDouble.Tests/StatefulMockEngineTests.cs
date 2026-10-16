@@ -106,6 +106,67 @@ public sealed class StatefulMockEngineTests
         Assert.Equal(0, await mock.MeasureCapturedAsync("voltage", acquired));
     }
 
+    /// <summary>Two imported meter mocks consume one immutable SMU and scope acquisition.</summary>
+    /// <returns>Completion of correlated provenance verification.</returns>
+    [Fact]
+    public async Task CapturedMetersShareSourceAndWaveformProvenance()
+    {
+        const string definition = """
+            {"schemaVersion":2,"identity":{"driverName":"CorrelatedMeters"},
+             "modes":[{"id":"measure","selectionCommand":"CONF:VOLT"}],
+             "capabilities":[
+               {"name":"voltage","quantity":"ElectricPotential","unit":"Volt","access":"read",
+                "query":"MEAS:VOLT?","modes":["measure"],"mockDefault":0},
+               {"name":"current","quantity":"ElectricCurrent","unit":"Ampere","access":"read",
+                "query":"MEAS:CURR?","modes":["measure"],"mockDefault":0}]}
+            """;
+        var metadata = ImportedInstrumentDefinition.Parse(definition);
+        var clock = new ManualSimulationClock();
+        var smu = new VirtualSourceMeasureUnit(new VirtualSignalBus(), clock);
+        smu.SetLoad(UnitsNet.ElectricResistance.FromOhms(100));
+        smu.SourceVoltage(UnitsNet.ElectricPotential.FromVolts(10),
+            UnitsNet.ElectricCurrent.FromAmperes(0.02));
+        smu.SetOutput(true);
+        clock.AdvanceBy(TimeSpan.FromSeconds(3));
+        var acquired = smu.AcquireCoherently(1, 8, UnitsNet.Duration.FromMilliseconds(1));
+        var voltmeter = new ImportedInstrumentMock(metadata, clock);
+        var ammeter = new ImportedInstrumentMock(metadata, clock);
+        await voltmeter.ConfigureModeAsync("measure");
+        await ammeter.ConfigureModeAsync("measure");
+        var voltage = await voltmeter.ReadCapturedAsync("voltage", acquired);
+        var current = await ammeter.ReadCapturedAsync("current", acquired);
+        Assert.Equal(acquired.AcquisitionId, voltage.AcquisitionId);
+        Assert.Equal(acquired.Waveform.AcquisitionId, current.AcquisitionId);
+        Assert.Equal(voltage.SourceRevision, current.SourceRevision);
+        Assert.Equal(voltage.Elapsed, current.Elapsed);
+        Assert.Equal("Volt", voltage.Unit);
+        Assert.Equal("Ampere", current.Unit);
+        Assert.Equal(2, voltage.Value, 8);
+        Assert.Equal(0.02, current.Value, 8);
+        smu.SetOutput(false);
+        Assert.Equal(2, (await voltmeter.ReadCapturedAsync("voltage", acquired)).Value, 8);
+        Assert.Equal(0, smu.Measure().Voltage.Volts, 8);
+    }
+
+    /// <summary>Incompatible mock mode cannot consume a queued captured-measurement fault.</summary>
+    /// <returns>Completion of mode and fault verification.</returns>
+    [Fact]
+    public async Task CapturedModeValidationPreservesFault()
+    {
+        var metadata = ImportedInstrumentDefinition.Parse(Definition);
+        var smu = new VirtualSourceMeasureUnit(new VirtualSignalBus(), new ManualSimulationClock());
+        var acquired = smu.AcquireCoherently(1, 4, UnitsNet.Duration.FromMilliseconds(1));
+        var mock = new ImportedInstrumentMock(metadata);
+        mock.QueueFault("voltage", new TimeoutException("synthetic"));
+        await mock.ConfigureModeAsync("resistance");
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await mock.ReadCapturedAsync("voltage", acquired));
+        await mock.ConfigureModeAsync("voltage");
+        await Assert.ThrowsAsync<TimeoutException>(
+            async () => await mock.ReadCapturedAsync("voltage", acquired));
+        Assert.Equal(0, (await mock.ReadCapturedAsync("voltage", acquired)).Value);
+    }
+
     /// <summary>Reset restores definition defaults without mutating old snapshots.</summary>
     /// <returns>Completion of snapshot verification.</returns>
     [Fact]

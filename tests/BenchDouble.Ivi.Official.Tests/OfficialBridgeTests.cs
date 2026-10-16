@@ -30,7 +30,7 @@ public sealed class OfficialBridgeTests
     [Fact]
     public void DmmBridgeInvokesInjectedOfficialOperations()
     {
-        var driver = Substitute.For<Ivi.Dmm.IIviDmm>();
+        var driver = Substitute.For<global::Ivi.Dmm.IIviDmm>();
         int configured = 0;
         int measured = 0;
         using IIviDigitalMultimeter meter = new OfficialDmmBridge(
@@ -55,7 +55,7 @@ public sealed class OfficialBridgeTests
     [Fact]
     public void FgenBridgePreservesTypedCallsAndRejectsInvalidValues()
     {
-        var driver = Substitute.For<Ivi.Fgen.IIviFgen>();
+        var driver = Substitute.For<global::Ivi.Fgen.IIviFgen>();
         int configured = 0;
         int enabled = 0;
         using IIviFunctionGenerator source = new OfficialFgenBridge(
