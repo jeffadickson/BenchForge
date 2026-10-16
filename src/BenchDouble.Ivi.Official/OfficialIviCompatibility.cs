@@ -9,8 +9,8 @@ namespace BenchDouble.Ivi.Official;
 /// </summary>
 public static class OfficialIviCompatibility
 {
-    public const string DmmInterfaceName = "global::Ivi.Dmm.IIviDmm";
-    public const string FgenInterfaceName = "global::Ivi.Fgen.IIviFgen";
+    public const string DmmInterfaceName = "Ivi.Dmm.IIviDmm";
+    public const string FgenInterfaceName = "Ivi.Fgen.IIviFgen";
 
     public static Type DmmInterface =>
         typeof(global::Ivi.Dmm.IIviDmm);
