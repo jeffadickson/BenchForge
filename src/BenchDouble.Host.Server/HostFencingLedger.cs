@@ -26,6 +26,7 @@ public sealed class HostFencingLedger : IDisposable
     /// Open the persisted ledger and advance its epoch before accepting any leases.
     /// A corrupt ledger fails closed instead of silently resetting ownership.
     /// </summary>
+    /// <param name="path">Durable ledger file path; only one process may hold its owner lock.</param>
     public HostFencingLedger(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Ledger path required.", nameof(path));
@@ -49,6 +50,8 @@ public sealed class HostFencingLedger : IDisposable
     public long Epoch { get { lock (_gate) return _state.Epoch; } }
 
     /// <summary>Allocate and durably persist the next generation for a resource.</summary>
+    /// <param name="resourceId">Nonempty resource identifier whose generation must advance.</param>
+    /// <returns>New durably persisted monotonic generation for the resource.</returns>
     public long NextGeneration(string resourceId)
     {
         if (string.IsNullOrWhiteSpace(resourceId)) throw new ArgumentException("Resource required.", nameof(resourceId));

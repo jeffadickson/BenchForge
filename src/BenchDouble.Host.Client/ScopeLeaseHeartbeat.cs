@@ -20,7 +20,11 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     /// <summary>Raised after a renewal succeeds or fails. Handler exceptions are isolated.</summary>
     public event Action<ScopeHeartbeatStatus>? StatusChanged;
 
-    /// <summary>Configure a periodic lease-renewal client with a caller-owned HTTP client.</summary>
+    /// <summary>Configure periodic lease renewal without transferring ownership of the HTTP client.</summary>
+    /// <param name="client">Caller-owned HTTP transport used for renewal requests.</param>
+    /// <param name="resourceId">Host resource identifier without path separators.</param>
+    /// <param name="leaseId">Nonempty exclusive lease identifier.</param>
+    /// <param name="period">Positive renewal interval; defaults to 20 seconds.</param>
     public ScopeLeaseHeartbeat(HttpClient client, string resourceId, Guid leaseId, TimeSpan? period = null)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -68,6 +72,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     }
 
     /// <summary>Stop the background renewal loop; does not release the host lease.</summary>
+    /// <returns>Completion after cancellation and shutdown of the renewal loop.</returns>
     public async ValueTask DisposeAsync()
     {
         await _stop.CancelAsync().ConfigureAwait(false);
@@ -77,4 +82,14 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
 }
 
 /// <summary>Client's view of renewal outcomes, not authoritative device health.</summary>
-public enum ScopeHeartbeatStatus { NotStarted, Healthy, Degraded, Lost }
+public enum ScopeHeartbeatStatus
+{
+    /// <summary>Renewal has not started.</summary>
+    NotStarted,
+    /// <summary>The latest lease renewal succeeded.</summary>
+    Healthy,
+    /// <summary>Renewal failed transiently; instrument ownership is not confirmed.</summary>
+    Degraded,
+    /// <summary>The host rejected the lease or could not find it; stop instrument use.</summary>
+    Lost
+}
