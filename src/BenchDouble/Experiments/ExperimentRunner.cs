@@ -20,7 +20,6 @@ public enum ExperimentStatus
     RecoveryRequired
 }
 
-/// <summary>A typed measurement row with independent field values and units.</summary>
 /// <summary>Represent a timestamped row of named measurements.</summary>
 /// <param name="Timestamp">UTC timestamp associated with the sample.</param>
 /// <param name="Values">Measurement values keyed by field name.</param>
@@ -28,7 +27,6 @@ public enum ExperimentStatus
 public sealed record ExperimentSample(DateTimeOffset Timestamp, IReadOnlyDictionary<string, double> Values,
     IReadOnlyDictionary<string, string>? Units = null);
 
-/// <summary>Immutable result of a completed or interrupted experiment run.</summary>
 /// <summary>Represent an experiment's terminal outcome and timing.</summary>
 /// <param name="Id">Unique experiment run identifier.</param>
 /// <param name="Name">Procedure name.</param>
