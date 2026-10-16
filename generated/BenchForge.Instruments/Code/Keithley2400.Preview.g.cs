@@ -35,6 +35,7 @@ public sealed class Keithley2400MockDecorator
   private readonly object _stateGate = new();
   /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>
   /// <param name="inner">The caller-owned simulation preview.</param>
+  /// <exception cref="System.ArgumentNullException">The preview is null.</exception>
   public Keithley2400MockDecorator(Keithley2400Preview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));
   /// <summary>Configure the underlying simulation mode.</summary>
   /// <param name="mode">Declared mode name.</param>
