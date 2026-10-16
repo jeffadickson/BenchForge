@@ -19,6 +19,9 @@ public sealed class ImportedInstrumentDefinition
     private ImportedInstrumentDefinition(string name) => DriverName = name;
 
     /// <summary>Parse schema v2 with strict supported-subset validation and no code execution.</summary>
+    /// <param name="json">Instrument definition encoded as schema-v2 JSON.</param>
+    /// <returns>A validated simulation-only definition.</returns>
+    /// <exception cref="InvalidDataException">The definition contains unsupported or invalid capabilities.</exception>
     public static ImportedInstrumentDefinition Parse(string json)
     {
         using var doc = JsonDocument.Parse(json);
@@ -72,19 +75,30 @@ public sealed class ImportedInstrumentDefinition
     }
 
     /// <summary>Get a mode selection command from a validated definition.</summary>
+    /// <param name="mode">Declared mode identifier.</param>
+    /// <returns>Validated mode-selection command text; this does not execute the command.</returns>
     public string ModeCommand(string mode) => _modeCommands.TryGetValue(mode, out var value)
         ? value : throw new NotSupportedException("Unknown mode.");
 
     /// <summary>Get a capability from a validated definition.</summary>
+    /// <param name="name">Declared capability identifier.</param>
+    /// <returns>Immutable measurement metadata.</returns>
     public ImportedCapability Capability(string name) => _capabilities.TryGetValue(name, out var value)
         ? value : throw new NotSupportedException("Unknown capability.");
 }
 
 /// <summary>Immutable scalar measurement metadata.</summary>
+/// <param name="Name">Validated capability identifier.</param>
+/// <param name="Quantity">UnitsNet quantity name.</param>
+/// <param name="Unit">Canonical measurement unit.</param>
+/// <param name="Query">Validated SCPI query template.</param>
+/// <param name="Modes">Operating modes in which the capability is valid.</param>
+/// <param name="MockDefault">Optional explicitly configured mock reading in the declared unit.</param>
 public sealed record ImportedCapability(string Name, string Quantity, string Unit, string Query,
     IReadOnlyList<string> Modes, double? MockDefault);
 
 /// <summary>Simulation-only mode-aware driver and deterministic mock sharing one imported definition.</summary>
+/// <param name="definition">Validated, caller-owned instrument definition.</param>
 public sealed class ImportedInstrumentMock(ImportedInstrumentDefinition definition)
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -93,6 +107,9 @@ public sealed class ImportedInstrumentMock(ImportedInstrumentDefinition definiti
         .Where(x => x.MockDefault.HasValue).ToDictionary(x => x.Name, x => x.MockDefault!.Value, StringComparer.Ordinal);
 
     /// <summary>Set a supported mode; no physical command is dispatched.</summary>
+    /// <param name="mode">Declared mode identifier.</param>
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive mock state access.</param>
+    /// <returns>Completion of the simulated mode transition.</returns>
     public async ValueTask ConfigureModeAsync(string mode, CancellationToken cancellationToken = default)
     {
         definition.ModeCommand(mode);
@@ -102,6 +119,9 @@ public sealed class ImportedInstrumentMock(ImportedInstrumentDefinition definiti
     }
 
     /// <summary>Read a declared scalar quantity only in a compatible mode.</summary>
+    /// <param name="capability">Declared scalar measurement identifier.</param>
+    /// <param name="cancellationToken">Cancellation while waiting for the state lock.</param>
+    /// <returns>Simulated numeric reading in the definition's canonical unit.</returns>
     public async ValueTask<double> MeasureAsync(string capability, CancellationToken cancellationToken = default)
     {
         var item = definition.Capability(capability);
@@ -116,6 +136,8 @@ public sealed class ImportedInstrumentMock(ImportedInstrumentDefinition definiti
     }
 
     /// <summary>Set a finite mock reading for a declared capability.</summary>
+    /// <param name="capability">Declared scalar measurement identifier.</param>
+    /// <param name="value">Finite simulated reading in the capability's canonical unit.</param>
     public void SetReading(string capability, double value)
     {
         definition.Capability(capability);
