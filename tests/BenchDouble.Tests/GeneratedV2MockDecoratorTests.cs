@@ -8,6 +8,8 @@ namespace BenchDouble.Tests;
 public sealed class GeneratedV2MockDecoratorTests
 {
     /// <summary>Injected readings are typed and cannot bypass mode validation.</summary>
+    /// <summary>Verify injected typed readings cannot bypass operating-mode validation.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task DecoratorUsesInjectedReadingsOnlyInValidMode()
     {
