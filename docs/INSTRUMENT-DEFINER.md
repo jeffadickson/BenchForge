@@ -26,10 +26,11 @@ Imported source files include license notices. The intern should record the sour
 
 ```bash
 python3 tools/InstrumentDefiner/definer.py import-csv \
-  path/to/external instrument source/instruments/keithley/keithley2400.py \
-  --manufacturer Keithley --model 2400 \
-  --revision YOUR_PINNED_external instrument source_COMMIT \
-  --output instrument-definitions/drafts/keithley2400.extracted.json
+  tools/InstrumentDefiner/templates/properties.csv \
+  --methods tools/InstrumentDefiner/templates/methods.csv \
+  --manufacturer Example --model Meter --driver-name ExampleMeter \
+  --manual "Manufacturer programming manual" \
+  --output instrument-definitions/drafts/example-meter.definition.json
 
 python3 tools/InstrumentDefiner/definer.py validate \
   instrument-definitions/drafts/keithley2400.extracted.json
