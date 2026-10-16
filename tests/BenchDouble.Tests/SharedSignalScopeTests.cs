@@ -8,6 +8,7 @@ namespace BenchDouble.Tests;
 /// <summary>End-to-end tests for a shared simulated source and SCPI oscilloscope.</summary>
 public sealed class SharedSignalScopeTests
 {
+    /// <returns>Completion of the asynchronous verification.</returns>
     /// <summary>Changing the source changes the subsequent acquisition, not an in-flight snapshot.</summary>
     [Fact]
     public async Task SingleAcquisitionUsesSourceSnapshot()

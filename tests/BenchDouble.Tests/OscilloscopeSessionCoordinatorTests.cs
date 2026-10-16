@@ -6,6 +6,8 @@ namespace BenchDouble.Tests;
 /// <summary>Concurrency and recovery tests for whole-acquisition ownership.</summary>
 public sealed class OscilloscopeSessionCoordinatorTests
 {
+    /// <summary>Verify concurrent acquisitions remain channel consistent.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
     [Fact]
     public async Task ConcurrentAcquisitionsRemainChannelConsistent()
     {
@@ -22,6 +24,8 @@ public sealed class OscilloscopeSessionCoordinatorTests
         await Task.WhenAll(jobs);
         Assert.False(await coordinator.RequiresRecoveryAsync());
     }
+    /// <summary>Verify failed transaction blocks further commands until recovery.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task FailedTransactionBlocksFurtherCommandsUntilRecovery()
@@ -39,6 +43,8 @@ public sealed class OscilloscopeSessionCoordinatorTests
         await coordinator.ConfirmExternalRecoveryAsync();
         Assert.Equal(1, await coordinator.ExecuteAsync<int>((_, _) => ValueTask.FromResult(1)));
     }
+    /// <summary>Verify cancelled waiter cannot enter active transaction.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task CancelledWaiterCannotEnterActiveTransaction()

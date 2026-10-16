@@ -7,6 +7,8 @@ namespace BenchDouble.Tests;
 /// <summary>Hardware-free acquisition, framing, cancellation and mock-state tests.</summary>
 public sealed class AsyncOscilloscopeTests
 {
+    /// <summary>Verify single acquisition produces typed waveform.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
     [Fact]
     public async Task SingleAcquisitionProducesTypedWaveform()
     {
@@ -19,6 +21,8 @@ public sealed class AsyncOscilloscopeTests
         Assert.Equal(0, capture.VoltageAt(0).Volts, 12);
         Assert.Equal(1, capture.VoltageAt(16).Volts, 12);
     }
+    /// <summary>Verify acquisition required and channels independent.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task AcquisitionRequiredAndChannelsIndependent()
@@ -34,6 +38,8 @@ public sealed class AsyncOscilloscopeTests
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
             await scope.ReadWaveformAsync(3, Guid.NewGuid()));
     }
+    /// <summary>Verify truncated streaming block is rejected.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task TruncatedStreamingBlockIsRejected()
@@ -42,6 +48,8 @@ public sealed class AsyncOscilloscopeTests
         await Assert.ThrowsAsync<EndOfStreamException>(async () =>
             await StreamingScpiBinaryBlock.ReadAsync(stream));
     }
+    /// <summary>Verify streaming limit is enforced before allocation.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task StreamingLimitIsEnforcedBeforeAllocation()
@@ -50,6 +58,8 @@ public sealed class AsyncOscilloscopeTests
         await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await StreamingScpiBinaryBlock.ReadAsync(stream, maxPayloadBytes: 2));
     }
+    /// <summary>Verify cancellation before command does not acquire.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task CancellationBeforeCommandDoesNotAcquire()

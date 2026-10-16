@@ -8,6 +8,7 @@ namespace BenchDouble.Tests;
 /// <summary>Cross-instrument consistency tests for a shared virtual circuit.</summary>
 public sealed class VirtualBenchTests
 {
+    /// <returns>Completion of the asynchronous verification.</returns>
     /// <summary>A scope waveform and meter observe the same configured sine source.</summary>
     [Fact]
     public async Task ScopeAndMeterAgreeOnRms()

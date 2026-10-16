@@ -11,6 +11,8 @@ public sealed class HostedOscilloscopeLeaseTests
         public override DateTimeOffset GetUtcNow() => Now;
         public void Advance(TimeSpan duration) => Now += duration;
     }
+    /// <summary>Verify expired lease cannot acquire and new lease gets new generation.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task ExpiredLeaseCannotAcquireAndNewLeaseGetsNewGeneration()
@@ -29,6 +31,8 @@ public sealed class HostedOscilloscopeLeaseTests
         Assert.False(host.Renew("SCOPE1", old));
         Assert.Equal(128, (await host.AcquireAsync("SCOPE1", current, 1)).SampleCount);
     }
+    /// <summary>Verify renewal extends valid lease but not expired lease.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task RenewalExtendsValidLeaseButNotExpiredLease()

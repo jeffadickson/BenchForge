@@ -16,6 +16,10 @@ public sealed class ScopeLeaseHeartbeatTests
             return Task.FromResult(new HttpResponseMessage(status));
         }
     }
+    /// <summary>Verify renewal reports host status.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
+    /// <param name="expected">Expected renewal status.</param>
+    /// <param name="response">Simulated HTTP response status.</param>
 
     [Theory]
     [InlineData(HttpStatusCode.NoContent, ScopeHeartbeatStatus.Healthy)]

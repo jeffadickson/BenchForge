@@ -5,6 +5,8 @@ namespace BenchDouble.Host.Tests;
 /// <summary>Host-owned oscilloscope reservation and acquisition acceptance tests.</summary>
 public sealed class HostedOscilloscopeRegistryTests
 {
+    /// <summary>Verify exclusive lease controls scope acquisition.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
     [Fact]
     public async Task ExclusiveLeaseControlsScopeAcquisition()
     {
@@ -21,6 +23,8 @@ public sealed class HostedOscilloscopeRegistryTests
         Assert.False(host.Release("SCOPE1", lease.Value));
         Assert.NotNull(host.Reserve("SCOPE1"));
     }
+    /// <summary>Verify concurrent requests on same lease are serialized.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task ConcurrentRequestsOnSameLeaseAreSerialized()
@@ -37,6 +41,8 @@ public sealed class HostedOscilloscopeRegistryTests
         }
         Assert.True(host.Release("SCOPE1", lease));
     }
+    /// <summary>Verify unknown resource cannot be acquired.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
 
     [Fact]
     public async Task UnknownResourceCannotBeAcquired()

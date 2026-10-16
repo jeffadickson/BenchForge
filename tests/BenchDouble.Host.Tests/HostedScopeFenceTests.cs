@@ -5,6 +5,8 @@ namespace BenchDouble.Host.Tests;
 /// <summary>Host epoch and generation rejection tests.</summary>
 public sealed class HostedScopeFenceTests
 {
+    /// <summary>Verify wrong epoch or generation rejects acquisition.</summary>
+    /// <returns>Completion of the asynchronous verification.</returns>
     [Fact]
     public async Task WrongEpochOrGenerationRejectsAcquisition()
     {
