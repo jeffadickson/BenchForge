@@ -16,6 +16,8 @@ public sealed class InstrumentImportPipelineTests
     }
     """;
 
+    /// <summary>Concurrent bounded validation preserves the submission order of definitions.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task ConcurrentValidationPreservesInputOrder()
     {
@@ -26,6 +28,8 @@ public sealed class InstrumentImportPipelineTests
         for (int i = 0; i < 25; i++) Assert.Equal("Meter" + i, result[i].DriverName);
     }
 
+    /// <summary>An invalid definition faults the import pipeline rather than being ignored.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task InvalidDefinitionFailsPipeline()
     {
@@ -33,6 +37,8 @@ public sealed class InstrumentImportPipelineTests
             await InstrumentImportPipeline.ValidateAsync(new[] { Definition, "{}" }, capacity: 1));
     }
 
+    /// <summary>Cancellation prevents a queued import from processing any definitions.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task PreCancelledImportDoesNotProcess()
     {
