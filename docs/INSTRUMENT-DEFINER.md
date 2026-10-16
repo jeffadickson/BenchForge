@@ -18,14 +18,14 @@ For **mocks**, specify initialization behavior, per-command state transitions, m
 
 ## Example: extracted external instrument source Keithley 2400
 
-[Representative draft](../instrument-definitions/drafts/keithley2400.definition.json) includes source-mode selection, source delay, source enable and public methods from external instrument source. This is a **subset for illustrating the format**, not a complete extraction. Source commands are visible in [external instrument source's Keithley 2400 driver](https://github.com/external instrument source/external instrument source/blob/master/external instrument source/instruments/keithley/keithley2400.py). Pin the actual upstream revision before review; source-line numbers in the illustrative draft must be checked against that revision.
+[Representative draft](../instrument-definitions/drafts/keithley2400.definition.json) includes source-mode selection, source delay, source enable and public methods from external instrument source. This is a **subset for illustrating the format**, not a complete extraction. Source commands are visible in [the centralized review register](../THIRD_PARTY_REVIEW.md). Pin the actual upstream revision before review; source-line numbers in the illustrative draft must be checked against that revision.
 
-external instrument source source files include license notices. The intern should record the source revision and preserve required attribution. We should primarily extract facts about instrument behavior and independently generate code; do not blindly copy third-party Python implementations into generated C#.
+Imported source files include license notices. The intern should record the source revision and preserve required attribution. We should primarily extract facts about instrument behavior and independently generate code; do not blindly copy third-party Python implementations into generated C#.
 
 ## Automated extraction and review
 
 ```bash
-python3 tools/InstrumentDefiner/definer.py extract-external instrument source \
+python3 tools/InstrumentDefiner/definer.py import-csv \
   path/to/external instrument source/instruments/keithley/keithley2400.py \
   --manufacturer Keithley --model 2400 \
   --revision YOUR_PINNED_external instrument source_COMMIT \
