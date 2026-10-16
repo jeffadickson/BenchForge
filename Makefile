@@ -165,3 +165,12 @@ source-audit-strict:
 
 xdoc-check: docs-check
 	$(DOTNET) build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release -p:GenerateDocumentationFile=true
+
+# Run a fast, dependency-free documentation preflight without the .NET SDK.
+# Roslyn remains the authoritative CI checker for complete C# syntax coverage.
+.PHONY: docs-preflight docs-preflight-tests
+docs-preflight:
+	$(PYTHON) scripts/check_docs_portable.py . --output build/docs-preflight.json
+
+docs-preflight-tests:
+	$(PYTHON) -m unittest discover -s tests/documentation -p 'test_docs_portable.py' -v
