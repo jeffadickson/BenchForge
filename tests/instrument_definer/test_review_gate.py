@@ -20,7 +20,7 @@ def approved_fixture():
             "protocol": "SCPI", "interfaces": ["USB"]
         },
         "provenance": {
-            "upstreamProject": "PyMeasure", "sourcePath": "drivers/dmm.py",
+            "upstreamProject": "ExternalInstrumentSource", "sourcePath": "drivers/dmm.py",
             "sourceRevision": "a" * 40, "license": "MIT",
             "manualReference": "Programming guide revision 2"
         },
@@ -114,7 +114,7 @@ class ReviewGateTests(unittest.TestCase):
         self.assertTrue(review_gate.audit(doc, "hardwareValidated")["ready"])
         # This is still a metadata assertion, not a real hardware test.
 
-    def test_manual_entry_does_not_require_pymeasure_sha(self):
+    def test_manual_entry_does_not_require_external_instrument_source_sha(self):
         doc = approved_fixture()
         doc["provenance"].update({
             "upstreamProject": "manual", "sourcePath": "", "sourceRevision": ""
