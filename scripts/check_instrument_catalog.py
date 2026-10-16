@@ -17,7 +17,7 @@ def main() -> int:
         raise ValueError("Unsupported instrument catalog schema")
     instruments = catalog.get("instruments")
     if not isinstance(instruments, list) or len(instruments) < 26:
-        raise ValueError("Catalog must contain at least 25 PyMeasure entries and Keithley 236")
+        raise ValueError("Catalog must contain at least 25 catalog entries and Keithley 236")
     ids, models = set(), set()
     for item in instruments:
         identity = (item["manufacturer"], item["model"])
