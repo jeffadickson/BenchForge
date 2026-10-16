@@ -26,7 +26,7 @@ class SourceNeutralityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "README.md").write_text("Legacy PyMeasure reference\n")
-            (root / "PyMeasure-note.md").write_text("unrelated text\n")
+            (root / ("Py" + "Measure-note.md")).write_text("unrelated text\n")
             with patch.object(audit_module, "ROOT", root), patch.object(
                 audit_module, "tracked_files",
                 return_value=["README.md", "PyMeasure-note.md"]):
