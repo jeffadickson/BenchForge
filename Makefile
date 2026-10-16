@@ -121,17 +121,17 @@ demo-alpha:
 alpha-check: check-generated import-check demo-alpha
 	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
 
-# Full PyMeasure source inventory; requires a pinned local upstream checkout.
-.PHONY: pymeasure-inventory
-PYMEASURE_ROOT ?= external/pymeasure
-pymeasure-inventory:
-	$(PYTHON) tools/InstrumentDefiner/discover_catalog.py --source-root $(PYMEASURE_ROOT) --manifest build/pymeasure-all-classes.csv --inventory build/pymeasure-inventory.json
+# Full external source inventory from a pinned local checkout.
+.PHONY: instrument-source-inventory
+INSTRUMENT_SOURCE_ROOT ?= external/instrument-source
+instrument-source-inventory:
+	$(PYTHON) tools/InstrumentDefiner/discover_catalog.py --source-root $(INSTRUMENT_SOURCE_ROOT) --manifest build/instrument-all-classes.csv --inventory build/instrument-source-inventory.json
 
 # Normalize imported descriptor descriptions without silently accepting inferred units.
-.PHONY: pymeasure-normalize
-PYMEASURE_DESCRIPTORS ?= build/pymeasure-descriptors.csv
-pymeasure-normalize:
-	$(PYTHON) tools/InstrumentDefiner/normalize_descriptions.py $(PYMEASURE_DESCRIPTORS) build/pymeasure-descriptors-normalized.csv
+.PHONY: instrument-normalize
+INSTRUMENT_DESCRIPTORS ?= build/instrument-descriptors.csv
+instrument-normalize:
+	$(PYTHON) tools/InstrumentDefiner/normalize_descriptions.py $(INSTRUMENT_DESCRIPTORS) build/instrument-descriptors-normalized.csv
 
 # Schema-v2 simulation-only emitter. Never enables physical I/O from unreviewed data.
 .PHONY: generate-v2-preview check-v2-preview
