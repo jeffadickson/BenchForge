@@ -45,10 +45,10 @@ def main() -> int:
                 path = item.get(field)
                 if path and not (ROOT / path).is_file():
                     raise ValueError(f"Missing {field} for {item['id']}: {path}")
-    pymeasure = [x for x in instruments if x["id"].startswith("PYM-")]
-    if len(pymeasure) != 25 or "LEGACY-KEITHLEY-236" not in ids:
-        raise ValueError("Expected 25 PyMeasure catalog entries plus Keithley 236")
-    print(f"Catalog OK: {len(instruments)} entries, {len(pymeasure)} PyMeasure inventory, "
+    external_instrument_source = [x for x in instruments if x["id"].startswith("PYM-")]
+    if len(external_instrument_source) != 25 or "LEGACY-KEITHLEY-236" not in ids:
+        raise ValueError("Expected 25 ExternalInstrumentSource catalog entries plus Keithley 236")
+    print(f"Catalog OK: {len(instruments)} entries, {len(external_instrument_source)} ExternalInstrumentSource inventory, "
           f"{sum(x['implementationStatus'] != 'notPorted' for x in instruments)} partial/implemented")
     return 0
 
