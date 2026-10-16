@@ -23,7 +23,7 @@ Adapters should translate errors, standard capability semantics, unit convention
 The existing `DoubleCodec` and `BooleanCodec` are implemented examples.
 
 ## 4. Parameter descriptor / metadata-driven driver
-**Purpose:** minimize repetitive SCPI command encoding and validation, inspired by PyMeasure `control()`, `measurement()` and `setting()`.
+**Purpose:** minimize repetitive SCPI command encoding and validation, inspired by external instrument source `control()`, `measurement()` and `setting()`.
 
 Implemented `ScpiParameter.Control`, `Measurement`, `Setting` create immutable typed descriptors. `BoundScpiParameter<T>` binds them to a session/channel and performs Get/Set, validation, parsing, wire formatting. This is **composition** rather than runtime-generated .NET properties.
 
