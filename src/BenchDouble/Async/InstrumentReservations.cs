@@ -12,6 +12,10 @@ public sealed class InstrumentReservationManager
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Acquire exclusive in-process ownership of a named instrument resource.</summary>
+    /// <param name="resource">Canonical instrument resource identity; whitespace is trimmed.</param>
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive ownership.</param>
+    /// <returns>A lease that releases the resource exactly once when disposed.</returns>
     public async ValueTask<InstrumentLease> ReserveAsync(
         string resource, CancellationToken cancellationToken = default)
     {
@@ -39,14 +43,18 @@ public sealed class InstrumentLease : IAsyncDisposable, IDisposable
         _gate = gate;
     }
 
+    /// <summary>Get the canonical resource identifier owned by this lease.</summary>
     public string Resource { get; }
 
+    /// <summary>Release exclusive resource ownership at most once.</summary>
     public void Dispose()
     {
         if (Interlocked.Exchange(ref _released, 1) == 0)
             _gate.Release();
     }
 
+    /// <summary>Release resource ownership without waiting for hardware cleanup.</summary>
+    /// <returns>A completed asynchronous disposal operation.</returns>
     public ValueTask DisposeAsync()
     {
         Dispose();
