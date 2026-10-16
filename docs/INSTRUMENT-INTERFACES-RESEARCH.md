@@ -14,8 +14,8 @@ Read the official IVI class specifications and the exact .NET interface assembli
 Dependency packages already isolated in `BenchDouble.Ivi.Official`:
 `IviFoundation.Driver`, `IviFoundation.Driver.Dmm`, `IviFoundation.Driver.Fgen` at version 2.1.0, and `IviFoundation.DriverCore` version 1.0.1. These packages are restored by .NET tooling; their code is **not copied** into this repository.
 
-### PyMeasure — https://github.com/pymeasure/pymeasure
-Useful production patterns: instrument base class, transport adapter, channels, declarative parameters with validation, common SCPI mixins, and a sizable catalog with real device examples (Agilent/Keysight 33500 family, several DMMs, Tektronix and Siglent oscilloscopes). Strong inspiration for separating **instrument feature modeling** from low-level I/O. PyMeasure also has FakeInstrument support for hardware-free tests.
+### external instrument source — https://github.com/external instrument source/external instrument source
+Useful production patterns: instrument base class, transport adapter, channels, declarative parameters with validation, common SCPI mixins, and a sizable catalog with real device examples (Agilent/Keysight 33500 family, several DMMs, Tektronix and Siglent oscilloscopes). Strong inspiration for separating **instrument feature modeling** from low-level I/O. external instrument source also has FakeInstrument support for hardware-free tests.
 
 ### QCoDeS — https://github.com/microsoft/Qcodes
 Useful parameter model: validated get/set parameters, channel lists, hierarchy, metadata snapshots, units, and parameterized measurement workflows. Consider adopting its **design patterns**, not a Python dependency.
@@ -88,20 +88,20 @@ This is **source scaffolding inside the existing assembly**, deliberately not a 
 ## References
 - https://github.com/IviFoundation/IviDrivers
 - https://www.ivifoundation.org/specifications/default.aspx/
-- https://github.com/pymeasure/pymeasure
+- https://github.com/external instrument source/external instrument source
 - https://github.com/microsoft/Qcodes
 - https://github.com/pyvisa/pyvisa-sim
 - https://github.com/klasyc/ScpiNet
 
 
-## PyMeasure source/API audit — 2026-10-14
+## external instrument source source/API audit — 2026-10-14
 
 Reviewed upstream documentation and concrete driver patterns:
-- https://pymeasure.readthedocs.io/en/latest/api/instruments/instruments.html
-- https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/properties.html
-- https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/channels.html
-- https://github.com/pymeasure/pymeasure/blob/master/pymeasure/instruments/keithley/keithley2400.py
-- https://pymeasure.readthedocs.io/en/stable/api/instruments/teledyne/teledyne_bases.html
+- https://external instrument source.readthedocs.io/en/latest/api/instruments/instruments.html
+- https://external instrument source.readthedocs.io/en/latest/dev/adding_instruments/properties.html
+- https://external instrument source.readthedocs.io/en/latest/dev/adding_instruments/channels.html
+- https://github.com/external instrument source/external instrument source/blob/master/external instrument source/instruments/keithley/keithley2400.py
+- https://external instrument source.readthedocs.io/en/stable/api/instruments/teledyne/teledyne_bases.html
 
 ### Audit findings / corrections to our first interfaces
 
@@ -149,4 +149,4 @@ public interface IInstrumentCapabilities
 
 **Design rule:** generic interfaces expose universal semantics; optional feature interfaces and parameters represent advanced functions; model-specific drivers translate semantics to vendor commands. The same typed calls should target a physical instrument, stateful fake, or strict mock. Avoid premature large interface inheritance trees.
 
-**Research status:** based on upstream public documentation and representative source files. This is not a complete line-by-line audit of every PyMeasure manufacturer driver or every official IVI interface assembly.
+**Research status:** based on upstream public documentation and representative source files. This is not a complete line-by-line audit of every external instrument source manufacturer driver or every official IVI interface assembly.
