@@ -16,6 +16,7 @@ internal static class V2MockEmitter
         s.AppendLine("  private readonly object _stateGate = new();");
         s.AppendLine($"  /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>");
         s.AppendLine($"  /// <param name=\"inner\">The caller-owned simulation preview.</param>");
+        s.AppendLine("  /// <exception cref=\"System.ArgumentNullException\">The preview is null.</exception>");
         s.AppendLine($"  public {name}MockDecorator({name}Preview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));");
         s.AppendLine("  /// <summary>Configure the underlying simulation mode.</summary>");
         s.AppendLine("  /// <param name=\"mode\">Declared mode name.</param>");
