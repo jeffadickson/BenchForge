@@ -23,6 +23,8 @@ public sealed class ImportedInstrumentDefinitionTests
     }
     """;
 
+    /// <summary>Verify scalar mock readings are available only in declared instrument modes.</summary>
+    /// <returns>A completed asynchronous verification.</returns>
     [Fact]
     public async Task ImportedModesControlReadings()
     {
@@ -38,6 +40,7 @@ public sealed class ImportedInstrumentDefinitionTests
         Assert.Equal(1000, await mock.MeasureAsync("resistance"));
     }
 
+    /// <summary>Reject imported command text containing unsafe control characters.</summary>
     [Fact]
     public void RejectsUnsafeCommands()
     {
@@ -45,6 +48,7 @@ public sealed class ImportedInstrumentDefinitionTests
         Assert.ThrowsAny<Exception>(() => ImportedInstrumentDefinition.Parse(invalid));
     }
 
+    /// <summary>Reject capabilities referencing modes absent from the definition.</summary>
     [Fact]
     public void RejectsUnknownModes()
     {
