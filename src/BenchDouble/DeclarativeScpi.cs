@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 
 namespace BenchDouble.Declarative;
 
-/// <summary>Public metadata for a parameter exposed by a SCPI instrument or channel.</summary>
 /// <summary>Instrument parameter identity, limits, and access metadata.</summary>
 /// <param name="Name">Public parameter identifier.</param>
 /// <param name="Description">Human-readable description of the parameter.</param>
@@ -143,7 +142,6 @@ public static class ScpiParameter
     }
 }
 
-/// <summary>Hierarchical addressing of SCPI channels through explicit {channel} tokens.</summary>
 /// <summary>Represent the root or channel-specific address of a SCPI command.</summary>
 /// <param name="Prefix">SCPI command mnemonic prefix.</param>
 /// <param name="Channel">Optional channel identifier.</param>
@@ -226,7 +224,6 @@ public sealed class BoundScpiParameter<T>
     }
 }
 
-/// <summary>Reusable channel tree root, including arbitrary model-specific channel IDs.</summary>
 /// <summary>Create a reusable channel-addressing group.</summary>
 /// <param name="session">Caller-owned SCPI session shared by the group.</param>
 public sealed class ScpiChannelGroup(IScpiSession session)
