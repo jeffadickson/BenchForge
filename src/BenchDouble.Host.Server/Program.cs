@@ -10,11 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Intentionally loopback-only. Remote listeners require TLS and authentication first.
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
 builder.Services.AddSingleton<HostResourceRegistry>();
+builder.Services.AddSingleton<IviSetupCatalogService>();
 builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
 builder.Services.AddSingleton<ISetupDiscoveryProvider, SimulatedSetupDiscoveryProvider>();
 builder.Services.AddSingleton(sp => new BenchSetupService(
     sp.GetRequiredService<HostResourceRegistry>(), sp.GetRequiredService<ISetupDiscoveryProvider>(),
-    builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json")));
+    builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json"), sp.GetRequiredService<ILogger<BenchSetupService>>()));
 var app = builder.Build();
 app.MapBenchSetup();
 app.UseDefaultFiles();

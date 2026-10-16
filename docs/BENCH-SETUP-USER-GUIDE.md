@@ -71,3 +71,33 @@ The endpoint is `POST /api/v1/setup/ivi-catalog` with UTF-8 XML as its body, lim
 The host references the official ConfigServer package through the existing optional IVI integration module; the portable BenchDouble core remains independent. ConfigServer 2.1.0 accesses the Windows registry even for configuration objects. Linux/macOS hosts therefore return an explicit HTTP 503 provider diagnostic; simulation and manual setup continue to work. No automatic vendor installation or driver assembly loading occurs.
 
 This is a metadata preview, not schema validation, a lossless export, an applied driver binding, or hardware activation. The official `LoadWithoutValidation` API avoids requiring a separately installed schema; malformed structure or unresolved references can be rejected by the official loader. Custom data, virtual ranges and other extensions remain in the original XML. Standard settings are displayed but never applied. Keep the original XML; do not treat the catalog JSON as a replacement.
+
+## Apply a reviewed IVI binding
+
+After inspecting XML on a Windows host:
+
+1. Enter a new friendly instrument ID, or an existing instrument ID if this route reaches that same physical instrument. Enter an optional experiment role.
+2. Review the module, driver session and resource address. Confirm the checkbox, including the physical association when reusing an instrument ID.
+3. Choose **Use binding** beside the desired logical name. This edits only the draft. A different role can reuse the same session/route without creating another instrument.
+4. Review changes and save as an **untested offline draft**. Validation explicitly blocks driver activation before any device probes.
+
+Bindings upgrade the draft to schema 2; schema 1 files remain readable. Each route carries the inspected source revision, original logical name/session, declared module, resource descriptor, standard settings and virtual-name mappings. These are retained evidence, not executable options. Additional vendor extensions remain in the original XML. GPIB primary addresses are scoped to imported controllers; other resource descriptors remain complete opaque VISA addresses. Controller identities still need discovery and confirmation.
+
+The host retains the most recent successful catalog in memory. A changed catalog or host restart requires reinspection; saved bindings persist independently. Conflicting roles, assigning one endpoint to two instruments, and silently replacing another session's route binding are rejected. To replace a binding, remove its route in the draft and import the replacement, then review/save. Existing run leases retain their snapshots.
+
+`POST /api/v1/setup/ivi-bindings/apply` accepts `configuration`, `catalogRevision`, `logicalName`, `instrumentId`, optional `role`, and `confirmed`. It returns the updated draft. Saving uses the existing revision-checked configuration endpoint. Source metadata is not a driver installation check; physical activation remains outstanding.
+
+## Setup logging
+
+Setup uses `Microsoft.Extensions.Logging`; events appear in the host console and configured logging providers. Categories are `BenchDouble.Host.Server.Setup.BenchSetupService` and `BenchDouble.Host.Server.Setup.IviSetupCatalogService`. Default host logging includes information and warning events.
+
+| Event IDs | Meaning |
+|---|---|
+| 7400–7402 | IVI inspection started, completed or failed |
+| 7410–7411 | Reviewed binding applied to draft or rejected |
+| 7420 | Discovery completed, with controller/endpoint counts |
+| 7421 | Validation outcome with problem count and stable diagnostic codes |
+| 7422–7423 | Save completed with revision/draft/binding counts, or failed |
+| 7430 | Rejected setup HTTP request with failure category and request trace ID |
+
+Application events omit uploaded XML, driver option values, raw descriptors and exception message payloads. These settings still appear in the reviewed configuration itself. The logs are operational diagnostics, not an authenticated, durable change-approval audit. No new log database or retention policy is implied.

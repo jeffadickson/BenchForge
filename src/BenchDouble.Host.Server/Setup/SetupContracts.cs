@@ -1,7 +1,7 @@
 namespace BenchDouble.Host.Server.Setup;
 
 /// <summary>Versioned host setup draft; serial numbers are optional throughout.</summary>
-/// <param name="SchemaVersion">Supported schema version, currently one.</param>
+/// <param name="SchemaVersion">Schema one for routes only; schema two also supports reviewed IVI bindings.</param>
 /// <param name="Controllers">Operator-named controller bindings.</param>
 /// <param name="Instruments">Physical instrument identities and alternate routes.</param>
 /// <param name="Roles">Experiment role assignments.</param>
@@ -33,8 +33,31 @@ public sealed record SetupInstrument(string Id, string Name, string SelectedConn
 /// <param name="Transport">Ethernet, GPIB, USB or other provider transport.</param>
 /// <param name="Address">Host address or provider-local device address; GPIB primary address is decimal.</param>
 /// <param name="ControllerId">Named controller for a controller-scoped connection.</param>
+/// <param name="DriverBinding">Reviewed IVI metadata, supported in schema two; does not activate a driver.</param>
 public sealed record SetupConnection(string Id, string Provider, string Transport, string Address,
-    string? ControllerId = null);
+    string? ControllerId = null, SetupDriverBinding? DriverBinding = null);
+
+/// <summary>Reviewed, partial IVI configuration evidence pinned to a route; not an executable factory request.</summary>
+/// <param name="SourceRevision">Digest of the inspected source XML.</param>
+/// <param name="LogicalName">Original IVI logical name.</param>
+/// <param name="Session">Original configured driver session.</param>
+/// <param name="Module">Declared software module metadata, not a loaded driver.</param>
+/// <param name="ResourceDescriptor">Original I/O descriptor.</param>
+/// <param name="Settings">Standard session options, retained without applying them.</param>
+/// <param name="VirtualNames">Retained channel aliases; source XML may contain additional extensions.</param>
+public sealed record SetupDriverBinding(string SourceRevision, string LogicalName, string Session,
+    BenchDouble.Ivi.Official.IviModuleBinding Module, string ResourceDescriptor,
+    Dictionary<string, string> Settings, Dictionary<string, string> VirtualNames);
+
+/// <summary>Explicitly reviewed import into an unsaved setup draft.</summary>
+/// <param name="Configuration">Current draft; preserved if import fails.</param>
+/// <param name="CatalogRevision">Revision from the most recent successful host inspection.</param>
+/// <param name="LogicalName">Selected logical name.</param>
+/// <param name="InstrumentId">New or explicitly selected existing canonical instrument.</param>
+/// <param name="Role">Optional experiment role; existing conflicting assignments are rejected.</param>
+/// <param name="Confirmed">Operator reviewed the driver and route, including any physical association.</param>
+public sealed record ApplyIviBindingRequest(BenchSetup Configuration, string CatalogRevision,
+    string LogicalName, string InstrumentId, string? Role, bool Confirmed);
 
 /// <summary>Logical experiment role assignment.</summary>
 /// <param name="Role">Unique experiment role.</param>

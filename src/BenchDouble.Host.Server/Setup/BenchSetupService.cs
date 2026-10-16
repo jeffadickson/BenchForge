@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,8 +11,10 @@ namespace BenchDouble.Host.Server.Setup;
 /// <param name="registry">Canonical reservation authority; no independent setup leases are created.</param>
 /// <param name="discovery">Supported discovery provider.</param>
 /// <param name="path">Explicit host-owned configuration filename.</param>
-public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDiscoveryProvider discovery, string path)
+/// <param name="logger">Optional structured configuration logger; excludes raw settings and identities.</param>
+public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDiscoveryProvider discovery, string path, ILogger<BenchSetupService>? logger = null)
 {
+    private readonly ILogger<BenchSetupService> _logger = logger ?? NullLogger<BenchSetupService>.Instance;
     private readonly object _gate = new();
     private SetupDiscovery? _discovered;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
@@ -29,6 +32,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         var result = await (provider ?? discovery).DiscoverAsync(ct).ConfigureAwait(false);
         ct.ThrowIfCancellationRequested();
         lock (_gate) _discovered = Copy(result);
+        _logger.LogInformation(new EventId(7420, "SetupDiscovered"), "Setup discovery completed: {ControllerCount} controllers, {EndpointCount} endpoints", result.Controllers.Length, result.Endpoints.Length);
         return Copy(result);
     }
 
@@ -59,12 +63,28 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         return request with { Configuration = Parse(JsonSerializer.Serialize(request.Configuration, Json)) };
     }
 
+    /// <summary>Parse a reviewed IVI import request using strict duplicate and unknown-field checks.</summary>
+    /// <param name="json">Import request containing the current draft and selected source/target.</param>
+    /// <returns>Request with a structurally validated configuration.</returns>
+    public static ApplyIviBindingRequest ParseApplyIviBindingRequest(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        CheckDuplicates(document.RootElement);
+        var request = JsonSerializer.Deserialize<ApplyIviBindingRequest>(json, Json) ?? throw new JsonException("Missing binding request.");
+        return request with { Configuration = Parse(JsonSerializer.Serialize(request.Configuration, Json)) };
+    }
+
     /// <summary>Validate structure, controller bindings, association evidence and optional expected identities.</summary>
     /// <param name="configuration">Candidate configuration; never mutates saved state.</param>
     /// <returns>Actionable problems; empty means supported connections passed validation at this instant.</returns>
     public SetupProblem[] Validate(BenchSetup configuration)
     {
-        lock (_gate) return ValidateCore(Copy(configuration));
+        lock (_gate)
+        {
+            var problems = ValidateCore(Copy(configuration));
+            _logger.LogInformation(new EventId(7421, "SetupValidated"), "Setup validation completed with {ProblemCount} problems; codes {ProblemCodes}", problems.Length, string.Join(",", problems.Select(p => p.Code).Distinct()));
+            return problems;
+        }
     }
 
     /// <summary>Read the saved revision; no file means no configuration, while corrupt files are errors.</summary>
@@ -80,6 +100,22 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     /// <exception cref="InvalidOperationException">Revision changed, or connection validation failed.</exception>
     /// <exception cref="ArgumentException">Structural validation failed.</exception>
     public SavedSetup Save(SaveSetupRequest request)
+    {
+        try
+        {
+            var saved = SaveCore(request);
+            _logger.LogInformation(new EventId(7422, "SetupSaved"), "Setup saved: revision {Revision}, draft {Draft}, {InstrumentCount} instruments, {BindingCount} IVI bindings; active runs unchanged",
+                saved.Revision, saved.Draft, saved.Configuration.Instruments.Length, saved.Configuration.Instruments.Sum(i => i.Connections.Count(c => c.DriverBinding is not null)));
+            return saved;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(new EventId(7423, "SetupSaveRejected"), "Setup save failed: {FailureKind}", ex.GetType().Name);
+            throw;
+        }
+    }
+
+    private SavedSetup SaveCore(SaveSetupRequest request)
     {
         var candidate = Copy(request.Configuration);
         lock (_gate)
@@ -123,7 +159,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
             var instrument = saved.Configuration.Instruments.Single(x => Same(x.Id, assigned.InstrumentId));
             var route = instrument.Connections.Single(x => Same(x.Id, instrument.SelectedConnection));
             // Restrict revalidation to the requested instrument; other instruments may be in use.
-            var selected = new BenchSetup(1, saved.Configuration.Controllers, [instrument], [assigned]);
+            var selected = new BenchSetup(saved.Configuration.SchemaVersion, saved.Configuration.Controllers, [instrument], [assigned]);
             var errors = ValidateCore(selected, probe: false);
             if (errors.Length > 0) throw new InvalidOperationException(string.Join("; ", errors.Select(x => x.Message)));
             var lease = registry.Reserve(instrument.Id);
@@ -152,6 +188,8 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     {
         var errors = StructuralProblems(configuration).ToList();
         if (errors.Count > 0) return errors.ToArray();
+        if (configuration.Instruments.Any(i => i.Connections.Any(c => c.DriverBinding is not null)))
+            return [new("driver_activation_unavailable", "instruments", "Reviewed IVI bindings can be saved as offline drafts. Physical driver activation is not implemented; no device was probed.")];
         if (_discovered is null) return [new("discovery_required", "controllers", "Discover the local host before validating; offline drafts may still be saved.")];
         foreach (var instrument in configuration.Instruments)
         {
@@ -214,9 +252,9 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     {
         var errors = new List<SetupProblem>();
         void Error(string path, string message) => errors.Add(new("invalid_configuration", path, message));
-        if (configuration is null || configuration.SchemaVersion != 1 || configuration.Controllers is null ||
+        if (configuration is null || configuration.SchemaVersion is not (1 or 2) || configuration.Controllers is null ||
             configuration.Instruments is null || configuration.Roles is null)
-            return [new("invalid_schema", "$", "Schema version 1 requires controllers, instruments and roles arrays.")];
+            return [new("invalid_schema", "$", "Schema version 1 or 2 requires controllers, instruments and roles arrays.")];
         if (configuration.Controllers.Any(x => x is null) || configuration.Instruments.Any(x => x is null) || configuration.Roles.Any(x => x is null))
             return [new("invalid_schema", "$", "Array entries cannot be null.")];
         bool Id(string? value) => value is not null && Regex.IsMatch(value, @"\A[A-Za-z0-9_.-]{1,80}\z");
@@ -246,6 +284,14 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
             if (instrument.Connections.Length > 1 && !instrument.AssociationConfirmed) Error(instrument.Id, "Confirm that these alternate routes belong to one physical instrument.");
             foreach (var connection in instrument.Connections)
             {
+                if (connection.DriverBinding is { } driver)
+                {
+                    bool Options(Dictionary<string, string>? values) => values is not null && values.Count <= 256 && values.All(x => Text(x.Key) && x.Value is not null && x.Value.Length <= 8192);
+                    if (configuration.SchemaVersion != 2 || driver.SourceRevision is null || !Regex.IsMatch(driver.SourceRevision, @"\A[0-9a-fA-F]{64}\z") ||
+                        !Text(driver.LogicalName) || !Text(driver.Session) || !Text(driver.ResourceDescriptor) || driver.Module is null ||
+                        !Text(driver.Module.Name) || !Text(driver.Module.Kind) || !Options(driver.Settings) || !Options(driver.VirtualNames) || !Same(connection.Provider, "visa"))
+                        Error(instrument.Id, "IVI binding requires schema 2, source revision, module, session, descriptor and bounded option maps.");
+                }
                 if (!Id(connection.Provider) || !Id(connection.Transport) || !Text(connection.Address)) Error(instrument.Id, "Each connection requires provider, transport and address.");
                 if (connection.ControllerId is not null && !configuration.Controllers.Any(x => Same(x.Id, connection.ControllerId) && Same(x.Provider, connection.Provider)))
                     Error(instrument.Id, "Connection references an unknown controller or a different provider.");

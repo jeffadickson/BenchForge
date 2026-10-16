@@ -19,7 +19,7 @@ function render(){
  const label=node('label',undefined,row);label.className='inline';const check=node('input',undefined,label);check.type='checkbox';check.checked=!!inventory&&c.confirmedDiscoveryId===inventory.id;check.disabled=!inventory;node('span',c.stableId?'Stable identity: '+c.stableId:'I identified this adapter',label);check.onchange=()=>{c.confirmedDiscoveryId=check.checked?inventory.id:null;changed();};}
  $('instruments').replaceChildren();
  for(const i of config.instruments){const item=node('div',undefined,$('instruments'));item.className='instrument';const row=node('div',undefined,item);row.className='row';node('strong',i.id,row);input('Friendly name',i.name,value=>i.name=value,row);button('Remove instrument',()=>{config.instruments=config.instruments.filter(x=>x!==i);config.roles=config.roles.filter(x=>x.instrumentId!==i.id);changed();render();},row);
- for(const route of i.connections){const r=node('div',undefined,item);r.className='route';const label=node('label',undefined,r);const radio=node('input',undefined,label);radio.type='radio';radio.name='route-'+i.id;radio.checked=i.selectedConnection===route.id;radio.onchange=()=>{i.selectedConnection=route.id;changed();};node('span',route.id+' · '+route.transport+' · '+(route.controllerId?route.controllerId+' / ':'')+route.address,label);button('Remove',()=>{i.connections=i.connections.filter(x=>x!==route);if(i.selectedConnection===route.id)i.selectedConnection=i.connections[0]?.id||'';changed();render();},r);}
+ for(const route of i.connections){const r=node('div',undefined,item);r.className='route';const label=node('label',undefined,r);const radio=node('input',undefined,label);radio.type='radio';radio.name='route-'+i.id;radio.checked=i.selectedConnection===route.id;radio.onchange=()=>{i.selectedConnection=route.id;changed();};node('span',route.id+' · '+route.transport+' · '+(route.controllerId?route.controllerId+' / ':'')+route.address+(route.driverBinding?' · IVI: '+route.driverBinding.module.name+' / '+route.driverBinding.session+' (offline)':''),label);button('Remove',()=>{i.connections=i.connections.filter(x=>x!==route);if(i.selectedConnection===route.id)i.selectedConnection=i.connections[0]?.id||'';changed();render();},r);}
  if(i.connections.length>1){const label=node('label',undefined,item);label.className='inline';const check=node('input',undefined,label);check.type='checkbox';check.checked=i.associationConfirmed;node('span','I confirm these connections belong to the same physical instrument',label);check.onchange=()=>{i.associationConfirmed=check.checked;changed();};}
  const details=node('details',undefined,item);node('summary','Optional expected identity checks',details);const fields=node('div',undefined,details);fields.className='row';for(const field of ['manufacturer','model','serial'])input(field,i.expectedIdentity?.[field],value=>{i.expectedIdentity??={};i.expectedIdentity[field]=value||null;},fields);
  }
@@ -52,16 +52,24 @@ guard(reload)();
 $('iviInspect').onclick=guard(async()=>{
  const file=$('iviFile').files[0];if(!file)throw Error('Choose an IVI configuration XML file.');
  if(file.size>2*1024*1024)throw Error('IVI configuration exceeds the 2 MiB limit.');
- $('iviCatalog').replaceChildren();$('iviInspect').disabled=true;
+ $('iviCatalog').replaceChildren();$('iviConfirmed').checked=false;$('iviInspect').disabled=true;
  try{
  const response=await fetch('/api/v1/setup/ivi-catalog',{method:'POST',headers:{'Content-Type':'application/xml'},body:await file.text()});
  const catalog=await response.json();if(!response.ok)throw Error(catalog.error||'Cannot inspect IVI configuration.');
  const root=$('iviCatalog');node('p','Source: '+file.name+' · Revision: '+catalog.revision,root).className='muted';
  for(const diagnostic of catalog.diagnostics)node('p',diagnostic,root).className='notice';
  const table=node('table',undefined,root);table.className='inventory';const header=node('tr',undefined,table);
- for(const label of ['Logical name','Driver session','Driver module','Connection'])node('th',label,header);
+ for(const label of ['Logical name','Driver session','Driver module','Connection',''])node('th',label,header);
  for(const binding of catalog.logicalNames){const row=node('tr',undefined,table),session=catalog.sessions.find(s=>s.name===binding.session),asset=catalog.hardwareAssets.find(a=>a.name===session?.hardwareAsset);
- for(const text of [binding.name,binding.session||'Unresolved',session?.softwareModule||'Unresolved',asset?.resourceDescriptor||'Unresolved'])node('td',text,row);}
+ for(const text of [binding.name,binding.session||'Unresolved',session?.softwareModule||'Unresolved',asset?.resourceDescriptor||'Unresolved'])node('td',text,row);
+ button('Use binding',async()=>{
+  if(!$('iviConfirmed').checked)throw Error('Review and confirm the IVI driver, route and target instrument first.');
+  const stamp=JSON.stringify(config);
+  const updated=await api('ivi-bindings/apply',{configuration:config,catalogRevision:catalog.revision,logicalName:binding.name,instrumentId:$('iviInstrumentId').value.trim(),role:$('iviRole').value.trim()||null,confirmed:$('iviConfirmed').checked});
+  if(stamp!==JSON.stringify(config))throw Error('Draft changed during import. Review and apply the binding again.');
+  config=updated;$('draft').checked=true;$('iviConfirmed').checked=false;changed();render();status('Reviewed IVI binding added to offline draft. Review changes and save; no driver has been opened.');
+ },node('td',undefined,row));}
+
  const details=node('details',undefined,root);node('summary','All sessions, modules, routes and settings',details);node('pre',JSON.stringify(catalog,null,2),details);
  status('IVI configuration inspected. Setup and saved configuration are unchanged; driver activation is not implemented.');
  }finally{$('iviInspect').disabled=false;}

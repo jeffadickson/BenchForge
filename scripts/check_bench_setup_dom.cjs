@@ -56,6 +56,15 @@ const root=path.resolve(__dirname,'..');
   window.fetch=async(url,options)=>String(url).endsWith('/ivi-catalog')?{ok:true,json:async()=>({revision:'test-revision',diagnostics:['Preview only'],logicalNames:[{name:'<img src=x>',session:'session'}],sessions:[{name:'session',hardwareAsset:'A',softwareModule:'driver'}],hardwareAssets:[{name:'A',resourceDescriptor:'GPIB1::22::INSTR'}],softwareModules:[]})}:realFetch(url,options);
   Object.defineProperty($('iviFile'),'files',{configurable:true,value:[{name:'store.xml',size:18,text:async()=>'<IviConfigStore />'}]});
   await $('iviInspect').onclick();assert.match($('iviCatalog').textContent,/GPIB1::22::INSTR/);assert.equal($('iviCatalog').querySelectorAll('img').length,0);
+  const previewFetch=window.fetch;
+  window.fetch=async(url,options)=>String(url).endsWith('/ivi-bindings/apply')?{ok:true,json:async()=>{
+   const r=JSON.parse(options.body),draft=r.configuration;draft.schemaVersion=2;
+   draft.instruments.push({id:r.instrumentId,name:r.instrumentId,selectedConnection:'ivi-route1',associationConfirmed:false,connections:[{id:'ivi-route1',provider:'visa',transport:'VISA',address:'TCPIP0::meter.lab::inst0::INSTR',driverBinding:{sourceRevision:'a'.repeat(64),logicalName:r.logicalName,session:'session',module:{name:'driver',kind:'IviNetSoftwareModule',assemblyQualifiedClassName:'Vendor.Driver, Vendor'},resourceDescriptor:'TCPIP0::meter.lab::inst0::INSTR',settings:{DriverSetup:'PRIVATE-DRIVER-OPTION'},virtualNames:{}}}]});return draft;
+  }}:previewFetch(url,options);
+  $('iviInstrumentId').value='IMPORTED';
+  await $('iviCatalog').querySelector('button').onclick();assert.match($('status').textContent,/Review and confirm/);
+  $('iviConfirmed').checked=true;await $('iviCatalog').querySelector('button').onclick();assert.match($('status').textContent,/added to offline draft/);
+  assert.match($('instruments').textContent,/IVI: driver/);assert.equal(JSON.parse($('json').value).schemaVersion,2);
   window.fetch=realFetch;
   assert.equal(JSON.stringify(await(await request('/api/v1/setup/configuration')).json()),beforeIvi);
   // A stale editor cannot overwrite the saved configuration.
@@ -66,7 +75,8 @@ const root=path.resolve(__dirname,'..');
   $('review').onclick();$('reviewConfirmed').checked=true;$('draft').checked=true;await $('save').onclick();assert.match($('status').textContent,/Untested draft saved/);
   assert.equal((await request('/api/v1/setup/roles/voltmeter/reserve',{})).status,409);
   await $('reload').onclick();assert.match($('instruments').textContent,/PHYSICAL1/);
-  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics and read-only catalog rendering.');
+  assert.ok(!log.includes('PRIVATE-DRIVER-OPTION'));assert.match(log,/Setup saved/);
+  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics, reviewed binding UI and payload-free save logging.');
  }finally{
   if(window)await window.happyDOM.close();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null?resolve():child.once('exit',resolve));fs.rmSync(temporary,{recursive:true,force:true});
  }

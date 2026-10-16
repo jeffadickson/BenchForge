@@ -1,6 +1,6 @@
 # Discovery-assisted bench configuration
 
-Status: partially implemented; guided UI, strict configuration, simulated validation and optional native VISA enumeration are present. See [user guide](BENCH-SETUP-USER-GUIDE.md) for execution scope and physical limitations. Tracked by [issue #69](https://github.com/jeffadickson/BenchForge/issues/69), BD-CFG-008..012, and the existing ownership/snapshot requirements BD-CFG-004/005 and TR-031/032. The current client role-to-host configuration remains unchanged. A separate version-1 host setup schema is implemented; unsupported physical mappings remain untested drafts.
+Status: partially implemented; guided UI, strict configuration, simulated validation and optional native VISA enumeration are present. See [user guide](BENCH-SETUP-USER-GUIDE.md) for execution scope and physical limitations. Tracked by [issue #69](https://github.com/jeffadickson/BenchForge/issues/69), BD-CFG-008..012, and the existing ownership/snapshot requirements BD-CFG-004/005 and TR-031/032. The current client role-to-host configuration remains unchanged. A separate host setup schema supports version 1 routes and version 2 reviewed IVI bindings; unsupported physical mappings remain untested drafts.
 
 ## User goal
 

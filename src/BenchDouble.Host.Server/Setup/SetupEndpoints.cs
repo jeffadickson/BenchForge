@@ -18,18 +18,27 @@ public static class SetupEndpoints
             if (request.Host.Host is not ("127.0.0.1" or "localhost" or "::1")) return Results.StatusCode(403);
             var origin = request.Headers.Origin.ToString();
             if (origin.Length > 0 && origin != $"{request.Scheme}://{request.Host}") return Results.StatusCode(403);
-            try { return await next(context); }
-            catch (PlatformNotSupportedException ex) { return Results.Json(new { error = ex.Message }, statusCode: 503); }
-            catch (JsonException ex) { return Results.BadRequest(new { error = ex.Message }); }
-            catch (ArgumentException ex) { return Results.BadRequest(new { error = ex.Message }); }
-            catch (InvalidOperationException ex) { return Results.Conflict(new { error = ex.Message }); }
-            catch (KeyNotFoundException ex) { return Results.NotFound(new { error = ex.Message }); }
+            try
+            {
+                return await next(context);
+            }
+            catch (Exception ex) when (ex is PlatformNotSupportedException or JsonException or ArgumentException or InvalidOperationException or KeyNotFoundException)
+            {
+                app.Logger.LogWarning(new EventId(7430, "SetupRequestRejected"), "Setup request rejected: {FailureKind}; trace {TraceId}", ex.GetType().Name, context.HttpContext.TraceIdentifier);
+                return ex switch
+                {
+                    PlatformNotSupportedException => Results.Json(new { error = ex.Message }, statusCode: 503),
+                    InvalidOperationException => Results.Conflict(new { error = ex.Message }),
+                    KeyNotFoundException => Results.NotFound(new { error = ex.Message }),
+                    _ => Results.BadRequest(new { error = ex.Message })
+                };
+            }
         });
         group.MapPost("/discover", async (BenchSetupService setup, CancellationToken ct) =>
             Results.Ok(await setup.DiscoverAsync(ct)));
         group.MapPost("/discover-visa", async (string scope, string? host, BenchSetupService setup, CancellationToken ct) =>
             Results.Ok(await setup.DiscoverAsync(ct, new NativeVisaDiscoveryProvider(scope, host))));
-        group.MapPost("/ivi-catalog", async (HttpRequest request, CancellationToken ct) =>
+        group.MapPost("/ivi-catalog", async (HttpRequest request, IviSetupCatalogService catalogs, CancellationToken ct) =>
         {
             // Bounded upload only: the browser cannot request arbitrary host file paths.
             using var buffer = new MemoryStream();
@@ -44,10 +53,12 @@ public static class SetupEndpoints
             try
             {
                 var xml = new UTF8Encoding(false, true).GetString(buffer.ToArray()).TrimStart('\uFEFF');
-                return Results.Ok(IviConfigurationCatalogReader.ReadXml(xml, ct));
+                return Results.Ok(catalogs.Inspect(xml, ct));
             }
             catch (DecoderFallbackException) { return Results.BadRequest(new { error = "Upload IVI XML as UTF-8 text." }); }
         });
+        group.MapPost("/ivi-bindings/apply", (JsonElement document, IviSetupCatalogService catalogs) =>
+            Results.Ok(catalogs.Apply(BenchSetupService.ParseApplyIviBindingRequest(document.GetRawText()))));
         group.MapGet("/configuration", (BenchSetupService setup) => setup.Read() is { } saved
             ? Results.Ok(saved) : Results.Content("null", "application/json"));
         group.MapPost("/validate", (JsonElement document, BenchSetupService setup) =>
