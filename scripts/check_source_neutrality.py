@@ -17,10 +17,6 @@ ROOT = Path(__file__).resolve().parents[1]
 LEGAL_REGISTER = "THIRD_PARTY_REVIEW.md"
 # Construct the search term to keep the audit implementation source-neutral.
 PROHIBITED = ("Py" + "Measure").casefold()
-TEXT_SUFFIXES = {".md", ".rst", ".txt", ".py", ".cs", ".csproj", ".props",
-                 ".targets", ".json", ".yaml", ".yml", ".xml", ".csv", ".sdoc",
-                 ".html", ".js", ".ts", ".ps1", ".sh", ".toml", ".ini", ".gitignore"}
-
 
 def tracked_files() -> list[str]:
     """Return Git-tracked paths, including generated source and historical docs."""
@@ -39,10 +35,13 @@ def audit() -> list[dict[str, object]]:
         if PROHIBITED in name.casefold():
             findings.append({"path": name, "line": 0, "kind": "filename"})
         path = ROOT / name
-        if not path.is_file() or path.suffix.casefold() not in TEXT_SUFFIXES:
+        if not path.is_file():
             continue
         try:
-            lines = path.read_text(encoding="utf-8").splitlines()
+            raw = path.read_bytes()
+            if b"\\0" in raw:
+                continue
+            lines = raw.decode("utf-8").splitlines()
         except (UnicodeError, OSError):
             continue
         for number, line in enumerate(lines, 1):
