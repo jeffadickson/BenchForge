@@ -4,6 +4,8 @@ Status: partially implemented; guided UI, strict configuration, simulated valida
 
 ## User goal
 
+The [IVI configuration architecture review](IVI-CONFIGURATION-REVIEW.md) maps existing IVI configuration and driver facilities to this workflow. The next physical activation increment should add an optional IVI adapter, preserving canonical ownership and optional serial numbers.
+
 Help the human set up and maintain a bench with minimal transcription. Serial numbers are optional. The normal experience should be selecting discovered equipment, giving it useful names and assigning experiment roles. A single-instrument setup should not require the user to understand controller indices, VISA resource syntax, canonicalization or leases.
 
 Multiple simultaneous experiments make shared ownership essential. Discovery and clear configuration are useful even for one experiment. Keep the simple workflow short and expose controller/alternate-route details when the bench needs them.

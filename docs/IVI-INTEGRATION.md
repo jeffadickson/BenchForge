@@ -1,5 +1,7 @@
 # IVI architecture and compatibility plan
 
+2026-10-16 status: the optional official DMM/FGEN adapter project described below as a future milestone now exists. See [official integration](OFFICIAL-IVI.md) and the [configuration architecture review](IVI-CONFIGURATION-REVIEW.md) for current source boundaries and the remaining activation work. The following prototype plan is retained as historical context; its unimplemented list is not a current repository-wide inventory.
+
 ## Decision
 
 BenchDouble will support IVI as a first-class instrument abstraction, without claiming IVI conformance prematurely.

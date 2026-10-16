@@ -2,6 +2,8 @@
 
 **228 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
 
+IVI architecture review (2026-10-16): [configuration/driver integration assessment](../docs/IVI-CONFIGURATION-REVIEW.md) maps TR-037 (#46) and BD-CFG-008..012 (#69) to the official configuration model and existing bridges. It records proposed read-only import, driver binding, controlled activation and hardware acceptance work. Documentation only; no runtime implementation, new verification claim or status/count change.
+
 | Status | Count |
 |---|---:|
 | DesignOnly | 7 |

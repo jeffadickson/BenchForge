@@ -1,5 +1,7 @@
 # Official IVI.NET integration — phase 1
 
+Current architecture review: [IVI configuration integration](IVI-CONFIGURATION-REVIEW.md). The DMM and FGEN delegate bridges both exist; the original phase-1 limitations and checklist below are historical. Configuration-store resolution, vendor activation and hardware validation remain outstanding.
+
 ## Objective
 Use real IVI Foundation assemblies instead of redefining their class contracts. The portable `BenchDouble` project must have **no** vendor/IVI dependencies; official integration is in `BenchDouble.Ivi.Official`.
 
