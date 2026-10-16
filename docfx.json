@@ -5,6 +5,7 @@
         {
           "files": [
             "src/**/*.csproj",
+            "generated/**/*.csproj",
             "tools/**/*.csproj",
             "examples/**/*.csproj"
           ],
@@ -59,7 +60,7 @@
       "modern"
     ],
     "globalMetadata": {
-      "_appTitle": "BenchDouble",
+      "_appTitle": "BenchForge",
       "_enableSearch": true
     }
   }

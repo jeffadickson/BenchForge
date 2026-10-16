@@ -9,14 +9,14 @@ namespace BenchDouble.Ivi.Official;
 /// </summary>
 public static class OfficialIviCompatibility
 {
-    public const string DmmInterfaceName = "Ivi.Dmm.IIviDmm";
-    public const string FgenInterfaceName = "Ivi.Fgen.IIviFgen";
+    public const string DmmInterfaceName = "global::Ivi.Dmm.IIviDmm";
+    public const string FgenInterfaceName = "global::Ivi.Fgen.IIviFgen";
 
     public static Type DmmInterface =>
-        typeof(Ivi.Dmm.IIviDmm);
+        typeof(global::Ivi.Dmm.IIviDmm);
 
     public static Type FgenInterface =>
-        typeof(Ivi.Fgen.IIviFgen);
+        typeof(global::Ivi.Fgen.IIviFgen);
 
     public static bool IsOfficialDmm(object driver) =>
         DmmInterface.IsInstanceOfType(driver);
@@ -38,13 +38,13 @@ public static class OfficialIviCompatibility
     /// Checks that a supplied vendor driver truly implements the official DMM interface.
     /// This is more meaningful than adopting IVI-like method names.
     /// </summary>
-    public static Ivi.Dmm.IIviDmm RequireOfficialDmm(object driver) =>
-        driver as Ivi.Dmm.IIviDmm ??
-        throw new ArgumentException("Driver does not implement the official Ivi.Dmm.IIviDmm interface.", nameof(driver));
+    public static global::Ivi.Dmm.IIviDmm RequireOfficialDmm(object driver) =>
+        driver as global::Ivi.Dmm.IIviDmm ??
+        throw new ArgumentException("Driver does not implement the official global::Ivi.Dmm.IIviDmm interface.", nameof(driver));
 
-    public static Ivi.Fgen.IIviFgen RequireOfficialFunctionGenerator(object driver) =>
-        driver as Ivi.Fgen.IIviFgen ??
-        throw new ArgumentException("Driver does not implement the official Ivi.Fgen.IIviFgen interface.", nameof(driver));
+    public static global::Ivi.Fgen.IIviFgen RequireOfficialFunctionGenerator(object driver) =>
+        driver as global::Ivi.Fgen.IIviFgen ??
+        throw new ArgumentException("Driver does not implement the official global::Ivi.Fgen.IIviFgen interface.", nameof(driver));
 }
 
 /// <summary>
@@ -54,18 +54,18 @@ public static class OfficialIviCompatibility
 /// </summary>
 public sealed class OfficialDmmBridge : IIviDigitalMultimeter
 {
-    private readonly Ivi.Dmm.IIviDmm _driver;
-    private readonly Action<Ivi.Dmm.IIviDmm, IviMeasurementFunction, double?, double?> _configure;
-    private readonly Func<Ivi.Dmm.IIviDmm, double> _measure;
-    private readonly Action<Ivi.Dmm.IIviDmm> _reset;
-    private readonly Func<Ivi.Dmm.IIviDmm, string> _identity;
+    private readonly global::Ivi.Dmm.IIviDmm _driver;
+    private readonly Action<global::Ivi.Dmm.IIviDmm, IviMeasurementFunction, double?, double?> _configure;
+    private readonly Func<global::Ivi.Dmm.IIviDmm, double> _measure;
+    private readonly Action<global::Ivi.Dmm.IIviDmm> _reset;
+    private readonly Func<global::Ivi.Dmm.IIviDmm, string> _identity;
 
     public OfficialDmmBridge(
-        Ivi.Dmm.IIviDmm driver,
-        Action<Ivi.Dmm.IIviDmm, IviMeasurementFunction, double?, double?> configure,
-        Func<Ivi.Dmm.IIviDmm, double> measure,
-        Action<Ivi.Dmm.IIviDmm> reset,
-        Func<Ivi.Dmm.IIviDmm, string> identity)
+        global::Ivi.Dmm.IIviDmm driver,
+        Action<global::Ivi.Dmm.IIviDmm, IviMeasurementFunction, double?, double?> configure,
+        Func<global::Ivi.Dmm.IIviDmm, double> measure,
+        Action<global::Ivi.Dmm.IIviDmm> reset,
+        Func<global::Ivi.Dmm.IIviDmm, string> identity)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
@@ -91,18 +91,18 @@ public sealed class OfficialDmmBridge : IIviDigitalMultimeter
 /// </summary>
 public sealed class OfficialFgenBridge : IIviFunctionGenerator
 {
-    private readonly Ivi.Fgen.IIviFgen _driver;
-    private readonly Action<Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> _configure;
-    private readonly Action<Ivi.Fgen.IIviFgen, int, bool> _output;
-    private readonly Action<Ivi.Fgen.IIviFgen> _reset;
-    private readonly Func<Ivi.Fgen.IIviFgen, string> _identity;
+    private readonly global::Ivi.Fgen.IIviFgen _driver;
+    private readonly Action<global::Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> _configure;
+    private readonly Action<global::Ivi.Fgen.IIviFgen, int, bool> _output;
+    private readonly Action<global::Ivi.Fgen.IIviFgen> _reset;
+    private readonly Func<global::Ivi.Fgen.IIviFgen, string> _identity;
 
     public OfficialFgenBridge(
-        Ivi.Fgen.IIviFgen driver,
-        Action<Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> configure,
-        Action<Ivi.Fgen.IIviFgen, int, bool> output,
-        Action<Ivi.Fgen.IIviFgen> reset,
-        Func<Ivi.Fgen.IIviFgen, string> identity)
+        global::Ivi.Fgen.IIviFgen driver,
+        Action<global::Ivi.Fgen.IIviFgen, int, IviWaveform, double, double> configure,
+        Action<global::Ivi.Fgen.IIviFgen, int, bool> output,
+        Action<global::Ivi.Fgen.IIviFgen> reset,
+        Func<global::Ivi.Fgen.IIviFgen, string> identity)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
