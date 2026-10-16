@@ -12,8 +12,8 @@
     ]
   },
   "provenance": {
-    "upstreamProject": "PyMeasure",
-    "sourcePath": "pymeasure/instruments/keithley/keithley2400.py",
+    "upstreamProject": "external-source",
+    "sourcePath": "external-source/instruments/keithley/keithley2400.py",
     "sourceRevision": "pin-upstream-commit-before-review",
     "license": "MIT (verify notice and dependency provenance)",
     "manualReference": "Keithley 2400 Series SourceMeter User's Manual",
@@ -49,7 +49,7 @@
       "modes": [],
       "mockDefault": null,
       "sourceLine": 78,
-      "notes": "SCPI syntax from PyMeasure; line reference illustrative, verify pinned revision",
+      "notes": "SCPI syntax from external-source; line reference illustrative, verify pinned revision",
       "reviewStatus": "unreviewed"
     },
     {
@@ -65,7 +65,7 @@
       "modes": [],
       "mockDefault": null,
       "sourceLine": 88,
-      "notes": "PyMeasure strict_range; setting may disable automatic delay",
+      "notes": "external-source strict_range; setting may disable automatic delay",
       "reviewStatus": "unreviewed"
     },
     {
