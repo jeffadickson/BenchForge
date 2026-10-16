@@ -631,7 +631,7 @@ STATEMENT: Plot downsampling shall preserve peak excursions and raw acceptance e
 UID: BD-SIM-001
 STATUS: Active
 TITLE: BD-SIM-001 P0
-STATEMENT: Instrument mocks shall accept injected behavior and a run-scoped simulation clock.
+STATEMENT: Instrument mocks shall accept injected behavior and a run-scoped simulation clock. Acceptance: Captured meter reads shall reject missing acquisition components, empty or mismatched correlation IDs and mismatched meter/waveform start times before consuming queued faults; a subsequent valid read shall consume the fault exactly once.
 
 [REQUIREMENT]
 UID: BD-SIM-002

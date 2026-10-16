@@ -118,14 +118,16 @@ public sealed class StatefulMockEngine
     /// <param name="acquisition">Correlated source and waveform snapshot.</param>
     /// <param name="ct">Cancellation while waiting for exclusive mock access.</param>
     /// <returns>Canonical scalar reading with source and mock revision identifiers.</returns>
+    /// <exception cref="ArgumentException">Acquisition components, identity or timing are inconsistent.</exception>
     public async ValueTask<CapturedMockReading> ReadCapturedAsync(string capability,
         VirtualCoherentAcquisition acquisition, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(acquisition);
         var metadata = _definition.Capability(capability);
-        if (acquisition.AcquisitionId == Guid.Empty ||
+        if (acquisition.Measurement is null || acquisition.SourceState is null ||
+            acquisition.Waveform is null || acquisition.AcquisitionId == Guid.Empty ||
             acquisition.Waveform.AcquisitionId != acquisition.AcquisitionId ||
-            acquisition.SourceRevision != acquisition.Measurement.Revision)
+            acquisition.Waveform.TimeAt(0).Seconds != acquisition.Measurement.Elapsed.TotalSeconds)
             throw new ArgumentException("Inconsistent acquisition provenance.", nameof(acquisition));
         double value = (metadata.Quantity, metadata.Unit) switch
         {

@@ -167,6 +167,39 @@ public sealed class StatefulMockEngineTests
         Assert.Equal(0, (await mock.ReadCapturedAsync("voltage", acquired)).Value);
     }
 
+    /// <summary>Malformed acquisition metadata is rejected before consuming a one-shot fault.</summary>
+    /// <returns>Completion of acquisition validation and fault preservation checks.</returns>
+    [Fact]
+    public async Task MalformedCapturedAcquisitionsPreserveFault()
+    {
+        var clock = new ManualSimulationClock();
+        clock.AdvanceBy(TimeSpan.FromSeconds(3));
+        var smu = new VirtualSourceMeasureUnit(new VirtualSignalBus(), clock);
+        var acquired = smu.AcquireCoherently(1, 4, UnitsNet.Duration.FromMilliseconds(1));
+        var malformed = new[]
+        {
+            acquired with { AcquisitionId = Guid.Empty },
+            acquired with { AcquisitionId = Guid.NewGuid() },
+            acquired with { Measurement = null! },
+            acquired with { SourceState = null! },
+            acquired with { Waveform = null! },
+            acquired with { Measurement = acquired.Measurement with { Elapsed = TimeSpan.Zero } }
+        };
+        foreach (var invalid in malformed)
+        {
+            var mock = new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition));
+            await mock.ConfigureModeAsync("voltage");
+            var fault = new TimeoutException("preserved fault");
+            mock.QueueFault("voltage", fault);
+            var rejection = await Assert.ThrowsAsync<ArgumentException>(
+                async () => await mock.ReadCapturedAsync("voltage", invalid));
+            Assert.Equal("acquisition", rejection.ParamName);
+            Assert.Same(fault, await Assert.ThrowsAsync<TimeoutException>(
+                async () => await mock.ReadCapturedAsync("voltage", acquired)));
+            Assert.Equal(0, (await mock.ReadCapturedAsync("voltage", acquired)).Value);
+        }
+    }
+
     /// <summary>Reset restores definition defaults without mutating old snapshots.</summary>
     /// <returns>Completion of snapshot verification.</returns>
     [Fact]
