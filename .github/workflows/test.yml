@@ -160,3 +160,6 @@ jobs:
       - name: Test instrument-host reservation contracts
         run: dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
 
+      - name: Enforce source-neutrality release gate
+        if: always()
+        run: python scripts/check_source_neutrality.py --strict --output build/source-neutrality-audit.json
