@@ -991,7 +991,7 @@ STATEMENT: Generated mocks shall support per-channel state and strongly typed si
 UID: BD-GEN-004
 STATUS: Active
 TITLE: BD-GEN-004 P0
-STATEMENT: Instrument inventory shall distinguish PyMeasure catalog entries from completed driver ports and physical hardware validation.
+STATEMENT: Instrument inventory shall distinguish external instrument source catalog entries from completed driver ports and physical hardware validation.
 
 [REQUIREMENT]
 UID: BD-GEN-005
@@ -1015,7 +1015,7 @@ STATEMENT: Instrument definitions shall have a versioned machine-readable schema
 UID: BD-DEF-002
 STATUS: Active
 TITLE: BD-DEF-002 P1
-STATEMENT: Instrument Definer shall extract PyMeasure descriptors and public methods using static parsing without executing upstream Python source.
+STATEMENT: Instrument Definer shall extract external instrument source descriptors and public methods using static parsing without executing upstream Python source.
 
 [REQUIREMENT]
 UID: BD-DEF-003
@@ -1051,7 +1051,7 @@ STATEMENT: Reviewed schema-v2 definitions shall generate typed asynchronous driv
 UID: BD-DEF-008
 STATUS: Active
 TITLE: BD-DEF-008 P1
-STATEMENT: PyMeasure extraction shall report inherited/dynamic methods, parser coverage and unresolved mappings before a definition can be reviewed.
+STATEMENT: external instrument source extraction shall report inherited/dynamic methods, parser coverage and unresolved mappings before a definition can be reviewed.
 
 [REQUIREMENT]
 UID: BD-LIFE-001
@@ -1339,4 +1339,4 @@ STATEMENT: Static extraction shall report potentially missing inherited and dyna
 UID: BD-DEF-011
 STATUS: Active
 TITLE: BD-DEF-011 P1
-STATEMENT: The Instrument Definer shall batch-extract a pinned manifest of PyMeasure instruments with per-instrument diagnostics and no overwrites.
+STATEMENT: The Instrument Definer shall batch-extract a pinned manifest of external instrument source instruments with per-instrument diagnostics and no overwrites.
