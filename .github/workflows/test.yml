@@ -81,6 +81,20 @@ jobs:
         run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
       - name: Audit API documentation
         run: dotnet run --project tools/BenchDouble.DocumentationAudit -- . build/api-audit.json
+      - name: Compare portable XDoc preflight with Roslyn
+        continue-on-error: true
+        run: |
+          python scripts/check_docs_portable.py . --output build/docs-preflight.json
+          python scripts/compare_doc_audits.py --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
+      - name: Archive portable XDoc comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xdoc-parity-${{ matrix.os }}
+          path: |
+            build/docs-preflight.json
+            build/docs-parity.json
+          if-no-files-found: ignore
       - name: Reject new documentation gaps
         run: python scripts/check_api_docs.py
       - name: Test documentation gate
