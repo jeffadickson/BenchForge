@@ -97,6 +97,10 @@ jobs:
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockEngineTests"
       - name: Test run-scoped stateful mock composition
         run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockCompositionTests"
+      - name: Test coherent virtual source and oscilloscope acquisition
+        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualCoherentAcquisitionTests"
+      - name: Test run-scoped virtual source and scope composition
+        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSmuCompositionTests"
       - name: Compile committed schema-v2 generated preview
         run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
       - name: Audit API documentation
