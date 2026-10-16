@@ -49,12 +49,32 @@ jobs:
           if-no-files-found: ignore
       - name: Validate 25-instrument porting catalog
         run: python scripts/check_instrument_catalog.py
-      - name: Verify checked-in typed drivers and mocks
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
-      - name: Generate instrument drivers
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
-      - name: Verify committed schema-v2 generated output without rewriting it
-        run: dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
+      - name: Regenerate source into working tree for exact drift diagnosis
+        shell: bash
+        run: |
+          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
+          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code
+          git diff --binary -- src/BenchDouble/Generated generated/BenchForge.Instruments/Code > generated-drift.patch
+          git status --short -- src/BenchDouble/Generated generated/BenchForge.Instruments/Code > generated-drift-status.txt
+      - name: Archive exact generated-source drift
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-drift-${{ matrix.os }}
+          path: |
+            generated-drift.patch
+            generated-drift-status.txt
+          if-no-files-found: ignore
+      - name: Enforce generated-source consistency
+        shell: bash
+        run: |
+          if [ -s generated-drift-status.txt ]; then
+            cat generated-drift-status.txt
+            echo "Generated source differs from committed source. Download the generated-drift artifact."
+            exit 1
+          fi
+          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
+          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
       - name: Test shared virtual bench and stateful signal model
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
       - name: Compile committed schema-v2 generated preview
