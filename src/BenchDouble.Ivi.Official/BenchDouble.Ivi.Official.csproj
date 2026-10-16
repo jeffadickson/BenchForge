@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="../BenchDouble/BenchDouble.csproj" />
     <PackageReference Include="IviFoundation.Driver" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.ConfigServer" Version="2.1.0" />
     <PackageReference Include="IviFoundation.Driver.Dmm" Version="2.1.0" />
     <PackageReference Include="IviFoundation.Driver.Fgen" Version="2.1.0" />
     <PackageReference Include="IviFoundation.DriverCore" Version="1.0.1" />

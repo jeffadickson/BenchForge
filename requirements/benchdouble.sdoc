@@ -223,7 +223,7 @@ STATEMENT: Record host, manufacturer/model/firmware, driver/version/hash, instru
 UID: TR-037
 STATUS: Active
 TITLE: TR-037 P1
-STATEMENT: Use official IVI class interfaces where available, SCPI/VISA otherwise, with vendor-specific optional capabilities.
+STATEMENT: Use official IVI class interfaces where available, SCPI/VISA otherwise, with vendor-specific optional capabilities. Provide optional read-only inspection of an operator-supplied IVI configuration snapshot through official shared components, retaining logical names, driver-session references, modules, resource descriptors and standard settings without creating vendor drivers or changing configuration. Acceptance: Distinguish identical GPIB addresses on separate controllers without requiring serial numbers; retain aliases and unresolved-reference diagnostics; reject malformed or oversized XML and external entities; leave saved setup unchanged; report an unsupported provider platform explicitly. Configuration inspection shall not imply hardware validation, lossless export, driver activation or IVI conformance.
 
 [REQUIREMENT]
 UID: TR-038

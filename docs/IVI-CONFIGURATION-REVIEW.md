@@ -1,7 +1,7 @@
 # IVI configuration architecture review
 
 Reviewed 2026-10-16 against BenchForge commit `832854f08f0e2ddf117063d301315a9d8368a08a`.
-This is a design review, not an implemented importer or a conformance claim.
+This records the architecture decision. A read-only uploaded catalog preview has since been implemented; see the increment below. Reviewed driver-binding import and activation remain unimplemented. No conformance claim.
 Existing work items: #46 / TR-037 (IVI integration), #69 / BD-CFG-008..012 (guided setup).
 
 ## Recommendation
@@ -61,3 +61,9 @@ Use official class APIs where actually implemented; Core compatibility alone mus
 4. [IVI instrument classes](https://www.ivifoundation.org/About-IVI/Instrument-Classes.html) and [DriverCore 1.0.1 package](https://www.nuget.org/packages/IviFoundation.DriverCore/).
 
 This review inspected specifications and local integration source. It did not run an IVI Configuration Server, instantiate a vendor driver, establish package licensing compatibility, or test physical hardware. Links to upstream main are moving references; pin upstream versions before implementation acceptance.
+
+## Read-only catalog increment
+
+`IviConfigurationCatalogReader` uses the official ConfigServer metadata API and a bounded, vetted temporary XML snapshot. The setup UI provides upload and read-only review. Standard settings and declared module types are data only. The endpoint never invokes a driver factory, merges instruments or applies configuration.
+
+Local execution found that ConfigServer 2.1.0 requires Windows registry support. Portable tests exercise projection from actual official metadata objects, malformed XML, size/cancellation boundaries and explicit unavailable-platform diagnostics. A Windows-only test covers official serialization/loading when run on Windows; it is explicitly skipped on Linux. Windows file-loader and vendor-runtime acceptance remain outstanding. Read-only preview is the first portion of step 1; live store discovery and reviewed binding import are still pending.

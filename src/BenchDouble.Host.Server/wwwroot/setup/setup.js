@@ -48,3 +48,21 @@ $('export').onclick=()=>{const blob=new Blob([JSON.stringify(config,null,2)],{ty
 $('import').onclick=guard(async()=>{const text=$('json').value;const response=await fetch('/api/v1/setup/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:text});const value=await response.json();if(!response.ok)throw Error(value.error||'Invalid configuration');config=JSON.parse(text);changed();render();status('Imported into the draft. Connection validation and saving are separate steps.');});
 $('file').onchange=guard(async()=>{$('json').value=await $('file').files[0].text();status('File loaded into the JSON editor. Apply it to the draft to review.');});
 guard(reload)();
+
+$('iviInspect').onclick=guard(async()=>{
+ const file=$('iviFile').files[0];if(!file)throw Error('Choose an IVI configuration XML file.');
+ if(file.size>2*1024*1024)throw Error('IVI configuration exceeds the 2 MiB limit.');
+ $('iviCatalog').replaceChildren();$('iviInspect').disabled=true;
+ try{
+ const response=await fetch('/api/v1/setup/ivi-catalog',{method:'POST',headers:{'Content-Type':'application/xml'},body:await file.text()});
+ const catalog=await response.json();if(!response.ok)throw Error(catalog.error||'Cannot inspect IVI configuration.');
+ const root=$('iviCatalog');node('p','Source: '+file.name+' · Revision: '+catalog.revision,root).className='muted';
+ for(const diagnostic of catalog.diagnostics)node('p',diagnostic,root).className='notice';
+ const table=node('table',undefined,root);table.className='inventory';const header=node('tr',undefined,table);
+ for(const label of ['Logical name','Driver session','Driver module','Connection'])node('th',label,header);
+ for(const binding of catalog.logicalNames){const row=node('tr',undefined,table),session=catalog.sessions.find(s=>s.name===binding.session),asset=catalog.hardwareAssets.find(a=>a.name===session?.hardwareAsset);
+ for(const text of [binding.name,binding.session||'Unresolved',session?.softwareModule||'Unresolved',asset?.resourceDescriptor||'Unresolved'])node('td',text,row);}
+ const details=node('details',undefined,root);node('summary','All sessions, modules, routes and settings',details);node('pre',JSON.stringify(catalog,null,2),details);
+ status('IVI configuration inspected. Setup and saved configuration are unchanged; driver activation is not implemented.');
+ }finally{$('iviInspect').disabled=false;}
+});

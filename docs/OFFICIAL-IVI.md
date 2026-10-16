@@ -42,3 +42,7 @@ This is not a full IVI driver implementation, driver factory, vendor loader, aut
 - Added `tests/BenchDouble.Ivi.Official.Tests/`, which uses real IVI interface assemblies and NSubstitute doubles to check loading, type identity, interface-based dispatch, argument validation, and lifecycle delegation.
 - The cross-platform CI matrix now builds the optional module and runs these official interface contract tests.
 - **Verification status:** tests have been committed but not executed in the current environment. Vendor method mapping, actual driver loading, end-to-end IVI interchangeability and native VISA remain outstanding.
+
+## Read-only configuration catalog
+
+The optional integration now exposes `IviConfigurationCatalogReader`, used by the host setup preview. It reads uploaded configuration metadata through official shared components without invoking driver factories. ConfigServer file loading requires Windows; metadata projection and rejection diagnostics have portable tests. See [setup instructions](BENCH-SETUP-USER-GUIDE.md#inspect-an-existing-ivi-configuration). This does not complete driver activation or interchangeability.

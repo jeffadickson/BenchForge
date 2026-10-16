@@ -61,3 +61,13 @@ Release a granted lease using the existing `DELETE /api/v1/reservations/{leaseId
 - Both scripts use a temporary configuration file. Run against an otherwise unused port 5278. The scripts do not test attached physical equipment.
 
 See [discovery-assisted requirements](DISCOVERY-ASSISTED-SETUP.md) and issue #69 for the remaining physical-provider, native-runtime and rendered-browser acceptance work.
+
+## Inspect an existing IVI configuration
+
+On a Windows host, open **Review an existing IVI configuration**, select an IVI configuration XML file, and choose **Inspect IVI configuration**. The preview shows logical names, driver sessions, module declarations and hardware addresses. Expand the details to inspect all driver sessions, standard options and virtual-name mappings. Serial numbers are not required. This step leaves the bench draft, saved configuration and original XML unchanged.
+
+The endpoint is `POST /api/v1/setup/ivi-catalog` with UTF-8 XML as its body, limited to 2 MiB. It shares the existing local-host/origin restrictions. It accepts uploaded content, never a host filesystem path. XML with DTDs/external entities is rejected. The returned revision hashes the submitted text encoded as UTF-8, after the endpoint removes a leading BOM.
+
+The host references the official ConfigServer package through the existing optional IVI integration module; the portable BenchDouble core remains independent. ConfigServer 2.1.0 accesses the Windows registry even for configuration objects. Linux/macOS hosts therefore return an explicit HTTP 503 provider diagnostic; simulation and manual setup continue to work. No automatic vendor installation or driver assembly loading occurs.
+
+This is a metadata preview, not schema validation, a lossless export, an applied driver binding, or hardware activation. The official `LoadWithoutValidation` API avoids requiring a separately installed schema; malformed structure or unresolved references can be rejected by the official loader. Custom data, virtual ranges and other extensions remain in the original XML. Standard settings are displayed but never applied. Keep the original XML; do not treat the catalog JSON as a replacement.

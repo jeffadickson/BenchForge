@@ -41,6 +41,23 @@ const root=path.resolve(__dirname,'..');
   $('cancelEdit').onclick();assert.equal((await(await request('/api/v1/setup/configuration')).json()).revision,saved.revision);
   // JSON import is checked by the actual strict host parser before applying it to the draft.
   $('json').value='{"schemaVersion":1,"schemaVersion":2}';await $('import').onclick();assert.match($('status').textContent,/Duplicate setup field/);
+  // Read-only IVI upload: exercise real malformed-input handling and platform diagnostics.
+  const beforeIvi=JSON.stringify(await(await request('/api/v1/setup/configuration')).json());
+  const inspectXml=body=>fetch(base+'/api/v1/setup/ivi-catalog',{method:'POST',headers:{'Content-Type':'application/xml'},body});
+  assert.equal((await inspectXml('<bad/>')).status,400);
+  assert.equal((await inspectXml('<!DOCTYPE x [<!ENTITY e SYSTEM "file:///etc/passwd">]><IviConfigStore>&e;</IviConfigStore>')).status,400);
+  assert.equal((await inspectXml('x'.repeat(2*1024*1024+1))).status,400);
+  if(process.platform!=='win32'){
+   Object.defineProperty($('iviFile'),'files',{configurable:true,value:[{name:'store.xml',size:18,text:async()=>'<IviConfigStore />'}]});
+   await $('iviInspect').onclick();assert.match($('status').textContent,/Windows registry/);
+  }
+  // Render a supplied catalog independently of the platform-specific loader.
+  const realFetch=window.fetch;
+  window.fetch=async(url,options)=>String(url).endsWith('/ivi-catalog')?{ok:true,json:async()=>({revision:'test-revision',diagnostics:['Preview only'],logicalNames:[{name:'<img src=x>',session:'session'}],sessions:[{name:'session',hardwareAsset:'A',softwareModule:'driver'}],hardwareAssets:[{name:'A',resourceDescriptor:'GPIB1::22::INSTR'}],softwareModules:[]})}:realFetch(url,options);
+  Object.defineProperty($('iviFile'),'files',{configurable:true,value:[{name:'store.xml',size:18,text:async()=>'<IviConfigStore />'}]});
+  await $('iviInspect').onclick();assert.match($('iviCatalog').textContent,/GPIB1::22::INSTR/);assert.equal($('iviCatalog').querySelectorAll('img').length,0);
+  window.fetch=realFetch;
+  assert.equal(JSON.stringify(await(await request('/api/v1/setup/configuration')).json()),beforeIvi);
   // A stale editor cannot overwrite the saved configuration.
   assert.equal((await request('/api/v1/setup/configuration',{configuration:saved.configuration,expectedRevision:'stale',draft:true})).status,409);
   assert.equal((await request('/api/v1/setup/configuration',{configuration:saved.configuration,expectedRevision:saved.revision,draft:true},{Origin:'https://elsewhere.example'})).status,403);
@@ -49,7 +66,7 @@ const root=path.resolve(__dirname,'..');
   $('review').onclick();$('reviewConfirmed').checked=true;$('draft').checked=true;await $('save').onclick();assert.match($('status').textContent,/Untested draft saved/);
   assert.equal((await request('/api/v1/setup/roles/voltmeter/reserve',{})).status,409);
   await $('reload').onclick();assert.match($('instruments').textContent,/PHYSICAL1/);
-  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload.');
+  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics and read-only catalog rendering.');
  }finally{
   if(window)await window.happyDOM.close();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null?resolve():child.once('exit',resolve));fs.rmSync(temporary,{recursive:true,force:true});
  }
