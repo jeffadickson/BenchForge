@@ -138,4 +138,4 @@ Committed unit tests cover a fault at virtual t=5s, changing behavior without ch
 - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection/)
 - [Simulation clock specification](MOCK-TIME-AND-LIFECYCLE.md)
 - [Distributed host architecture](DISTRIBUTED-INSTRUMENT-HOST.md)
-- [Unified typed operations](INSTRUMENT-OPERATIONS-25-PYMEASURE-EXAMPLES.md)
+- [Unified typed operations](INSTRUMENT-OPERATIONS-25-external instrument source-EXAMPLES.md)
