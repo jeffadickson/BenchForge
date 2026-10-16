@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import time
 import shutil
+from contextlib import closing
 
 
 def main():
@@ -27,7 +28,9 @@ def main():
         result = subprocess.run([args.dotnet, "exec", str(probe), str(database)], capture_output=True, text=True, timeout=30)
         if result.returncode != 97:
             raise RuntimeError(f"Probe failed to reach injected exit (code {result.returncode}): {result.stdout}\n{result.stderr}")
-        with sqlite3.connect(database) as connection:
+        # sqlite3.Connection.__exit__ commits/rolls back but does NOT close the handle.
+        # Explicit closing is required on Windows before removing the temporary DB.
+        with closing(sqlite3.connect(database)) as connection:
             if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise AssertionError("SQLite integrity check failed after process exit")
             records = connection.execute("SELECT artifact_id,payload,sha256 FROM artifacts").fetchall()
