@@ -12,7 +12,9 @@ spec.loader.exec_module(audit_module)
 
 
 class SourceNeutralityTests(unittest.TestCase):
+    """Check that source naming appears only in the designated root review file."""
     def test_legal_register_is_only_exemption(self):
+        """Allow the designated root review file without false positives."""
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "THIRD_PARTY_REVIEW.md").write_text("Py" + "Measure\n")
@@ -23,6 +25,7 @@ class SourceNeutralityTests(unittest.TestCase):
                 self.assertEqual([], audit_module.audit())
 
     def test_content_and_filenames_are_reported(self):
+        """Report prohibited text in both file content and tracked paths."""
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "README.md").write_text("Legacy Py" + "Measure reference\n")
