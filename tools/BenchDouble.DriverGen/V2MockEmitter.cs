@@ -29,7 +29,8 @@ internal static class V2MockEmitter
             s.AppendLine($"  private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<{type}>>? _{property}Behavior;");
             s.AppendLine($"  private {type}? _{property}State;");
             s.AppendLine($"  /// <summary>Set a deterministic typed mock value for {System.Security.SecurityElement.Escape(property)}.</summary>");
-            s.AppendLine("  /// <param name=\"value\">Finite simulated quantity; no physical I/O.</param>");
+            s.AppendLine($"  /// <param name=\"value\">Finite simulated {System.Security.SecurityElement.Escape(cap.Quantity)} in {System.Security.SecurityElement.Escape(cap.Unit)}; no physical I/O.</param>");
+            s.AppendLine("  /// <exception cref=\"System.ArgumentOutOfRangeException\">The supplied value is not finite.</exception>");
             s.AppendLine($"  public void SetMock{property}({type} value)");
             s.AppendLine("  {");
             s.AppendLine($"    if (!double.IsFinite(value.{V2Emitter.UnitProperty(cap.Quantity, cap.Unit)})) throw new System.ArgumentOutOfRangeException(nameof(value));");
@@ -38,7 +39,7 @@ internal static class V2MockEmitter
             s.AppendLine($"  /// <summary>Clear an explicitly assigned {System.Security.SecurityElement.Escape(property)} value.</summary>");
             s.AppendLine($"  public void ResetMock{property}() {{ lock (_stateGate) _{property}State = null; }}");
             s.AppendLine($"  /// <summary>Inject a test-specific {System.Security.SecurityElement.Escape(property)} measurement behavior.</summary>");
-            s.AppendLine("  /// <param name=\"behavior\">Explicit async behavior; null restores the definition default.</param>");
+            s.AppendLine("  /// <param name=\"behavior\">Explicit async behavior; null removes the injected behavior.</param>");
             s.AppendLine($"  public void Set{property}Behavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<{type}>>? behavior)");
             s.AppendLine($"    => System.Threading.Volatile.Write(ref _{property}Behavior, behavior);");
             s.AppendLine($"  /// <summary>Measure {System.Security.SecurityElement.Escape(property)} with mode checks and optional injected behavior.</summary>");
