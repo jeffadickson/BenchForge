@@ -1,0 +1,5 @@
+# Generated source must be byte-identical on Windows, Linux and macOS.
+*.g.cs text eol=lf
+*.definition.json text eol=lf
+generated/** text eol=lf
+src/BenchDouble/Generated/** text eol=lf
