@@ -69,9 +69,9 @@ On Windows, use the equivalent `dotnet run --project tools/BenchDouble.DriverGen
 
 Generated source is committed to the repository so IDE navigation and ordinary `dotnet build` work without running the generator first. The no-write `--check` mode guards against source drift. The Makefile and cross-platform CI include catalog validation and generated-source checks. **CI is still blocked by GitHub-hosted runner allocation**, so this is not a verified green build.
 
-## Instrument inventory: 25 PyMeasure entries plus Keithley 236
+## Instrument inventory: 25 external instrument source entries plus Keithley 236
 
-[Machine-readable catalog](../instrument-definitions/instrument-catalog.json) records the 25 previously identified PyMeasure driver entries plus the independently implemented legacy Keithley 236. It distinguishes:
+[Machine-readable catalog](../instrument-definitions/instrument-catalog.json) records the 25 previously identified external instrument source driver entries plus the independently implemented legacy Keithley 236. It distinguishes:
 - `catalogOnly`: model known from the published catalog; no ported driver claimed.
 - `manualDriverPartial`: Keithley 236 DC source/measure core and resistive DUT mock exist.
 - `definitionDraft` / `definitionReviewed`: future definition maturity levels.
@@ -83,7 +83,7 @@ The catalog does not contain fabricated command mappings. Only the illustrative 
 
 The legacy [Keithley236](../src/BenchDouble/Instruments/Keithley/Keithley236.cs) source and [mock bus](../src/BenchDouble/Simulation/Keithley236MockBus.cs) now reject invalid mode enum values, reset old compliance/bias state on source-mode changes, serialize mode checks with GPIB bus operations, and require mode/bias/compliance configuration before requesting OPERATE. Tests cover both DC source/measure modes, compliance clipping, standby, mode change, invalid values and simulated write failures.
 
-**Not yet complete:** source/measure sweeps, trigger and status parsing, fixed ranges, hardware error bits, calibrated GPIB TALK/EOI timing, physical safe-state verification, and authorized instrument leases. A software standby request does not prove safe terminals. See [Keithley and PyMeasure catalog](PYMEASURE-25-INSTRUMENTS-AND-KEITHLEY-236.md) and [issue #19](https://github.com/jeffadickson/BenchDouble/issues/19).
+**Not yet complete:** source/measure sweeps, trigger and status parsing, fixed ranges, hardware error bits, calibrated GPIB TALK/EOI timing, physical safe-state verification, and authorized instrument leases. A software standby request does not prove safe terminals. See [Keithley and external instrument source catalog](external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md) and [issue #19](https://github.com/jeffadickson/BenchDouble/issues/19).
 
 ## Architectural limitations and next increments
 
