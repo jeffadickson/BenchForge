@@ -142,6 +142,20 @@ public sealed class ImportedInstrumentMock
     public void SetBehavior(string capability, Func<MockReadingContext, double>? behavior) =>
         _engine.SetBehavior(capability, behavior);
 
+    /// <summary>Install or remove a cancellation-aware async measurement model.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="behavior">Non-reentrant async behavior, or null for fallback.</param>
+    public void SetAsyncBehavior(string capability,
+        Func<MockReadingContext, CancellationToken, ValueTask<double>>? behavior) =>
+        _engine.SetAsyncBehavior(capability, behavior);
+
+    /// <summary>Remove an explicit scalar reading.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    public void ClearReading(string capability) => _engine.ClearReading(capability);
+
+    /// <summary>Clear all explicit scalar readings while retaining the selected mode.</summary>
+    public void ClearAllReadings() => _engine.ClearAllReadings();
+
     /// <summary>Queue a one-shot simulated measurement failure.</summary>
     /// <param name="capability">Declared capability identifier.</param>
     /// <param name="failure">Exception to throw on the next compatible measurement.</param>
