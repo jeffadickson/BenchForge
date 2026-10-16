@@ -6,7 +6,7 @@ A **validated description is the source of truth for instrument-specific SCPI ma
 
 ## Sources
 - Roslyn incremental generator cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.cookbook.md
-- PyMeasure control/measurement/setting: https://pymeasure.readthedocs.io/en/latest/dev/adding_instruments/properties.html
+- external instrument source control/measurement/setting: https://external instrument source.readthedocs.io/en/latest/dev/adding_instruments/properties.html
 - IVI instrument class specifications: https://www.ivifoundation.org/specifications/default.aspx/
 
 ## Profile schema v1
@@ -19,7 +19,7 @@ See `instrument-definitions/keysight/33522b.instrument.json`. Fields include sta
 4. Generated methods invoke the common `IAsyncScpiSession` and shared validators; communication, reservations, transport logs and mocks remain separate.
 5. Generate associated command transcript fixtures, positive/negative validation tests and source traceability comments.
 6. Allow handwritten vendor-specific code through explicit `partial` extension classes, not edits to generated files.
-7. Preserve model-specific original license/attribution when derived from PyMeasure. Capture source URL, commit, file, command manual and verification level.
+7. Preserve model-specific original license/attribution when derived from external instrument source. Capture source URL, commit, file, command manual and verification level.
 8. A host advertises driver manifest/schema/hash; cross-version protocol is independent of specific generated C# assemblies.
 
 ## Example target API (not yet generated)
@@ -55,7 +55,7 @@ A draft JSON profile and specification have been committed. Existing `ScpiParame
 
 **This supersedes the earlier Roslyn incremental-generator recommendation above.** Developers edit instrument descriptions and invoke a standalone .NET generator from the build, which writes ordinary `.g.cs` files into `src/BenchDouble/Generated`. Generated files should be committed and indexed by editors, inspected in diffs, debugged, and included in ordinary compilation. No compiler/analyzer magic is required.
 
-Current tool: `tools/BenchDouble.DriverGen`. Run `make generate` (or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated`). The tool currently handles numeric frequency/potential/resistance/current properties with SCPI get/set templates, channel placeholders, basic bounds and UnitsNet conversions. It is an **early generator**, not yet a general PyMeasure driver converter or full IVI mapping.
+Current tool: `tools/BenchDouble.DriverGen`. Run `make generate` (or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated`). The tool currently handles numeric frequency/potential/resistance/current properties with SCPI get/set templates, channel placeholders, basic bounds and UnitsNet conversions. It is an **early generator**, not yet a general external instrument source driver converter or full IVI mapping.
 
 ### Mock behavior as data and code
 Mock outputs must support not only static responses but scripted behaviors:
@@ -72,7 +72,7 @@ The initial runtime `ISignalBehavior`, `SineBehavior`, `SeededRandomBehavior` an
 - Build-time generation is a separate program; CI must generate, compile, test and detect stale generated code.
 - Validate descriptions before emitting partial results; use atomic writes and reject duplicate driver names, unsupported quantity/unit pairs, bad command templates and unsafe class names.
 - Record generator version, schema revision and original source attribution.
-- Code changes require parity tests versus manufacturer manuals and any source-adapted PyMeasure commands.
+- Code changes require parity tests versus manufacturer manuals and any source-adapted external instrument source commands.
 - The current Makefile is a convenience entry point, not yet a cross-platform bootstrapper; direct `dotnet run` supports Windows without Make.
 - **Current status: source committed; no successful .NET build or generator execution has been verified here.**
 
