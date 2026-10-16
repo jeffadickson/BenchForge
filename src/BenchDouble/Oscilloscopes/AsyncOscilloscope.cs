@@ -57,7 +57,7 @@ public sealed class AsyncOscilloscope
     }
 
     /// <summary>Configure a simulated horizontal sample interval.</summary>
-    public ValueTask ConfigureTimebaseAsync(Time sampleInterval, CancellationToken cancellationToken = default)
+    public ValueTask ConfigureTimebaseAsync(Duration sampleInterval, CancellationToken cancellationToken = default)
     {
         if (!double.IsFinite(sampleInterval.Seconds) || sampleInterval.Seconds <= 0)
             throw new ArgumentOutOfRangeException(nameof(sampleInterval));
@@ -163,7 +163,7 @@ public sealed class SimulatedOscilloscopeSession : IAsyncBinaryScpiSession
             for (int i = 0; i < _samples; i++)
             {
                 double volts = _acquisitionState is { } snapshot
-                    ? snapshot.VoltageAt(Time.FromSeconds(i * _interval)).Volts
+                    ? snapshot.VoltageAt(Duration.FromSeconds(i * _interval)).Volts
                     : Math.Sin(2 * Math.PI * i / 64.0 + (_selectedChannel - 1) * Math.PI / 2);
                 short code = (short)Math.Clamp(Math.Round(1000 * volts, MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue);
                 System.Buffers.Binary.BinaryPrimitives.WriteInt16LittleEndian(payload.AsSpan(i * 2, 2), code);
