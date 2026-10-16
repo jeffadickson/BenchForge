@@ -159,7 +159,8 @@ public sealed class ExperimentDefinitionBuilder
         }
         _built = true;
         var services = new ServiceCollection();
-        foreach (var descriptor in _services) services.Add(descriptor);
+        foreach (var descriptor in _services)
+            ((ICollection<ServiceDescriptor>)services).Add(descriptor);
         return new ExperimentDefinition(name, _instruments.ToArray(), services,
             _autoMockRuleHash, new Dictionary<string, string>(_roleRuleHashes));
     }
