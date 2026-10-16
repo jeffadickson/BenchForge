@@ -139,7 +139,7 @@ internal static class V2Emitter
         s.AppendLine($"/// <summary>Typed simulation-only instrument preview for {Xml(name)}.</summary>");
         s.AppendLine($"public sealed class {name}Preview");
         s.AppendLine("{");
-        var definitionSha = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(file))).ToLowerInvariant();
+        var definitionSha = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(File.ReadAllText(file).Replace("\r\n", "\n").Replace("\r", "\n")))).ToLowerInvariant();
         s.AppendLine("  /// <summary>SHA-256 of the exact input definition bytes.</summary>");
         s.AppendLine($"  public const string DefinitionSha256 = {Str(definitionSha)};");
         s.AppendLine("  /// <summary>Versioned generator implementation identifier.</summary>");
