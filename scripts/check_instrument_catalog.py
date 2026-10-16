@@ -48,7 +48,7 @@ def main() -> int:
     catalog_candidates = [x for x in instruments if x["id"].startswith("CAT-")]
     if len(catalog_candidates) != 25 or "LEGACY-KEITHLEY-236" not in ids:
         raise ValueError("Expected 25 catalog entries plus Keithley 236")
-    print(f"Catalog OK: {len(instruments)} entries, {len(external_instrument_source)} ExternalInstrumentSource inventory, "
+    print(f"Catalog OK: {len(instruments)} entries, {len(catalog_candidates)} catalog candidates, "
           f"{sum(x['implementationStatus'] != 'notPorted' for x in instruments)} partial/implemented")
     return 0
 
