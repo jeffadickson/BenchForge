@@ -70,6 +70,7 @@ public sealed class SharedTranscript
     /// <param name="name">Instrument identity used to match exchanges.</param>
     /// <returns>Endpoint that validates SCPI operations against the shared transcript.</returns>
     public IScpiSession Instrument(string name) => new Endpoint(this, name);
+    /// <summary>Ensure all cross-instrument transcript expectations were consumed.</summary>
     public void VerifyComplete()
     {
         if (_queue.Count != 0) throw new ScpiProtocolException($"{_queue.Count} shared expectations remain.");
