@@ -86,6 +86,35 @@ public sealed class VirtualInstrumentIntegrationTests
         Assert.Equal(0, await voltmeter.MeasureAsync("voltage"));
     }
 
+    /// <summary>Generated-style meters can read a fixed acquisition after source settings change.</summary>
+    /// <returns>Completion of acquisition correlation and fault assertions.</returns>
+    [Fact]
+    public async Task MetersReadOneCapturedSnapshotDespiteSubsequentSourceChanges()
+    {
+        await using var run = CreateDefinition().StartSimulated();
+        var smu = run.Instrument<VirtualSourceMeasureUnit>("SMU");
+        var voltmeter = run.Instrument<ImportedInstrumentMock>("Voltmeter");
+        var ammeter = run.Instrument<ImportedInstrumentMock>("Ammeter");
+        await voltmeter.ConfigureModeAsync("voltage");
+        await ammeter.ConfigureModeAsync("current");
+        smu.SetLoad(ElectricResistance.FromOhms(100));
+        smu.SourceVoltage(ElectricPotential.FromVolts(10), ElectricCurrent.FromMilliamperes(20));
+        smu.SetOutput(true);
+        var acquired = run.Instrument<VirtualCoherentAcquisitionService>("Scope")
+            .Acquire(1, 16, Duration.FromMilliseconds(1));
+        smu.SetOutput(false);
+        Assert.Equal(2, await voltmeter.MeasureCapturedAsync("voltage", acquired), 8);
+        Assert.Equal(0.02, await ammeter.MeasureCapturedAsync("current", acquired), 8);
+        Assert.Equal(0, await voltmeter.MeasureAsync("voltage"));
+        Assert.Equal(0, await ammeter.MeasureAsync("current"));
+
+        voltmeter.QueueFault("voltage", new TimeoutException("simulated"));
+        await Assert.ThrowsAsync<TimeoutException>(async () =>
+            await voltmeter.MeasureCapturedAsync("voltage", acquired));
+        Assert.Equal(2, await voltmeter.MeasureCapturedAsync("voltage", acquired), 8);
+        Assert.Equal(acquired.AcquisitionId, acquired.Waveform.AcquisitionId);
+    }
+
     /// <summary>Current sourcing clips at the voltage compliance threshold.</summary>
     /// <returns>Completion of current-source verification.</returns>
     [Fact]
