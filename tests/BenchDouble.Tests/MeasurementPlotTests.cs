@@ -5,6 +5,7 @@ using Xunit;
 
 namespace BenchDouble.Tests;
 
+/// <summary>Verify unit-aware plotting, serialization, and invalid-value rejection.</summary>
 public sealed class MeasurementPlotTests
 {
     [Fact]
@@ -38,11 +39,15 @@ public sealed class MeasurementPlotTests
         Assert.Equal("Ω", doc.RootElement.GetProperty("meta").GetProperty("yUnit").GetString());
     }
 
+    /// <summary>Reject nonfinite display values without relying on invalid UnitsNet construction.</summary>
     [Fact]
     public void NonFiniteMeasurementsAreRejected()
     {
+        // Use a deliberately invalid presentation conversion: UnitsNet rejects NaN at construction.
+        var invalidAxis = new QuantityAxis<ElectricPotential>(
+            "Voltage", "V", "ElectricPotential", _ => double.NaN);
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            MeasurementPlot.Create("Bad", new[] { (Frequency.FromHertz(1), ElectricPotential.FromVolts(double.NaN)) },
-                QuantityAxes.Hertz(), QuantityAxes.Volts()));
+            MeasurementPlot.Create("Bad", new[] { (Frequency.FromHertz(1), ElectricPotential.FromVolts(1)) },
+                QuantityAxes.Hertz(), invalidAxis));
     }
 }
