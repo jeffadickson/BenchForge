@@ -1,4 +1,4 @@
-"""Tests for full PyMeasure inventory discovery without importing upstream code."""
+"""Tests for full ExternalInstrumentSource inventory discovery without importing upstream code."""
 import importlib.util
 import tempfile
 import unittest
@@ -15,7 +15,7 @@ class CatalogDiscoveryTests(unittest.TestCase):
     def test_inventory_includes_classes_and_reports_parse_errors(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            instruments = root / "pymeasure" / "instruments" / "acme"
+            instruments = root / "external_instrument_source" / "instruments" / "acme"
             instruments.mkdir(parents=True)
             (instruments / "meter.py").write_text(
                 "class Meter(BaseMeter):\n    def measure(self):\n        pass\n",
