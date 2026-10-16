@@ -101,3 +101,26 @@ Setup uses `Microsoft.Extensions.Logging`; events appear in the host console and
 | 7430 | Rejected setup HTTP request with failure category and request trace ID |
 
 Application events omit uploaded XML, driver option values, raw descriptors and exception message payloads. These settings still appear in the reviewed configuration itself. The logs are operational diagnostics, not an authenticated, durable change-approval audit. No new log database or retention policy is implied.
+
+## Explicit activation of a registered DMM
+
+The host now has a typed DMM activation path. It ships with **no vendor factories**. An integrator must register an `IviDmmRegistration` in host dependency injection before `builder.Build()`, with one canonical resource ID, exact approved binding snapshots, a typed opening factory and a provider-specific recovery operation. The executable integration pattern is exercised in `tests/BenchDouble.Host.Tests/HostedIviDmmTests.cs`; its official-interface doubles are not vendor hardware.
+
+The factory returns an `OwnedIviDmm`: an `OfficialDmmBridge` over the actual official `IIviDmm`, plus an explicit vendor-session close operation. Opening receives `Reset=false` and `IdQuery=true`. The provider must honor those policies, validate model compatibility, interpret only qualified options, and clean up partial allocations if opening throws. The host cannot infer constructor side effects from an IVI interface. XML cannot register factories, load arbitrary assemblies or turn a declaration into executable code.
+
+In **Activate a registered IVI DMM**, enter a saved role, confirm opening, and choose **Activate saved role**. Activation requires the exact saved revision and approved binding. It qualifies only that pinned route; the saved bench may remain an offline draft, and ordinary draft reservation stays blocked. It neither validates other routes nor globally promotes the saved file. GPIB requires a current saved controller confirmation (or matching stable identifier); opaque GPIB descriptors cannot bypass it. Optional expected-identity fields are rejected before opening until their driver mapping is implemented.
+
+Once active, the UI offers DC-voltage configuration, measurement and close/release. The API supports the declared DMM measurement-function enum; each provider is responsible for supported capabilities. Results use the configured function's base SI unit. NaN/infinity requires provider-specific interpretation and is treated as an operation failure in this initial JSON API.
+
+Failures during opening, operations or close retain the canonical lease and show `RecoveryRequired` in host monitoring. Subsequent operations and ordinary reservation-release cannot bypass it. Use **Recover retained lease** only after reviewing the failure and confirming the registered provider's recovery procedure. That procedure must clean up and verify physical state before returning. Failure retains ownership; success releases it. The host does not invent a generic reset or replay operation.
+
+| API (under `/api/v1/setup`) | Request |
+|---|---|
+| `POST /ivi/roles/{role}/activate` | `expectedRevision`, `confirmed` |
+| `POST /ivi/{resourceId}/configure` | `leaseId`, `function`, optional `range`, `resolution` |
+| `POST /ivi/{resourceId}/measure` | `leaseId` |
+| `POST /ivi/{resourceId}/recover` | `leaseId`, `confirmed` |
+
+Activation returns `{lease, active, errorCode}`. An initialization failure returns `active=false` **with a retained lease**; keep that lease for recovery. Normal closure uses the existing `DELETE /api/v1/reservations/{leaseId}` endpoint. Driver cleanup occurs before ownership is removed. Event IDs 7450–7456 cover busy refusal, opening, readiness, operation completion, closure, failure/quarantine and recovery, with canonical resource IDs and without vendor exception payloads.
+
+Synchronous vendor calls cannot be interrupted by request cancellation. Cancellation is checked before dispatch; once dispatched, the host retains the per-lease operation gate until the call actually returns. Other instruments can proceed. Waiting/cleanup is not deadline-bounded, so this does not complete BD-LIFE-004. Leases and quarantine remain in memory: host restart is **not physical recovery**, and durable reconciliation (BD-LIFE-006), authenticated remote control and vendor-hardware qualification remain outstanding. Do not use this demonstration host as an unattended physical safety authority. Browser reload loses its displayed lease; it does not release the host lease.

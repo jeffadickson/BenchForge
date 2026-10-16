@@ -75,6 +75,25 @@ const root=path.resolve(__dirname,'..');
   $('review').onclick();$('reviewConfirmed').checked=true;$('draft').checked=true;await $('save').onclick();assert.match($('status').textContent,/Untested draft saved/);
   assert.equal((await request('/api/v1/setup/roles/voltmeter/reserve',{})).status,409);
   await $('reload').onclick();assert.match($('instruments').textContent,/PHYSICAL1/);
+  $('activateRole').value='voltmeter';$('activateConfirmed').checked=true;await $('activateIvi').onclick();
+  assert.match($('status').textContent,/no reviewed IVI binding/);
+  const lifecycleFetch=window.fetch;let failActivation=false;
+  window.fetch=async(url,options)=>{
+   const name=String(url);
+   if(name.endsWith('/activate'))return {ok:true,json:async()=>({active:!failActivation,errorCode:failActivation?'recovery_required':null,lease:{resourceId:'METER',leaseId:'00000000-0000-0000-0000-000000000001',revision:'preview',connection:{}}})};
+   if(name.endsWith('/configure'))return {ok:true,json:async()=>({configured:true})};
+   if(name.endsWith('/measure'))return {ok:true,json:async()=>({value:4.5})};
+   if(name.endsWith('/recover'))return {ok:true,json:async()=>({recovered:true})};
+   if(options?.method==='DELETE')return {ok:true};
+   return lifecycleFetch(url,options);
+  };
+  $('activateConfirmed').checked=true;await $('activateIvi').onclick();assert.match($('status').textContent,/activated under/);
+  await $('configureIvi').onclick();await $('measureIvi').onclick();assert.match($('iviRuntime').textContent,/4.5/);
+  await $('closeIvi').onclick();assert.match($('iviRuntime').textContent,/lease released/);
+  failActivation=true;$('activateConfirmed').checked=true;await $('activateIvi').onclick();assert.match($('status').textContent,/ownership retained/);
+  await $('recoverIvi').onclick();assert.match($('status').textContent,/Confirm provider recovery/);
+  $('recoverConfirmed').checked=true;await $('recoverIvi').onclick();assert.match($('status').textContent,/Recovery succeeded/);
+  window.fetch=lifecycleFetch;
   assert.ok(!log.includes('PRIVATE-DRIVER-OPTION'));assert.match(log,/Setup saved/);
   console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics, reviewed binding UI and payload-free save logging.');
  }finally{

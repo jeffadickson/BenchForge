@@ -74,3 +74,21 @@ $('iviInspect').onclick=guard(async()=>{
  status('IVI configuration inspected. Setup and saved configuration are unchanged; driver activation is not implemented.');
  }finally{$('iviInspect').disabled=false;}
 });
+
+let activeIvi=null;
+function requireIvi(){if(!activeIvi)throw Error('Activate a registered saved role first.');return activeIvi.lease;}
+$('activateIvi').onclick=guard(async()=>{
+ if(activeIvi)throw Error('Close or recover the retained IVI lease before another activation.');
+ if(!saved)throw Error('Save and review the setup first.');
+ if(!$('activateConfirmed').checked)throw Error('Confirm driver activation first.');
+ $('activateIvi').disabled=true;
+ try{
+ activeIvi=await api('ivi/roles/'+encodeURIComponent($('activateRole').value.trim())+'/activate',{expectedRevision:saved.revision,confirmed:true});
+ $('iviRuntime').textContent=JSON.stringify(activeIvi,null,2);$('activateConfirmed').checked=false;
+ status(activeIvi.active?'IVI driver activated under an exclusive host lease.':'Initialization failed; ownership retained. Review logs and use provider recovery.',!activeIvi.active);
+ }finally{$('activateIvi').disabled=false;}
+});
+$('configureIvi').onclick=guard(async()=>{const lease=requireIvi();await api('ivi/'+encodeURIComponent(lease.resourceId)+'/configure',{leaseId:lease.leaseId,function:0});status('DMM configured for DC voltage.');});
+$('measureIvi').onclick=guard(async()=>{const lease=requireIvi();const result=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/measure',{leaseId:lease.leaseId});$('iviRuntime').textContent='Measurement: '+result.value+' (base SI unit of the configured function)';status('DMM measurement completed.');});
+$('closeIvi').onclick=guard(async()=>{const lease=requireIvi();const response=await fetch('/api/v1/reservations/'+lease.leaseId,{method:'DELETE'});if(!response.ok){const value=await response.json();throw Error(value.message||value.error||'Cleanup requires recovery; ownership retained.');}activeIvi=null;$('iviRuntime').textContent='Driver closed; lease released.';status('IVI cleanup completed before releasing ownership.');});
+$('recoverIvi').onclick=guard(async()=>{const lease=requireIvi();if(!$('recoverConfirmed').checked)throw Error('Confirm provider recovery first.');await api('ivi/'+encodeURIComponent(lease.resourceId)+'/recover',{leaseId:lease.leaseId,confirmed:true});activeIvi=null;$('recoverConfirmed').checked=false;$('iviRuntime').textContent='Provider recovery completed; lease released.';status('Recovery succeeded. A new activation requires review.');});

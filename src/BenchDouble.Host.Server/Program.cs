@@ -11,12 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
 builder.Services.AddSingleton<HostResourceRegistry>();
 builder.Services.AddSingleton<IviSetupCatalogService>();
+builder.Services.AddSingleton<HostedIviDmmService>();
 builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
 builder.Services.AddSingleton<ISetupDiscoveryProvider, SimulatedSetupDiscoveryProvider>();
 builder.Services.AddSingleton(sp => new BenchSetupService(
     sp.GetRequiredService<HostResourceRegistry>(), sp.GetRequiredService<ISetupDiscoveryProvider>(),
     builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json"), sp.GetRequiredService<ILogger<BenchSetupService>>()));
 var app = builder.Build();
+// Registers metadata only. Integrators explicitly add IviDmmRegistration instances
+// before Build; the stock host installs no vendor driver factories.
+_ = app.Services.GetRequiredService<HostedIviDmmService>();
 app.MapBenchSetup();
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -32,7 +36,10 @@ app.MapPost("/api/v1/reservations", (ReservationRequest request, HostResourceReg
         ? Results.Ok(grant)
         : Results.Conflict(new HostError("busy_or_missing", "Instrument is unavailable.")));
 app.MapDelete("/api/v1/reservations/{leaseId:guid}", (Guid leaseId, HostResourceRegistry resources) =>
-    resources.Release(leaseId) ? Results.NoContent() : Results.NotFound());
+{
+    try { return resources.Release(leaseId) ? Results.NoContent() : Results.NotFound(); }
+    catch (InvalidOperationException) { return Results.Conflict(new HostError("recovery_required", "Driver cleanup failed or recovery is required; ownership retained.")); }
+});
 app.MapPost("/api/v1/instruments/{resourceId}/query", (string resourceId, ScpiRequest request, HostResourceRegistry resources) =>
 {
     try { return Results.Ok(new ScpiResponse(resources.Query(resourceId, request.LeaseId, request.Command))); }
@@ -68,7 +75,7 @@ app.Run();
 /// Minimal local-only demonstration. Not a production lease service: no expiry,
 /// authenticated identity, persistence, safe-state recovery, or remote TLS.
 /// </summary>
-public sealed class HostResourceRegistry
+public sealed partial class HostResourceRegistry
 {
     private readonly object _gate = new();
     private readonly Dictionary<string, IScpiSession> _devices = new(StringComparer.OrdinalIgnoreCase)
@@ -104,9 +111,9 @@ public sealed class HostResourceRegistry
         {
             var instruments = List().Select(d => new HostInstrumentStatus(
                 d.ResourceId, d.InstrumentClass, d.Backend, "localhost:5278",
-                _reservations.ContainsKey(d.ResourceId) ? "Reserved" : "Idle",
+                RecoveryRequired(d.ResourceId) ? "RecoveryRequired" : _reservations.ContainsKey(d.ResourceId) ? "Reserved" : "Idle",
                 _activity.Where(a => a.ResourceId == d.ResourceId)
-                    .TakeLast(15).ToArray(), _identities[d.ResourceId],
+                    .TakeLast(15).ToArray(), _identities.GetValueOrDefault(d.ResourceId),
                 "ExclusiveControl", _reservations.ContainsKey(d.ResourceId))).ToArray();
             return new HostMonitorSnapshot(DateTimeOffset.UtcNow, instruments);
         }
@@ -120,35 +127,30 @@ public sealed class HostResourceRegistry
         if (_activity.Count > MaxEvents) _activity.RemoveRange(0, _activity.Count - MaxEvents);
     }
 
-    public InstrumentDescriptor[] List() => new[]
+    public InstrumentDescriptor[] List()
     {
-        new InstrumentDescriptor("DMM1", "DigitalMultimeter", "Simulated"),
-        new InstrumentDescriptor("FGEN1", "FunctionGenerator", "Simulated")
-    };
+        lock (_gate) return new[]
+        {
+            new InstrumentDescriptor("DMM1", "DigitalMultimeter", "Simulated"),
+            new InstrumentDescriptor("FGEN1", "FunctionGenerator", "Simulated")
+        }.Concat(_managedDescriptors.Values).ToArray();
+    }
 
     public ReservationGrant? Reserve(string resourceId)
     {
         lock (_gate)
         {
-            if (!_devices.ContainsKey(resourceId) || _reservations.ContainsKey(resourceId)) return null;
+            if ((!_devices.ContainsKey(resourceId) && !_managedDescriptors.ContainsKey(resourceId)) || _reservations.ContainsKey(resourceId)) return null;
             var lease = Guid.NewGuid();
             _reservations[resourceId] = lease;
             _byLease[lease] = resourceId;
+            _leaseGates[lease] = new object();
             Record(resourceId, "Reserved", "Exclusive local demonstration lease acquired");
             return new ReservationGrant(resourceId, lease);
         }
     }
 
-    public bool Release(Guid lease)
-    {
-        lock (_gate)
-        {
-            if (!_byLease.Remove(lease, out var resource)) return false;
-            _reservations.Remove(resource);
-            Record(resource, "Released", "Local demonstration lease released");
-            return true;
-        }
-    }
+    public bool Release(Guid lease) => ReleaseManagedOrPlain(lease);
 
     public string Query(string resourceId, Guid lease, string command)
     {

@@ -1,7 +1,7 @@
 # IVI configuration architecture review
 
 Reviewed 2026-10-16 against BenchForge commit `832854f08f0e2ddf117063d301315a9d8368a08a`.
-This records the architecture decision. A read-only uploaded catalog preview has since been implemented; see the increment below. Reviewed driver-binding import now creates persisted offline drafts; activation remains unimplemented. No conformance claim.
+This records the architecture decision. A read-only uploaded catalog preview has since been implemented; see the increment below. Reviewed driver-binding import now creates persisted offline drafts; explicit host-registered DMM activation is now implemented; vendor-driver qualification remains outstanding. No conformance claim.
 Existing work items: #46 / TR-037 (IVI integration), #69 / BD-CFG-008..012 (guided setup).
 
 ## Recommendation
@@ -71,3 +71,7 @@ Local execution found that ConfigServer 2.1.0 requires Windows registry support.
 ## Reviewed binding and logging increment
 
 The setup service now resolves a selected logical name from its last successful inspected catalog into a schema-two draft route binding. It preserves source revision and standard metadata, requires explicit target/association review, rejects conflicting endpoints/roles and leaves active leases unchanged. Save remains separate. Structured inspection, import, validation and save logs omit raw options and XML. See the user guide for event IDs. This implements the offline portion of step 2; lossless extension handling, driver activation and Windows end-to-end acceptance are still pending.
+
+## Registered DMM activation increment
+
+The host now owns typed DMM opening, operation dispatch, close and provider recovery through its existing canonical registry. Configuration activates only after a separate confirmation, saved-revision check and exact host-code allowlist match. Failures retain the same lease; direct release cannot bypass cleanup. Per-lease gates retain ownership during synchronous calls without blocking unrelated resources. No vendor factories are bundled. See the user guide for API, registration responsibilities and remaining in-memory/deadline limits.

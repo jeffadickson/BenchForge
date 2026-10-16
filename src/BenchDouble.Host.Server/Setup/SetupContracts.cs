@@ -59,6 +59,24 @@ public sealed record SetupDriverBinding(string SourceRevision, string LogicalNam
 public sealed record ApplyIviBindingRequest(BenchSetup Configuration, string CatalogRevision,
     string LogicalName, string InstrumentId, string? Role, bool Confirmed);
 
+/// <summary>Explicit activation of one role from the saved configuration.</summary>
+/// <param name="ExpectedRevision">Reviewed saved revision.</param>
+/// <param name="Confirmed">Operator requests driver opening, separate from configuration save.</param>
+public sealed record ActivateIviRoleRequest(string ExpectedRevision, bool Confirmed);
+
+/// <summary>Request concerning an already active or failed retained IVI lease.</summary>
+/// <param name="LeaseId">Canonical activation lease.</param>
+/// <param name="Confirmed">Explicit authorization, required for provider recovery.</param>
+public sealed record IviLeaseRequest(Guid LeaseId, bool Confirmed = false);
+
+/// <summary>Typed DMM configuration under a host lease.</summary>
+/// <param name="LeaseId">Canonical activation lease.</param>
+/// <param name="Function">Measurement function.</param>
+/// <param name="Range">Optional positive range in the function's base SI unit.</param>
+/// <param name="Resolution">Optional positive resolution in the function's base SI unit.</param>
+public sealed record IviDmmConfigureRequest(Guid LeaseId, BenchDouble.Ivi.IviMeasurementFunction Function,
+    double? Range = null, double? Resolution = null);
+
 /// <summary>Logical experiment role assignment.</summary>
 /// <param name="Role">Unique experiment role.</param>
 /// <param name="InstrumentId">Canonical instrument identity.</param>

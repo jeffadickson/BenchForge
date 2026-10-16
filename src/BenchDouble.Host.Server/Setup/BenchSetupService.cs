@@ -184,6 +184,20 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         return new(Digest(text), saved.Draft, configuration);
     }
 
+    internal void CheckActivationController(BenchSetup configuration, SetupConnection route)
+    {
+        if (!Same(route.Transport, "GPIB")) return;
+        lock (_gate)
+        {
+            var controller = configuration.Controllers.Single(x => Same(x.Id, route.ControllerId));
+            var matches = _discovered?.Controllers.Where(x => Same(x.Provider, controller.Provider) &&
+                (controller.StableId is null ? Same(x.Address, controller.Address) : x.StableId == controller.StableId)).ToArray();
+            if (matches is not { Length: 1 } || !Same(matches[0].Address, controller.Address) ||
+                controller.StableId is null && controller.ConfirmedDiscoveryId != _discovered!.Id)
+                throw new InvalidOperationException("Rediscover, confirm and save the GPIB controller mapping before driver activation.");
+        }
+    }
+
     private SetupProblem[] ValidateCore(BenchSetup configuration, bool probe = true)
     {
         var errors = StructuralProblems(configuration).ToList();
