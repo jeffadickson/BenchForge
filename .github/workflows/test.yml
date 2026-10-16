@@ -95,10 +95,10 @@ jobs:
             build/docs-preflight.json
             build/docs-parity.json
           if-no-files-found: ignore
-      - name: Reject new documentation gaps
-        run: python scripts/check_api_docs.py
       - name: Test documentation gate
         run: python -m unittest discover -s tests/documentation -v
+      - name: Reject new documentation gaps
+        run: python scripts/check_api_docs.py
       - name: Restore API documentation tooling
         if: runner.os == 'Linux'
         run: dotnet tool restore
