@@ -99,51 +99,58 @@ public sealed record ImportedCapability(string Name, string Quantity, string Uni
 
 /// <summary>Simulation-only mode-aware driver and deterministic mock sharing one imported definition.</summary>
 /// <param name="definition">Validated, caller-owned instrument definition.</param>
-public sealed class ImportedInstrumentMock(ImportedInstrumentDefinition definition)
+public sealed class ImportedInstrumentMock
 {
-    private readonly SemaphoreSlim _gate = new(1, 1);
-    private string? _mode;
-    private readonly Dictionary<string, double> _values = definition.Capabilities
-        .Where(x => x.MockDefault.HasValue).ToDictionary(x => x.Name, x => x.MockDefault!.Value, StringComparer.Ordinal);
+    private readonly StatefulMockEngine _engine;
 
-    /// <summary>Set a supported mode; no physical command is dispatched.</summary>
+    /// <summary>Create a simulated instrument with an optional run-scoped clock and logger.</summary>
+    /// <param name="definition">Validated imported instrument definition.</param>
+    /// <param name="clock">Optional injected virtual clock.</param>
+    /// <param name="logger">Optional structured logger for state transitions.</param>
+    public ImportedInstrumentMock(ImportedInstrumentDefinition definition,
+        BenchDouble.Simulation.ISimulationClock? clock = null,
+        Microsoft.Extensions.Logging.ILogger<StatefulMockEngine>? logger = null)
+    {
+        _engine = new StatefulMockEngine(definition, clock, logger);
+    }
+
+    /// <summary>Get the shared engine used for all stateful operations.</summary>
+    public StatefulMockEngine Engine => _engine;
+
+    /// <summary>Set a supported mode without dispatching physical commands.</summary>
     /// <param name="mode">Declared mode identifier.</param>
-    /// <param name="cancellationToken">Cancellation while waiting for exclusive mock state access.</param>
-    /// <returns>Completion of the simulated mode transition.</returns>
-    public async ValueTask ConfigureModeAsync(string mode, CancellationToken cancellationToken = default)
-    {
-        definition.ModeCommand(mode);
-        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try { _mode = mode; }
-        finally { _gate.Release(); }
-    }
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive access.</param>
+    /// <returns>Completion of the mode transition.</returns>
+    public ValueTask ConfigureModeAsync(string mode, CancellationToken cancellationToken = default) =>
+        _engine.ConfigureModeAsync(mode, cancellationToken);
 
-    /// <summary>Read a declared scalar quantity only in a compatible mode.</summary>
-    /// <param name="capability">Declared scalar measurement identifier.</param>
-    /// <param name="cancellationToken">Cancellation while waiting for the state lock.</param>
-    /// <returns>Simulated numeric reading in the definition's canonical unit.</returns>
-    public async ValueTask<double> MeasureAsync(string capability, CancellationToken cancellationToken = default)
-    {
-        var item = definition.Capability(capability);
-        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            if (_mode is null || !item.Modes.Contains(_mode)) throw new InvalidOperationException("Incompatible measurement mode.");
-            return _values.TryGetValue(capability, out var value) ? value :
-                throw new InvalidOperationException("No configured mock reading.");
-        }
-        finally { _gate.Release(); }
-    }
+    /// <summary>Measure a compatible scalar capability.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="cancellationToken">Cancellation while waiting for the state transaction.</param>
+    /// <returns>Finite reading in the capability's canonical unit.</returns>
+    public ValueTask<double> MeasureAsync(string capability, CancellationToken cancellationToken = default) =>
+        _engine.MeasureAsync(capability, cancellationToken);
 
-    /// <summary>Set a finite mock reading for a declared capability.</summary>
-    /// <param name="capability">Declared scalar measurement identifier.</param>
-    /// <param name="value">Finite simulated reading in the capability's canonical unit.</param>
-    public void SetReading(string capability, double value)
-    {
-        definition.Capability(capability);
-        if (!double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
-        _gate.Wait();
-        try { _values[capability] = value; }
-        finally { _gate.Release(); }
-    }
+    /// <summary>Override a scalar reading with a finite canonical-unit value.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="value">Finite simulated reading.</param>
+    public void SetReading(string capability, double value) => _engine.SetReading(capability, value);
+
+    /// <summary>Install or remove a deterministic virtual-time behavior.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="behavior">Pure, non-reentrant behavior, or null to remove.</param>
+    public void SetBehavior(string capability, Func<MockReadingContext, double>? behavior) =>
+        _engine.SetBehavior(capability, behavior);
+
+    /// <summary>Queue a one-shot simulated measurement failure.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="failure">Exception to throw on the next compatible measurement.</param>
+    public void QueueFault(string capability, Exception failure) => _engine.QueueFault(capability, failure);
+
+    /// <summary>Capture a detached, immutable snapshot of the current mock state.</summary>
+    /// <returns>Mode, revision, virtual time, and copied overrides.</returns>
+    public StatefulMockSnapshot Snapshot() => _engine.Snapshot();
+
+    /// <summary>Reset all mock state to its definition defaults.</summary>
+    public void Reset() => _engine.Reset();
 }
