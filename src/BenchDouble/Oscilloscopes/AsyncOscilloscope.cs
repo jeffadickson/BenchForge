@@ -11,6 +11,9 @@ namespace BenchDouble.Oscilloscopes;
 public interface IAsyncBinaryScpiSession : IAsyncScpiSession
 {
     /// <summary>Return a readable response stream for a binary query; caller owns disposal.</summary>
+    /// <param name="command">Binary SCPI query to execute while the session is exclusively owned.</param>
+    /// <param name="cancellationToken">Cancellation forwarded to the transport.</param>
+    /// <returns>Response stream owned and disposed by the caller.</returns>
     ValueTask<Stream> QueryBinaryAsync(string command, CancellationToken cancellationToken = default);
 }
 
@@ -18,6 +21,10 @@ public interface IAsyncBinaryScpiSession : IAsyncScpiSession
 public static class StreamingScpiBinaryBlock
 {
     /// <summary>Read one definite-length block, without buffering an unbounded response.</summary>
+    /// <param name="stream">Readable binary response stream; caller retains ownership.</param>
+    /// <param name="maxPayloadBytes">Maximum accepted payload length in bytes.</param>
+    /// <param name="cancellationToken">Cancellation while reading the response.</param>
+    /// <returns>Decoded definite-length binary payload, without framing bytes.</returns>
     public static async ValueTask<byte[]> ReadAsync(Stream stream, int maxPayloadBytes = 64 * 1024 * 1024,
         CancellationToken cancellationToken = default)
     {

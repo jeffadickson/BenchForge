@@ -15,6 +15,7 @@ public sealed class OscilloscopeSessionCoordinator
     private bool _poisoned;
 
     /// <summary>Construct a coordinator around the sole underlying transport.</summary>
+    /// <param name="transport">Caller-owned transport; all users must share this coordinator.</param>
     public OscilloscopeSessionCoordinator(IAsyncBinaryScpiSession transport) =>
         _transport = transport ?? throw new ArgumentNullException(nameof(transport));
 
@@ -23,6 +24,10 @@ public sealed class OscilloscopeSessionCoordinator
     /// block subsequent operations until an operator-approved transport recovery.
     /// Cancellation while waiting never dispatches commands.
     /// </summary>
+    /// <typeparam name="T">Result of the exclusive instrument transaction.</typeparam>
+    /// <param name="operation">Entire multi-command transaction, including response reads.</param>
+    /// <param name="cancellationToken">Cancellation while waiting or executing; failure after dispatch requires recovery.</param>
+    /// <returns>Result of the serialized instrument transaction.</returns>
     public async ValueTask<T> ExecuteAsync<T>(
         Func<IAsyncBinaryScpiSession, CancellationToken, ValueTask<T>> operation,
         CancellationToken cancellationToken = default)
@@ -43,6 +48,8 @@ public sealed class OscilloscopeSessionCoordinator
     /// Mark a session recovered only after a trusted caller has closed/reopened and
     /// verified the underlying transport. This method performs no recovery itself.
     /// </summary>
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive coordinator access.</param>
+    /// <returns>Completion after clearing the recovery-required state.</returns>
     public async ValueTask ConfirmExternalRecoveryAsync(CancellationToken cancellationToken = default)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -51,6 +58,8 @@ public sealed class OscilloscopeSessionCoordinator
     }
 
     /// <summary>Whether a failed transaction has blocked subsequent use.</summary>
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive coordinator access.</param>
+    /// <returns>True when a prior transaction failed and the session is blocked.</returns>
     public async ValueTask<bool> RequiresRecoveryAsync(CancellationToken cancellationToken = default)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -69,6 +78,8 @@ public sealed class CoordinatedOscilloscope
     private readonly int _channelCount;
 
     /// <summary>Create a coordinator-backed facade for a given channel count.</summary>
+    /// <param name="coordinator">Exclusive transaction coordinator shared by all session users.</param>
+    /// <param name="channelCount">Positive count of one-based oscilloscope channels.</param>
     public CoordinatedOscilloscope(OscilloscopeSessionCoordinator coordinator, int channelCount = 2)
     {
         _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
@@ -77,6 +88,10 @@ public sealed class CoordinatedOscilloscope
     }
 
     /// <summary>Acquire a single waveform under an exclusive transaction.</summary>
+    /// <param name="channel">One-based acquisition channel.</param>
+    /// <param name="acquisitionId">Nonempty identifier associated with the capture.</param>
+    /// <param name="cancellationToken">Cancellation while waiting or acquiring.</param>
+    /// <returns>Unit-aware waveform captured within one exclusive transaction.</returns>
     public ValueTask<WaveformCapture> AcquireAsync(int channel, Guid acquisitionId,
         CancellationToken cancellationToken = default)
     {
