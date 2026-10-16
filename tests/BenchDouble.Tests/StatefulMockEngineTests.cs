@@ -83,6 +83,29 @@ public sealed class StatefulMockEngineTests
         Assert.Equal(0.25, await mock.MeasureAsync("voltage"));
     }
 
+    /// <summary>Unsupported captured quantities and invalid modes preserve queued faults.</summary>
+    /// <returns>Completion of captured measurement validation.</returns>
+    [Fact]
+    public async Task CapturedReadValidationPrecedesFaultConsumption()
+    {
+        var smu = new VirtualSourceMeasureUnit(new VirtualSignalBus(), new ManualSimulationClock());
+        var acquired = smu.AcquireCoherently(1, 8, UnitsNet.Duration.FromMilliseconds(1));
+        var mock = new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition));
+        mock.QueueFault("resistance", new TimeoutException("resistance fault"));
+        await mock.ConfigureModeAsync("resistance");
+        await Assert.ThrowsAsync<NotSupportedException>(async () =>
+            await mock.MeasureCapturedAsync("resistance", acquired));
+        await Assert.ThrowsAsync<TimeoutException>(async () =>
+            await mock.MeasureAsync("resistance"));
+        mock.QueueFault("voltage", new TimeoutException("voltage fault"));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await mock.MeasureCapturedAsync("voltage", acquired));
+        await mock.ConfigureModeAsync("voltage");
+        await Assert.ThrowsAsync<TimeoutException>(async () =>
+            await mock.MeasureCapturedAsync("voltage", acquired));
+        Assert.Equal(0, await mock.MeasureCapturedAsync("voltage", acquired));
+    }
+
     /// <summary>Reset restores definition defaults without mutating old snapshots.</summary>
     /// <returns>Completion of snapshot verification.</returns>
     [Fact]
