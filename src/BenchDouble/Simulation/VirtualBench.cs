@@ -6,6 +6,7 @@ namespace BenchDouble.Simulation;
 
 /// <summary>Shared hardware-free source, meter and digitizer model.</summary>
 /// <remarks>All consumers observe one immutable source snapshot per acquisition.</remarks>
+/// <param name="signal">Shared, caller-owned virtual signal bus.</param>
 public sealed class VirtualBench(VirtualSignalBus signal)
 {
     private readonly VirtualSignalBus _signal = signal ?? throw new ArgumentNullException(nameof(signal));
