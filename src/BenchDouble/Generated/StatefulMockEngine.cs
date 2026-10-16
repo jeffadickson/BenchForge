@@ -30,6 +30,7 @@ public sealed class StatefulMockEngine
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<string, double> _overrides = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Func<MockReadingContext, double>> _models = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Func<MockReadingContext, CancellationToken, ValueTask<double>>> _asyncModels = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Queue<Exception>> _faults = new(StringComparer.Ordinal);
     private string? _mode;
     private long _revision;
@@ -84,7 +85,9 @@ public sealed class StatefulMockEngine
             }
             double? fallback = _overrides.TryGetValue(capability, out var value) ? value : metadata.MockDefault;
             var context = new MockReadingContext(_mode, capability, _clock.Elapsed, _revision, fallback);
-            double result = _models.TryGetValue(capability, out var model) ? model(context)
+            double result = _asyncModels.TryGetValue(capability, out var asyncModel)
+                ? await asyncModel(context, ct).ConfigureAwait(false)
+                : _models.TryGetValue(capability, out var model) ? model(context)
                 : fallback ?? throw new InvalidOperationException("No configured mock reading.");
             if (!double.IsFinite(result)) throw new InvalidOperationException("Nonfinite mock reading.");
             return result;
@@ -113,8 +116,28 @@ public sealed class StatefulMockEngine
         _gate.Wait();
         try
         {
+            _asyncModels.Remove(capability);
             if (behavior is null) _models.Remove(capability);
             else _models[capability] = behavior;
+            ++_revision;
+        }
+        finally { _gate.Release(); }
+    }
+
+    /// <summary>Install or remove an async model serialized with mode transitions.</summary>
+    /// <remarks>The callback executes inside the exclusive transaction and must not reenter this engine.</remarks>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <param name="behavior">Cancellation-aware async model, or null to restore fallback behavior.</param>
+    public void SetAsyncBehavior(string capability,
+        Func<MockReadingContext, CancellationToken, ValueTask<double>>? behavior)
+    {
+        _definition.Capability(capability);
+        _gate.Wait();
+        try
+        {
+            _models.Remove(capability);
+            if (behavior is null) _asyncModels.Remove(capability);
+            else _asyncModels[capability] = behavior;
             ++_revision;
         }
         finally { _gate.Release(); }
@@ -157,6 +180,7 @@ public sealed class StatefulMockEngine
             _mode = null;
             _overrides.Clear();
             _models.Clear();
+            _asyncModels.Clear();
             _faults.Clear();
             ++_revision;
             _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision);
