@@ -1,4 +1,4 @@
-"""No-hardware, no-PyMeasure-import tests for Instrument Definer."""
+"""No-hardware, no-ExternalInstrumentSource-import tests for Instrument Definer."""
 import importlib.util
 import json
 import tempfile
@@ -80,7 +80,7 @@ class Meter(Base, ExternalMixin):
     def test_unrelated_descriptor_is_not_extracted(self):
         doc = self.extract_source('''
 class Meter:
-    fake = measurement("NOT A PYMEASURE DESCRIPTOR")
+    fake = measurement("NOT A EXTERNAL_INSTRUMENT_SOURCE DESCRIPTOR")
     voltage = Instrument.measurement("V?", "Voltage")
 ''')
         self.assertEqual(["voltage"], [cap["name"] for cap in doc["capabilities"]])
