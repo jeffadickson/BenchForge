@@ -52,8 +52,8 @@ BD-DSL-001..007 introduce a separate optional `BenchDouble.Procedures` project w
 
 ## Generated instrument and default mock reference
 
-BD-GEN-001..006 add one checked-in typed driver/mock pair from an illustrative Keysight 33522B definition, a 25-entry PyMeasure porting inventory, and safer Keithley 236 mode/bias/compliance transitions. The inventory is not driver coverage. All source/tests are committed but unverified; physical hardware qualification is absent.
+BD-GEN-001..006 add one checked-in typed driver/mock pair from an illustrative Keysight 33522B definition, a 25-entry external instrument source porting inventory, and safer Keithley 236 mode/bias/compliance transitions. The inventory is not driver coverage. All source/tests are committed but unverified; physical hardware qualification is absent.
 
 ## Instrument Definer schema-v2 extraction and mode-aware mock preview
 
-BD-DEF-001..008 add static PyMeasure AST extraction, CSV handoff, a provenance-aware schema and review workflow, and simulation-only UnitsNet mode-aware mocks. The existing scalar SCPI generator still consumes schema v1; v2 reviewed generation, inherited/dynamic PyMeasure coverage and full schema validation remain open in issues #52–#53. Source/tests committed; no execution or hardware verification claimed.
+BD-DEF-001..008 add static external instrument source AST extraction, CSV handoff, a provenance-aware schema and review workflow, and simulation-only UnitsNet mode-aware mocks. The existing scalar SCPI generator still consumes schema v1; v2 reviewed generation, inherited/dynamic external instrument source coverage and full schema validation remain open in issues #52–#53. Source/tests committed; no execution or hardware verification claimed.
