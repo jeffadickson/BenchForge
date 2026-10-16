@@ -63,7 +63,7 @@ The primary objective now includes **controlling real equipment**, not merely mo
 8. [ ] Revisit product name and NuGet IDs later.
 
 ### Generic instruments and external interface study
-- [x] Research IVI Foundation, PyMeasure, QCoDeS, pyvisa-sim and Scpi.NET design patterns
+- [x] Research IVI Foundation, external instrument source, QCoDeS, pyvisa-sim and Scpi.NET design patterns
 - [x] Add generic DMM, function-generator and oscilloscope class contracts
 - [x] Add opt-in integration time (NPLC/aperture) and extension contracts
 - [x] Add SCPI-backed generic DMM and FGEN adapters with tests
@@ -73,7 +73,7 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Implement NPLC integration on a real supported DMM profile
 
 ### Declarative driver framework
-- [x] Immutable parameter descriptors and PyMeasure-style factories
+- [x] Immutable parameter descriptors and external instrument source-style factories
 - [x] Typed string/double/bool SCPI conversion boundary (currently double and bool codecs)
 - [x] Parameter-level min/max and custom validation
 - [x] Hierarchical SCPI channel command binding
@@ -95,8 +95,8 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Create durable recording/replay artifact format independent of diagnostic logs
 - [ ] Validate SCPI binary payload redaction and bounded capture
 
-### PyMeasure-inspired driver porting (selective)
-- [x] Inspect PyMeasure base instrument and property/validation source
+### external instrument source-inspired driver porting (selective)
+- [x] Inspect external instrument source base instrument and property/validation source
 - [x] Confirm MIT attribution requirements and document selective adaptation policy
 - [x] Add typed vendor-token mapping and reusable discrete/range validators with tests
 - [ ] Compile and run all tests across Windows, macOS and Linux
@@ -182,13 +182,13 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Model RMS/Vpp/peak and uncertainty independently of UnitsNet quantities
 
 ### Generated instrument drivers
-- [x] Define IVI-aligned, PyMeasure-inspired descriptor-to-code architecture
+- [x] Define IVI-aligned, external instrument source-inspired descriptor-to-code architecture
 - [x] Add sample versioned Keysight instrument JSON profile
 - [ ] Implement JSON schema and semantic validator with diagnostics
 - [ ] Implement Roslyn incremental generator with compile-time typed UnitsNet APIs
 - [ ] Generate test fixtures and XML docs; integrate with simulator expectations
 - [ ] Validate Keysight and Tektronix profile SCPI against vendor manuals
-- [ ] Convert selected PyMeasure device profiles with attribution and parity tests
+- [ ] Convert selected external instrument source device profiles with attribution and parity tests
 
 ### Explicit source generation and programmable mocks
 - [x] Replace compiler-time generator direction with standalone .NET generator and Makefile entry point
@@ -199,7 +199,7 @@ The primary objective now includes **controlling real equipment**, not merely mo
 - [ ] Commit generated outputs and enforce drift check in CI
 - [ ] Add schema-driven mock expressions and scripted response behavior
 - [ ] Add stateful/mock timeout/error functions and controlled deterministic clock
-- [ ] Import PyMeasure driver profiles with attribution and validate manual command parity
+- [ ] Import external instrument source driver profiles with attribution and validate manual command parity
 
 ### Mock lifecycle and simulation clocks
 - [x] Specify initialization and per-measurement mock behavior definitions
@@ -217,14 +217,14 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 
 ### Source-grounded unified instrument operation architecture
 - [x] Document local physical, local simulated, remote physical and remote simulated paths
-- [x] Audit 25 actual PyMeasure operation definitions with file/line provenance
+- [x] Audit 25 actual external instrument source operation definitions with file/line provenance
 - [ ] Implement typed operation registry and generic dispatch for selected DMM/FGEN operations
 - [ ] Integrate mock state transitions with operation definitions (mode-aware measurement)
 - [ ] Implement typed versioned remote proxy without client-side vendor SCPI duplication
 - [ ] Verify source-to-C# operation parity and real-device behavior where authorized
 
 ### 25 instrument port inventory and Keithley 236
-- [x] Correct 25 PyMeasure properties to 25 distinct catalog instrument driver entries
+- [x] Correct 25 external instrument source properties to 25 distinct catalog instrument driver entries
 - [x] Document which instrument source files were actually inspected
 - [x] Implement first Keithley 236 legacy IEEE-488 DC source/measure subset and resistive DUT mock
 - [x] Add typed UnitsNet protocol and mock tests (source committed, not executed)
@@ -361,7 +361,7 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Implement authenticated multi-host discovery, physical leases, fencing and safe partial-start rollback
 - [ ] Add immutable experiment definition serialization, behavior hashes and host protocol compatibility negotiation
 - [ ] Add authorized multi-host dashboard aggregation, durable log replay, filtering and heartbeat/stale state
-- [ ] Benchmark actual instrument coverage against PyMeasure without confusing prototypes with released capabilities
+- [ ] Benchmark actual instrument coverage against external instrument source without confusing prototypes with released capabilities
 
 ### Experiment AutoMock and rule-driven simulation
 - [x] Add typed, deterministic AutoMockLoadRulesBuilder and ILoadBehavior decorator
@@ -422,7 +422,7 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Integrate authorized physical-host operations only after security and safe-state acceptance
 
 ### Instrument dataset and typed default mock generation
-- [x] Create machine-readable 25-PyMeasure-entry inventory plus Keithley 236 with evidence and implementation statuses
+- [x] Create machine-readable 25-external instrument source-entry inventory plus Keithley 236 with evidence and implementation statuses
 - [x] Add catalog integrity validator without treating inventory as completed drivers
 - [x] Generate UnitsNet-typed SCPI driver and matching mock from the same instrument definition
 - [x] Support per-channel state, typed SetMock methods, exact command templates and finite numeric range checks
@@ -436,12 +436,12 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 
 ### Instrument Definer v2 and mode-aware mock preview
 - [x] Add schema-v2 JSON with identity, provenance, capabilities, methods, modes, mock and review metadata
-- [x] Add static PyMeasure AST extractor and spreadsheet-friendly CSV import
+- [x] Add static external instrument source AST extractor and spreadsheet-friendly CSV import
 - [x] Add intern handoff templates, example Keithley 2400 extraction draft and extraction documentation
 - [x] Add semantic checks for UnitsNet dimensions, duplicate names, modes, ranges and review status
 - [x] Add simulation-only mode-aware mock engine and schema-v2 mock default loader
 - [x] Add Python and C# unit-test source and local `make definer-check` target
 - [ ] Execute and verify Python/.NET tests on local development machines
-- [ ] Complete inherited/dynamic PyMeasure extraction and coverage reports
+- [ ] Complete inherited/dynamic external instrument source extraction and coverage reports
 - [ ] Add full schema validation and reviewer approval gate
 - [ ] Generate mode-aware asynchronous drivers/mocks from manually reviewed schema-v2 definitions
