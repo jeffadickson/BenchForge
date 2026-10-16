@@ -93,6 +93,10 @@ jobs:
           dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
       - name: Test shared virtual bench and stateful signal model
         run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
+      - name: Test stateful mock engine and IoC composition
+        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockEngineTests"
+      - name: Test run-scoped stateful mock composition
+        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockCompositionTests"
       - name: Compile committed schema-v2 generated preview
         run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
       - name: Audit API documentation
