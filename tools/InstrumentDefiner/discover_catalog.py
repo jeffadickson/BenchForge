@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build a pinned, comprehensive PyMeasure class manifest from a local checkout.
+"""Build a pinned, comprehensive ExternalInstrumentSource class manifest from a local checkout.
 
 This discovery tool does not execute upstream Python. It inventories every
-class declared under pymeasure/instruments and records unsupported files.
+class declared under external_instrument_source/instruments and records unsupported files.
 Output is a manifest for manual review and batch_extract.py, not approved drivers.
 """
 import argparse
@@ -19,9 +19,9 @@ COLUMNS = ("manufacturer", "model", "className", "sourcePath", "revision")
 def discover(root: Path):
     """Return a complete per-class inventory and explicit parse errors."""
     root = root.resolve()
-    instrument_root = root / "pymeasure" / "instruments"
+    instrument_root = root / "external_instrument_source" / "instruments"
     if not instrument_root.is_dir():
-        raise ValueError("Expected pymeasure/instruments inside source root")
+        raise ValueError("Expected external_instrument_source/instruments inside source root")
     revision = subprocess.check_output(
         ["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     if not re.fullmatch(r"[0-9a-f]{40}", revision):
