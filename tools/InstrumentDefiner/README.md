@@ -1,6 +1,6 @@
 # Instrument Definer
 
-This is a **source-extraction and validation** tool, not a Python-to-C# translator. It never imports or executes PyMeasure drivers. It creates **schema-v2 review drafts**, which must be checked against instrument manuals before code generation.
+This is a **source-extraction and validation** tool, not a Python-to-C# translator. It never imports or executes external instrument source drivers. It creates **schema-v2 review drafts**, which must be checked against instrument manuals before code generation.
 
 ## Intern handoff
 
@@ -10,8 +10,8 @@ Prefer one JSON file per instrument in `instrument-definitions/drafts/`. A two-t
 
 ```bash
 # No third-party Python dependencies. Never executes the upstream file.
-python3 tools/InstrumentDefiner/definer.py extract-pymeasure \
-  pymeasure/instruments/keithley/keithley2400.py \
+python3 tools/InstrumentDefiner/definer.py extract-external instrument source \
+  external instrument source/instruments/keithley/keithley2400.py \
   --manufacturer Keithley --model 2400 --revision PINNED_COMMIT_SHA \
   --output instrument-definitions/drafts/keithley2400.extracted.json
 
@@ -61,13 +61,13 @@ The next increment will use approved v2 definitions to generate typed async inte
 
 Use [batch-manifest.csv](templates/batch-manifest.csv) as the handoff sheet.
 Every row needs manufacturer, model, upstream class name, source path relative
-to a checked-out PyMeasure tree, and the **40-character pinned Git commit SHA**.
+to a checked-out external instrument source tree, and the **40-character pinned Git commit SHA**.
 Replace the placeholders before running:
 
 ```bash
 python3 tools/InstrumentDefiner/batch_extract.py \
   tools/InstrumentDefiner/templates/batch-manifest.csv \
-  --source-root path/to/pymeasure-checkout \
+  --source-root path/to/external instrument source-checkout \
   --output-dir instrument-definitions/drafts/batch-001 \
   --report build/instrument-extraction-batch-001.json
 ```
