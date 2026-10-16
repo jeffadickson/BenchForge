@@ -68,12 +68,12 @@ def parameter_names(signature: str) -> list[str]:
 
 # Supplemental declaration patterns for constructs missed by the fast matcher.
 RECORD_PRIMARY = re.compile(
-    r"(?m)^[ \\t]*(?:public|protected)\\s+(?:(?:sealed|abstract|partial|readonly)\\s+)*"
-    r"record\\s+(?:(?:class|struct)\\s+)?(?P<name>\\w+)\\s*\\((?P<params>[^{};()]*)\\)"
+    r"(?m)^[ \t]*(?:public|protected)\s+(?:(?:sealed|abstract|partial|readonly)\s+)*"
+    r"record\s+(?:(?:class|struct)\s+)?(?P<name>\w+)\s*\((?P<params>[^{};()]*)\)"
 )
 CONSTRUCTOR = re.compile(
-    r"(?m)^[ \\t]*(?:public|protected)\\s+(?P<name>[A-Za-z_]\\w*)\\s*"
-    r"\\((?P<params>[^{};()]*)\\)\\s*(?::[^{};]*?)?(?:\\{|=>|;)"
+    r"(?m)^[ \t]*(?:public|protected)\s+(?P<name>[A-Za-z_]\w*)\s*"
+    r"\((?P<params>[^{};()]*)\)\s*(?::[^{};]*?)?(?:\{|=>|;)"
 )
 
 
@@ -82,14 +82,14 @@ def supplemental_csharp(masked: str, lines: list[str], path: Path, root: Path) -
     rows = []
     for pattern, is_record in ((RECORD_PRIMARY, True), (CONSTRUCTOR, False)):
         for match in pattern.finditer(masked):
-            line = masked.count("\\n", 0, match.start()) + 1
+            line = masked.count("\n", 0, match.start()) + 1
             docs = xml_before(lines, line)
-            if re.search(r"<inheritdoc\\s*/?>", docs):
+            if re.search(r"<inheritdoc\s*/?>", docs):
                 continue
             documented = {name for name, _ in PARAM.findall(docs)}
             missing = ["param:" + name for name in parameter_names(match.group("params"))
                        if name not in documented]
-            if not is_record and not re.search(r"<summary(?:\\s+[^>]*)?>\\s*[^<\\s]", docs, re.S):
+            if not is_record and not re.search(r"<summary(?:\s+[^>]*)?>\s*[^<\s]", docs, re.S):
                 missing.insert(0, "summary")
             if missing:
                 rows.append({"path": path.relative_to(root).as_posix(),
