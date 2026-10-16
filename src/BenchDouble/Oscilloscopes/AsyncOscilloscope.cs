@@ -49,6 +49,8 @@ public sealed class AsyncOscilloscope
     private readonly int _channelCount;
 
     /// <summary>Create a scope façade with a positive channel count.</summary>
+    /// <param name="session">Caller-owned binary-capable SCPI session; command serialization is external.</param>
+    /// <param name="channelCount">Positive number of supported one-based channels.</param>
     public AsyncOscilloscope(IAsyncBinaryScpiSession session, int channelCount = 2)
     {
         _session = session ?? throw new ArgumentNullException(nameof(session));
@@ -57,6 +59,9 @@ public sealed class AsyncOscilloscope
     }
 
     /// <summary>Configure a simulated horizontal sample interval.</summary>
+    /// <param name="sampleInterval">Positive, finite UnitsNet duration between ADC samples.</param>
+    /// <param name="cancellationToken">Cancellation forwarded to the transport.</param>
+    /// <returns>Completion of the timebase command write.</returns>
     public ValueTask ConfigureTimebaseAsync(Duration sampleInterval, CancellationToken cancellationToken = default)
     {
         if (!double.IsFinite(sampleInterval.Seconds) || sampleInterval.Seconds <= 0)
@@ -65,10 +70,16 @@ public sealed class AsyncOscilloscope
     }
 
     /// <summary>Request one acquisition. Completion must be checked separately.</summary>
+    /// <param name="cancellationToken">Cancellation forwarded to the transport.</param>
+    /// <returns>Completion of the single-acquisition command write, not proof of capture completion.</returns>
     public ValueTask SingleAsync(CancellationToken cancellationToken = default) =>
         _session.WriteAsync("SING", cancellationToken);
 
     /// <summary>Acquire a waveform from a selected channel using signed 16-bit binary samples.</summary>
+    /// <param name="channel">One-based channel identifier.</param>
+    /// <param name="acquisitionId">Nonempty identity assigned to the captured waveform.</param>
+    /// <param name="cancellationToken">Cancellation forwarded to all transport operations.</param>
+    /// <returns>Captured signed 16-bit samples with UnitsNet scaling metadata.</returns>
     public async ValueTask<WaveformCapture> ReadWaveformAsync(int channel, Guid acquisitionId,
         CancellationToken cancellationToken = default)
     {
@@ -100,6 +111,9 @@ public sealed class SimulatedOscilloscopeSession : IAsyncBinaryScpiSession
     private VirtualSignalState? _acquisitionState;
 
     /// <summary>Create a mock with bounded sample count and channel count.</summary>
+    /// <param name="channels">Number of simulated input channels.</param>
+    /// <param name="samples">Samples per simulated acquisition, from 1 through 1,000,000.</param>
+    /// <param name="signal">Optional shared virtual source sampled at acquisition time.</param>
     public SimulatedOscilloscopeSession(int channels = 2, int samples = 1024, VirtualSignalBus? signal = null)
     {
         if (channels < 1) throw new ArgumentOutOfRangeException(nameof(channels));
