@@ -62,6 +62,27 @@ public sealed class StatefulMockEngineTests
         Assert.All(results, value => Assert.Equal(0.25, value));
     }
 
+    /// <summary>Async behaviors honor cancellation and preserve the exclusive transaction.</summary>
+    /// <returns>Completion of cancellation verification.</returns>
+    [Fact]
+    public async Task AsyncModelHonorsCancellation()
+    {
+        var mock = new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition));
+        await mock.ConfigureModeAsync("voltage");
+        mock.SetAsyncBehavior("voltage", async (_, token) =>
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(5), token);
+            return 4.25;
+        });
+        Assert.Equal(4.25, await mock.MeasureAsync("voltage"));
+        using var cancelled = new CancellationTokenSource();
+        cancelled.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await mock.MeasureAsync("voltage", cancelled.Token));
+        mock.SetAsyncBehavior("voltage", null);
+        Assert.Equal(0.25, await mock.MeasureAsync("voltage"));
+    }
+
     /// <summary>Reset restores definition defaults without mutating old snapshots.</summary>
     /// <returns>Completion of snapshot verification.</returns>
     [Fact]
