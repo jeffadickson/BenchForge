@@ -136,7 +136,7 @@ BD-VERSION-001,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/3
 BD-VERSION-002,P1,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/38,
 BD-VERSION-003,P1,SourceCommittedUnverified,docs/VERSION-CONTROL-TUTORIAL.md,,https://github.com/jeffadickson/BenchDouble/issues/38,
 BD-VERSION-004,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/38,
-BD-PARITY-001,P1,SourceCommittedUnverified,docs/PYMEASURE-COMPARISON-STATUS.md,,https://github.com/jeffadickson/BenchDouble/issues/39,
+BD-PARITY-001,P1,SourceCommittedUnverified,THIRD_PARTY_REVIEW.md,,https://github.com/jeffadickson/BenchDouble/issues/39,
 BD-AM-001,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/42,
 BD-AM-002,P0,SourceCommittedUnverified,src/BenchDouble/Simulation/AutoMockLoadRules.cs,tests/BenchDouble.Tests/AutoMockLoadRulesTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,
 BD-AM-003,P0,SourceCommittedUnverified,src/BenchDouble/Simulation/AutoMockRuleFiles.cs,tests/BenchDouble.Tests/AutoMockRuleFileTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,
