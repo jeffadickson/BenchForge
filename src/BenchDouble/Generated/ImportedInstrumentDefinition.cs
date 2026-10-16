@@ -130,6 +130,16 @@ public sealed class ImportedInstrumentMock
     public ValueTask<double> MeasureAsync(string capability, CancellationToken cancellationToken = default) =>
         _engine.MeasureAsync(capability, cancellationToken);
 
+    /// <summary>Read a voltage or current capability from one immutable acquisition.</summary>
+    /// <param name="capability">Declared compatible scalar capability.</param>
+    /// <param name="acquisition">Source and waveform snapshot with a shared acquisition identity.</param>
+    /// <param name="cancellationToken">Cancellation while waiting for exclusive access.</param>
+    /// <returns>Captured voltage in volts or current in amperes.</returns>
+    public ValueTask<double> MeasureCapturedAsync(string capability,
+        BenchDouble.Simulation.VirtualCoherentAcquisition acquisition,
+        CancellationToken cancellationToken = default) =>
+        _engine.MeasureCapturedAsync(capability, acquisition, cancellationToken);
+
     /// <summary>Override a scalar reading with a finite canonical-unit value.</summary>
     /// <param name="capability">Declared capability identifier.</param>
     /// <param name="value">Finite simulated reading.</param>
