@@ -107,6 +107,29 @@ public sealed class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Remove one explicit reading, restoring its definition fallback.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    public void ClearReading(string capability)
+    {
+        _definition.Capability(capability);
+        _gate.Wait();
+        try { if (_overrides.Remove(capability)) ++_revision; }
+        finally { _gate.Release(); }
+    }
+
+    /// <summary>Remove all explicit scalar overrides without changing the operating mode.</summary>
+    public void ClearAllReadings()
+    {
+        _gate.Wait();
+        try
+        {
+            if (_overrides.Count == 0) return;
+            _overrides.Clear();
+            ++_revision;
+        }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Install or remove a non-reentrant deterministic model.</summary>
     /// <param name="capability">Declared capability.</param>
     /// <param name="behavior">Pure model or null for definition fallback.</param>
