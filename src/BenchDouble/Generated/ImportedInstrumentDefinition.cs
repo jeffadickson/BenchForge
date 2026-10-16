@@ -98,7 +98,6 @@ public sealed record ImportedCapability(string Name, string Quantity, string Uni
     IReadOnlyList<string> Modes, double? MockDefault);
 
 /// <summary>Simulation-only mode-aware driver and deterministic mock sharing one imported definition.</summary>
-/// <param name="definition">Validated, caller-owned instrument definition.</param>
 public sealed class ImportedInstrumentMock
 {
     private readonly StatefulMockEngine _engine;
