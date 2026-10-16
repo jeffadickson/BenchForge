@@ -27,23 +27,50 @@ public sealed class VirtualBench(VirtualSignalBus signal)
     public WaveformCapture Capture(int channel, int sampleCount, Duration interval,
         double voltsPerCode = 0.001, Guid? acquisitionId = null)
     {
+        ValidateCapture(channel, sampleCount, interval, voltsPerCode);
+        return CaptureSnapshot(_signal.Snapshot(), channel, sampleCount, interval,
+            voltsPerCode, acquisitionId ?? Guid.NewGuid(), Duration.FromSeconds(0));
+    }
+
+    /// <summary>Validate a waveform request before touching mutable source state.</summary>
+    /// <param name="channel">One-based channel.</param>
+    /// <param name="sampleCount">Number of samples, 1 to 1,000,000.</param>
+    /// <param name="interval">Positive sample interval.</param>
+    /// <param name="voltsPerCode">Positive ADC volts per code.</param>
+    public static void ValidateCapture(int channel, int sampleCount, Duration interval, double voltsPerCode)
+    {
         if (channel < 1) throw new ArgumentOutOfRangeException(nameof(channel));
         if (sampleCount < 1 || sampleCount > 1_000_000) throw new ArgumentOutOfRangeException(nameof(sampleCount));
-        if (!double.IsFinite(interval.Seconds) || interval.Seconds <= 0)
-            throw new ArgumentOutOfRangeException(nameof(interval));
-        if (!double.IsFinite(voltsPerCode) || voltsPerCode <= 0)
-            throw new ArgumentOutOfRangeException(nameof(voltsPerCode));
-        var snapshot = _signal.Snapshot();
+        if (!double.IsFinite(interval.Seconds) || interval.Seconds <= 0) throw new ArgumentOutOfRangeException(nameof(interval));
+        if (!double.IsFinite(voltsPerCode) || voltsPerCode <= 0) throw new ArgumentOutOfRangeException(nameof(voltsPerCode));
+    }
+
+    /// <summary>Digitize an immutable signal snapshot with a shared acquisition identity.</summary>
+    /// <param name="snapshot">Immutable source snapshot.</param>
+    /// <param name="channel">One-based channel.</param>
+    /// <param name="sampleCount">Number of signed 16-bit samples.</param>
+    /// <param name="interval">Positive sample interval.</param>
+    /// <param name="voltsPerCode">Positive ADC volts per code.</param>
+    /// <param name="acquisitionId">Nonempty acquisition ID.</param>
+    /// <param name="start">Virtual time origin for the first sample.</param>
+    /// <returns>Independent waveform capture with fixed scaling.</returns>
+    public static WaveformCapture CaptureSnapshot(VirtualSignalState snapshot, int channel,
+        int sampleCount, Duration interval, double voltsPerCode, Guid acquisitionId, Duration start)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ValidateCapture(channel, sampleCount, interval, voltsPerCode);
+        if (acquisitionId == Guid.Empty) throw new ArgumentException("Empty acquisition ID.", nameof(acquisitionId));
+        if (!double.IsFinite(start.Seconds)) throw new ArgumentOutOfRangeException(nameof(start));
         var bytes = new byte[checked(sampleCount * 2)];
-        for (int i = 0; i < sampleCount; i++)
+        for (int index = 0; index < sampleCount; index++)
         {
-            double volts = snapshot.VoltageAt(Duration.FromSeconds(i * interval.Seconds)).Volts;
+            double volts = snapshot.VoltageAt(Duration.FromSeconds(start.Seconds + index * interval.Seconds)).Volts;
             double code = Math.Round(volts / voltsPerCode, MidpointRounding.AwayFromZero);
             short clipped = (short)Math.Clamp(code, short.MinValue, short.MaxValue);
-            BinaryPrimitives.WriteInt16LittleEndian(bytes.AsSpan(i * 2, 2), clipped);
+            BinaryPrimitives.WriteInt16LittleEndian(bytes.AsSpan(index * 2, 2), clipped);
         }
-        return new WaveformCapture(acquisitionId ?? Guid.NewGuid(), channel,
-            new WaveformPreamble(interval.Seconds, 0, 0, voltsPerCode, 0, 0),
+        return new WaveformCapture(acquisitionId, channel,
+            new WaveformPreamble(interval.Seconds, start.Seconds, 0, voltsPerCode, 0, 0),
             bytes, littleEndian: true);
     }
 }
