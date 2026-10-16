@@ -1,12 +1,12 @@
 # BenchDouble Experiment Runner
 
 ## Why it belongs in the instrument-control library
-PyMeasure separates parameterized `Procedure`, lifecycle execution by `Worker`, structured `Results`, and GUI queue management by `Manager`. This is a useful reference for a hardware-independent .NET execution core. BenchDouble experiments must run with real IVI/VISA, simulated or strictly mocked instruments. The instrument-control and runner components are useful standalone; TestForge may additionally handle qualification, requirements, operators and signoff.
+external instrument source separates parameterized `Procedure`, lifecycle execution by `Worker`, structured `Results`, and GUI queue management by `Manager`. This is a useful reference for a hardware-independent .NET execution core. BenchDouble experiments must run with real IVI/VISA, simulated or strictly mocked instruments. The instrument-control and runner components are useful standalone; TestForge may additionally handle qualification, requirements, operators and signoff.
 
 References:
-- https://pymeasure.readthedocs.io/en/latest/tutorial/procedure.html
-- https://pymeasure.readthedocs.io/en/latest/api/experiment/procedure.html
-- https://pymeasure.readthedocs.io/en/latest/api/display/manager.html
+- https://external instrument source.readthedocs.io/en/latest/tutorial/procedure.html
+- https://external instrument source.readthedocs.io/en/latest/api/experiment/procedure.html
+- https://external instrument source.readthedocs.io/en/latest/api/display/manager.html
 
 ## Implemented prototype
 - `IExperimentProcedure` (`StartupAsync`, `ExecuteAsync`, `ShutdownAsync`)
