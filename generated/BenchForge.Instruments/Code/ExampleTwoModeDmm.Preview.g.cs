@@ -67,6 +67,7 @@ public sealed class ExampleTwoModeDmmMockDecorator
   private readonly object _stateGate = new();
   /// <summary>Wrap an existing generated preview and preserve its mode state.</summary>
   /// <param name="inner">The caller-owned simulation preview.</param>
+  /// <exception cref="System.ArgumentNullException">The preview is null.</exception>
   public ExampleTwoModeDmmMockDecorator(ExampleTwoModeDmmPreview inner) => _inner = inner ?? throw new System.ArgumentNullException(nameof(inner));
   /// <summary>Configure the underlying simulation mode.</summary>
   /// <param name="mode">Declared mode name.</param>
@@ -76,7 +77,8 @@ public sealed class ExampleTwoModeDmmMockDecorator
   private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? _voltageBehavior;
   private ElectricPotential? _voltageState;
   /// <summary>Set a deterministic typed mock value for voltage.</summary>
-  /// <param name="value">Finite simulated quantity; no physical I/O.</param>
+  /// <param name="value">Finite simulated ElectricPotential in Volt; no physical I/O.</param>
+  /// <exception cref="System.ArgumentOutOfRangeException">The supplied value is not finite.</exception>
   public void SetMockvoltage(ElectricPotential value)
   {
     if (!double.IsFinite(value.Volts)) throw new System.ArgumentOutOfRangeException(nameof(value));
@@ -85,7 +87,7 @@ public sealed class ExampleTwoModeDmmMockDecorator
   /// <summary>Clear an explicitly assigned voltage value.</summary>
   public void ResetMockvoltage() { lock (_stateGate) _voltageState = null; }
   /// <summary>Inject a test-specific voltage measurement behavior.</summary>
-  /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
+  /// <param name="behavior">Explicit async behavior; null removes the injected behavior.</param>
   public void SetvoltageBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricPotential>>? behavior)
     => System.Threading.Volatile.Write(ref _voltageBehavior, behavior);
   /// <summary>Measure voltage with mode checks and optional injected behavior.</summary>
@@ -103,7 +105,8 @@ public sealed class ExampleTwoModeDmmMockDecorator
   private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? _resistanceBehavior;
   private ElectricResistance? _resistanceState;
   /// <summary>Set a deterministic typed mock value for resistance.</summary>
-  /// <param name="value">Finite simulated quantity; no physical I/O.</param>
+  /// <param name="value">Finite simulated ElectricResistance in Ohm; no physical I/O.</param>
+  /// <exception cref="System.ArgumentOutOfRangeException">The supplied value is not finite.</exception>
   public void SetMockresistance(ElectricResistance value)
   {
     if (!double.IsFinite(value.Ohms)) throw new System.ArgumentOutOfRangeException(nameof(value));
@@ -112,7 +115,7 @@ public sealed class ExampleTwoModeDmmMockDecorator
   /// <summary>Clear an explicitly assigned resistance value.</summary>
   public void ResetMockresistance() { lock (_stateGate) _resistanceState = null; }
   /// <summary>Inject a test-specific resistance measurement behavior.</summary>
-  /// <param name="behavior">Explicit async behavior; null restores the definition default.</param>
+  /// <param name="behavior">Explicit async behavior; null removes the injected behavior.</param>
   public void SetresistanceBehavior(System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? behavior)
     => System.Threading.Volatile.Write(ref _resistanceBehavior, behavior);
   /// <summary>Measure resistance with mode checks and optional injected behavior.</summary>
