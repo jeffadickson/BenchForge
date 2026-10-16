@@ -154,3 +154,14 @@ clean-generated:
 .PHONY: test-virtual-bench
 test-virtual-bench:
 	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
+
+# Full tracked-file source-neutrality audit and XML API documentation verification.
+.PHONY: source-audit source-audit-strict xdoc-check
+source-audit:
+	$(PYTHON) scripts/check_source_neutrality.py --output build/source-neutrality-audit.json
+
+source-audit-strict:
+	$(PYTHON) scripts/check_source_neutrality.py --strict --output build/source-neutrality-audit.json
+
+xdoc-check: docs-check
+	$(DOTNET) build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release -p:GenerateDocumentationFile=true
