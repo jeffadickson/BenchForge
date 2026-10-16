@@ -7,6 +7,12 @@ namespace BenchDouble.Oscilloscopes;
 public static class ScpiBinaryBlock
 {
     /// <summary>Decode #&lt;digits&gt;&lt;length&gt;&lt;payload&gt; with an optional trailing LF or CRLF. Indefinite blocks are rejected.</summary>
+    /// <param name="frame">Complete SCPI binary response, including definite-length header.</param>
+    /// <param name="maxPayloadBytes">Maximum accepted binary payload size in bytes.</param>
+    /// <returns>Decoded payload bytes without SCPI framing.</returns>
+    /// <exception cref="FormatException">The binary block framing is invalid.</exception>
+    /// <exception cref="InvalidDataException">The declared payload exceeds the configured limit.</exception>
+    /// <exception cref="EndOfStreamException">The declared payload is incomplete.</exception>
     public static byte[] Decode(ReadOnlySpan<byte> frame, int maxPayloadBytes = 64 * 1024 * 1024)
     {
         if (maxPayloadBytes < 0) throw new ArgumentOutOfRangeException(nameof(maxPayloadBytes));
@@ -66,6 +72,11 @@ public sealed class WaveformCapture
     private readonly bool _littleEndian;
 
     /// <summary>Create a capture, rejecting invalid channel, metadata or sample framing.</summary>
+    /// <param name="acquisitionId">Nonempty acquisition identity.</param>
+    /// <param name="channel">One-based oscilloscope channel.</param>
+    /// <param name="preamble">Validated time and voltage scaling metadata.</param>
+    /// <param name="rawSamples">Signed 16-bit ADC samples, copied into the capture.</param>
+    /// <param name="littleEndian">Whether sample bytes are encoded little-endian.</param>
     public WaveformCapture(Guid acquisitionId, int channel, WaveformPreamble preamble, ReadOnlySpan<byte> rawSamples, bool littleEndian)
     {
         if (acquisitionId == Guid.Empty) throw new ArgumentException("An acquisition ID is required.", nameof(acquisitionId));
@@ -80,6 +91,9 @@ public sealed class WaveformCapture
     }
 
     /// <summary>Return the trigger-relative sample timestamp.</summary>
+    /// <param name="index">Zero-based sample index.</param>
+    /// <returns>Trigger-relative time as a UnitsNet duration.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The sample index is invalid.</exception>
     public Duration TimeAt(int index)
     {
         ValidateIndex(index);
@@ -87,6 +101,9 @@ public sealed class WaveformCapture
     }
 
     /// <summary>Convert one signed 16-bit ADC sample to physical voltage.</summary>
+    /// <param name="index">Zero-based sample index.</param>
+    /// <returns>Scaled voltage as a UnitsNet electric potential.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The sample index is invalid.</exception>
     public ElectricPotential VoltageAt(int index)
     {
         ValidateIndex(index);
