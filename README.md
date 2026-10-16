@@ -30,6 +30,8 @@ Windows: `powershell -File scripts/bootstrap.ps1`; then use the project-specific
 Browser provisioning: `make setup-browser` or `scripts/bootstrap.ps1 -Browser`.
 See [local/remote routing and setup examples](docs/LOCAL-FIRST-CONFIGURATION.md).
 
+Guided bench setup: open `http://127.0.0.1:5278/setup/` after starting the local host. Discover and name simulated equipment or enumerate installed-VISA resources, assign roles, review alternate connections and save without mandatory serial numbers. See the [setup user guide](docs/BENCH-SETUP-USER-GUIDE.md); physical driver activation remains unsupported.
+
 ## Project layout
 
 - `src/BenchForge/`: transport abstraction, typed drivers, stateful devices and strict replay

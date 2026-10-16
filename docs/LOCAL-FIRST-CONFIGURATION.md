@@ -82,6 +82,6 @@ Optional vendor VISA drivers and physical hardware are separate from portable
 simulation dependencies. Python transitive locks and clean-machine Windows/macOS
 validation remain #28; no claim of fully reproducible provisioning is made yet.
 
-## Planned discovery-assisted physical setup
+## Discovery-assisted bench setup
 
-See [discovery-assisted setup requirements](DISCOVERY-ASSISTED-SETUP.md) for optional serial numbers, guided identification of multiple USB-GPIB adapters, alternate Ethernet/GPIB connections and human-reviewed configuration repair. These are design requirements under issue #69; the current role-to-host file schema and simulator host do not implement physical discovery.
+See [discovery-assisted setup requirements](DISCOVERY-ASSISTED-SETUP.md) for optional serial numbers, guided identification of multiple USB-GPIB adapters, alternate Ethernet/GPIB connections and human-reviewed configuration repair. The [guided setup page and API](BENCH-SETUP-USER-GUIDE.md) implement the configuration workflow with simulated validation and optional installed-VISA enumeration. Physical connections remain untested drafts until a host driver supports them; the existing client role-to-host file schema is unchanged.

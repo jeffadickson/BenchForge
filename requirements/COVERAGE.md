@@ -4,9 +4,9 @@
 
 | Status | Count |
 |---|---:|
-| DesignOnly | 12 |
+| DesignOnly | 7 |
 | NoImplementationEvidence | 39 |
-| PartialSourceUnverified | 59 |
+| PartialSourceUnverified | 64 |
 | Planned | 49 |
 | SourceCommittedUnverified | 69 |
 
@@ -35,3 +35,9 @@ Concurrent cleanup increment (2026-10-16), BD-EXP-005 / issue #35: session dispo
 Discovery-assisted setup requirements (2026-10-16): BD-CFG-008..012 and issue #69 record optional serials, discovery, human-assisted controller binding, explicit alternate-route associations and guided save/repair. BD-CFG-004 acceptance now explicitly includes cross-interface contention. Five DesignOnly additions bring totals to 228 requirements, 12 DesignOnly and 0 Verified; other status counts are unchanged. No discovery UI, provider implementation or physical acceptance is claimed.
 
 Validation of the setup requirements increment: `python3 scripts/check_requirements.py` passed for all 228 requirements; all 9 requirements tracker tests passed. No runtime behavior changed or hardware tests were performed.
+
+Discovery setup implementation (2026-10-16): BD-CFG-008..012 move from DesignOnly to PartialSourceUnverified. Current totals: 228 requirements, 7 DesignOnly, 64 PartialSourceUnverified, 69 SourceCommittedUnverified, 49 Planned, 39 NoImplementationEvidence and 0 Verified. Implemented guided `/setup/` page, strict host configuration, optional identities, two-bus addressing, explicit alternate routes, stable-ID resolution/operator reconfirmation, atomic revision-checked save, offline drafts and role reservation through the existing registry. Optional installed-VISA enumeration uses an explicit transport/one-host scope; no physical driver activation is claimed.
+
+Validation: local .NET 10 Release host suite and DOM/HTTP integration executed. `scripts/check_bench_setup_dom.cjs` passed against the real host API, covering discover/configure/validate/save/reload and conflict/error paths. The Playwright script is committed but Chromium launch was blocked by the environment's local socket restriction, so screenshots/rendering were not verified. Native VISA translation is tested with injected catalogs; no vendor runtime or attached hardware was available. See `docs/BENCH-SETUP-USER-GUIDE.md` for the boundary and repeatable commands. No requirements were promoted to Verified.
+
+Final setup increment checks: 55 host tests passed under .NET SDK 10.0.402 using `dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj -c Release -m:1 -p:UseSharedCompilation=false -nr:false --no-restore` (SDK assembly invoked explicitly in this environment). Requirements gate and all 9 tracker tests passed. `make docs-check` passed with 0 new and 0 generated documentation gaps, with all 10 documentation tests passing. The 1,129 legacy gaps remain unchanged. DOM checks used happy-dom 21.0.3; Chromium 141 / Playwright 1.56.0 rendering remains unexecuted because browser startup could not create its required local socket.

@@ -1,3 +1,4 @@
+using BenchDouble.Host.Server.Setup;
 using BenchDouble;
 using BenchDouble.Host.Contracts;
 using System.Collections.Concurrent;
@@ -10,7 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
 builder.Services.AddSingleton<HostResourceRegistry>();
 builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
+builder.Services.AddSingleton<ISetupDiscoveryProvider, SimulatedSetupDiscoveryProvider>();
+builder.Services.AddSingleton(sp => new BenchSetupService(
+    sp.GetRequiredService<HostResourceRegistry>(), sp.GetRequiredService<ISetupDiscoveryProvider>(),
+    builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json")));
 var app = builder.Build();
+app.MapBenchSetup();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapGet("/", () => Results.Redirect("/dashboard/"));

@@ -1,6 +1,6 @@
 # Discovery-assisted bench configuration
 
-Status: requirements and design only. Tracked by [issue #69](https://github.com/jeffadickson/BenchForge/issues/69), BD-CFG-008..012, and the existing ownership/snapshot requirements BD-CFG-004/005 and TR-031/032. The current client role-to-host configuration remains unchanged; this document does not introduce an accepted physical-host file schema.
+Status: partially implemented; guided UI, strict configuration, simulated validation and optional native VISA enumeration are present. See [user guide](BENCH-SETUP-USER-GUIDE.md) for execution scope and physical limitations. Tracked by [issue #69](https://github.com/jeffadickson/BenchForge/issues/69), BD-CFG-008..012, and the existing ownership/snapshot requirements BD-CFG-004/005 and TR-031/032. The current client role-to-host configuration remains unchanged. A separate version-1 host setup schema is implemented; unsupported physical mappings remain untested drafts.
 
 ## User goal
 
@@ -52,4 +52,4 @@ Reconnect/re-enumeration should either resolve a stable controller binding or of
 | Offline/manual configuration | Explicit untested draft with versioned export/reload and later validation |
 | Cancelled/invalid configuration edit | Previous saved mapping and active run snapshots remain unchanged |
 
-These are future executable acceptance targets. Requirements consistency tests do not establish device discovery, usability or hardware correctness.
+These acceptance targets are partially covered by host tests and DOM/HTTP checks. Native vendor-runtime, physical hardware and rendered-browser acceptance remain outstanding. Requirements consistency tests alone do not establish usability or hardware correctness.
