@@ -11,7 +11,7 @@ public sealed class AsyncOscilloscopeTests
     public async Task SingleAcquisitionProducesTypedWaveform()
     {
         var scope = new AsyncOscilloscope(new SimulatedOscilloscopeSession(samples: 128));
-        await scope.ConfigureTimebaseAsync(Time.FromMicroseconds(2));
+        await scope.ConfigureTimebaseAsync(Duration.FromMicroseconds(2));
         await scope.SingleAsync();
         var capture = await scope.ReadWaveformAsync(1, Guid.NewGuid());
         Assert.Equal(128, capture.SampleCount);
