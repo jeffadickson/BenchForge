@@ -8,7 +8,7 @@ using UnitsNet;
 
 var mock = new SimulatedOscilloscopeSession(channels: 2, samples: 128);
 var scope = new AsyncOscilloscope(mock);
-await scope.ConfigureTimebaseAsync(Time.FromMicroseconds(2));
+await scope.ConfigureTimebaseAsync(Duration.FromMicroseconds(2));
 await scope.SingleAsync();
 var trace = await scope.ReadWaveformAsync(1, Guid.NewGuid());
 Console.WriteLine($"Samples: {trace.SampleCount}");
