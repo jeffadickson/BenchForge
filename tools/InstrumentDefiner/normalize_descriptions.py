@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize imported PyMeasure descriptions and propose conservative unit metadata.
+"""Normalize imported ExternalInstrumentSource descriptions and propose conservative unit metadata.
 
 Never rewrite upstream source or promote unreviewed units. Keep original text,
 source references, inference confidence, and review flags in a separate dataset.
