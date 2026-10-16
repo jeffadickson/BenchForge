@@ -58,6 +58,7 @@ def discover(root: Path):
 
 
 def main():
+    """Run the command-line validation and report results."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", required=True, type=Path)
     parser.add_argument("--manifest", required=True, type=Path)

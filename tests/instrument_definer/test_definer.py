@@ -56,6 +56,7 @@ class Meter:
             self.extract_source(source, "Missing")
 
     def test_inherited_and_dynamic_members_are_reported_not_silently_omitted(self):
+        """Verify inherited and dynamic members are reported not silently omitted."""
         doc = self.extract_source('''
 class Base:
     inherited = Instrument.measurement("BASE?", "base")

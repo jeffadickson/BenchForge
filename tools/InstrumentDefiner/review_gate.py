@@ -40,6 +40,7 @@ def audit(definition, target="manualReviewed"):
     blockers = []
     warnings = []
     def block(condition, reason):
+        """Record a review blocker with supporting evidence."""
         if condition:
             blockers.append(reason)
 
@@ -136,6 +137,7 @@ def audit(definition, target="manualReviewed"):
 
 
 def main():
+    """Run the command-line validation and report results."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("definition", type=Path)
     parser.add_argument("--target", choices=list(REVIEW_LEVELS),

@@ -12,7 +12,9 @@ spec.loader.exec_module(module)
 
 
 class CatalogDiscoveryTests(unittest.TestCase):
+    """Regression tests for catalog discovery tests."""
     def test_inventory_includes_classes_and_reports_parse_errors(self):
+        """Verify inventory includes classes and reports parse errors."""
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             instruments = root / "external_instrument_source" / "instruments" / "acme"
@@ -29,6 +31,7 @@ class CatalogDiscoveryTests(unittest.TestCase):
             self.assertEqual(1, len(result["parseErrors"]))
 
     def test_missing_source_tree_fails(self):
+        """Verify missing source tree fails."""
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaises(ValueError):
                 module.discover(Path(directory))

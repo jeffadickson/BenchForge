@@ -72,6 +72,7 @@ def normalize_csv(source, destination):
 
 
 def main():
+    """Run the command-line validation and report results."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("destination", type=Path)

@@ -10,7 +10,9 @@ import batch_extract  # noqa: E402
 
 
 class BatchExtractTests(unittest.TestCase):
+    """Regression tests for batch extract tests."""
     def test_extracts_multiple_models_and_reports_coverage(self):
+        """Verify extracts multiple models and reports coverage."""
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             sources = root / "sources"
@@ -35,6 +37,7 @@ class BatchExtractTests(unittest.TestCase):
             self.assertGreaterEqual(result["entries"][0]["unresolvedInherited"], 1)
 
     def test_path_traversal_is_rejected(self):
+        """Verify path traversal is rejected."""
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             source = root / "source"
@@ -48,6 +51,7 @@ class BatchExtractTests(unittest.TestCase):
             self.assertIn("outside source root", result["entries"][0]["error"])
 
     def test_incomplete_manifest_row_reports_failure_without_crashing(self):
+        """Verify incomplete manifest row reports failure without crashing."""
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             source = root / "sources"
@@ -61,6 +65,7 @@ class BatchExtractTests(unittest.TestCase):
             self.assertIn("required", result["entries"][0]["error"])
 
     def test_does_not_overwrite_existing_definition(self):
+        """Verify does not overwrite existing definition."""
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             source = root / "sources"
