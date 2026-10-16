@@ -222,3 +222,8 @@ BD-ART-005,P2,DesignOnly,docs/BINARY-CAPTURE-STORAGE.md,,https://github.com/jeff
 BD-DEF-009,P0,SourceCommittedUnverified,tools/InstrumentDefiner/review_gate.py,tests/instrument_definer/test_review_gate.py,https://github.com/jeffadickson/BenchDouble/issues/52,
 BD-DEF-010,P1,SourceCommittedUnverified,tools/InstrumentDefiner/definer.py,tests/instrument_definer/test_definer.py,https://github.com/jeffadickson/BenchDouble/issues/52,
 BD-DEF-011,P1,SourceCommittedUnverified,tools/InstrumentDefiner/batch_extract.py,tests/instrument_definer/test_batch_extract.py,https://github.com/jeffadickson/BenchDouble/issues/52,
+BD-CFG-008,P1,DesignOnly,docs/DISCOVERY-ASSISTED-SETUP.md,,https://github.com/jeffadickson/BenchDouble/issues/69,
+BD-CFG-009,P1,DesignOnly,docs/DISCOVERY-ASSISTED-SETUP.md,,https://github.com/jeffadickson/BenchDouble/issues/69,
+BD-CFG-010,P1,DesignOnly,docs/DISCOVERY-ASSISTED-SETUP.md,,https://github.com/jeffadickson/BenchDouble/issues/69,
+BD-CFG-011,P1,DesignOnly,docs/DISCOVERY-ASSISTED-SETUP.md,,https://github.com/jeffadickson/BenchDouble/issues/69,
+BD-CFG-012,P1,DesignOnly,docs/DISCOVERY-ASSISTED-SETUP.md,,https://github.com/jeffadickson/BenchDouble/issues/69,

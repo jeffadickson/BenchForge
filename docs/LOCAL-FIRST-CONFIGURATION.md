@@ -81,3 +81,7 @@ installed. Setup downloads .NET when no compatible SDK resolves from global.json
 Optional vendor VISA drivers and physical hardware are separate from portable
 simulation dependencies. Python transitive locks and clean-machine Windows/macOS
 validation remain #28; no claim of fully reproducible provisioning is made yet.
+
+## Planned discovery-assisted physical setup
+
+See [discovery-assisted setup requirements](DISCOVERY-ASSISTED-SETUP.md) for optional serial numbers, guided identification of multiple USB-GPIB adapters, alternate Ethernet/GPIB connections and human-reviewed configuration repair. These are design requirements under issue #69; the current role-to-host file schema and simulator host do not implement physical discovery.

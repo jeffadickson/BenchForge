@@ -1,10 +1,10 @@
-# Requirements coverage — 2026-10-15 revision 4
+# Requirements coverage — 2026-10-16 discovery setup revision
 
-**223 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
+**228 requirements; 0 Verified.** Complete row inventory: [full-audit.csv](full-audit.csv). Canonical tracker: [traceability.csv](traceability.csv).
 
 | Status | Count |
 |---|---:|
-| DesignOnly | 7 |
+| DesignOnly | 12 |
 | NoImplementationEvidence | 39 |
 | PartialSourceUnverified | 59 |
 | Planned | 49 |
@@ -31,3 +31,7 @@ Simulation startup cleanup increment (2026-10-16), BD-EXP-005 / issue #35: added
 Startup increment gates: requirement consistency and all 9 tracker tests passed; `make docs-check` passed with 0 new documentation gaps and 0 generated gaps, and all 10 documentation tests passed. Existing documentation debt remains 1,130 gaps; this increment does not claim repository-wide documentation completion.
 
 Concurrent cleanup increment (2026-10-16), BD-EXP-005 / issue #35: session disposal now publishes a shared completion before invoking resource callbacks. Concurrent and later callers observe the same result or failure, and new clock/instrument access is rejected after disposal starts. Deterministic gated tests exercise 32 callers for both success and failure. All 24 experiment tests passed using `/tmp/testharbor-dotnet/dotnet /tmp/testharbor-dotnet/sdk/10.0.402/dotnet.dll test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj -c Release -m:1 -p:UseSharedCompilation=false -nr:false --no-restore`. Requirement gate and all 9 tracker tests passed; `make docs-check` and all 10 documentation tests passed (0 new / 0 generated gaps, 1,129 legacy gaps). Counts remain 223 requirements, 59 PartialSourceUnverified, 69 SourceCommittedUnverified and 0 Verified. Startup regression coverage remains in ExperimentStartupTests.cs alongside the new ExperimentDisposalTests.cs. Physical recovery and durable provenance remain incomplete.
+
+Discovery-assisted setup requirements (2026-10-16): BD-CFG-008..012 and issue #69 record optional serials, discovery, human-assisted controller binding, explicit alternate-route associations and guided save/repair. BD-CFG-004 acceptance now explicitly includes cross-interface contention. Five DesignOnly additions bring totals to 228 requirements, 12 DesignOnly and 0 Verified; other status counts are unchanged. No discovery UI, provider implementation or physical acceptance is claimed.
+
+Validation of the setup requirements increment: `python3 scripts/check_requirements.py` passed for all 228 requirements; all 9 requirements tracker tests passed. No runtime behavior changed or hardware tests were performed.

@@ -1255,7 +1255,7 @@ STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete rou
 UID: BD-CFG-004
 STATUS: Active
 TITLE: BD-CFG-004 P0
-STATEMENT: Configured routing shall support multiple experiment clients and cached read-only observers per server while preserving exclusive ownership of each canonical resource. Acceptance: Reserve two distinct resources concurrently, reject a competing reservation for one resource and allow multiple observer snapshots.
+STATEMENT: Configured routing shall support multiple experiment clients and cached read-only observers per server while preserving exclusive ownership of each canonical resource. Acceptance: Reserve two distinct resources concurrently, reject a competing reservation for one resource and allow multiple observer snapshots. Confirmed Ethernet and GPIB aliases of one instrument shall use the same authoritative owner and reservation; two experiments using different aliases shall contend for that same resource, while distinct instruments on separate buses remain independently reservable.
 
 [REQUIREMENT]
 UID: BD-CFG-005
@@ -1340,3 +1340,33 @@ UID: BD-DEF-011
 STATUS: Active
 TITLE: BD-DEF-011 P1
 STATEMENT: The Instrument Definer shall batch-extract a pinned manifest of external instrument source instruments with per-instrument diagnostics and no overwrites.
+
+[REQUIREMENT]
+UID: BD-CFG-008
+STATUS: Active
+TITLE: BD-CFG-008 P1 Discovery-assisted inventory
+STATEMENT: The setup workflow shall discover supported controllers and instrument endpoints within an operator-selected host and network scope, showing transport, controller, address, available identity metadata, busy status and actionable diagnostics without requiring manual VISA syntax for discovered devices. Device probes shall respect the canonical ownership authority and shall not alter device configuration. Acceptance: Display an Ethernet instrument and two USB-GPIB controllers, distinguish missing provider from no response, allow cancellation, and show an actively reserved instrument from cached metadata without issuing probe I/O.
+
+[REQUIREMENT]
+UID: BD-CFG-009
+STATUS: Active
+TITLE: BD-CFG-009 P1 Optional identity metadata
+STATEMENT: Instrument and controller serial numbers shall be optional for setup, generated configuration and use; discovery shall populate available metadata without requiring transcription. The workflow shall distinguish discovered metadata, operator-confirmed associations and optional enforced identity checks. Acceptance: Save and reload a usable no-serial configuration; keep two same-model instruments with absent or duplicate serials separate; enable an explicit expected-identity check and reject a mismatch without substituting another device.
+
+[REQUIREMENT]
+UID: BD-CFG-010
+STATUS: Active
+TITLE: BD-CFG-010 P1 Human-assisted controller binding
+STATEMENT: The setup workflow shall let operators identify and name multiple controllers and bind each to its host/provider and available stable identifier or an explicitly confirmed mapping when no stable identifier exists. GPIB instrument addresses shall be scoped to the controller bus, and ambiguous or changed bindings shall require review rather than choosing the first adapter. Acceptance: Configure address 22 on each of two independent USB-GPIB buses without a collision; reconnect or reorder adapters and either retain a verified stable binding or show a repair prompt; complete setup without entering adapter serial numbers.
+
+[REQUIREMENT]
+UID: BD-CFG-011
+STATUS: Active
+TITLE: BD-CFG-011 P1 Operator-confirmed alternate connections
+STATEMENT: The setup workflow shall represent one physical instrument with a canonical identity and one or more named connection routes, allow an operator to confirm alternate routes belong to that instrument, select a route and assign logical experiment roles. Discovery suggestions shall not silently merge devices based on model, address or unverified serial metadata. Acceptance: Associate Ethernet and GPIB routes with one instrument, retain two identical no-serial devices as separate instruments, and review or undo a proposed association before saving; reserve confirmed aliases under the existing BD-CFG-004 ownership contract.
+
+[REQUIREMENT]
+UID: BD-CFG-012
+STATUS: Active
+TITLE: BD-CFG-012 P1 Guided setup and configuration repair
+STATEMENT: The setup workflow shall guide discovery, identification and naming, alternate-route association, role assignment, validation and review/save, while supporting manual entry and offline editing of versioned configuration. It shall explain unresolved or ambiguous mappings, distinguish untested configuration from validated connections, preserve the prior saved configuration after failed validation or cancelled editing, and provide repair when bench connections change. Acceptance: Complete a simple Ethernet setup without a serial or typed VISA string; save an explicitly untested offline draft; export and reload equivalent role/controller/route mappings; repair a missing adapter with an old/new preview and no mutation of active run snapshots. Device validation shall use the canonical reservation authority and shall not reset or enable outputs.
