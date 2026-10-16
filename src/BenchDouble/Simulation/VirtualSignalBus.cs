@@ -66,7 +66,7 @@ public sealed record VirtualSignalState(Frequency Frequency, ElectricPotential P
     /// <summary>Calculate a voltage at the given virtual time with ideal current compliance clipping.</summary>
     /// <param name="time">Virtual time relative to the source epoch.</param>
     /// <returns>Simulated instantaneous voltage.</returns>
-    public ElectricPotential VoltageAt(Time time)
+    public ElectricPotential VoltageAt(Duration time)
     {
         if (!double.IsFinite(time.Seconds)) throw new ArgumentOutOfRangeException(nameof(time));
         if (!Enabled) return ElectricPotential.FromVolts(0);
@@ -78,7 +78,7 @@ public sealed record VirtualSignalState(Frequency Frequency, ElectricPotential P
     /// <summary>Calculate a simulated current using Ohm's law.</summary>
     /// <param name="time">Virtual time.</param>
     /// <returns>Instantaneous resistive current.</returns>
-    public ElectricCurrent CurrentAt(Time time) => ElectricCurrent.FromAmperes(VoltageAt(time).Volts / Load.Ohms);
+    public ElectricCurrent CurrentAt(Duration time) => ElectricCurrent.FromAmperes(VoltageAt(time).Volts / Load.Ohms);
 
     /// <summary>Calculate DC and RMS voltage over one ideal waveform period using deterministic sampling.</summary>
     /// <param name="samples">Number of equally spaced samples, at least 2.</param>
@@ -89,7 +89,7 @@ public sealed record VirtualSignalState(Frequency Frequency, ElectricPotential P
         double sum = 0, squares = 0;
         for (int i = 0; i < samples; i++)
         {
-            double value = VoltageAt(Time.FromSeconds(i / (samples * Frequency.Hertz))).Volts;
+            double value = VoltageAt(Duration.FromSeconds(i / (samples * Frequency.Hertz))).Volts;
             sum += value;
             squares += value * value;
         }
