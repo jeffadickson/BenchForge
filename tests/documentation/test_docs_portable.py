@@ -30,12 +30,12 @@ class PortableDocumentationTests(unittest.TestCase):
             root = Path(temp)
             (root / "src").mkdir()
             (root / "src" / "Records.cs").write_text(
-                '/// <summary>Capture metadata.</summary>\\n'
-                'public record Capture(int Channel, double Voltage);\\n'
-                'public class Meter {\\n'
-                '    /// <summary>Create a meter.</summary>\\n'
-                '    public Meter(int channel) {}\\n'
-                '}\\n')
+                '/// <summary>Capture metadata.</summary>\n'
+                'public record Capture(int Channel, double Voltage);\n'
+                'public class Meter {\n'
+                '    /// <summary>Create a meter.</summary>\n'
+                '    public Meter(int channel) {}\n'
+                '}\n')
             findings = module.scan_csharp(root / "src" / "Records.cs", root)
             issues = {issue for item in findings for issue in item["issues"]}
             self.assertIn("param:Channel", issues)
