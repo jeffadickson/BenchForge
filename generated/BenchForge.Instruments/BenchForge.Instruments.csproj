@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>1591</WarningsAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
