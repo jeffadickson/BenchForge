@@ -20,5 +20,17 @@ public sealed class LocalHardeningTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new ScopeLeaseHeartbeat(client, "meter", Guid.NewGuid(), TimeSpan.MaxValue));
     }
 
+    /// <summary>Concurrent and repeated stop requests share completion and prevent restart.</summary>
+    /// <returns>Completion after all stop requests.</returns>
+    [Fact]
+    public async Task HeartbeatDisposalIsShared()
+    {
+        using var client = new HttpClient();
+        var heartbeat = new ScopeLeaseHeartbeat(client, "meter", Guid.NewGuid());
+        await Task.WhenAll(Enumerable.Range(0, 32).Select(_ => heartbeat.DisposeAsync().AsTask()));
+        await heartbeat.DisposeAsync();
+        Assert.Throws<InvalidOperationException>(heartbeat.Start);
+    }
+
 // CASES
 }

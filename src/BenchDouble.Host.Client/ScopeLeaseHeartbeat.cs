@@ -14,6 +14,8 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     private readonly TimeSpan _period;
     private readonly CancellationTokenSource _stop = new();
     private Task? _loop;
+    private Task? _disposal;
+    private readonly object _lifecycle = new();
 
     /// <summary>Latest observed renewal status.</summary>
     public ScopeHeartbeatStatus Status { get; private set; } = ScopeHeartbeatStatus.NotStarted;
@@ -39,8 +41,11 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     /// <summary>Begin renewal loop once; callers should stop using the instrument after status Lost.</summary>
     public void Start()
     {
-        if (_loop != null) throw new InvalidOperationException("Heartbeat already started.");
-        _loop = RunAsync(_stop.Token);
+        lock (_lifecycle)
+        {
+            if (_loop is not null || _disposal is not null) throw new InvalidOperationException("Heartbeat already started or stopped.");
+            _loop = Task.Run(() => RunAsync(_stop.Token));
+        }
     }
 
     private async Task RunAsync(CancellationToken token)
@@ -73,10 +78,15 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
 
     /// <summary>Stop the background renewal loop; does not release the host lease.</summary>
     /// <returns>Completion after cancellation and shutdown of the renewal loop.</returns>
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
+    {
+        lock (_lifecycle) return new(_disposal ??= Task.Run(StopAsync));
+    }
+
+    private async Task StopAsync()
     {
         await _stop.CancelAsync().ConfigureAwait(false);
-        if (_loop != null) await _loop.ConfigureAwait(false);
+        if (_loop is not null) await _loop.ConfigureAwait(false);
         _stop.Dispose();
     }
 }
