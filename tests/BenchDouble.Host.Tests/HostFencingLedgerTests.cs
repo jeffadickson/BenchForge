@@ -46,7 +46,9 @@ public sealed class HostFencingLedgerTests
         try
         {
             File.WriteAllText(path, "{broken");
-            Assert.ThrowsAny<Exception>(() => new HostFencingLedger(path));
+            Assert.Throws<System.Text.Json.JsonException>(() => new HostFencingLedger(path));
+            // A failed constructor must release its writer lock while retaining corrupt state.
+            Assert.Throws<System.Text.Json.JsonException>(() => new HostFencingLedger(path));
         }
         finally { File.Delete(path); File.Delete(path + ".owner.lock"); }
     }

@@ -1105,7 +1105,8 @@ STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validat
 UID: BD-HB-003
 STATUS: Active
 TITLE: Fenced ownership P0
-STATEMENT: The authoritative host shall reject expired or stale owner commands using a restart-safe epoch and lease generation, including immediately before dispatch. Acceptance: Expire a queued command then renew with a new generation; old queued and replayed commands never reach the device. The canonical registry shall validate owner health before waiting and again immediately before command dispatch. Acceptance: A queued old-owner command cannot execute after expiry, a new generation or host restart; expiry cannot be reversed by renewal. Preserve in-flight ownership until completion and retain unresolved startup records.
+STATEMENT: The authoritative host shall reject expired or stale owner commands using a restart-safe epoch and lease generation, including immediately before dispatch. Acceptance: Expire a queued command then renew with a new generation; old queued and replayed commands never reach the device. The canonical registry shall validate owner health before waiting and again immediately before command dispatch. Acceptance: A queued old-owner command cannot execute after expiry, a new generation or host restart; expiry cannot be reversed by renewal. Preserve in-flight ownership until completion and retain unresolved startup records. Acceptance: A failed fencing-ledger constructor shall release its writer lock while retaining corrupt state and the original failure for subsequent inspection.
+
 
 [REQUIREMENT]
 UID: BD-HB-004
@@ -1267,7 +1268,8 @@ STATEMENT: Routing configuration shall exclude credentials, use HTTPS for non-lo
 UID: BD-CFG-006
 STATUS: Active
 TITLE: BD-CFG-006 P1
-STATEMENT: Dependency setup shall discover all project references, install a compatible SDK and pinned documentation tools, and offer browser provisioning without a separate PowerShell requirement on Unix. Acceptance: Run setup on clean supported operating systems and restore every project including the browser installer; report missing system prerequisites explicitly.
+STATEMENT: Dependency setup shall discover all project references, install a compatible SDK and pinned documentation tools, and offer browser provisioning without a separate PowerShell requirement on Unix. Acceptance: Run setup on clean supported operating systems and restore every project including the browser installer; report missing system prerequisites explicitly. Acceptance: A .NET 10 SDK in a later feature band shall run local project tests without editing global.json.
+
 
 [REQUIREMENT]
 UID: BD-CFG-007

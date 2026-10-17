@@ -34,6 +34,8 @@ public sealed class HostFencingLedger : IDisposable
         var directory = Path.GetDirectoryName(_path)!;
         Directory.CreateDirectory(directory);
         _ownerLock = new FileStream(_path + ".owner.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        try
+        {
         if (File.Exists(_path))
         {
             _state = JsonSerializer.Deserialize<LedgerState>(File.ReadAllText(_path))
@@ -44,6 +46,12 @@ public sealed class HostFencingLedger : IDisposable
         else _state = new LedgerState();
         _state.Epoch = checked(_state.Epoch + 1);
         Persist();
+        }
+        catch
+        {
+            _ownerLock.Dispose();
+            throw;
+        }
     }
 
     /// <summary>Durable epoch for this host process start.</summary>

@@ -60,3 +60,8 @@ Third twenty-iteration batch (completed 2026-10-17 UTC): BD-LIFE-006 / #55 moves
 
 
 Shutdown and heartbeat batches (2026-10-16 local / 2026-10-17 UTC): 25 shutdown iterations followed by 20 heartbeat iterations, published together. BD-LIFE-004 / #55 and BD-HB-001..006 / #56 move from Planned to PartialSourceUnverified; TR-076 / #49, BD-LIFE-005 / #55 and BD-CFG-012 / #69 acceptance and fingerprints are updated. Totals: 228 requirements, 144 source-linked unverified, 74 PartialSourceUnverified, 39 Planned, 69 SourceCommittedUnverified, 39 NoImplementationEvidence, 7 DesignOnly, 0 Verified. Shutdown checkpoint: 133 host tests passed. Combined final: 150 host tests passed; real-time heartbeat, SIGTERM and forced-exit probes passed without vendor I/O; DOM/HTTP workflow passed with successful physical-driver responses stubbed. See iteration reports D/E for exact scope, commands, final documentation/tracker gates and remaining acceptance.
+
+
+
+
+Local iteration 01 (2026-10-17), BD-CFG-006: Enable local .NET tests and release failed ledger locks. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
