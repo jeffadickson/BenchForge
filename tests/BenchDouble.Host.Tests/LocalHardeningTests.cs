@@ -52,5 +52,27 @@ public sealed class LocalHardeningTests
         Assert.Equal(ScopeHeartbeatStatus.Healthy, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
     }
 
+    private sealed class WaitingHandler : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            return new HttpResponseMessage(HttpStatusCode.NoContent);
+        }
+    }
+
+    /// <summary>A transport awaiting cancellation cannot hang the periodic renewal loop.</summary>
+    /// <returns>Completion after a bounded degraded outcome.</returns>
+    [Fact]
+    public async Task HeartbeatBoundsHungTransport()
+    {
+        using var client = new HttpClient(new WaitingHandler()) { BaseAddress = new Uri("http://localhost/"), Timeout = Timeout.InfiniteTimeSpan };
+        await using var heartbeat = new ScopeLeaseHeartbeat(client, "meter", Guid.NewGuid(), TimeSpan.FromMilliseconds(5));
+        var notified = new TaskCompletionSource<ScopeHeartbeatStatus>(TaskCreationOptions.RunContinuationsAsynchronously);
+        heartbeat.StatusChanged += status => notified.TrySetResult(status);
+        heartbeat.Start();
+        Assert.Equal(ScopeHeartbeatStatus.Degraded, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+    }
+
 // CASES
 }
