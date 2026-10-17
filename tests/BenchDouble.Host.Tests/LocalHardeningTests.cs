@@ -32,5 +32,25 @@ public sealed class LocalHardeningTests
         Assert.Throws<InvalidOperationException>(heartbeat.Start);
     }
 
+    private sealed class SuccessHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));
+    }
+
+    /// <summary>A throwing observer cannot suppress other observers or renewal.</summary>
+    /// <returns>Completion after a healthy notification.</returns>
+    [Fact]
+    public async Task HeartbeatObserversAreIndependent()
+    {
+        using var client = new HttpClient(new SuccessHandler()) { BaseAddress = new Uri("http://localhost/") };
+        await using var heartbeat = new ScopeLeaseHeartbeat(client, "meter", Guid.NewGuid(), TimeSpan.FromMilliseconds(5));
+        var notified = new TaskCompletionSource<ScopeHeartbeatStatus>(TaskCreationOptions.RunContinuationsAsynchronously);
+        heartbeat.StatusChanged += _ => throw new InvalidOperationException("observer");
+        heartbeat.StatusChanged += status => notified.TrySetResult(status);
+        heartbeat.Start();
+        Assert.Equal(ScopeHeartbeatStatus.Healthy, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+    }
+
 // CASES
 }

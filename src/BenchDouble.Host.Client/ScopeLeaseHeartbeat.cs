@@ -69,7 +69,8 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                 catch (HttpRequestException) { status = ScopeHeartbeatStatus.Degraded; }
                 catch (TaskCanceledException) { status = ScopeHeartbeatStatus.Degraded; }
                 Status = status;
-                try { StatusChanged?.Invoke(status); } catch { /* observers cannot break renewal */ }
+                foreach (var handler in StatusChanged?.GetInvocationList() ?? [])
+                    try { ((Action<ScopeHeartbeatStatus>)handler)(status); } catch { /* isolate each observer */ }
                 if (status == ScopeHeartbeatStatus.Lost) break;
             }
         }

@@ -8,3 +8,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 2 | Validate scope heartbeat routes and periods | BD-HB-002 | BenchDouble.Host.Tests | Passed |
 | 3 | Make scope heartbeat start and stop race safe | BD-HB-002 | BenchDouble.Host.Tests | Passed |
 | 4 | Stop scope renewal on terminal host rejections | BD-HB-003 | BenchDouble.Host.Tests | Passed |
+| 5 | Isolate every scope heartbeat observer | BD-HB-002 | BenchDouble.Host.Tests | Passed |
