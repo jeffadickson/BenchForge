@@ -15,6 +15,7 @@ const root=path.resolve(__dirname,'..');
  const wait=async(predicate)=>{for(let i=0;i<100;i++){if(await predicate())return;await new Promise(resolve=>setTimeout(resolve,100));}throw Error('Condition timed out. '+log);};
  try{
   await wait(async()=>{try{return(await fetch(base+'/health')).ok;}catch{return false;}});
+  assert.equal(JSON.parse(fs.readFileSync(path.join(temporary,'config.json.ownership','ownership.json'),'utf8')).version,1);
   window=new Window({url:base+'/setup/',settings:{disableCSSFileLoading:true,disableJavaScriptFileLoading:true}});
   window.AbortController=global.AbortController;
   window.fetch=(url,options)=>fetch(new URL(url,base),options);
@@ -41,6 +42,10 @@ const root=path.resolve(__dirname,'..');
   $('cancelEdit').onclick();assert.equal((await(await request('/api/v1/setup/configuration')).json()).revision,saved.revision);
   // JSON import is checked by the actual strict host parser before applying it to the draft.
   $('json').value='{"schemaVersion":1,"schemaVersion":2}';await $('import').onclick();assert.match($('status').textContent,/Duplicate setup field/);
+  assert.deepEqual(await(await request('/api/v1/setup/ivi/recovery')).json(),[]);
+  assert.equal((await request('/api/v1/setup/ivi/recovery/METER/reconcile',{})).status,400);
+  assert.equal((await request('/api/v1/setup/ivi/recovery/METER/reconcile',{recordId:'00000000-0000-0000-0000-000000000001',confirmed:false})).status,409);
+  assert.equal((await request('/api/v1/setup/ivi/recovery/METER/reconcile',{recordId:'00000000-0000-0000-0000-000000000001',confirmed:true},{Origin:'https://elsewhere.example'})).status,403);
   // Read-only IVI upload: exercise real malformed-input handling and platform diagnostics.
   const beforeIvi=JSON.stringify(await(await request('/api/v1/setup/configuration')).json());
   const inspectXml=body=>fetch(base+'/api/v1/setup/ivi-catalog',{method:'POST',headers:{'Content-Type':'application/xml'},body});
@@ -77,25 +82,86 @@ const root=path.resolve(__dirname,'..');
   await $('reload').onclick();assert.match($('instruments').textContent,/PHYSICAL1/);
   $('activateRole').value='voltmeter';$('activateConfirmed').checked=true;await $('activateIvi').onclick();
   assert.match($('status').textContent,/no reviewed IVI binding/);
-  const lifecycleFetch=window.fetch;let failActivation=false;
+  assert.equal((await request('/api/v1/setup/ivi/METER/status',{leaseId:'00000000-0000-0000-0000-000000000001'})).status,403);
+  assert.equal((await request('/api/v1/setup/ivi/METER/configure',{leaseId:'00000000-0000-0000-0000-000000000001'})).status,400);
+  const lifecycleFetch=window.fetch;let failActivation=false,activationRequests=0;
   window.fetch=async(url,options)=>{
    const name=String(url);
-   if(name.endsWith('/activate'))return {ok:true,json:async()=>({active:!failActivation,errorCode:failActivation?'recovery_required':null,lease:{resourceId:'METER',leaseId:'00000000-0000-0000-0000-000000000001',revision:'preview',connection:{}}})};
+   if(name.endsWith('/activate')){activationRequests++;return {ok:true,json:async()=>({active:!failActivation,errorCode:failActivation?'recovery_required':null,lease:{resourceId:'METER',leaseId:'00000000-0000-0000-0000-000000000001',revision:'preview',connection:{}}})};}
+   if(name.endsWith('/status'))return {ok:true,json:async()=>({resourceId:'meter',revision:'preview',state:failActivation?'RecoveryRequired':'Ready',function:0})};
+   if(name.endsWith('/capabilities'))return {ok:true,json:async()=>({functions:[0,4]})};
    if(name.endsWith('/configure'))return {ok:true,json:async()=>({configured:true})};
-   if(name.endsWith('/measure'))return {ok:true,json:async()=>({value:4.5})};
+   if(name.endsWith('/measure'))return {ok:true,json:async()=>({value:4.5,function:4,unit:'ohm',sequence:2,correlationId:'diagnostic-session',completedUtc:'2026-10-17T00:00:00Z',revision:'preview'})};
    if(name.endsWith('/recover'))return {ok:true,json:async()=>({recovered:true})};
    if(options?.method==='DELETE')return {ok:true};
    return lifecycleFetch(url,options);
   };
   $('activateConfirmed').checked=true;await $('activateIvi').onclick();assert.match($('status').textContent,/activated under/);
-  await $('configureIvi').onclick();await $('measureIvi').onclick();assert.match($('iviRuntime').textContent,/4.5/);
-  await $('closeIvi').onclick();assert.match($('iviRuntime').textContent,/lease released/);
+  const retained=window.sessionStorage.getItem('benchforge.ivi.lease.v1');assert.ok(retained);assert.ok(!retained.includes('connection'));
+  const restored=new Window({url:base+'/setup/',settings:{disableCSSFileLoading:true,disableJavaScriptFileLoading:true}});
+  try{
+   restored.fetch=window.fetch;restored.sessionStorage.setItem('benchforge.ivi.lease.v1',retained);
+   restored.document.write(await(await fetch(base+'/setup/')).text());restored.eval(await(await fetch(base+'/setup/setup.js')).text());
+   await wait(()=>restored.document.getElementById('status').textContent.includes('No driver was reopened'));
+   assert.match(restored.document.getElementById('iviRuntime').textContent,/Ready/);
+  }finally{await restored.happyDOM.close();}
+  assert.equal($('iviFunction').options.length,2);$('iviFunction').value='4';$('iviRange').value='1000';$('iviResolution').value='0.01';
+  const normalLifecycleFetch=window.fetch;let configureRequests=0,finishConfigure;
+  window.fetch=async(url,options)=>String(url).endsWith('/configure')?(configureRequests++,await new Promise(resolve=>finishConfigure=()=>resolve({ok:true,json:async()=>({configured:true})}))):normalLifecycleFetch(url,options);
+  const pending=$('configureIvi').onclick();assert.equal($('measureIvi').disabled,true);
+  await $('configureIvi').onclick();assert.equal(configureRequests,1);assert.match($('status').textContent,/pending IVI operation/);
+  finishConfigure();await pending;window.fetch=normalLifecycleFetch;
+  assert.equal($('measureIvi').disabled,false);
+  await $('configureIvi').onclick();await $('measureIvi').onclick();assert.match($('iviRuntime').textContent,/4.5 ohm/);assert.match($('iviRuntime').textContent,/Measurement #2/);assert.match($('iviRuntime').textContent,/Resistance/);assert.match($('iviRuntime').textContent,/diagnostic-session/);
+  let finishClose,finishStatus;const beforeCloseFetch=window.fetch;
+  window.fetch=async(url,options)=>{
+   if(options?.method==='DELETE')return await new Promise(resolve=>finishClose=()=>resolve({ok:true}));
+   if(String(url).endsWith('/status'))return await new Promise(resolve=>finishStatus=()=>resolve({ok:true,json:async()=>({resourceId:'METER',revision:'preview',state:'Ready'})}));
+   return beforeCloseFetch(url,options);
+  };
+  const closing=$('closeIvi').onclick(),refreshing=$('refreshIvi').onclick();
+  finishClose();await closing;finishStatus();await refreshing;window.fetch=beforeCloseFetch;
+  assert.match($('iviRuntime').textContent,/lease released/);assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
   failActivation=true;$('activateConfirmed').checked=true;await $('activateIvi').onclick();assert.match($('status').textContent,/ownership retained/);
   await $('recoverIvi').onclick();assert.match($('status').textContent,/Confirm provider recovery/);
   $('recoverConfirmed').checked=true;await $('recoverIvi').onclick();assert.match($('status').textContent,/Recovery succeeded/);
+  assert.equal($('recoverConfirmed').checked,false);
+  // A failed status request retains the capability and blocks commands until inspection succeeds.
+  failActivation=false;$('activateConfirmed').checked=true;await $('activateIvi').onclick();
+  const healthyFetch=window.fetch;
+  window.fetch=async(url,options)=>String(url).endsWith('/status')?{ok:false,status:503,json:async()=>({error:'Host unavailable'})}:healthyFetch(url,options);
+  await $('refreshIvi').onclick();assert.ok(window.sessionStorage.getItem('benchforge.ivi.lease.v1'));
+  await $('measureIvi').onclick();assert.match($('status').textContent,/Refresh retained session/);
+  window.fetch=async(url,options)=>String(url).endsWith('/status')?{ok:false,status:403,json:async()=>({error:'Lease invalid.'})}:healthyFetch(url,options);
+  await $('refreshIvi').onclick();assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
+  assert.match($('iviRuntime').textContent,/Physical state has not been verified/);
+  window.fetch=healthyFetch;
+  const activationCount=activationRequests;
+  $('iviLeaseDetails').value=retained;await $('resumeIvi').onclick();assert.match($('status').textContent,/Confirm inspection/);
+  $('resumeConfirmed').checked=true;await $('resumeIvi').onclick();assert.match($('status').textContent,/No driver was reopened/);
+  assert.equal(activationRequests,activationCount);assert.equal($('resumeConfirmed').checked,false);
+  await $('showIviLease').onclick();assert.deepEqual(JSON.parse($('iviLeaseDetails').value),JSON.parse(retained));
+  await $('closeIvi').onclick();assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
+  $('iviLeaseDetails').value='{"leaseId":"invalid"}';$('resumeConfirmed').checked=true;await $('resumeIvi').onclick();
+  assert.match($('status').textContent,/must contain/);assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
   window.fetch=lifecycleFetch;
+  let pendingRestart=true,restartFails=true,restartCalls=0,inspectionFails=false;const beforeRestartFetch=window.fetch;
+  window.fetch=async(url,options)=>{
+   if(String(url).endsWith('/ivi/recovery')&&inspectionFails)return {ok:false,status:503,json:async()=>({error:'Inspection unavailable'})};
+   if(String(url).endsWith('/ivi/recovery'))return {ok:true,json:async()=>pendingRestart?[{resourceId:'METER',recordId:'review-1',canReconcile:true,code:'ready',routesDigest:'digest',revision:'preview',recordedUtc:'2026-10-17T00:00:00Z'}]:[]};
+   if(String(url).endsWith('/reconcile')){restartCalls++;if(restartFails)return {ok:false,status:409,json:async()=>({error:'Provider reconciliation failed; ownership retained.'})};pendingRestart=false;return {ok:true,json:async()=>({reconciled:true})};}
+   return beforeRestartFetch(url,options);
+  };
+  await $('refreshRecovery').onclick();assert.match($('restartRecords').textContent,/METER/);
+  inspectionFails=true;$('restartConfirmed').checked=true;await $('refreshRecovery').onclick();assert.equal($('restartConfirmed').checked,false);
+  $('restartConfirmed').checked=true;await $('reconcileRestart').onclick();assert.equal(restartCalls,0);assert.match($('status').textContent,/Refresh pending recovery/);
+  inspectionFails=false;await $('refreshRecovery').onclick();
+  await $('reconcileRestart').onclick();assert.equal(restartCalls,0);
+  $('restartConfirmed').checked=true;await $('reconcileRestart').onclick();assert.equal(restartCalls,1);assert.equal($('restartConfirmed').checked,false);assert.match($('restartRecords').textContent,/METER/);
+  restartFails=false;$('restartConfirmed').checked=true;await $('reconcileRestart').onclick();assert.equal(restartCalls,2);assert.match($('restartRecords').textContent,/No unresolved/);
+  window.fetch=beforeRestartFetch;
   assert.ok(!log.includes('PRIVATE-DRIVER-OPTION'));assert.match(log,/Setup saved/);
-  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics, reviewed binding UI and payload-free save logging.');
+  console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics, reviewed bindings, retained-session reload/status, command serialization, stale capabilities, declared functions, measurement units/provenance, manual lease resumption and payload-free logging.');
  }finally{
   if(window)await window.happyDOM.close();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null?resolve():child.once('exit',resolve));fs.rmSync(temporary,{recursive:true,force:true});
  }

@@ -74,6 +74,25 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         return request with { Configuration = Parse(JsonSerializer.Serialize(request.Configuration, Json)) };
     }
 
+    /// <summary>Parse an IVI operation request without implicit required fields or ambiguous JSON.</summary>
+    /// <typeparam name="T">IVI request contract with explicitly required properties.</typeparam>
+    /// <param name="json">Request JSON; duplicate and unknown properties are rejected.</param>
+    /// <returns>The parsed request; does not acquire a lease or dispatch I/O.</returns>
+    /// <exception cref="JsonException">Required fields are missing, duplicated, unknown or malformed.</exception>
+    public static T ParseIviRequest<T>(string json) where T : class
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            CheckDuplicates(document.RootElement);
+            return JsonSerializer.Deserialize<T>(json, Json) ?? throw new JsonException();
+        }
+        catch (JsonException)
+        {
+            throw new JsonException("IVI request contains missing, duplicate, unknown or malformed fields.");
+        }
+    }
+
     /// <summary>Validate structure, controller bindings, association evidence and optional expected identities.</summary>
     /// <param name="configuration">Candidate configuration; never mutates saved state.</param>
     /// <returns>Actionable problems; empty means supported connections passed validation at this instant.</returns>
@@ -262,6 +281,21 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
             throw new InvalidOperationException("Expected instrument identity does not match. Review the endpoint; no replacement was selected.");
     }
 
+    /// <summary>Check bounded binding metadata without loading a driver or exposing option values.</summary>
+    /// <param name="driver">Candidate binding from setup or host registration.</param>
+    /// <returns>True when all required metadata and option maps are structurally valid.</returns>
+    internal static bool ValidDriverBinding(SetupDriverBinding? driver)
+    {
+        bool Text(string? value) => !string.IsNullOrWhiteSpace(value) && value.Length <= 512 && !value.Any(char.IsControl);
+        bool Options(Dictionary<string, string>? values) => values is not null && values.Count <= 256 &&
+            values.All(x => Text(x.Key) && x.Value is not null && x.Value.Length <= 8192);
+        return driver is not null && driver.SourceRevision is not null &&
+            Regex.IsMatch(driver.SourceRevision, @"\A[0-9a-fA-F]{64}\z") &&
+            Text(driver.LogicalName) && Text(driver.Session) && Text(driver.ResourceDescriptor) &&
+            driver.Module is not null && Text(driver.Module.Name) && Text(driver.Module.Kind) &&
+            Options(driver.Settings) && Options(driver.VirtualNames);
+    }
+
     private static SetupProblem[] StructuralProblems(BenchSetup? configuration)
     {
         var errors = new List<SetupProblem>();
@@ -300,10 +334,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
             {
                 if (connection.DriverBinding is { } driver)
                 {
-                    bool Options(Dictionary<string, string>? values) => values is not null && values.Count <= 256 && values.All(x => Text(x.Key) && x.Value is not null && x.Value.Length <= 8192);
-                    if (configuration.SchemaVersion != 2 || driver.SourceRevision is null || !Regex.IsMatch(driver.SourceRevision, @"\A[0-9a-fA-F]{64}\z") ||
-                        !Text(driver.LogicalName) || !Text(driver.Session) || !Text(driver.ResourceDescriptor) || driver.Module is null ||
-                        !Text(driver.Module.Name) || !Text(driver.Module.Kind) || !Options(driver.Settings) || !Options(driver.VirtualNames) || !Same(connection.Provider, "visa"))
+                    if (configuration.SchemaVersion != 2 || !ValidDriverBinding(driver) || !Same(connection.Provider, "visa"))
                         Error(instrument.Id, "IVI binding requires schema 2, source revision, module, session, descriptor and bounded option maps.");
                 }
                 if (!Id(connection.Provider) || !Id(connection.Transport) || !Text(connection.Address)) Error(instrument.Id, "Each connection requires provider, transport and address.");

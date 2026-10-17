@@ -6,7 +6,7 @@ function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function status(message, error=false) { $('status').textContent=message; $('status').className='notice'+(error?' error':''); }
 async function api(path, body, signal) {
   const response=await fetch('/api/v1/setup/'+path, {method:body===undefined?'GET':'POST', headers:body===undefined?{}:{'Content-Type':'application/json'}, body:body===undefined?undefined:JSON.stringify(body),signal});
-  const value=await response.json(); if(!response.ok) throw Error(value.error||JSON.stringify(value)); return value;
+  const value=await response.json(); if(!response.ok){const error=Error(value.error||JSON.stringify(value));error.httpStatus=response.status;throw error;} return value;
 }
 function guard(action) { return async()=>{try{await action();}catch(error){status(error.name==='AbortError'?'Discovery cancelled; saved configuration unchanged.':error.message,true);}}; }
 function node(tag,text,parent) {const result=document.createElement(tag); if(text!==undefined)result.textContent=text; if(parent)parent.append(result);return result;}
@@ -47,7 +47,7 @@ $('reload').onclick=guard(reload);$('cancelEdit').onclick=()=>{config=saved?clon
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(config,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download='bench-setup.json';a.click();URL.revokeObjectURL(url);};
 $('import').onclick=guard(async()=>{const text=$('json').value;const response=await fetch('/api/v1/setup/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:text});const value=await response.json();if(!response.ok)throw Error(value.error||'Invalid configuration');config=JSON.parse(text);changed();render();status('Imported into the draft. Connection validation and saving are separate steps.');});
 $('file').onchange=guard(async()=>{$('json').value=await $('file').files[0].text();status('File loaded into the JSON editor. Apply it to the draft to review.');});
-guard(reload)();
+
 
 $('iviInspect').onclick=guard(async()=>{
  const file=$('iviFile').files[0];if(!file)throw Error('Choose an IVI configuration XML file.');
@@ -71,24 +71,138 @@ $('iviInspect').onclick=guard(async()=>{
  },node('td',undefined,row));}
 
  const details=node('details',undefined,root);node('summary','All sessions, modules, routes and settings',details);node('pre',JSON.stringify(catalog,null,2),details);
- status('IVI configuration inspected. Setup and saved configuration are unchanged; driver activation is not implemented.');
+ status('IVI configuration inspected. Setup and saved configuration are unchanged; activation requires a separately registered provider and explicit review.');
  }finally{$('iviInspect').disabled=false;}
 });
 
-let activeIvi=null;
-function requireIvi(){if(!activeIvi)throw Error('Activate a registered saved role first.');return activeIvi.lease;}
-$('activateIvi').onclick=guard(async()=>{
+const iviStorageKey='benchforge.ivi.lease.v1';
+let activeIvi=null, iviVerified=false, iviRestoring=true, iviFunctions=[];
+const iviFunctionNames=['DC voltage','AC voltage','DC current','AC current','Resistance'];
+async function loadIviFunctions(preferred){
+ const lease=activeIvi?.lease;if(!lease)return;
+ iviFunctions=[];$('iviFunction').replaceChildren();
+ const value=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/capabilities');
+ if(activeIvi?.lease!==lease)return;
+ iviFunctions=value.functions.filter(f=>Number.isInteger(f)&&f>=0&&f<iviFunctionNames.length);
+ for(const f of iviFunctions){const option=node('option',iviFunctionNames[f],$('iviFunction'));option.value=String(f);}
+ if(iviFunctions.includes(preferred))$('iviFunction').value=String(preferred);
+}
+function retainIvi(){
+ try{
+  if(activeIvi){const {resourceId,leaseId,revision}=activeIvi.lease;sessionStorage.setItem(iviStorageKey,JSON.stringify({resourceId,leaseId,revision}));}
+  else sessionStorage.removeItem(iviStorageKey);
+  return true;
+ }catch{return false;}
+}
+async function refreshIvi(){
+ if(!activeIvi)throw Error('No retained IVI lease in this tab.');
+ iviVerified=false;
+ const lease=activeIvi.lease;
+ try{
+  const snapshot=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/status',{leaseId:lease.leaseId});
+  if(activeIvi?.lease!==lease)return;
+  if(snapshot.resourceId?.toLowerCase()!==lease.resourceId.toLowerCase()||snapshot.revision!==lease.revision)throw Error('Session metadata changed; retain the token and investigate the host.');
+  iviVerified=true;activeIvi.active=snapshot.state==='Ready';
+  await loadIviFunctions(snapshot.function);if(activeIvi?.lease!==lease)return;
+  $('iviRuntime').textContent=JSON.stringify(snapshot,null,2);
+  status('Retained IVI session: '+snapshot.state+'. No driver was reopened.',snapshot.state==='RecoveryRequired');
+ }catch(error){
+  if(activeIvi?.lease!==lease)return;
+  if(error.httpStatus===403){activeIvi=null;retainIvi();$('iviRuntime').textContent='Host no longer recognizes this lease. Physical state has not been verified. Inspect recovery after host restart.';try{await refreshRecovery();}catch{/* The recovery panel reports unavailable inspection. */}}
+  throw error;
+ }
+}
+function parseIviLease(raw){
+ const lease=JSON.parse(raw);
+ if(!lease||Array.isArray(lease)||Object.keys(lease).some(k=>!['resourceId','leaseId','revision'].includes(k))||
+    typeof lease.resourceId!=='string'||!/^[A-Za-z0-9_.-]{1,80}$/.test(lease.resourceId)||
+    typeof lease.leaseId!=='string'||!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(lease.leaseId)||
+    typeof lease.revision!=='string'||lease.revision.length===0||lease.revision.length>128)
+   throw Error('Retained lease details must contain resourceId, leaseId and revision from this host.');
+ return lease;
+}
+async function restoreIvi(){
+ try{
+  const raw=sessionStorage.getItem(iviStorageKey);if(!raw)return;
+  const lease=parseIviLease(raw);
+  activeIvi={lease};await refreshIvi();
+ }finally{iviRestoring=false;}
+}
+$('refreshIvi').onclick=guard(refreshIvi);
+let iviPending=false;
+function iviAction(action){return guard(async()=>{
+ if(iviPending)throw Error('Wait for the pending IVI operation; it will not be replayed.');
+ iviPending=true;
+ const buttons=['activateIvi','configureIvi','measureIvi','closeIvi','recoverIvi','resumeIvi','reconcileRestart','refreshRecovery'];
+ for(const id of buttons)$(id).disabled=true;
+ try{await action();}
+ catch(error){
+  if(activeIvi){try{await refreshIvi();}catch{/* Retain the capability when the host is unreachable. */}}
+  throw error;
+ }finally{iviPending=false;for(const id of buttons)$(id).disabled=false;}
+});}
+function requireIvi(){if(!iviVerified)throw Error('Refresh retained session status before instrument operations.');if(!activeIvi)throw Error('Activate a registered saved role first.');return activeIvi.lease;}
+$('activateIvi').onclick=iviAction(async()=>{
+ if(iviRestoring)throw Error('Wait for retained session inspection.');
  if(activeIvi)throw Error('Close or recover the retained IVI lease before another activation.');
  if(!saved)throw Error('Save and review the setup first.');
  if(!$('activateConfirmed').checked)throw Error('Confirm driver activation first.');
- $('activateIvi').disabled=true;
+ $('activateIvi').disabled=true;$('activateConfirmed').checked=false;
  try{
  activeIvi=await api('ivi/roles/'+encodeURIComponent($('activateRole').value.trim())+'/activate',{expectedRevision:saved.revision,confirmed:true});
+ iviVerified=true;const retained=retainIvi();
+ await loadIviFunctions();
  $('iviRuntime').textContent=JSON.stringify(activeIvi,null,2);$('activateConfirmed').checked=false;
  status(activeIvi.active?'IVI driver activated under an exclusive host lease.':'Initialization failed; ownership retained. Review logs and use provider recovery.',!activeIvi.active);
+ if(!retained)status('Driver response received, but this tab cannot retain the lease across reload. Keep this page open until close or recovery.',true);
  }finally{$('activateIvi').disabled=false;}
 });
-$('configureIvi').onclick=guard(async()=>{const lease=requireIvi();await api('ivi/'+encodeURIComponent(lease.resourceId)+'/configure',{leaseId:lease.leaseId,function:0});status('DMM configured for DC voltage.');});
-$('measureIvi').onclick=guard(async()=>{const lease=requireIvi();const result=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/measure',{leaseId:lease.leaseId});$('iviRuntime').textContent='Measurement: '+result.value+' (base SI unit of the configured function)';status('DMM measurement completed.');});
-$('closeIvi').onclick=guard(async()=>{const lease=requireIvi();const response=await fetch('/api/v1/reservations/'+lease.leaseId,{method:'DELETE'});if(!response.ok){const value=await response.json();throw Error(value.message||value.error||'Cleanup requires recovery; ownership retained.');}activeIvi=null;$('iviRuntime').textContent='Driver closed; lease released.';status('IVI cleanup completed before releasing ownership.');});
-$('recoverIvi').onclick=guard(async()=>{const lease=requireIvi();if(!$('recoverConfirmed').checked)throw Error('Confirm provider recovery first.');await api('ivi/'+encodeURIComponent(lease.resourceId)+'/recover',{leaseId:lease.leaseId,confirmed:true});activeIvi=null;$('recoverConfirmed').checked=false;$('iviRuntime').textContent='Provider recovery completed; lease released.';status('Recovery succeeded. A new activation requires review.');});
+$('showIviLease').onclick=guard(()=>{
+ if(!activeIvi)throw Error('No retained IVI lease in this tab.');
+ const {resourceId,leaseId,revision}=activeIvi.lease;
+ $('iviLeaseDetails').value=JSON.stringify({resourceId,leaseId,revision},null,2);
+ status('Private lease details displayed. Store them securely if you need to resume in another tab.');
+});
+$('resumeIvi').onclick=iviAction(async()=>{
+ if(iviRestoring||activeIvi)throw Error('Finish inspecting, closing or recovering this tab’s retained lease first.');
+ if(!$('resumeConfirmed').checked)throw Error('Confirm inspection of the supplied lease first.');
+ const lease=parseIviLease($('iviLeaseDetails').value);$('resumeConfirmed').checked=false;
+ activeIvi={lease};iviVerified=false;const retained=retainIvi();
+ await refreshIvi();$('iviLeaseDetails').value='';
+ if(!retained)status('Lease inspected, but browser storage is unavailable. Keep this page open until close or recovery.',true);
+});
+$('configureIvi').onclick=iviAction(async()=>{
+ const lease=requireIvi(),selected=$('iviFunction').value,func=Number(selected);
+ if(selected===''||!iviFunctions.includes(func))throw Error('Select a declared provider function; refresh status if none are listed.');
+ const positive=id=>{const text=$(id).value.trim();if(text==='')return null;const value=Number(text);if(!Number.isFinite(value)||value<=0)throw Error('Range and resolution must be positive finite values.');return value;};
+ await api('ivi/'+encodeURIComponent(lease.resourceId)+'/configure',{leaseId:lease.leaseId,function:func,range:positive('iviRange'),resolution:positive('iviResolution')});
+ status('DMM configured for '+iviFunctionNames[func]+'.');
+});
+$('measureIvi').onclick=iviAction(async()=>{const lease=requireIvi();const result=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/measure',{leaseId:lease.leaseId});$('iviRuntime').textContent='Measurement #'+result.sequence+': '+result.value+' '+result.unit+' · '+iviFunctionNames[result.function]+'\nHost receipt: '+result.completedUtc+'\nConfiguration: '+result.revision+'\nSession: '+result.correlationId;status('DMM measurement completed.');});
+$('closeIvi').onclick=iviAction(async()=>{const lease=requireIvi();const response=await fetch('/api/v1/reservations/'+lease.leaseId,{method:'DELETE'});if(!response.ok){const value=await response.json();throw Error(value.message||value.error||'Cleanup requires recovery; ownership retained.');}activeIvi=null;iviVerified=false;retainIvi();$('iviLeaseDetails').value='';$('iviRuntime').textContent='Driver closed; lease released.';status('IVI cleanup completed before releasing ownership.');});
+$('recoverIvi').onclick=iviAction(async()=>{const lease=requireIvi();if(!$('recoverConfirmed').checked)throw Error('Confirm provider recovery first.');$('recoverConfirmed').checked=false;await api('ivi/'+encodeURIComponent(lease.resourceId)+'/recover',{leaseId:lease.leaseId,confirmed:true});activeIvi=null;iviVerified=false;retainIvi();$('iviLeaseDetails').value='';$('recoverConfirmed').checked=false;$('iviRuntime').textContent='Provider recovery completed; lease released.';status('Recovery succeeded. A new activation requires review.');});
+
+let restartRecords=[],restartReviewValid=false,recoveryGeneration=0;
+async function refreshRecovery(){
+ const generation=++recoveryGeneration;restartReviewValid=false;$('restartConfirmed').checked=false;
+ try{
+ const records=await api('ivi/recovery');if(generation!==recoveryGeneration)return;
+ restartRecords=records;restartReviewValid=true;$('restartResource').replaceChildren();
+ for(const record of records){const option=node('option',record.resourceId+' · '+record.code+' · '+record.recordId,$('restartResource'));option.value=record.recordId;}
+ $('restartRecords').textContent=records.length?JSON.stringify(records,null,2):'No unresolved startup ownership records.';
+ }catch(error){if(generation!==recoveryGeneration)return;$('restartRecords').textContent='Recovery inspection unavailable. Refresh before reconciliation.';throw error;}
+}
+$('refreshRecovery').onclick=guard(refreshRecovery);
+$('restartResource').onchange=()=>{$('restartConfirmed').checked=false;};
+$('reconcileRestart').onclick=iviAction(async()=>{
+ if(!restartReviewValid)throw Error('Refresh pending recovery before reconciliation.');
+ const record=restartRecords.find(r=>r.recordId===$('restartResource').value);
+ if(!record)throw Error('Inspect and select an unresolved ownership record first.');
+ if(!record.canReconcile)throw Error('This record requires a matching qualified restart provider: '+record.code);
+ if(!$('restartConfirmed').checked)throw Error('Confirm the qualified restart-recovery procedure first.');
+ $('restartConfirmed').checked=false;
+ await api('ivi/recovery/'+encodeURIComponent(record.resourceId)+'/reconcile',{recordId:record.recordId,confirmed:true});
+ await refreshRecovery();status('Restart reconciliation completed. New activation still requires review.');
+});
+
+guard(async()=>{try{await reload();}finally{try{await restoreIvi();}finally{await refreshRecovery();}}})();

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BenchDouble.Host.Server.Setup;
 
 /// <summary>Versioned host setup draft; serial numbers are optional throughout.</summary>
@@ -62,19 +64,19 @@ public sealed record ApplyIviBindingRequest(BenchSetup Configuration, string Cat
 /// <summary>Explicit activation of one role from the saved configuration.</summary>
 /// <param name="ExpectedRevision">Reviewed saved revision.</param>
 /// <param name="Confirmed">Operator requests driver opening, separate from configuration save.</param>
-public sealed record ActivateIviRoleRequest(string ExpectedRevision, bool Confirmed);
+public sealed record ActivateIviRoleRequest([property: JsonRequired] string ExpectedRevision, [property: JsonRequired] bool Confirmed);
 
 /// <summary>Request concerning an already active or failed retained IVI lease.</summary>
 /// <param name="LeaseId">Canonical activation lease.</param>
 /// <param name="Confirmed">Explicit authorization, required for provider recovery.</param>
-public sealed record IviLeaseRequest(Guid LeaseId, bool Confirmed = false);
+public sealed record IviLeaseRequest([property: JsonRequired] Guid LeaseId, bool Confirmed = false);
 
 /// <summary>Typed DMM configuration under a host lease.</summary>
 /// <param name="LeaseId">Canonical activation lease.</param>
 /// <param name="Function">Measurement function.</param>
 /// <param name="Range">Optional positive range in the function's base SI unit.</param>
 /// <param name="Resolution">Optional positive resolution in the function's base SI unit.</param>
-public sealed record IviDmmConfigureRequest(Guid LeaseId, BenchDouble.Ivi.IviMeasurementFunction Function,
+public sealed record IviDmmConfigureRequest([property: JsonRequired] Guid LeaseId, [property: JsonRequired] BenchDouble.Ivi.IviMeasurementFunction Function,
     double? Range = null, double? Resolution = null);
 
 /// <summary>Logical experiment role assignment.</summary>
@@ -138,3 +140,8 @@ public sealed record SaveSetupRequest(BenchSetup Configuration, string? Expected
 /// <param name="Revision">Configuration revision at reservation time.</param>
 /// <param name="Connection">Selected connection snapshot.</param>
 public sealed record SetupLease(Guid LeaseId, string ResourceId, string Revision, SetupConnection Connection);
+
+/// <summary>Explicit review of an unresolved ownership record after host restart.</summary>
+/// <param name="RecordId">Non-capability review ID from the host's pending recovery list.</param>
+/// <param name="Confirmed">Operator requests the qualified provider's restart reconciliation procedure.</param>
+public sealed record ReconcileRestartRequest([property: JsonRequired] Guid RecordId, [property: JsonRequired] bool Confirmed);

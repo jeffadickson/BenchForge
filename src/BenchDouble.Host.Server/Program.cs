@@ -1,3 +1,5 @@
+using BenchDouble.Host.Server.Recovery;
+using BenchDouble.Host.Server;
 using BenchDouble.Host.Server.Setup;
 using BenchDouble;
 using BenchDouble.Host.Contracts;
@@ -9,6 +11,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 var builder = WebApplication.CreateBuilder(args);
 // Intentionally loopback-only. Remote listeners require TLS and authentication first.
 builder.WebHost.UseUrls("http://127.0.0.1:5278");
+// One host-owned directory and single writer for all registered physical DMM ownership.
+var setupPath = builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json");
+builder.Services.AddSingleton<IHostOwnershipJournal>(_ => new FileHostOwnershipJournal(
+    builder.Configuration["BenchSetup:OwnershipDirectory"] ?? setupPath + ".ownership"));
 builder.Services.AddSingleton<HostResourceRegistry>();
 builder.Services.AddSingleton<IviSetupCatalogService>();
 builder.Services.AddSingleton<HostedIviDmmService>();
@@ -16,7 +22,7 @@ builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
 builder.Services.AddSingleton<ISetupDiscoveryProvider, SimulatedSetupDiscoveryProvider>();
 builder.Services.AddSingleton(sp => new BenchSetupService(
     sp.GetRequiredService<HostResourceRegistry>(), sp.GetRequiredService<ISetupDiscoveryProvider>(),
-    builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json"), sp.GetRequiredService<ILogger<BenchSetupService>>()));
+    setupPath, sp.GetRequiredService<ILogger<BenchSetupService>>()));
 var app = builder.Build();
 // Registers metadata only. Integrators explicitly add IviDmmRegistration instances
 // before Build; the stock host installs no vendor driver factories.
@@ -73,7 +79,7 @@ app.Run();
 
 /// <summary>
 /// Minimal local-only demonstration. Not a production lease service: no expiry,
-/// authenticated identity, persistence, safe-state recovery, or remote TLS.
+/// authenticated identity, bounded safe-state shutdown, or remote TLS. Registered DMM ownership may use a local journal.
 /// </summary>
 public sealed partial class HostResourceRegistry
 {
@@ -87,13 +93,26 @@ public sealed partial class HostResourceRegistry
     private readonly Dictionary<Guid, string> _byLease = new();
     private readonly List<HostActivity> _activity = new();
     private readonly Dictionary<string, InstrumentIdentification> _identities = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ILogger<HostResourceRegistry> _logger;
+    private readonly FailureIsolatedLogger<HostResourceRegistry> _logger;
+
+    /// <summary>Number of diagnostic sink failures; logging failures never release an instrument.</summary>
+    public long LoggingFailureCount => _logger.FailureCount;
     private const int MaxEvents = 200;
 
     /// <summary>Open the demo devices and identify once, before granting any lease.</summary>
-    public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null)
+    /// <param name="logger">Optional diagnostics; sink failures are isolated.</param>
+    /// <param name="journal">Optional durable ownership journal; omission is for ephemeral tests and simulation.</param>
+    public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null, IHostOwnershipJournal? journal = null)
     {
-        _logger = logger ?? NullLogger<HostResourceRegistry>.Instance;
+        _journal = journal;
+        foreach (var record in journal?.Read() ?? [])
+        {
+            record.Validate();_ownership.Add(record.ResourceId, record);_startupQuarantine.Add(record.ResourceId);
+            _restartGates.Add(record.RecordId, new SemaphoreSlim(1, 1));
+        }
+        _logger = new(logger ?? NullLogger<HostResourceRegistry>.Instance);
+        foreach (var record in _ownership.Values)
+            _logger.LogWarning(new EventId(7472, "OwnershipRestored"), "Startup quarantine {ResourceId} record {RecordId}", record.ResourceId, record.RecordId);
         foreach (var (resource, session) in _devices)
         {
             // Both registered simulators explicitly implement *IDN?. Never probe unknown hardware.
@@ -114,7 +133,7 @@ public sealed partial class HostResourceRegistry
                 RecoveryRequired(d.ResourceId) ? "RecoveryRequired" : _reservations.ContainsKey(d.ResourceId) ? "Reserved" : "Idle",
                 _activity.Where(a => a.ResourceId == d.ResourceId)
                     .TakeLast(15).ToArray(), _identities.GetValueOrDefault(d.ResourceId),
-                "ExclusiveControl", _reservations.ContainsKey(d.ResourceId))).ToArray();
+                "ExclusiveControl", _reservations.ContainsKey(d.ResourceId) || _startupQuarantine.Contains(d.ResourceId))).ToArray();
             return new HostMonitorSnapshot(DateTimeOffset.UtcNow, instruments);
         }
     }
@@ -133,18 +152,38 @@ public sealed partial class HostResourceRegistry
         {
             new InstrumentDescriptor("DMM1", "DigitalMultimeter", "Simulated"),
             new InstrumentDescriptor("FGEN1", "FunctionGenerator", "Simulated")
-        }.Concat(_managedDescriptors.Values).ToArray();
+        }.Concat(_managedDescriptors.Values).Concat(_startupQuarantine
+            .Where(id => !_devices.ContainsKey(id) && !_managedDescriptors.ContainsKey(id))
+            .Select(id => new InstrumentDescriptor(id, "Unknown", "UnresolvedOwnership"))).ToArray();
     }
 
-    public ReservationGrant? Reserve(string resourceId)
+    public ReservationGrant? Reserve(string resourceId) => ReserveCore(resourceId, null);
+
+    private ReservationGrant? ReserveCore(string resourceId, string? revision)
     {
         lock (_gate)
         {
-            if ((!_devices.ContainsKey(resourceId) && !_managedDescriptors.ContainsKey(resourceId)) || _reservations.ContainsKey(resourceId)) return null;
+            if ((!_devices.ContainsKey(resourceId) && !_managedDescriptors.ContainsKey(resourceId)) || _reservations.ContainsKey(resourceId) || _startupQuarantine.Contains(resourceId)) return null;
+            if (_journal is not null && _managedDescriptors.ContainsKey(resourceId))
+            {
+                // A renamed or missing registration cannot prove that its routes are disjoint.
+                // Keep physical grants blocked until every interrupted mapping is restored.
+                if (_startupQuarantine.Any(id => !_routeDigests.TryGetValue(id, out var digest) || digest != _ownership[id].RoutesDigest))
+                    throw new InvalidOperationException("Unresolved startup mappings block physical ownership; restore the recorded registrations first.");
+                var record = new OwnershipRecord(resourceId, Guid.NewGuid(), _routeDigests[resourceId], revision, DateTimeOffset.UtcNow);
+                try { _journal.Add(record); }
+                catch (Exception ex)
+                {
+                    _logger.LogError(new EventId(7478, "OwnershipPersistenceFailed"), "Ownership persistence failed for {ResourceId}: {FailureKind}; dispatch refused", resourceId, ex.GetType().Name);
+                    throw new InvalidOperationException("Ownership persistence failed; no driver was opened. Inspect the journal before retrying.");
+                }
+                _ownership.Add(resourceId, record);
+                _logger.LogInformation(new EventId(7470, "OwnershipPersisted"), "Ownership recorded for {ResourceId} record {RecordId} before dispatch", resourceId, record.RecordId);
+            }
             var lease = Guid.NewGuid();
             _reservations[resourceId] = lease;
             _byLease[lease] = resourceId;
-            _leaseGates[lease] = new object();
+            _leaseGates[lease] = new SemaphoreSlim(1, 1);
             Record(resourceId, "Reserved", "Exclusive local demonstration lease acquired");
             return new ReservationGrant(resourceId, lease);
         }

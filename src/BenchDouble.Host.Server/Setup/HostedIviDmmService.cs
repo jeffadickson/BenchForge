@@ -1,3 +1,5 @@
+using BenchDouble.Host.Server.Recovery;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using BenchDouble.Ivi;
@@ -21,8 +23,12 @@ public sealed record IviDmmOpenRequest(SetupDriverBinding Binding, bool Reset, b
 /// <param name="ApprovedBindings">Exact source/options/route snapshots approved by the host integrator.</param>
 /// <param name="Open">Typed provider factory. Must clean up partial allocations on failure; the host still retains ownership for recovery.</param>
 /// <param name="Recover">Provider-specific recovery, including cleanup and physical state verification. Return only when ownership can safely be released.</param>
+/// <param name="ReadIdentity">Optional typed identity reader. Required only when the saved setup specifies expected fields; serial remains optional.</param>
+/// <param name="SupportedFunctions">Qualified measurement functions; omission permits DC voltage only. Empty/invalid declarations are rejected.</param>
+/// <param name="RecoverAfterRestart">Optional qualified procedure for reconciliation without a live vendor session; never inferred from normal recovery.</param>
 public sealed record IviDmmRegistration(string ResourceId, SetupDriverBinding[] ApprovedBindings,
-    Func<IviDmmOpenRequest, OwnedIviDmm> Open, Action<OwnedIviDmm?> Recover);
+    Func<IviDmmOpenRequest, OwnedIviDmm> Open, Action<OwnedIviDmm?> Recover,
+    Func<OwnedIviDmm, SetupIdentity>? ReadIdentity = null, IviMeasurementFunction[]? SupportedFunctions = null, Action? RecoverAfterRestart = null);
 
 /// <summary>Activation outcome with the pinned configuration and retained lease, including failed initialization.</summary>
 /// <param name="Lease">Canonical lease and route snapshot; never a second ownership authority.</param>
@@ -30,12 +36,39 @@ public sealed record IviDmmRegistration(string ResourceId, SetupDriverBinding[] 
 /// <param name="ErrorCode">Stable diagnostic on failure; vendor exception payloads are excluded.</param>
 public sealed record IviDmmActivation(SetupLease Lease, bool Active, string? ErrorCode);
 
+/// <summary>Cached session state; reading it never dispatches instrument I/O.</summary>
+/// <param name="ResourceId">Canonical instrument ID.</param>
+/// <param name="Revision">Pinned saved configuration revision.</param>
+/// <param name="State">Opening, Ready, Busy, Closing, Recovering, Closed, RecoveryRequired or JournalUpdateRequired.</param>
+/// <param name="Function">Last successfully configured function, or null before configuration.</param>
+/// <param name="RequestedRange">Last successfully requested range in base SI units, or provider default when null.</param>
+/// <param name="RequestedResolution">Last successfully requested resolution in base SI units, or provider default when null.</param>
+/// <param name="LastFailurePhase">Last failed provider operation; null before a failure. No vendor message is retained.</param>
+/// <param name="CorrelationId">Diagnostic session correlation, distinct from the lease capability.</param>
+/// <param name="DiagnosticWriteFailures">Observed lifecycle and registry logging failures, not a durable audit counter.</param>
+public sealed record IviDmmSessionStatus(string ResourceId, string Revision, string State, IviMeasurementFunction? Function,
+    double? RequestedRange = null, double? RequestedResolution = null, string? LastFailurePhase = null,
+    Guid CorrelationId = default, long DiagnosticWriteFailures = 0);
+
+/// <summary>Operator-facing startup recovery evidence with registration readiness; contains no lease capability.</summary>
+/// <param name="ResourceId">Canonical instrument.</param>
+/// <param name="RecordId">Exact review record.</param>
+/// <param name="Revision">Configuration revision at acquisition, if available.</param>
+/// <param name="RecordedUtc">Host time when ownership was recorded.</param>
+/// <param name="CanReconcile">Whether the registered routes and restart provider match this record.</param>
+/// <param name="Code">Stable readiness code; not evidence of safe physical state.</param>
+public sealed record RestartRecoveryItem(string ResourceId, Guid RecordId, string? Revision,
+    DateTimeOffset RecordedUtc, bool CanReconcile, string Code);
+
 /// <summary>Activates explicitly registered IVI DMM providers under canonical host ownership.</summary>
 public sealed class HostedIviDmmService
 {
     private readonly HostResourceRegistry _registry;
     private readonly BenchSetupService _setup;
-    private readonly ILogger<HostedIviDmmService> _logger;
+    private readonly FailureIsolatedLogger<HostedIviDmmService> _logger;
+
+    /// <summary>Number of failed diagnostic writes; these failures do not alter driver state.</summary>
+    public long LoggingFailureCount => _logger.FailureCount;
     private readonly Dictionary<string, IviDmmRegistration> _registrations;
 
     /// <summary>Register provider metadata only; no vendor driver is constructed here.</summary>
@@ -46,19 +79,22 @@ public sealed class HostedIviDmmService
     public HostedIviDmmService(HostResourceRegistry registry, BenchSetupService setup,
         IEnumerable<IviDmmRegistration> registrations, ILogger<HostedIviDmmService> logger)
     {
-        _registry = registry; _setup = setup; _logger = logger;
+        _registry = registry; _setup = setup; _logger = new(logger);
         _registrations = new(StringComparer.OrdinalIgnoreCase);
-        var descriptors = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var registration in registrations)
         {
-            if (!Regex.IsMatch(registration.ResourceId, @"\A[A-Za-z0-9_.-]{1,80}\z") ||
-                registration.ApprovedBindings is not { Length: > 0 } || registration.Open is null || registration.Recover is null)
+            if (registration is null || registration.ResourceId is null || !Regex.IsMatch(registration.ResourceId, @"\A[A-Za-z0-9_.-]{1,80}\z") ||
+                registration.ApprovedBindings is not { Length: > 0 } ||
+                registration.ApprovedBindings.Any(b => !BenchSetupService.ValidDriverBinding(b)) || registration.Open is null || registration.Recover is null)
                 throw new ArgumentException("DMM registration requires a canonical ID, approved bindings, factory and recovery operation.");
-            foreach (var descriptor in registration.ApprovedBindings.Select(b => b.ResourceDescriptor).Distinct(StringComparer.OrdinalIgnoreCase))
-                if (!descriptors.Add(descriptor)) throw new ArgumentException("A descriptor cannot be approved for multiple canonical resources.");
-            _registrations.Add(registration.ResourceId, registration with { ApprovedBindings = Copy(registration.ApprovedBindings) });
+            var functions = registration.SupportedFunctions ?? [IviMeasurementFunction.DcVoltage];
+            if (functions.Length == 0 || functions.Any(f => !Enum.IsDefined(f)) || functions.Distinct().Count() != functions.Length)
+                throw new ArgumentException("Provider functions must be nonempty, unique and defined.");
+            _registrations.Add(registration.ResourceId, registration with
+            { ApprovedBindings = Copy(registration.ApprovedBindings), SupportedFunctions = functions.ToArray() });
         }
-        foreach (var registration in _registrations.Values) _registry.RegisterManaged(registration.ResourceId);
+        _registry.RegisterManaged(_registrations.ToDictionary(x => x.Key,
+            x => x.Value.ApprovedBindings.Select(b => b.ResourceDescriptor).ToArray(), StringComparer.OrdinalIgnoreCase));
     }
 
     /// <summary>Explicitly activate one saved reviewed route, including an offline draft, against the host allowlist.</summary>
@@ -72,24 +108,30 @@ public sealed class HostedIviDmmService
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!confirmed) throw new InvalidOperationException("Confirm activation of the reviewed driver and route.");
-        var saved = _setup.Read() ?? throw new InvalidOperationException("Save and review the setup first.");
-        if (saved.Revision != expectedRevision) throw new InvalidOperationException("Setup changed. Review its saved revision before activation.");
+        if (!confirmed) throw Reject("confirmation_missing", "Confirm activation of the reviewed driver and route.");
+        var saved = _setup.Read() ?? throw Reject("setup_missing", "Save and review the setup first.");
+        if (saved.Revision != expectedRevision) throw Reject("revision_changed", "Setup changed. Review its saved revision before activation.");
         var assignment = saved.Configuration.Roles.SingleOrDefault(r => string.Equals(r.Role, role, StringComparison.OrdinalIgnoreCase))
-            ?? throw new InvalidOperationException("Configured role not found.");
+            ?? throw Reject("role_missing", "Configured role not found.");
         var instrument = saved.Configuration.Instruments.Single(i => i.Id.Equals(assignment.InstrumentId, StringComparison.OrdinalIgnoreCase));
         var route = instrument.Connections.Single(c => c.Id.Equals(instrument.SelectedConnection, StringComparison.OrdinalIgnoreCase));
-        var binding = route.DriverBinding ?? throw new InvalidOperationException("Selected route has no reviewed IVI binding.");
-        if (instrument.ExpectedIdentity is { } identity && new[] { identity.Manufacturer, identity.Model, identity.Serial }.Any(x => !string.IsNullOrWhiteSpace(x)))
-            throw new InvalidOperationException("This provider path does not yet implement optional expected-identity checks; activation has not opened the instrument.");
+        var binding = route.DriverBinding ?? throw Reject("binding_missing", "Selected route has no reviewed IVI binding.");
         if (!_registrations.TryGetValue(instrument.Id, out var registration) ||
             !registration.ApprovedBindings.Any(b => Key(b) == Key(binding)))
-            throw new InvalidOperationException("No host-registered DMM provider approves this exact route, source revision and settings.");
-        CheckRoute(saved.Configuration, route, binding);
-        _setup.CheckActivationController(saved.Configuration, route);
-        var runtime = new Runtime(registration, Copy(binding), _logger);
-        var grant = _registry.ReserveManaged(instrument.Id, runtime);
-        if (grant is null) { _logger.LogInformation(new EventId(7450, "IviActivationBusy"), "IVI activation refused: resource busy"); return null; }
+            throw Reject("binding_not_approved", "No host-registered DMM provider approves this exact route, source revision and settings.");
+        var identity = instrument.ExpectedIdentity;
+        var checkIdentity = identity is not null && new[] { identity.Manufacturer, identity.Model, identity.Serial }.Any(x => !string.IsNullOrWhiteSpace(x));
+        if (checkIdentity && registration.ReadIdentity is null)
+            throw Reject("identity_unsupported", "This provider has no identity reader for the expected fields; activation has not opened the instrument.");
+        try
+        {
+            CheckRoute(saved.Configuration, route, binding);
+            _setup.CheckActivationController(saved.Configuration, route);
+        }
+        catch (InvalidOperationException ex) { throw Reject("route_unconfirmed", ex.Message); }
+        var runtime = new Runtime(registration, Copy(binding), saved.Revision, checkIdentity ? identity : null, _logger);
+        var grant = _registry.ReserveManaged(instrument.Id, runtime, saved.Revision);
+        if (grant is null) { _logger.LogInformation(new EventId(7450, "IviActivationBusy"), "IVI activation refused: resource {ResourceId} busy", registration.ResourceId); return null; }
         var pinned = new SetupLease(grant.LeaseId, instrument.Id, saved.Revision, route);
         try
         {
@@ -100,6 +142,26 @@ public sealed class HostedIviDmmService
         { _registry.Release(grant.LeaseId); throw; }
         catch (InvalidOperationException) when (runtime.RequiresRecovery)
         { return new(pinned, false, "recovery_required"); }
+    }
+
+    /// <summary>Read a detached copy of the provider's declared functions without opening a driver.</summary>
+    /// <param name="resourceId">Canonical registered instrument ID.</param>
+    /// <returns>Functions explicitly permitted by host registration; not a live capability probe.</returns>
+    /// <exception cref="KeyNotFoundException">No provider is registered for the resource.</exception>
+    public IviMeasurementFunction[] SupportedFunctions(string resourceId) =>
+        _registrations.TryGetValue(resourceId, out var registration) ? registration.SupportedFunctions!.ToArray()
+            : throw new KeyNotFoundException("No registered DMM provider.");
+
+    /// <summary>Inspect cached state without waiting for or dispatching synchronous vendor I/O.</summary>
+    /// <param name="resourceId">Canonical instrument.</param>
+    /// <param name="leaseId">Existing activation capability; stale or mismatched leases are rejected.</param>
+    /// <returns>Immutable state snapshot pinned to the original activation revision.</returns>
+    /// <exception cref="UnauthorizedAccessException">The lease does not own this managed resource.</exception>
+    public IviDmmSessionStatus Status(string resourceId, Guid leaseId)
+    {
+        var status = _registry.InspectManaged(resourceId, leaseId, d => ((Runtime)d).Status);
+        return status with { State = _registry.PersistencePending(resourceId) ? "JournalUpdateRequired" : status.State,
+            DiagnosticWriteFailures = LoggingFailureCount + _registry.LoggingFailureCount };
     }
 
     /// <summary>Configure a typed DMM operation under its existing lease.</summary>
@@ -114,8 +176,7 @@ public sealed class HostedIviDmmService
     {
         if (!Enum.IsDefined(function) || range is { } r && (!double.IsFinite(r) || r <= 0) ||
             resolution is { } v && (!double.IsFinite(v) || v <= 0)) throw new ArgumentException("Invalid DMM function, range or resolution.");
-        _registry.UseManaged(resourceId, leaseId, d => ((Runtime)d).Run(driver =>
-        { driver.Bridge.ConfigureMeasurement(function, range, resolution); return true; }), ct);
+        _registry.UseManaged(resourceId, leaseId, d => ((Runtime)d).Configure(function, range, resolution), ct);
     }
 
     /// <summary>Read one measurement under the active lease; vendor failure blocks further dispatch.</summary>
@@ -124,22 +185,64 @@ public sealed class HostedIviDmmService
     /// <param name="ct">Cancellation before dispatch only.</param>
     /// <returns>Value in the configured measurement function's base SI unit.</returns>
     public double Measure(string resourceId, Guid leaseId, CancellationToken ct = default) =>
-        _registry.UseManaged(resourceId, leaseId, d => ((Runtime)d).Run(driver =>
-        {
-            var value = driver.Bridge.Measure();
-            if (!double.IsFinite(value)) throw new InvalidOperationException("Non-finite DMM result requires provider interpretation.");
-            return value;
-        }), ct);
+        MeasureWithMetadata(resourceId, leaseId, ct).Value;
+
+    /// <summary>Measure and capture configuration provenance atomically under the lease gate.</summary>
+    /// <param name="resourceId">Canonical instrument ID.</param>
+    /// <param name="leaseId">Existing activation lease.</param>
+    /// <param name="ct">Cancellation while queued or before dispatch; never aborts in-flight vendor I/O.</param>
+    /// <returns>A finite reading with units, sequence and host receipt timestamp; no hardware timing claim.</returns>
+    public IviDmmMeasurement MeasureWithMetadata(string resourceId, Guid leaseId, CancellationToken ct = default) =>
+        _registry.UseManaged(resourceId, leaseId, d => ((Runtime)d).Measure(), ct);
 
     /// <summary>Run the registered provider's explicit recovery procedure, then release the retained lease.</summary>
     /// <param name="resourceId">Canonical resource.</param>
     /// <param name="leaseId">Failed activation or operation lease.</param>
     /// <param name="confirmed">Explicit operator authorization for provider-specific recovery.</param>
-    public void Recover(string resourceId, Guid leaseId, bool confirmed)
+    /// <param name="ct">Cancels queued recovery only; dispatched recovery completes and releases ownership only on success.</param>
+    public void Recover(string resourceId, Guid leaseId, bool confirmed, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
         if (!confirmed) throw new InvalidOperationException("Confirm provider-specific recovery first.");
-        _registry.UseManaged(resourceId, leaseId, d => { ((Runtime)d).Recover(); return true; });
+        _registry.UseManaged(resourceId, leaseId, d => { ((Runtime)d).Recover(); return true; }, ct);
         _registry.Release(leaseId);
+    }
+
+    /// <summary>Describe unresolved startup records, including missing or changed provider registrations.</summary>
+    /// <returns>Read-only readiness metadata; no factory or recovery callback is invoked.</returns>
+    public RestartRecoveryItem[] RecoveryOverview() => _registry.PendingRecovery().Select(record =>
+    {
+        var code = !_registrations.TryGetValue(record.ResourceId, out var registration) ? "provider_missing"
+            : registration.RecoverAfterRestart is null ? "restart_provider_missing"
+            : OwnershipRecord.DigestRoutes(registration.ApprovedBindings.Select(b => b.ResourceDescriptor)) != record.RoutesDigest ? "routes_changed" : "ready";
+        return new RestartRecoveryItem(record.ResourceId, record.RecordId, record.Revision, record.RecordedUtc, code == "ready", code);
+    }).ToArray();
+
+    /// <summary>Reconcile unresolved startup ownership through an explicitly registered provider procedure.</summary>
+    /// <param name="resourceId">Canonical instrument from the pending recovery list.</param>
+    /// <param name="recordId">Exact unresolved record reviewed by the operator.</param>
+    /// <param name="confirmed">Explicit confirmation of provider-specific physical reconciliation.</param>
+    /// <param name="ct">Cancellation before dispatch; in-flight reconciliation cannot be interrupted.</param>
+    /// <exception cref="InvalidOperationException">Review or provider is unavailable, or reconciliation did not complete.</exception>
+    public void ReconcileRestart(string resourceId, Guid recordId, bool confirmed, CancellationToken ct = default)
+    {
+        if (!confirmed) throw new InvalidOperationException("Confirm restart reconciliation first.");
+        if (!_registrations.TryGetValue(resourceId, out var registration) || registration.RecoverAfterRestart is null)
+            throw new InvalidOperationException("No qualified restart recovery provider is registered.");
+        try { _registry.ReconcileRestart(resourceId, recordId, registration.RecoverAfterRestart, ct); }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(new EventId(7476, "RestartReconciliationIncomplete"), "Restart reconciliation incomplete: {FailureKind}; quarantine retained", ex.GetType().Name);
+            throw new InvalidOperationException("Restart reconciliation did not complete; ownership remains quarantined.");
+        }
+    }
+
+    private InvalidOperationException Reject(string reason, string message)
+    {
+        _logger.LogWarning(new EventId(7458, "IviActivationRejected"),
+            "IVI activation rejected before I/O: {Reason}", reason);
+        return new InvalidOperationException(message);
     }
 
     private static void CheckRoute(BenchSetup config, SetupConnection route, SetupDriverBinding binding)
@@ -161,65 +264,133 @@ public sealed class HostedIviDmmService
         VirtualNames = b.VirtualNames.OrderBy(x => x.Key, StringComparer.Ordinal) });
     private static T Copy<T>(T value) => JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value))!;
 
-    private sealed class Runtime(IviDmmRegistration registration, SetupDriverBinding binding,
+    private sealed class Runtime(IviDmmRegistration registration, SetupDriverBinding binding, string revision, SetupIdentity? expectedIdentity,
         ILogger logger) : IManagedHostResource
     {
+        private readonly Guid _sessionId = Guid.NewGuid();
         private OwnedIviDmm? _driver;
         private volatile bool _faulted;
         private bool _closed;
+        private long _sequence;
+        private volatile IviDmmSessionStatus _status = new(registration.ResourceId, revision, "Opening", null);
+        public IviDmmSessionStatus Status => _status with { CorrelationId = _sessionId };
         public bool RequiresRecovery => _faulted;
 
         public void Open()
         {
-            logger.LogInformation(new EventId(7451, "IviOpening"), "Opening registered IVI DMM {ResourceId} with reset disabled", registration.ResourceId);
+            logger.LogInformation(new EventId(7451, "IviOpening"), "Opening registered IVI DMM {ResourceId} session {SessionId} revision {ConfigurationRevision} with reset disabled", registration.ResourceId, _sessionId, revision);
+            var phase = "Open";
             try
             {
                 _driver = registration.Open(new(binding, Reset: false, IdQuery: true));
                 if (_driver?.Bridge is null || _driver.Close is null) throw new InvalidOperationException();
-                logger.LogInformation(new EventId(7452, "IviOpened"), "Registered IVI DMM {ResourceId} initialization completed", registration.ResourceId);
+                if (expectedIdentity is not null)
+                {
+                    phase = "Identity";
+                    var actual = registration.ReadIdentity!(_driver);
+                    bool Matches(string? expected, string? found, StringComparison comparison) =>
+                        string.IsNullOrWhiteSpace(expected) || string.Equals(expected.Trim(), found?.Trim(), comparison);
+                    if (actual is null || !Matches(expectedIdentity.Manufacturer, actual.Manufacturer, StringComparison.OrdinalIgnoreCase) ||
+                        !Matches(expectedIdentity.Model, actual.Model, StringComparison.OrdinalIgnoreCase) ||
+                        !Matches(expectedIdentity.Serial, actual.Serial, StringComparison.Ordinal))
+                        throw new InvalidOperationException("Expected identity did not match.");
+                    logger.LogInformation(new EventId(7459, "IviIdentityAccepted"),
+                        "IVI {ResourceId} session {SessionId} expected identity fields matched", registration.ResourceId, _sessionId);
+                }
+                _status = _status with { State = "Ready" };
+                logger.LogInformation(new EventId(7452, "IviOpened"), "IVI {ResourceId} session {SessionId} initialization completed", registration.ResourceId, _sessionId);
             }
-            catch (Exception ex) { Fault(ex); throw new InvalidOperationException("IVI initialization failed; ownership retained for recovery."); }
+            catch (Exception ex) { Fault(ex, phase); throw new InvalidOperationException("IVI initialization failed; ownership retained for recovery."); }
         }
 
-        public T Run<T>(Func<OwnedIviDmm, T> action)
+        public bool Configure(IviMeasurementFunction function, double? range, double? resolution)
+        {
+            if (!registration.SupportedFunctions!.Contains(function))
+                throw new ArgumentException("Measurement function is not approved for this provider.");
+            Run("Configure", driver =>
+            {
+                driver.Bridge.ConfigureMeasurement(function, range, resolution);
+                _status = _status with { Function = function, RequestedRange = range, RequestedResolution = resolution };
+                return true;
+            });
+            return true;
+        }
+
+        public IviDmmMeasurement Measure()
+        {
+            if (_status.Function is null) throw new InvalidOperationException("Configure a measurement function before measuring.");
+            return Run("Measure", driver =>
+            {
+                var value = driver.Bridge.Measure();
+                if (!double.IsFinite(value)) throw new InvalidOperationException("Non-finite DMM result requires provider interpretation.");
+                var function = _status.Function.Value;
+                var unit = function switch
+                {
+                    IviMeasurementFunction.DcVoltage or IviMeasurementFunction.AcVoltage => "V",
+                    IviMeasurementFunction.DcCurrent or IviMeasurementFunction.AcCurrent => "A",
+                    IviMeasurementFunction.Resistance => "ohm",
+                    _ => throw new InvalidOperationException("Unknown measurement function.")
+                };
+                return new IviDmmMeasurement(registration.ResourceId, revision, _sessionId, value, function, unit,
+                    checked(++_sequence), DateTimeOffset.UtcNow, _status.RequestedRange, _status.RequestedResolution);
+            });
+        }
+
+        private T Run<T>(string operation, Func<OwnedIviDmm, T> action)
         {
             if (_closed || _faulted || _driver is null) throw new InvalidOperationException("IVI session is closed or requires recovery.");
+            _status = _status with { State = "Busy" };
+            var started = Stopwatch.GetTimestamp();
+            logger.LogInformation(new EventId(7457, "IviOperationStarted"),
+                "IVI {ResourceId} session {SessionId} operation {Operation} started", registration.ResourceId, _sessionId, operation);
             try
             {
                 var value = action(_driver);
-                logger.LogInformation(new EventId(7453, "IviOperationCompleted"), "Typed IVI DMM {ResourceId} operation completed", registration.ResourceId);
+                _status = _status with { State = "Ready" };
+                logger.LogInformation(new EventId(7453, "IviOperationCompleted"), "IVI {ResourceId} session {SessionId} operation {Operation} completed in {ElapsedMilliseconds} ms", registration.ResourceId, _sessionId, operation, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
                 return value;
             }
-            catch (Exception ex) { Fault(ex); throw new InvalidOperationException("IVI operation failed; ownership retained for recovery."); }
+            catch (Exception ex) { Fault(ex, operation); throw new InvalidOperationException("IVI operation failed; ownership retained for recovery."); }
         }
 
         public void Dispose()
         {
             if (_closed) return;
             if (_faulted) throw new InvalidOperationException("Explicit IVI recovery is required before release.");
+            _status = _status with { State = "Closing" };
+            var started = Stopwatch.GetTimestamp();
+            logger.LogInformation(new EventId(7460, "IviCloseStarted"),
+                "IVI {ResourceId} session {SessionId} close started", registration.ResourceId, _sessionId);
             try
             {
                 _driver?.Close(); _driver = null; _closed = true;
-                logger.LogInformation(new EventId(7454, "IviClosed"), "IVI driver {ResourceId} cleanup completed before lease release", registration.ResourceId);
+                _status = _status with { State = "Closed" };
+                logger.LogInformation(new EventId(7454, "IviClosed"), "IVI {ResourceId} session {SessionId} cleanup completed before lease release in {ElapsedMilliseconds} ms", registration.ResourceId, _sessionId, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             }
-            catch (Exception ex) { Fault(ex); throw new InvalidOperationException("IVI cleanup failed; ownership retained for recovery."); }
+            catch (Exception ex) { Fault(ex, "Close"); throw new InvalidOperationException("IVI cleanup failed; ownership retained for recovery."); }
         }
 
         public void Recover()
         {
             if (_closed || !_faulted) throw new InvalidOperationException("Recovery requires a failed retained session.");
+            _status = _status with { State = "Recovering" };
+            var started = Stopwatch.GetTimestamp();
+            logger.LogInformation(new EventId(7461, "IviRecoveryStarted"),
+                "IVI {ResourceId} session {SessionId} recovery started", registration.ResourceId, _sessionId);
             try
             {
                 registration.Recover(_driver); _driver = null; _closed = true; _faulted = false;
-                logger.LogInformation(new EventId(7456, "IviRecovered"), "Provider confirmed IVI {ResourceId} cleanup and physical state recovery", registration.ResourceId);
+                _status = _status with { State = "Closed" };
+                logger.LogInformation(new EventId(7456, "IviRecovered"), "Provider confirmed IVI {ResourceId} session {SessionId} cleanup and physical state recovery in {ElapsedMilliseconds} ms", registration.ResourceId, _sessionId, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             }
-            catch (Exception ex) { Fault(ex); throw new InvalidOperationException("IVI recovery failed; ownership retained."); }
+            catch (Exception ex) { Fault(ex, "Recover"); throw new InvalidOperationException("IVI recovery failed; ownership retained."); }
         }
 
-        private void Fault(Exception ex)
+        private void Fault(Exception ex, string operation)
         {
             _faulted = true;
-            logger.LogWarning(new EventId(7455, "IviRecoveryRequired"), "IVI {ResourceId} lifecycle failed: {FailureKind}; ownership retained", registration.ResourceId, ex.GetType().Name);
+            _status = _status with { State = "RecoveryRequired", LastFailurePhase = operation };
+            logger.LogWarning(new EventId(7455, "IviRecoveryRequired"), "IVI {ResourceId} session {SessionId} operation {Operation} failed: {FailureKind}; ownership retained", registration.ResourceId, _sessionId, operation, ex.GetType().Name);
         }
     }
 }

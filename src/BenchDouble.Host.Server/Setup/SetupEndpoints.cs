@@ -60,19 +60,35 @@ public static class SetupEndpoints
         });
         group.MapPost("/ivi-bindings/apply", (JsonElement document, IviSetupCatalogService catalogs) =>
             Results.Ok(catalogs.Apply(BenchSetupService.ParseApplyIviBindingRequest(document.GetRawText()))));
-        group.MapPost("/ivi/roles/{role}/activate", (string role, ActivateIviRoleRequest request, HostedIviDmmService drivers, CancellationToken ct) =>
-            drivers.Activate(role, request.ExpectedRevision, request.Confirmed, ct) is { } activation
-                ? Results.Ok(activation) : Results.Conflict(new { error = "Instrument is busy." }));
-        group.MapPost("/ivi/{resourceId}/configure", (string resourceId, IviDmmConfigureRequest request, HostedIviDmmService drivers, CancellationToken ct) =>
+        group.MapPost("/ivi/roles/{role}/activate", (string role, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
         {
+            var request = BenchSetupService.ParseIviRequest<ActivateIviRoleRequest>(document.GetRawText());
+            return drivers.Activate(role, request.ExpectedRevision, request.Confirmed, ct) is { } activation
+                ? Results.Ok(activation) : Results.Conflict(new { error = "Instrument is busy." });
+        });
+        group.MapGet("/ivi/recovery", (HostedIviDmmService drivers) => Results.Ok(drivers.RecoveryOverview()));
+        group.MapPost("/ivi/recovery/{resourceId}/reconcile", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
+        {
+            var request = BenchSetupService.ParseIviRequest<ReconcileRestartRequest>(document.GetRawText());
+            drivers.ReconcileRestart(resourceId, request.RecordId, request.Confirmed, ct);
+            return Results.Ok(new { reconciled = true });
+        });
+        group.MapGet("/ivi/{resourceId}/capabilities", (string resourceId, HostedIviDmmService drivers) =>
+            Results.Ok(new { functions = drivers.SupportedFunctions(resourceId) }));
+        group.MapPost("/ivi/{resourceId}/status", (string resourceId, JsonElement document, HostedIviDmmService drivers) =>
+            Results.Ok(drivers.Status(resourceId, BenchSetupService.ParseIviRequest<IviLeaseRequest>(document.GetRawText()).LeaseId)));
+        group.MapPost("/ivi/{resourceId}/configure", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
+        {
+            var request = BenchSetupService.ParseIviRequest<IviDmmConfigureRequest>(document.GetRawText());
             drivers.Configure(resourceId, request.LeaseId, request.Function, request.Range, request.Resolution, ct);
             return Results.Ok(new { configured = true });
         });
-        group.MapPost("/ivi/{resourceId}/measure", (string resourceId, IviLeaseRequest request, HostedIviDmmService drivers, CancellationToken ct) =>
-            Results.Ok(new { value = drivers.Measure(resourceId, request.LeaseId, ct) }));
-        group.MapPost("/ivi/{resourceId}/recover", (string resourceId, IviLeaseRequest request, HostedIviDmmService drivers) =>
+        group.MapPost("/ivi/{resourceId}/measure", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
+            Results.Ok(drivers.MeasureWithMetadata(resourceId, BenchSetupService.ParseIviRequest<IviLeaseRequest>(document.GetRawText()).LeaseId, ct)));
+        group.MapPost("/ivi/{resourceId}/recover", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
         {
-            drivers.Recover(resourceId, request.LeaseId, request.Confirmed);
+            var request = BenchSetupService.ParseIviRequest<IviLeaseRequest>(document.GetRawText());
+            drivers.Recover(resourceId, request.LeaseId, request.Confirmed, ct);
             return Results.Ok(new { recovered = true });
         });
         group.MapGet("/configuration", (BenchSetupService setup) => setup.Read() is { } saved
