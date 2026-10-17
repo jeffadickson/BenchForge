@@ -1,3 +1,5 @@
+using BenchDouble.Host.Server.Heartbeat;
+using BenchDouble.Host.Server.Lifecycle;
 using BenchDouble.Host.Server.Recovery;
 using BenchDouble.Host.Server;
 using BenchDouble.Host.Server.Setup;
@@ -15,7 +17,13 @@ builder.WebHost.UseUrls("http://127.0.0.1:5278");
 var setupPath = builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json");
 builder.Services.AddSingleton<IHostOwnershipJournal>(_ => new FileHostOwnershipJournal(
     builder.Configuration["BenchSetup:OwnershipDirectory"] ?? setupPath + ".ownership"));
+builder.Services.AddSingleton(HostHeartbeatPolicy.FromConfiguration(builder.Configuration));
 builder.Services.AddSingleton<HostResourceRegistry>();
+builder.Services.AddHostedService<OwnerHeartbeatService>();
+var shutdownPolicy = HostShutdownPolicy.FromConfiguration(builder.Configuration);
+builder.Services.AddSingleton(shutdownPolicy);
+builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = shutdownPolicy.Timeout + TimeSpan.FromSeconds(2));
+builder.Services.AddHostedService<CanonicalShutdownService>();
 builder.Services.AddSingleton<IviSetupCatalogService>();
 builder.Services.AddSingleton<HostedIviDmmService>();
 builder.Services.AddSingleton<HostedOscilloscopeRegistry>();
@@ -27,12 +35,24 @@ var app = builder.Build();
 // Registers metadata only. Integrators explicitly add IviDmmRegistration instances
 // before Build; the stock host installs no vendor driver factories.
 _ = app.Services.GetRequiredService<HostedIviDmmService>();
+app.Use(async (context, next) =>
+{
+    if (app.Services.GetRequiredService<HostResourceRegistry>().IsDraining &&
+        !HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method))
+    {
+        context.Response.StatusCode = 503;
+        await context.Response.WriteAsJsonAsync(new { error = "Host is stopping; new work is refused." });
+        return;
+    }
+    await next(context);
+});
 app.MapBenchSetup();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapGet("/", () => Results.Redirect("/dashboard/"));
 
-app.MapGet("/health", () => Results.Ok(new { status = "ready" }));
+app.MapGet("/health", (HostResourceRegistry resources) => resources.IsDraining
+    ? Results.Json(new { status = "stopping" }, statusCode: 503) : Results.Ok(new { status = "ready" }));
 app.MapGet("/api/v1/monitor", (HostResourceRegistry resources) =>
     Results.Ok(resources.Monitor()));
 app.MapGet("/api/v1/instruments", (HostResourceRegistry resources) =>
@@ -78,8 +98,8 @@ app.MapDelete("/api/v1/scopes/{resourceId}/reserve/{leaseId:guid}", (string reso
 app.Run();
 
 /// <summary>
-/// Minimal local-only demonstration. Not a production lease service: no expiry,
-/// authenticated identity, bounded safe-state shutdown, or remote TLS. Registered DMM ownership may use a local journal.
+/// Local-only demonstration with optional owner-heartbeat fencing and bounded shutdown decisions.
+/// Remote identity/TLS and qualified physical safe-state behavior remain integrator responsibilities.
 /// </summary>
 public sealed partial class HostResourceRegistry
 {
@@ -102,8 +122,12 @@ public sealed partial class HostResourceRegistry
     /// <summary>Open the demo devices and identify once, before granting any lease.</summary>
     /// <param name="logger">Optional diagnostics; sink failures are isolated.</param>
     /// <param name="journal">Optional durable ownership journal; omission is for ephemeral tests and simulation.</param>
-    public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null, IHostOwnershipJournal? journal = null)
+    /// <param name="heartbeatPolicy">Optional owner heartbeat enforcement; omission is for legacy/direct simulation callers.</param>
+    /// <param name="timeProvider">Monotonic host clock; defaults to real system time, independent of simulated instrument time.</param>
+    public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null, IHostOwnershipJournal? journal = null,
+        HostHeartbeatPolicy? heartbeatPolicy = null, TimeProvider? timeProvider = null)
     {
+        heartbeatPolicy?.Validate(); _heartbeatPolicy = heartbeatPolicy; Clock = timeProvider ?? TimeProvider.System;
         _journal = journal;
         foreach (var record in journal?.Read() ?? [])
         {
@@ -163,6 +187,7 @@ public sealed partial class HostResourceRegistry
     {
         lock (_gate)
         {
+            if (_draining) return null;
             if ((!_devices.ContainsKey(resourceId) && !_managedDescriptors.ContainsKey(resourceId)) || _reservations.ContainsKey(resourceId) || _startupQuarantine.Contains(resourceId)) return null;
             if (_journal is not null && _managedDescriptors.ContainsKey(resourceId))
             {
@@ -184,6 +209,7 @@ public sealed partial class HostResourceRegistry
             _reservations[resourceId] = lease;
             _byLease[lease] = resourceId;
             _leaseGates[lease] = new SemaphoreSlim(1, 1);
+            if (_heartbeatPolicy is not null) _ownerHealth.Add(lease, new(resourceId, checked(++_ownerGeneration), Clock.GetTimestamp()));
             Record(resourceId, "Reserved", "Exclusive local demonstration lease acquired");
             return new ReservationGrant(resourceId, lease);
         }
@@ -195,6 +221,7 @@ public sealed partial class HostResourceRegistry
     {
         lock (_gate)
         {
+            EnsureAccepting(); EnsureHeartbeatLive(lease);
             if (!_devices.TryGetValue(resourceId, out var device)) throw new KeyNotFoundException();
             if (!_byLease.TryGetValue(lease, out var owned) ||
                 !string.Equals(owned, resourceId, StringComparison.OrdinalIgnoreCase))

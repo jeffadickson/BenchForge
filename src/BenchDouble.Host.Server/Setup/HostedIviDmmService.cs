@@ -1,3 +1,6 @@
+using BenchDouble.Host.Contracts;
+using BenchDouble.Host.Server.Heartbeat;
+using BenchDouble.Host.Server.Lifecycle;
 using BenchDouble.Host.Server.Recovery;
 using System.Diagnostics;
 using System.Text.Json;
@@ -26,9 +29,10 @@ public sealed record IviDmmOpenRequest(SetupDriverBinding Binding, bool Reset, b
 /// <param name="ReadIdentity">Optional typed identity reader. Required only when the saved setup specifies expected fields; serial remains optional.</param>
 /// <param name="SupportedFunctions">Qualified measurement functions; omission permits DC voltage only. Empty/invalid declarations are rejected.</param>
 /// <param name="RecoverAfterRestart">Optional qualified procedure for reconciliation without a live vendor session; never inferred from normal recovery.</param>
+/// <param name="PrepareForShutdown">Optional qualified abort/disable and safe-state confirmation on the live session; normal close follows only on success. No automatic recovery is inferred.</param>
 public sealed record IviDmmRegistration(string ResourceId, SetupDriverBinding[] ApprovedBindings,
     Func<IviDmmOpenRequest, OwnedIviDmm> Open, Action<OwnedIviDmm?> Recover,
-    Func<OwnedIviDmm, SetupIdentity>? ReadIdentity = null, IviMeasurementFunction[]? SupportedFunctions = null, Action? RecoverAfterRestart = null);
+    Func<OwnedIviDmm, SetupIdentity>? ReadIdentity = null, IviMeasurementFunction[]? SupportedFunctions = null, Action? RecoverAfterRestart = null, Action<OwnedIviDmm>? PrepareForShutdown = null);
 
 /// <summary>Activation outcome with the pinned configuration and retained lease, including failed initialization.</summary>
 /// <param name="Lease">Canonical lease and route snapshot; never a second ownership authority.</param>
@@ -39,16 +43,25 @@ public sealed record IviDmmActivation(SetupLease Lease, bool Active, string? Err
 /// <summary>Cached session state; reading it never dispatches instrument I/O.</summary>
 /// <param name="ResourceId">Canonical instrument ID.</param>
 /// <param name="Revision">Pinned saved configuration revision.</param>
-/// <param name="State">Opening, Ready, Busy, Closing, Recovering, Closed, RecoveryRequired or JournalUpdateRequired.</param>
+/// <param name="State">Opening, Ready, Busy, Stopping, Closing, Recovering, Closed, RecoveryRequired, OwnerExpired or JournalUpdateRequired.</param>
 /// <param name="Function">Last successfully configured function, or null before configuration.</param>
 /// <param name="RequestedRange">Last successfully requested range in base SI units, or provider default when null.</param>
 /// <param name="RequestedResolution">Last successfully requested resolution in base SI units, or provider default when null.</param>
 /// <param name="LastFailurePhase">Last failed provider operation; null before a failure. No vendor message is retained.</param>
 /// <param name="CorrelationId">Diagnostic session correlation, distinct from the lease capability.</param>
 /// <param name="DiagnosticWriteFailures">Observed lifecycle and registry logging failures, not a durable audit counter.</param>
+/// <param name="Heartbeat">Cached control-owner health; independent of device readiness and never renewed by status inspection.</param>
+/// <param name="LastDeviceSuccessUtc">Host UTC time of last successful device operation, not a hardware timestamp.</param>
+/// <param name="LastReadingUtc">Host UTC receipt time of last successful reading; retained after faults.</param>
+/// <param name="ReadingAgeMilliseconds">Monotonic age of the cached reading in milliseconds, or null before a reading.</param>
 public sealed record IviDmmSessionStatus(string ResourceId, string Revision, string State, IviMeasurementFunction? Function,
     double? RequestedRange = null, double? RequestedResolution = null, string? LastFailurePhase = null,
-    Guid CorrelationId = default, long DiagnosticWriteFailures = 0);
+    Guid CorrelationId = default, long DiagnosticWriteFailures = 0, OwnerHeartbeatSnapshot? Heartbeat = null,
+    DateTimeOffset? LastDeviceSuccessUtc = null, DateTimeOffset? LastReadingUtc = null, double? ReadingAgeMilliseconds = null)
+{
+    /// <summary>Internal monotonic reading timestamp; excluded from public JSON.</summary>
+    internal long? ReadingTimestamp { get; init; }
+}
 
 /// <summary>Operator-facing startup recovery evidence with registration readiness; contains no lease capability.</summary>
 /// <param name="ResourceId">Canonical instrument.</param>
@@ -129,7 +142,7 @@ public sealed class HostedIviDmmService
             _setup.CheckActivationController(saved.Configuration, route);
         }
         catch (InvalidOperationException ex) { throw Reject("route_unconfirmed", ex.Message); }
-        var runtime = new Runtime(registration, Copy(binding), saved.Revision, checkIdentity ? identity : null, _logger);
+        var runtime = new Runtime(registration, Copy(binding), saved.Revision, checkIdentity ? identity : null, _logger, _registry.Clock);
         var grant = _registry.ReserveManaged(instrument.Id, runtime, saved.Revision);
         if (grant is null) { _logger.LogInformation(new EventId(7450, "IviActivationBusy"), "IVI activation refused: resource {ResourceId} busy", registration.ResourceId); return null; }
         var pinned = new SetupLease(grant.LeaseId, instrument.Id, saved.Revision, route);
@@ -160,7 +173,8 @@ public sealed class HostedIviDmmService
     public IviDmmSessionStatus Status(string resourceId, Guid leaseId)
     {
         var status = _registry.InspectManaged(resourceId, leaseId, d => ((Runtime)d).Status);
-        return status with { State = _registry.PersistencePending(resourceId) ? "JournalUpdateRequired" : status.State,
+        var heartbeat = _registry.InspectOwnerHeartbeat(resourceId, leaseId);
+        return status with { Heartbeat = heartbeat, State = _registry.PersistencePending(resourceId) ? "JournalUpdateRequired" : heartbeat?.State == "Expired" ? "OwnerExpired" : status.State,
             DiagnosticWriteFailures = LoggingFailureCount + _registry.LoggingFailureCount };
     }
 
@@ -204,8 +218,8 @@ public sealed class HostedIviDmmService
     {
         ct.ThrowIfCancellationRequested();
         if (!confirmed) throw new InvalidOperationException("Confirm provider-specific recovery first.");
-        _registry.UseManaged(resourceId, leaseId, d => { ((Runtime)d).Recover(); return true; }, ct);
-        _registry.Release(leaseId);
+        _registry.UseManaged(resourceId, leaseId, d => { ((Runtime)d).Recover(_registry.OwnerHeartbeatExpired(resourceId, leaseId)); return true; }, ct, allowExpired: true);
+        _registry.ReleaseRecovered(leaseId);
     }
 
     /// <summary>Describe unresolved startup records, including missing or changed provider registrations.</summary>
@@ -265,7 +279,7 @@ public sealed class HostedIviDmmService
     private static T Copy<T>(T value) => JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value))!;
 
     private sealed class Runtime(IviDmmRegistration registration, SetupDriverBinding binding, string revision, SetupIdentity? expectedIdentity,
-        ILogger logger) : IManagedHostResource
+        ILogger logger, TimeProvider clock) : IManagedShutdownResource
     {
         private readonly Guid _sessionId = Guid.NewGuid();
         private OwnedIviDmm? _driver;
@@ -273,7 +287,15 @@ public sealed class HostedIviDmmService
         private bool _closed;
         private long _sequence;
         private volatile IviDmmSessionStatus _status = new(registration.ResourceId, revision, "Opening", null);
-        public IviDmmSessionStatus Status => _status with { CorrelationId = _sessionId };
+        public IviDmmSessionStatus Status
+        {
+            get
+            {
+                var snapshot = _status;
+                return snapshot with { CorrelationId = _sessionId, ReadingAgeMilliseconds = snapshot.ReadingTimestamp is { } timestamp
+                    ? Math.Max(0, clock.GetElapsedTime(timestamp).TotalMilliseconds) : null };
+            }
+        }
         public bool RequiresRecovery => _faulted;
 
         public void Open()
@@ -297,7 +319,7 @@ public sealed class HostedIviDmmService
                     logger.LogInformation(new EventId(7459, "IviIdentityAccepted"),
                         "IVI {ResourceId} session {SessionId} expected identity fields matched", registration.ResourceId, _sessionId);
                 }
-                _status = _status with { State = "Ready" };
+                _status = _status with { State = "Ready", LastDeviceSuccessUtc = clock.GetUtcNow() };
                 logger.LogInformation(new EventId(7452, "IviOpened"), "IVI {ResourceId} session {SessionId} initialization completed", registration.ResourceId, _sessionId);
             }
             catch (Exception ex) { Fault(ex, phase); throw new InvalidOperationException("IVI initialization failed; ownership retained for recovery."); }
@@ -331,8 +353,10 @@ public sealed class HostedIviDmmService
                     IviMeasurementFunction.Resistance => "ohm",
                     _ => throw new InvalidOperationException("Unknown measurement function.")
                 };
+                var receivedUtc = clock.GetUtcNow();
+                _status = _status with { LastReadingUtc = receivedUtc, ReadingTimestamp = clock.GetTimestamp() };
                 return new IviDmmMeasurement(registration.ResourceId, revision, _sessionId, value, function, unit,
-                    checked(++_sequence), DateTimeOffset.UtcNow, _status.RequestedRange, _status.RequestedResolution);
+                    checked(++_sequence), receivedUtc, _status.RequestedRange, _status.RequestedResolution);
             });
         }
 
@@ -346,11 +370,32 @@ public sealed class HostedIviDmmService
             try
             {
                 var value = action(_driver);
-                _status = _status with { State = "Ready" };
+                _status = _status with { State = "Ready", LastDeviceSuccessUtc = clock.GetUtcNow() };
                 logger.LogInformation(new EventId(7453, "IviOperationCompleted"), "IVI {ResourceId} session {SessionId} operation {Operation} completed in {ElapsedMilliseconds} ms", registration.ResourceId, _sessionId, operation, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
                 return value;
             }
             catch (Exception ex) { Fault(ex, operation); throw new InvalidOperationException("IVI operation failed; ownership retained for recovery."); }
+        }
+
+        public bool SupportsShutdown => _closed || registration.PrepareForShutdown is not null;
+
+        public void PrepareForShutdown()
+        {
+            if (_closed) return;
+            if (_faulted || _driver is null) throw new InvalidOperationException("Uncertain session requires explicit recovery; shutdown cannot infer safe state.");
+            if (registration.PrepareForShutdown is null) throw new NotSupportedException("Qualified shutdown procedure missing.");
+            _status = _status with { State = "Stopping" };
+            var started = Stopwatch.GetTimestamp();
+            logger.LogInformation(new EventId(7462, "IviShutdownPreparationStarted"),
+                "IVI {ResourceId} session {SessionId} qualified shutdown preparation started", registration.ResourceId, _sessionId);
+            try
+            {
+                registration.PrepareForShutdown(_driver);
+                logger.LogInformation(new EventId(7463, "IviShutdownPreparationCompleted"),
+                    "IVI {ResourceId} session {SessionId} qualified shutdown preparation completed in {ElapsedMilliseconds} ms",
+                    registration.ResourceId, _sessionId, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            }
+            catch (Exception ex) { Fault(ex, "Shutdown"); throw new InvalidOperationException("Qualified shutdown failed; ownership retained."); }
         }
 
         public void Dispose()
@@ -370,9 +415,9 @@ public sealed class HostedIviDmmService
             catch (Exception ex) { Fault(ex, "Close"); throw new InvalidOperationException("IVI cleanup failed; ownership retained for recovery."); }
         }
 
-        public void Recover()
+        public void Recover(bool ownerExpired = false)
         {
-            if (_closed || !_faulted) throw new InvalidOperationException("Recovery requires a failed retained session.");
+            if (_closed || !_faulted && !ownerExpired) throw new InvalidOperationException("Recovery requires a failed or owner-expired retained session.");
             _status = _status with { State = "Recovering" };
             var started = Stopwatch.GetTimestamp();
             logger.LogInformation(new EventId(7461, "IviRecoveryStarted"),

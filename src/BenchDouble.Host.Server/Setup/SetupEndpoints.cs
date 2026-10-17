@@ -35,6 +35,12 @@ public static class SetupEndpoints
                 };
             }
         });
+        group.MapGet("/host-lifecycle", (HostResourceRegistry registry) => Results.Ok(new
+        {
+            acceptingWork = !registry.IsDraining,
+            pendingCleanup = registry.ShutdownWorkPending,
+            shutdown = registry.ShutdownReport
+        }));
         group.MapPost("/discover", async (BenchSetupService setup, CancellationToken ct) =>
             Results.Ok(await setup.DiscoverAsync(ct)));
         group.MapPost("/discover-visa", async (string scope, string? host, BenchSetupService setup, CancellationToken ct) =>
@@ -65,6 +71,17 @@ public static class SetupEndpoints
             var request = BenchSetupService.ParseIviRequest<ActivateIviRoleRequest>(document.GetRawText());
             return drivers.Activate(role, request.ExpectedRevision, request.Confirmed, ct) is { } activation
                 ? Results.Ok(activation) : Results.Conflict(new { error = "Instrument is busy." });
+        });
+        group.MapPost("/ivi/{resourceId}/heartbeat", (string resourceId, JsonElement document, HostResourceRegistry registry) =>
+        {
+            var request = BenchSetupService.ParseIviRequest<OwnerHeartbeatRequest>(document.GetRawText());
+            return Results.Ok(registry.RenewOwnerHeartbeat(resourceId, request.LeaseId, request.HostEpoch,
+                request.OwnerGeneration, request.PeerEpoch, request.Sequence));
+        });
+        group.MapPost("/ivi/{resourceId}/owner-health", (string resourceId, JsonElement document, HostResourceRegistry registry) =>
+        {
+            var request = BenchSetupService.ParseIviRequest<IviLeaseRequest>(document.GetRawText());
+            return Results.Ok(registry.InspectOwnerHeartbeat(resourceId, request.LeaseId));
         });
         group.MapGet("/ivi/recovery", (HostedIviDmmService drivers) => Results.Ok(drivers.RecoveryOverview()));
         group.MapPost("/ivi/recovery/{resourceId}/reconcile", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>

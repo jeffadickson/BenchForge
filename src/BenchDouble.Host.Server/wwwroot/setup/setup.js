@@ -88,9 +88,10 @@ async function loadIviFunctions(preferred){
  if(iviFunctions.includes(preferred))$('iviFunction').value=String(preferred);
 }
 function retainIvi(){
+ if(!activeIvi)stopOwnerHeartbeat();
  try{
   if(activeIvi){const {resourceId,leaseId,revision}=activeIvi.lease;sessionStorage.setItem(iviStorageKey,JSON.stringify({resourceId,leaseId,revision}));}
-  else sessionStorage.removeItem(iviStorageKey);
+  else { sessionStorage.removeItem(iviStorageKey); stopOwnerHeartbeat(); }
   return true;
  }catch{return false;}
 }
@@ -102,7 +103,7 @@ async function refreshIvi(){
   const snapshot=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/status',{leaseId:lease.leaseId});
   if(activeIvi?.lease!==lease)return;
   if(snapshot.resourceId?.toLowerCase()!==lease.resourceId.toLowerCase()||snapshot.revision!==lease.revision)throw Error('Session metadata changed; retain the token and investigate the host.');
-  iviVerified=true;activeIvi.active=snapshot.state==='Ready';
+  iviVerified=true;activeIvi.active=snapshot.state==='Ready'; syncOwnerHeartbeat(snapshot.heartbeat);
   await loadIviFunctions(snapshot.function);if(activeIvi?.lease!==lease)return;
   $('iviRuntime').textContent=JSON.stringify(snapshot,null,2);
   status('Retained IVI session: '+snapshot.state+'. No driver was reopened.',snapshot.state==='RecoveryRequired');
@@ -141,7 +142,7 @@ function iviAction(action){return guard(async()=>{
   throw error;
  }finally{iviPending=false;for(const id of buttons)$(id).disabled=false;}
 });}
-function requireIvi(){if(!iviVerified)throw Error('Refresh retained session status before instrument operations.');if(!activeIvi)throw Error('Activate a registered saved role first.');return activeIvi.lease;}
+function requireIvi(allowExpired=false){if(ownerHeartbeat?.lost&&!allowExpired)throw Error('Owner heartbeat lost; refresh status and use explicit provider recovery.');if(!iviVerified)throw Error('Refresh retained session status before instrument operations.');if(!activeIvi)throw Error('Activate a registered saved role first.');return activeIvi.lease;}
 $('activateIvi').onclick=iviAction(async()=>{
  if(iviRestoring)throw Error('Wait for retained session inspection.');
  if(activeIvi)throw Error('Close or recover the retained IVI lease before another activation.');
@@ -180,7 +181,7 @@ $('configureIvi').onclick=iviAction(async()=>{
 });
 $('measureIvi').onclick=iviAction(async()=>{const lease=requireIvi();const result=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/measure',{leaseId:lease.leaseId});$('iviRuntime').textContent='Measurement #'+result.sequence+': '+result.value+' '+result.unit+' · '+iviFunctionNames[result.function]+'\nHost receipt: '+result.completedUtc+'\nConfiguration: '+result.revision+'\nSession: '+result.correlationId;status('DMM measurement completed.');});
 $('closeIvi').onclick=iviAction(async()=>{const lease=requireIvi();const response=await fetch('/api/v1/reservations/'+lease.leaseId,{method:'DELETE'});if(!response.ok){const value=await response.json();throw Error(value.message||value.error||'Cleanup requires recovery; ownership retained.');}activeIvi=null;iviVerified=false;retainIvi();$('iviLeaseDetails').value='';$('iviRuntime').textContent='Driver closed; lease released.';status('IVI cleanup completed before releasing ownership.');});
-$('recoverIvi').onclick=iviAction(async()=>{const lease=requireIvi();if(!$('recoverConfirmed').checked)throw Error('Confirm provider recovery first.');$('recoverConfirmed').checked=false;await api('ivi/'+encodeURIComponent(lease.resourceId)+'/recover',{leaseId:lease.leaseId,confirmed:true});activeIvi=null;iviVerified=false;retainIvi();$('iviLeaseDetails').value='';$('recoverConfirmed').checked=false;$('iviRuntime').textContent='Provider recovery completed; lease released.';status('Recovery succeeded. A new activation requires review.');});
+$('recoverIvi').onclick=iviAction(async()=>{const lease=requireIvi(true);if(!$('recoverConfirmed').checked)throw Error('Confirm provider recovery first.');$('recoverConfirmed').checked=false;await api('ivi/'+encodeURIComponent(lease.resourceId)+'/recover',{leaseId:lease.leaseId,confirmed:true});activeIvi=null;iviVerified=false;retainIvi();$('iviLeaseDetails').value='';$('recoverConfirmed').checked=false;$('iviRuntime').textContent='Provider recovery completed; lease released.';status('Recovery succeeded. A new activation requires review.');});
 
 let restartRecords=[],restartReviewValid=false,recoveryGeneration=0;
 async function refreshRecovery(){
@@ -205,4 +206,63 @@ $('reconcileRestart').onclick=iviAction(async()=>{
  await refreshRecovery();status('Restart reconciliation completed. New activation still requires review.');
 });
 
-guard(async()=>{try{await reload();}finally{try{await restoreIvi();}finally{await refreshRecovery();}}})();
+let ownerHeartbeat=null;
+function stopOwnerHeartbeat(){
+ const previous=ownerHeartbeat;ownerHeartbeat=null;
+ if(previous){clearTimeout(previous.timer);previous.abort?.abort();}
+}
+function syncOwnerHeartbeat(snapshot){
+ const lease=activeIvi?.lease;
+ if(!snapshot||!lease){stopOwnerHeartbeat();$('ownerHeartbeat').textContent='No heartbeat-enabled owner inspected.';return;}
+ if(ownerHeartbeat?.lease===lease){if(snapshot.state==='Expired'){ownerHeartbeat.lost=true;clearTimeout(ownerHeartbeat.timer);$('ownerHeartbeat').textContent='Owner expired; ownership retained for explicit recovery.';}return;}
+ stopOwnerHeartbeat();
+ if(!Number.isSafeInteger(snapshot.sequence)||snapshot.sequence<0||!Number.isSafeInteger(snapshot.ownerGeneration)||snapshot.ownerGeneration<=0||
+    !Number.isFinite(snapshot.intervalMilliseconds)||snapshot.intervalMilliseconds<10||snapshot.intervalMilliseconds>60000)throw Error('Invalid host heartbeat metadata.');
+ ownerHeartbeat={lease,hostEpoch:snapshot.hostEpoch,ownerGeneration:snapshot.ownerGeneration,
+  peerEpoch:snapshot.peerEpoch&&snapshot.peerEpoch!=='00000000-0000-0000-0000-000000000000'?snapshot.peerEpoch:crypto.randomUUID(),
+  sequence:snapshot.sequence,interval:snapshot.intervalMilliseconds,lost:snapshot.state==='Expired',timer:null,pending:null,abort:null};
+ if(ownerHeartbeat.lost){$('ownerHeartbeat').textContent='Owner expired; ownership retained for explicit recovery.';return;}
+ void renewOwnerHeartbeat();
+}
+async function renewOwnerHeartbeat(){
+ const context=ownerHeartbeat;
+ if(!context||context.lost)return;
+ if(context.pending)return context.pending;
+ clearTimeout(context.timer);
+ context.pending=(async()=>{
+  context.abort=new AbortController();const timeout=setTimeout(()=>context.abort.abort(),Math.min(context.interval,10000));
+  try{
+   const sequence=++context.sequence;if(!Number.isSafeInteger(sequence)){context.lost=true;throw Error('Heartbeat sequence exhausted.');}
+   const ack=await api('ivi/'+encodeURIComponent(context.lease.resourceId)+'/heartbeat',{
+    leaseId:context.lease.leaseId,hostEpoch:context.hostEpoch,ownerGeneration:context.ownerGeneration,peerEpoch:context.peerEpoch,sequence},context.abort.signal);
+   if(ownerHeartbeat!==context)return;
+   if(ack.hostEpoch!==context.hostEpoch||ack.ownerGeneration!==context.ownerGeneration||ack.peerEpoch!==context.peerEpoch||ack.sequence!==sequence||ack.state!=='Healthy'){
+    context.lost=true;throw Error('Heartbeat acknowledgment did not match this owner.');
+   }
+   $('ownerHeartbeat').textContent='Owner heartbeat acknowledged. Instrument readiness is reported separately.';
+  }catch(error){
+   if(ownerHeartbeat!==context)return;
+   if([401,403,404,409].includes(error.httpStatus))context.lost=true;
+   iviVerified=false;
+   $('ownerHeartbeat').textContent=context.lost?'Owner heartbeat lost; retain the lease and inspect explicit recovery.':'Heartbeat unavailable; control is unconfirmed. Refresh status before commands.';
+  }finally{
+   clearTimeout(timeout);context.pending=null;context.abort=null;
+   if(ownerHeartbeat===context&&!context.lost)context.timer=setTimeout(()=>void renewOwnerHeartbeat(),context.interval);
+  }
+ })();
+ return context.pending;
+}
+$('renewOwnerHeartbeat').onclick=guard(renewOwnerHeartbeat);
+window.addEventListener('pagehide',stopOwnerHeartbeat);
+
+let lifecycleGeneration=0;
+async function refreshHostLifecycle(){
+ const generation=++lifecycleGeneration;
+ try{
+  const state=await api('host-lifecycle');if(generation!==lifecycleGeneration)return;
+  $('hostLifecycle').textContent=(state.acceptingWork?'Host accepts instrument work.':'Host is stopping; new instrument work is refused.')+
+   '\nPending cleanup workers: '+state.pendingCleanup+'\n'+(state.shutdown?JSON.stringify(state.shutdown,null,2):'No completed shutdown decision.');
+ }catch(error){if(generation===lifecycleGeneration)$('hostLifecycle').textContent='Host lifecycle inspection unavailable. Previous results are no longer current.';throw error;}
+}
+$('refreshHostLifecycle').onclick=guard(refreshHostLifecycle);
+guard(async()=>{try{await reload();}finally{try{await restoreIvi();}finally{try{await refreshRecovery();}finally{await refreshHostLifecycle();}}}})();

@@ -88,3 +88,8 @@ Shared-registry descriptor uniqueness, declared function capabilities, strict ru
 ## Third batch: ownership persistence and restart reconciliation
 
 Twenty additional iterations implement a single-writer local ownership journal for registered DMMs, fail-closed startup quarantine, explicit provider-qualified restart reconciliation, setup inspection/confirmation, and structured ownership diagnostics. A forced process exit preserves the canonical reservation until a fresh process explicitly reconciles it. Missing or changed startup mappings block physical grants. The test has no vendor I/O and does not establish power-loss or physical recovery acceptance. BD-LIFE-006 moves to PartialSourceUnverified under existing issue #55; no requirement becomes Verified. The preceding in-memory limitations describe earlier increments; current behavior and remaining boundaries are in the setup guide and `BENCH-SETUP-ITERATIONS-2026-10-16-C.md`.
+
+
+## Shutdown and heartbeat batches
+
+Twenty-five shutdown iterations add canonical admission stop, opt-in qualified safe-state preparation, independent finite cleanup decisions, worker limits and retained uncertainty. Twenty heartbeat iterations add process/owner/peer fencing, increasing health sequences, monotonic silence thresholds, explicit expired-owner recovery, client/tab renewal and separate device/read-age telemetry. No heartbeat loss automatically releases or recovers an instrument. Existing IVI bindings and optional-serial/controller rules remain unchanged. Reports D/E document local execution and partial requirement coverage; physical, remote-authentication, hardware-interlock and Windows acceptance remain open.

@@ -145,3 +145,12 @@ public sealed record SetupLease(Guid LeaseId, string ResourceId, string Revision
 /// <param name="RecordId">Non-capability review ID from the host's pending recovery list.</param>
 /// <param name="Confirmed">Operator requests the qualified provider's restart reconciliation procedure.</param>
 public sealed record ReconcileRestartRequest([property: JsonRequired] Guid RecordId, [property: JsonRequired] bool Confirmed);
+
+/// <summary>Capability-authenticated local owner heartbeat; no instrument command or automatic retry.</summary>
+/// <param name="LeaseId">Existing canonical control capability.</param>
+/// <param name="HostEpoch">Expected current host incarnation.</param>
+/// <param name="OwnerGeneration">Exact lease generation from cached health.</param>
+/// <param name="PeerEpoch">Client incarnation fixed after its first accepted heartbeat.</param>
+/// <param name="Sequence">Strictly increasing positive client sequence.</param>
+public sealed record OwnerHeartbeatRequest([property: JsonRequired] Guid LeaseId, [property: JsonRequired] Guid HostEpoch,
+    [property: JsonRequired] long OwnerGeneration, [property: JsonRequired] Guid PeerEpoch, [property: JsonRequired] long Sequence);

@@ -1,3 +1,4 @@
+using BenchDouble.Host.Server.Lifecycle;
 using BenchDouble.Host.Server.Recovery;
 using BenchDouble.Host.Contracts;
 
@@ -28,6 +29,7 @@ public sealed partial class HostResourceRegistry
     {
         lock (_gate)
         {
+            EnsureAccepting();
             var ids = routes.Keys.ToArray();
             if (ids.Distinct(StringComparer.OrdinalIgnoreCase).Count() != ids.Length ||
                 ids.Any(id => _devices.ContainsKey(id) || _managedDescriptors.ContainsKey(id)))
@@ -55,17 +57,23 @@ public sealed partial class HostResourceRegistry
     }
 
     internal T UseManaged<T>(string resourceId, Guid lease, Func<IManagedHostResource, T> operation,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, bool allowExpired = false)
     {
         SemaphoreSlim gate;
         lock (_gate)
+        {
+            EnsureAccepting();
+            if (!allowExpired) EnsureHeartbeatLive(lease);
             gate = _leaseGates.GetValueOrDefault(lease) ?? throw new UnauthorizedAccessException("Lease invalid.");
+        }
         gate.Wait(cancellationToken);
         try
         {
             IManagedHostResource driver;
             lock (_gate)
             {
+                EnsureAccepting();
+            if (!allowExpired) EnsureHeartbeatLive(lease);
                 if (!_byLease.TryGetValue(lease, out var owner) || !string.Equals(owner, resourceId, StringComparison.OrdinalIgnoreCase) ||
                     !_managed.TryGetValue(lease, out driver!)) throw new UnauthorizedAccessException("Lease invalid.");
             }
@@ -98,12 +106,17 @@ public sealed partial class HostResourceRegistry
     internal void ReconcileRestart(string resourceId, Guid recordId, Action recover, CancellationToken ct)
     {
         SemaphoreSlim gate;
-        lock (_gate) gate = _restartGates.GetValueOrDefault(recordId) ?? throw new InvalidOperationException("Startup recovery review is stale.");
+        lock (_gate)
+        {
+            EnsureAccepting();
+            gate = _restartGates.GetValueOrDefault(recordId) ?? throw new InvalidOperationException("Startup recovery review is stale.");
+        }
         gate.Wait(ct);
         try
         {
             lock (_gate)
             {
+                EnsureAccepting();
                 if (!_startupQuarantine.Contains(resourceId) || !_ownership.TryGetValue(resourceId, out var record) || record.RecordId != recordId)
                     throw new InvalidOperationException("Startup recovery review is stale.");
                 if (!_routeDigests.TryGetValue(resourceId, out var digest) || digest != record.RoutesDigest)
@@ -135,26 +148,39 @@ public sealed partial class HostResourceRegistry
 
     internal bool PersistencePending(string resourceId) { lock (_gate) return _cleanupPending.Contains(resourceId); }
 
-    private bool RecoveryRequired(string resourceId) => _startupQuarantine.Contains(resourceId) || _cleanupPending.Contains(resourceId) || _reservations.TryGetValue(resourceId, out var lease) &&
+    private bool RecoveryRequired(string resourceId) =>
+        _draining && _shutdownReport is not null && _reservations.ContainsKey(resourceId) &&
+            _shutdownReport.Items.Any(i => i.ResourceId.Equals(resourceId, StringComparison.OrdinalIgnoreCase) && i.Outcome != "Closed") ||
+        _reservations.TryGetValue(resourceId, out var heartbeatLease) && HeartbeatExpired(heartbeatLease) ||
+        _startupQuarantine.Contains(resourceId) || _cleanupPending.Contains(resourceId) || _reservations.TryGetValue(resourceId, out var lease) &&
         _managed.TryGetValue(lease, out var driver) && driver.RequiresRecovery;
 
-    private bool ReleaseManagedOrPlain(Guid lease)
+    private bool ReleaseManagedOrPlain(Guid lease, bool shutdown = false, CancellationToken cancellationToken = default, bool recovered = false)
     {
         SemaphoreSlim? gate;
-        lock (_gate) gate = _leaseGates.GetValueOrDefault(lease);
+        lock (_gate)
+        {
+            if (!shutdown) { EnsureAccepting(); if (!recovered) EnsureHeartbeatLive(lease); }
+            gate = _leaseGates.GetValueOrDefault(lease);
+        }
         if (gate is null) return false;
-        gate.Wait();
+        gate.Wait(cancellationToken);
         try
         {
             string resource;
             IManagedHostResource? driver;
             lock (_gate)
             {
+                if (!shutdown) { EnsureAccepting(); if (!recovered) EnsureHeartbeatLive(lease); }
                 if (!_byLease.TryGetValue(lease, out resource!)) return false;
                 driver = _managed.GetValueOrDefault(lease);
             }
+            cancellationToken.ThrowIfCancellationRequested();
+            if (shutdown && driver is not null && (driver is not IManagedShutdownResource qualified || !qualified.SupportsShutdown))
+                throw new NotSupportedException("No qualified shutdown procedure; ownership retained.");
             try
             {
+                if (shutdown && driver is IManagedShutdownResource prepared) prepared.PrepareForShutdown();
                 driver?.Dispose();
                 OwnershipRecord? record;
                 lock (_gate) record = _ownership.GetValueOrDefault(resource);
@@ -176,6 +202,7 @@ public sealed partial class HostResourceRegistry
                 _managed.Remove(lease);
                 _leaseGates.Remove(lease);
                 _byLease.Remove(lease);
+                _ownerHealth.Remove(lease);
                 _reservations.Remove(resource);
                 Record(resource, "Released", "Local demonstration lease released after driver cleanup");
             }

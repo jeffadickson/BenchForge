@@ -15,6 +15,19 @@ const root=path.resolve(__dirname,'..');
  const wait=async(predicate)=>{for(let i=0;i<100;i++){if(await predicate())return;await new Promise(resolve=>setTimeout(resolve,100));}throw Error('Condition timed out. '+log);};
  try{
   await wait(async()=>{try{return(await fetch(base+'/health')).ok;}catch{return false;}});
+  const lifecycle=await (await request('/api/v1/setup/host-lifecycle')).json();
+  assert.deepEqual(lifecycle,{acceptingWork:true,pendingCleanup:0,shutdown:null});
+  const hbLease=await(await request('/api/v1/reservations',{resourceId:'DMM1'})).json();
+  const hbState=await(await request('/api/v1/setup/ivi/DMM1/owner-health',{leaseId:hbLease.leaseId})).json();
+  assert.equal(hbState.state,'Healthy');assert.equal(hbState.lossPolicy,'FenceAndRetain');
+  const hbRequest={leaseId:hbLease.leaseId,hostEpoch:hbState.hostEpoch,ownerGeneration:hbState.ownerGeneration,peerEpoch:'11111111-1111-1111-1111-111111111111',sequence:1};
+  assert.equal((await request('/api/v1/setup/ivi/DMM1/heartbeat',{})).status,400);
+  assert.equal((await request('/api/v1/setup/ivi/DMM1/heartbeat',hbRequest,{Origin:'https://untrusted.invalid'})).status,403);
+  assert.equal((await request('/api/v1/setup/ivi/DMM1/heartbeat',hbRequest)).status,200);
+  assert.equal((await request('/api/v1/setup/ivi/DMM1/heartbeat',hbRequest)).status,409);
+  assert.equal((await request('/api/v1/setup/ivi/DMM1/heartbeat',{...hbRequest,sequence:2,hostEpoch:'22222222-2222-2222-2222-222222222222'})).status,403);
+  assert.equal((await fetch(base+'/api/v1/reservations/'+hbLease.leaseId,{method:'DELETE'})).status,204);
+  assert.equal((await request('/api/v1/setup/host-lifecycle',undefined,{Origin:'https://untrusted.invalid'})).status,403);
   assert.equal(JSON.parse(fs.readFileSync(path.join(temporary,'config.json.ownership','ownership.json'),'utf8')).version,1);
   window=new Window({url:base+'/setup/',settings:{disableCSSFileLoading:true,disableJavaScriptFileLoading:true}});
   window.AbortController=global.AbortController;
@@ -23,6 +36,7 @@ const root=path.resolve(__dirname,'..');
   window.eval(await(await fetch(base+'/setup/setup.js')).text());
   const $=id=>window.document.getElementById(id);
   await wait(()=>$('status').textContent.includes('No saved configuration'));
+  await $('refreshHostLifecycle').onclick();assert.match($('hostLifecycle').textContent,/Host accepts instrument work/);
   await $('discover').onclick();
   assert.match($('discoveryLabel').textContent,/3 endpoints/,$('status').textContent);
   const add=()=>[...$('inventory').querySelectorAll('button')];
@@ -144,6 +158,20 @@ const root=path.resolve(__dirname,'..');
   await $('closeIvi').onclick();assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
   $('iviLeaseDetails').value='{"leaseId":"invalid"}';$('resumeConfirmed').checked=true;await $('resumeIvi').onclick();
   assert.match($('status').textContent,/must contain/);assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);
+  const beforeOwnerHeartbeatFetch=window.fetch;let ownerHeartbeatCalls=0,wrongOwnerAck=false;
+  const ownerHealth={hostEpoch:'33333333-3333-3333-3333-333333333333',ownerGeneration:1,peerEpoch:'00000000-0000-0000-0000-000000000000',sequence:0,state:'Healthy',intervalMilliseconds:60000,expireMilliseconds:120000,lossPolicy:'FenceAndRetain'};
+  window.fetch=async(url,options)=>{
+   if(String(url).endsWith('/status'))return {ok:true,json:async()=>({resourceId:'METER',revision:'preview',state:ownerHealth.state==='Expired'?'OwnerExpired':'Ready',function:0,heartbeat:ownerHealth})};
+   if(String(url).endsWith('/heartbeat')){ownerHeartbeatCalls++;const body=JSON.parse(options.body);return {ok:true,json:async()=>({...ownerHealth,...body,hostEpoch:wrongOwnerAck?'wrong':body.hostEpoch,state:'Healthy'})};}
+   return beforeOwnerHeartbeatFetch(url,options);
+  };
+  $('iviLeaseDetails').value=retained;$('resumeConfirmed').checked=true;await $('resumeIvi').onclick();
+  await wait(()=>$('ownerHeartbeat').textContent.includes('acknowledged'));assert.equal(ownerHeartbeatCalls,1);
+  wrongOwnerAck=true;await $('renewOwnerHeartbeat').onclick();assert.match($('ownerHeartbeat').textContent,/heartbeat lost/);
+  await $('renewOwnerHeartbeat').onclick();assert.equal(ownerHeartbeatCalls,2);
+  await $('measureIvi').onclick();assert.match($('status').textContent,/heartbeat lost/);
+  ownerHealth.state='Expired';await $('refreshIvi').onclick();$('recoverConfirmed').checked=true;await $('recoverIvi').onclick();
+  assert.equal(window.sessionStorage.getItem('benchforge.ivi.lease.v1'),null);assert.equal(activationRequests,activationCount);
   window.fetch=lifecycleFetch;
   let pendingRestart=true,restartFails=true,restartCalls=0,inspectionFails=false;const beforeRestartFetch=window.fetch;
   window.fetch=async(url,options)=>{
@@ -160,6 +188,29 @@ const root=path.resolve(__dirname,'..');
   $('restartConfirmed').checked=true;await $('reconcileRestart').onclick();assert.equal(restartCalls,1);assert.equal($('restartConfirmed').checked,false);assert.match($('restartRecords').textContent,/METER/);
   restartFails=false;$('restartConfirmed').checked=true;await $('reconcileRestart').onclick();assert.equal(restartCalls,2);assert.match($('restartRecords').textContent,/No unresolved/);
   window.fetch=beforeRestartFetch;
+  const hostLifecycleFetch=window.fetch;let lifecycleFailure=false;
+  window.fetch=async(url,options)=>{
+   if(String(url).endsWith('/host-lifecycle'))return lifecycleFailure
+    ? {ok:false,status:503,json:async()=>({error:'Unavailable'})}
+    : {ok:true,json:async()=>({acceptingWork:false,pendingCleanup:1,shutdown:{items:[{resourceId:'<img src=x onerror=alert(1)>',outcome:'DeadlineExceeded'}]}})};
+   return hostLifecycleFetch(url,options);
+  };
+  await $('refreshHostLifecycle').onclick();assert.match($('hostLifecycle').textContent,/Host is stopping/);
+  assert.match($('hostLifecycle').textContent,/DeadlineExceeded/);assert.match($('hostLifecycle').textContent,/Pending cleanup workers: 1/);
+  assert.equal($('hostLifecycle').querySelectorAll('img').length,0);
+  lifecycleFailure=true;await $('refreshHostLifecycle').onclick();assert.match($('hostLifecycle').textContent,/inspection unavailable/);
+  assert.doesNotMatch($('hostLifecycle').textContent,/DeadlineExceeded/);
+  window.fetch=hostLifecycleFetch;
+  let finishOlder;let lifecycleReads=0;
+  window.fetch=async(url,options)=>{
+   if(String(url).endsWith('/host-lifecycle')){lifecycleReads++;if(lifecycleReads===1)return new Promise(resolve=>finishOlder=resolve);
+    return {ok:true,json:async()=>({acceptingWork:false,pendingCleanup:2,shutdown:null})};}
+   return hostLifecycleFetch(url,options);
+  };
+  const oldLifecycle=$('refreshHostLifecycle').onclick();await $('refreshHostLifecycle').onclick();
+  finishOlder({ok:true,json:async()=>({acceptingWork:true,pendingCleanup:0,shutdown:null})});await oldLifecycle;
+  assert.match($('hostLifecycle').textContent,/Host is stopping/);assert.match($('hostLifecycle').textContent,/workers: 2/);
+  window.fetch=hostLifecycleFetch;
   assert.ok(!log.includes('PRIVATE-DRIVER-OPTION'));assert.match(log,/Setup saved/);
   console.log('PASS: DOM/HTTP workflow: discover, two adapters, optional serials, association, role, validation, save, contention, edit cancellation, safe rendering, strict import, stale save, origin rejection, native diagnostics, offline draft/reload, IVI upload bounds/platform diagnostics, reviewed bindings, retained-session reload/status, command serialization, stale capabilities, declared functions, measurement units/provenance, manual lease resumption and payload-free logging.');
  }finally{
