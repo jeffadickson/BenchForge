@@ -23,6 +23,8 @@ public sealed class ScopeLeaseHeartbeatTests
     [Theory]
     [InlineData(HttpStatusCode.NoContent, ScopeHeartbeatStatus.Healthy)]
     [InlineData(HttpStatusCode.Forbidden, ScopeHeartbeatStatus.Lost)]
+    [InlineData(HttpStatusCode.Unauthorized, ScopeHeartbeatStatus.Lost)]
+    [InlineData(HttpStatusCode.Conflict, ScopeHeartbeatStatus.Lost)]
     [InlineData(HttpStatusCode.InternalServerError, ScopeHeartbeatStatus.Degraded)]
     public async Task RenewalReportsHostStatus(HttpStatusCode response, ScopeHeartbeatStatus expected)
     {

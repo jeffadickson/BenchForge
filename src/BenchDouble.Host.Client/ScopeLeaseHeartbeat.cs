@@ -62,7 +62,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                         $"api/v1/scopes/{Uri.EscapeDataString(_resourceId)}/reserve/{_leaseId:D}/renew");
                     using var response = await _client.SendAsync(request, token).ConfigureAwait(false);
                     status = response.IsSuccessStatusCode ? ScopeHeartbeatStatus.Healthy :
-                        response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound
+                        response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict
                             ? ScopeHeartbeatStatus.Lost : ScopeHeartbeatStatus.Degraded;
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }

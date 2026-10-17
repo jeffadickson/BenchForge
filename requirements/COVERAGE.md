@@ -69,3 +69,5 @@ Local iteration 01 (2026-10-17), BD-CFG-006: Enable local .NET tests and release
 Local iteration 02 (2026-10-17), BD-HB-002: Validate scope heartbeat routes and periods. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 03 (2026-10-17), BD-HB-002: Make scope heartbeat start and stop race safe. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 04 (2026-10-17), BD-HB-003: Stop scope renewal on terminal host rejections. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
