@@ -1099,7 +1099,8 @@ STATEMENT: Clients and authoritative instrument hosts shall exchange authenticat
 UID: BD-HB-002
 STATUS: Active
 TITLE: Real-time deadlines P0
-STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validated finite interval, timeout and expiry settings independent of simulated time. Acceptance: Advance simulation or change wall clock; real lease expiration is unchanged; reject invalid budgets. Validate interval, suspect and expiry relationships at startup; absent host settings use finite defaults. Acceptance: Duplicate or out-of-order heartbeat messages do not extend last-seen time; wall-clock changes do not affect age or expiry, and exact expiry boundaries fence ownership.
+STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validated finite interval, timeout and expiry settings independent of simulated time. Acceptance: Advance simulation or change wall clock; real lease expiration is unchanged; reject invalid budgets. Validate interval, suspect and expiry relationships at startup; absent host settings use finite defaults. Acceptance: Duplicate or out-of-order heartbeat messages do not extend last-seen time; wall-clock changes do not affect age or expiry, and exact expiry boundaries fence ownership. Acceptance: Reject scope renewal identifiers containing separators or control characters and periods above one minute before starting renewal.
+
 
 [REQUIREMENT]
 UID: BD-HB-003

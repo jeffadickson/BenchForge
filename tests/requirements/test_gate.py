@@ -12,11 +12,28 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class RequirementGateTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Copy immutable source evidence once; each case restores mutable tracker files."""
+        cls.temp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.temp.name) / 'repo'
+        try:
+            shutil.copytree(ROOT, cls.root, ignore=shutil.ignore_patterns('.git', '.tools', '__pycache__', 'bin', 'obj', 'build', '.verification'))
+            cls.tracker_files = {path: path.read_bytes() for path in (cls.root / 'requirements').iterdir() if path.is_file()}
+        except BaseException:
+            cls.temp.cleanup()
+            raise
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the shared evidence fixture after all sequential unittest cases finish."""
+        cls.temp.cleanup()
+
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name) / 'repo'
-        shutil.copytree(ROOT, self.root, ignore=shutil.ignore_patterns('.git', '.tools', '__pycache__', 'bin', 'obj', 'build', '.verification'))
+        # Fault cases only mutate tracker metadata. Restore it before every case so
+        # missing/duplicate/status changes cannot leak into the next test.
+        for path, content in self.tracker_files.items():
+            path.write_bytes(content)
         spec = importlib.util.spec_from_file_location('gate', self.root / 'scripts/check_requirements.py')
         self.gate = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.gate)

@@ -24,16 +24,16 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     /// <param name="client">Caller-owned HTTP transport used for renewal requests.</param>
     /// <param name="resourceId">Host resource identifier without path separators.</param>
     /// <param name="leaseId">Nonempty exclusive lease identifier.</param>
-    /// <param name="period">Positive renewal interval; defaults to 20 seconds.</param>
+    /// <param name="period">Renewal interval greater than zero and at most one minute; defaults to 20 seconds.</param>
     public ScopeLeaseHeartbeat(HttpClient client, string resourceId, Guid leaseId, TimeSpan? period = null)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
-        if (string.IsNullOrWhiteSpace(resourceId) || resourceId.Contains('/')) throw new ArgumentException("Invalid resource.", nameof(resourceId));
+        if (string.IsNullOrWhiteSpace(resourceId) || resourceId.Length > 80 || resourceId.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not ('_' or '-' or '.'))) throw new ArgumentException("Invalid resource.", nameof(resourceId));
         if (leaseId == Guid.Empty) throw new ArgumentException("Lease ID is required.", nameof(leaseId));
         _resourceId = resourceId;
         _leaseId = leaseId;
         _period = period ?? TimeSpan.FromSeconds(20);
-        if (_period <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(period));
+        if (_period <= TimeSpan.Zero || _period > TimeSpan.FromMinutes(1)) throw new ArgumentOutOfRangeException(nameof(period));
     }
 
     /// <summary>Begin renewal loop once; callers should stop using the instrument after status Lost.</summary>
