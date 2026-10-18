@@ -240,4 +240,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var a=r.Reserve("DMM1")!;var d=r.Reserve("FGEN1")!;var s=r.InspectOwnerHeartbeat("DMM1",a.LeaseId)!;c.At(25);_=r.RenewOwnerHeartbeat("DMM1",a.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),1);c.At(40);Assert.Equal("Healthy",r.InspectOwnerHeartbeat("DMM1",a.LeaseId)!.State);Assert.Equal("Expired",r.InspectOwnerHeartbeat("FGEN1",d.LeaseId)!.State);
     }
+
+    /// <summary>Clock failure before a grant leaves the resource available.</summary>
+    [Fact] public void ClockGrantFailure()
+    {
+        var c=new Clock();var r=Registry(c);c.Fail=true;Assert.Throws<IOException>(()=>r.Reserve("DMM1"));c.Fail=false;Assert.NotNull(r.Reserve("DMM1"));
+    }
 }
