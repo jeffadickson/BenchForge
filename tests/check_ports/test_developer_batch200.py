@@ -76,3 +76,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_browser_excluded(self):
         """Keep browser projects outside ordinary tests."""
         self.project('tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj');self.assertEqual(4,len(self.plan('test')))
+
+    def test_browser_casing(self):
+        """Keep differently cased browser projects outside ordinary tests."""
+        self.project('tests/browser/benchdouble.browser.tests.csproj');self.assertEqual(4,len(self.plan('test')))

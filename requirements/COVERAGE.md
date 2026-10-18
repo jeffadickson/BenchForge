@@ -294,4 +294,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Keep browser projects outside ordinary tests. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Keep differently cased browser projects outside ordinary tests. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
