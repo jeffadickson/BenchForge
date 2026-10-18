@@ -37,4 +37,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>new SimulationReplay(Enumerable.Repeat(S(),4097)));
     }
+
+    /// <summary>Infinite transcript enumeration stops at the bounded rejection point.</summary>
+    [Fact] public void BoundedEnumeration()
+    {
+        var reads=0;IEnumerable<SimulationReplaySample> Endless(){while(true){++reads;yield return S();}}Assert.Throws<ArgumentException>(()=>new SimulationReplay(Endless()));Assert.Equal(4097,reads);
+    }
 }
