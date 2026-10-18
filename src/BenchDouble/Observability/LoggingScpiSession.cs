@@ -65,11 +65,11 @@ public sealed class LoggingScpiSession : IScpiSession
         }
         catch (Exception exception)
         {
-            TryLog(() => _logger.LogError(exception,
-                "Instrument {Instrument} {Operation} failed; ElapsedMs={ElapsedMs}; Command={Command}",
+            TryLog(() => _logger.LogError(
+                "Instrument {Instrument} {Operation} failed; ElapsedMs={ElapsedMs}; Command={Command}; ErrorType={ErrorType}",
                 _options.InstrumentName, operation,
                 Stopwatch.GetElapsedTime(started).TotalMilliseconds,
-                Display(command, _options.LogCommandPayload)));
+                Display(command, _options.LogCommandPayload), exception.GetType().Name));
             throw;
         }
     }

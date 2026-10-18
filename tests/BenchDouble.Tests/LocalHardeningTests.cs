@@ -58,5 +58,17 @@ public sealed class LocalHardeningTests
         }
     }
 
+    /// <summary>Provider exception messages remain with the caller and are excluded from diagnostic sinks.</summary>
+    [Fact]
+    public void InstrumentErrorsDoNotLeakPayloads()
+    {
+        var inner = new Session { Failure = new InvalidOperationException("secret") }; var sink = new Sink();
+        var session = new LoggingScpiSession(inner, sink, new("meter"));
+        Assert.Same(inner.Failure, Assert.Throws<InvalidOperationException>(() => session.Query("secret")));
+        Assert.All(sink.Messages, message => Assert.DoesNotContain("secret", message));
+        Assert.All(sink.Exceptions, Assert.Null);
+        Assert.Contains(sink.Messages, message => message.Contains("InvalidOperationException"));
+    }
+
 // CASES
 }
