@@ -184,3 +184,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_arguments_report(self):
         """Record exact generator arguments."""
         self.invoke('--command','generate');self.assertEqual('--preview-v2',self.report()['stages'][2]['Arguments'][6])
+
+    def test_timeout(self):
+        """Terminate timed-out children before dependent work."""
+        (self.root/'sleep').touch();host=['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',sys.executable,'--command','build','--timeout-seconds','1'];r=subprocess.run(host,capture_output=True,text=True,timeout=30);self.assertEqual(124,r.returncode,r.stderr);self.assertEqual(1,len(self.events()));self.assertEqual(124,self.report()['stages'][0]['ExitCode'])
