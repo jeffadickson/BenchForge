@@ -102,4 +102,10 @@ public sealed class LatencyBTests
     {
         var a=new[]{Stage(100,0)};var p=Profile(a);a[0]=Stage(200,0);Assert.Equal(100,p.Sample(0).Total.Ticks);
     }
+
+    /// <summary>Profile phase collections reject caller mutation.</summary>
+    [Fact] public void ReadOnlyProfile()
+    {
+        var p=Profile(Stage());Assert.Throws<NotSupportedException>(()=>((IList<SimulationLatencyStage>)p.Stages).Clear());
+    }
 }
