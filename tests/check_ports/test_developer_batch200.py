@@ -180,3 +180,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_executable_report(self):
         """Record selected executable identities."""
         self.invoke('--command','generate');self.assertTrue(all(s['Executable']==sys.executable for s in self.report()['stages']))
+
+    def test_arguments_report(self):
+        """Record exact generator arguments."""
+        self.invoke('--command','generate');self.assertEqual('--preview-v2',self.report()['stages'][2]['Arguments'][6])
