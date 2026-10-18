@@ -56,3 +56,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_nested_projects(self):
         """Discover nested application projects."""
         self.project('src/group/Nested/Nested.csproj');self.assertTrue(any('src/group/Nested/Nested.csproj' in s['Arguments'] for s in self.plan()))
+
+    def test_bin_pruned(self):
+        """Exclude projects under binary artifact trees."""
+        self.project('src/App/bin/Hidden.csproj');self.assertFalse(any('Hidden.csproj' in a for s in self.plan() for a in s['Arguments']))
