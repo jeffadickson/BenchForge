@@ -36,4 +36,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentNullException>(()=>Profile(null!));
     }
+
+    /// <summary>Unknown phase identifiers are rejected.</summary>
+    [Fact] public void UnknownPhase()
+    {
+        Assert.Throws<ArgumentException>(()=>Profile(Stage(10,0,(SimulationLatencyPhase)99)));
+    }
 }
