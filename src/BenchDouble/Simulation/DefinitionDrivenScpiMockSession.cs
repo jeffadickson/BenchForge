@@ -164,6 +164,24 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         finally { _gate.Release(); }
     }
 
+    /// <summary>Reset simulated scalar values and history; makes no physical safety claim.</summary>
+    /// <param name="cancellationToken">Cancellation before the atomic mutation.</param>
+    /// <returns>Completion after every declared channel has its default value.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation was observed before mutation.</exception>
+    public async ValueTask ResetAsync(CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            foreach (var parameter in _parameters)
+                for (var channel = 1; channel <= _channelCount; ++channel)
+                    _values[(parameter.Spec.Name, channel)] = parameter.Spec.DefaultValue;
+            Transcript.Clear();
+        }
+        finally { _gate.Release(); }
+    }
+
     private int ReadChannel(Match match)
     {
         var group = match.Groups["channel"];
