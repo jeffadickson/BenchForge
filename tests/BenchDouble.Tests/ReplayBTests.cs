@@ -163,4 +163,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<ArgumentException>(()=>r.ReadNext(" ","voltage",T(0)));Assert.Throws<ArgumentException>(()=>r.ReadNext("v","x\n",T(0)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Observed cancellation preserves the next replay sample.</summary>
+    [Fact] public void CancelledRead()
+    {
+        var r=R(S());using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>r.ReadNext("v","voltage",T(0),c.Token));Assert.Equal(0,r.Status().Position);
+    }
 }
