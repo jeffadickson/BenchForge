@@ -198,4 +198,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile().Sample(0).DurationOf((SimulationLatencyPhase)(-1)));
     }
+
+    /// <summary>Negative logical starts are rejected.</summary>
+    [Fact] public void NegativeStart()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage()).Sample(0).ReadyAt(TimeSpan.FromTicks(-1)));
+    }
 }
