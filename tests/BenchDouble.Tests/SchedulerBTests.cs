@@ -59,4 +59,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentOutOfRangeException>(()=>s.Schedule(T(-1),"a"));
     }
+
+    /// <summary>Zero-delay events are due immediately.</summary>
+    [Fact] public void Immediate()
+    {
+        var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");Assert.Equal(e,Assert.Single(s.DrainDue()));
+    }
 }
