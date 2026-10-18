@@ -23,7 +23,7 @@ function render(){
  if(i.connections.length>1){const label=node('label',undefined,item);label.className='inline';const check=node('input',undefined,label);check.type='checkbox';check.checked=i.associationConfirmed;node('span','I confirm these connections belong to the same physical instrument',label);check.onchange=()=>{i.associationConfirmed=check.checked;changed();};}
  const details=node('details',undefined,item);node('summary','Optional expected identity checks',details);const fields=node('div',undefined,details);fields.className='row';for(const field of ['manufacturer','model','serial'])input(field,i.expectedIdentity?.[field],value=>{i.expectedIdentity??={};i.expectedIdentity[field]=value||null;},fields);
  }
- $('roles').replaceChildren();for(const role of config.roles){const row=node('div',undefined,$('roles'));row.className='route';node('span',role.role+' → '+role.instrumentId,row);button('Remove',()=>{config.roles=config.roles.filter(x=>x!==role);changed();render();},row);}
+ $('roles').replaceChildren();for(const role of config.roles){const row=node('div',undefined,$('roles'));row.className='route';node('span',role.role+' → '+role.instrumentId,row);renderRoleFreshness(role,row);button('Remove',()=>{config.roles=config.roles.filter(x=>x!==role);changed();render();},row);}
  $('roleInstrument').replaceChildren();for(const i of config.instruments){const option=node('option',i.name+' ('+i.id+')',$('roleInstrument'));option.value=i.id;}
  $('json').value=JSON.stringify(config,null,2);
 }
@@ -100,8 +100,7 @@ async function refreshIvi(){
  iviVerified=false;
  const lease=activeIvi.lease;
  try{
-  const freshness=Number($('readingFreshness').value);
-  if(!Number.isFinite(freshness)||freshness<1||freshness>86400000)throw Error('Choose a reading freshness limit from 1 to 86400000 milliseconds.');
+  const freshness=$('useSavedReadingFreshness').checked?null:parseReadingFreshness($('readingFreshness').value,false);
   const snapshot=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/status',{leaseId:lease.leaseId,readingFreshnessMilliseconds:freshness});
   if(activeIvi?.lease!==lease)return;
   if(snapshot.resourceId?.toLowerCase()!==lease.resourceId.toLowerCase()||snapshot.revision!==lease.revision)throw Error('Session metadata changed; retain the token and investigate the host.');
@@ -122,9 +121,25 @@ function renderReadingHealth(snapshot){
  const age=typeof health?.ageMilliseconds==='number'?health.ageMilliseconds.toFixed(0)+' ms':'No successful reading';
  const owner=snapshot.heartbeat?.state||'Not enabled';
  $('readingHealth').textContent='Owner contact: '+owner+'\nDevice: '+snapshot.state+'\nCached reading: '+(health?.state||'Unspecified')+' · '+age+
-  '\nFreshness limit: '+(health?.maximumAgeMilliseconds??'Unspecified')+' ms\nLast device success: '+(snapshot.lastDeviceSuccessUtc||'None')+
+  '\nApplied freshness limit: '+(health?.maximumAgeMilliseconds??'Unspecified')+' ms\nSaved role limit at activation: '+(snapshot.readingFreshnessMilliseconds??'Unspecified')+' ms\nLast device success: '+(snapshot.lastDeviceSuccessUtc||'None')+
   '\nLast reading receipt: '+(snapshot.lastReadingUtc||'None')+'\nSnapshot at refresh; contact and freshness do not certify physical safety.';
  $('readingHealth').className=health?.state==='Stale'||health?.state==='Missing'||snapshot.state!=='Ready'?'notice error':'notice';
+}
+function parseReadingFreshness(text,allowBlank){
+ if(typeof text!=='string')throw Error('Freshness limit must be numeric text.');
+ if(text.trim()===''&&allowBlank)return null;
+ const value=Number(text);
+ if(text.trim()===''||!Number.isFinite(value)||value<1||value>86400000)throw Error('Choose a reading freshness limit from 1 to 86400000 milliseconds, or leave a saved limit blank.');
+ return value;
+}
+function renderRoleFreshness(role,parent){
+ const label=node('label','Saved reading freshness limit (ms; blank means unspecified)',parent);
+ const field=node('input',undefined,label);field.type='number';field.min='1';field.max='86400000';field.step='any';field.value=role.readingFreshnessMilliseconds??'';
+ field.onchange=guard(()=>{
+  const previous=role.readingFreshnessMilliseconds;
+  try{role.readingFreshnessMilliseconds=parseReadingFreshness(field.value,true);changed();}
+  catch(error){field.value=previous??'';throw error;}
+ });
 }
 function parseIviLease(raw){
  const lease=JSON.parse(raw);
@@ -143,6 +158,7 @@ async function restoreIvi(){
  }finally{iviRestoring=false;}
 }
 $('refreshIvi').onclick=guard(refreshIvi);
+$('useSavedReadingFreshness').onchange=()=>{$('readingFreshness').disabled=$('useSavedReadingFreshness').checked;$('readingHealth').textContent='Freshness selection changed. Refresh session status to assess cached data with this selection.';};
 let iviPending=false;
 function iviAction(action){return guard(async()=>{
  if(iviPending)throw Error('Wait for the pending IVI operation; it will not be replayed.');

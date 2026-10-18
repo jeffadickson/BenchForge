@@ -215,3 +215,5 @@ Checkpoint 350: 470 focused application tests, 19 checker regressions, compiled 
 New batch 2026-10-18, checkpoint 25 source: runner diagnostic isolation, cancellation/cleanup guards and detached in-memory samples. Runtime execution scheduled at iteration 50. Counts unchanged: 228 requirements, 0 Verified.
 
 New batch 2026-10-18 checkpoint 50: 55 related application tests, 19 checker regressions, compiled checks and exact report parity passed. Counts unchanged: 228 requirements, 0 Verified.
+
+New batch checkpoint 75 source: saved role freshness policy, immutable activation policy and setup controls implemented. Runtime verification pending checkpoint 100. Fleet/dashboard acceptance remains open. Counts unchanged: 228 requirements, 0 Verified.

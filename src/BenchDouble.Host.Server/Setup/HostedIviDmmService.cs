@@ -63,6 +63,8 @@ public sealed record IviDmmSessionStatus(string ResourceId, string Revision, str
     internal long? ReadingTimestamp { get; init; }
     /// <summary>Per-observer cached-data freshness; no readiness, ownership or safety guarantee.</summary>
     public CachedReadingHealth? ReadingHealth { get; init; }
+    /// <summary>Saved role freshness budget pinned at activation; independent observer overrides do not change it.</summary>
+    public double? ReadingFreshnessMilliseconds { get; init; }
 }
 
 /// <summary>Operator-facing startup recovery evidence with registration readiness; contains no lease capability.</summary>
@@ -144,7 +146,8 @@ public sealed class HostedIviDmmService
             _setup.CheckActivationController(saved.Configuration, route);
         }
         catch (InvalidOperationException ex) { throw Reject("route_unconfirmed", ex.Message); }
-        var runtime = new Runtime(registration, Copy(binding), saved.Revision, checkIdentity ? identity : null, _logger, _registry.Clock);
+        ReadingFreshness.Validate(assignment.ReadingFreshnessMilliseconds);
+        var runtime = new Runtime(registration, Copy(binding), saved.Revision, checkIdentity ? identity : null, _logger, _registry.Clock, assignment.ReadingFreshnessMilliseconds);
         var grant = _registry.ReserveManaged(instrument.Id, runtime, saved.Revision);
         if (grant is null) { _logger.LogInformation(new EventId(7450, "IviActivationBusy"), "IVI activation refused: resource {ResourceId} busy", registration.ResourceId); return null; }
         var pinned = new SetupLease(grant.LeaseId, instrument.Id, saved.Revision, route);
@@ -170,7 +173,7 @@ public sealed class HostedIviDmmService
     /// <summary>Inspect cached state without waiting for or dispatching synchronous vendor I/O.</summary>
     /// <param name="resourceId">Canonical instrument.</param>
     /// <param name="leaseId">Existing activation capability; stale or mismatched leases are rejected.</param>
-    /// <param name="readingFreshnessMilliseconds">Optional caller-specific freshness budget from one millisecond through one day.</param>
+    /// <param name="readingFreshnessMilliseconds">Optional observer override from one millisecond through one day; null uses the role budget pinned at activation.</param>
     /// <returns>Immutable state snapshot pinned to the original activation revision.</returns>
     /// <exception cref="UnauthorizedAccessException">The lease does not own this managed resource.</exception>
     public IviDmmSessionStatus Status(string resourceId, Guid leaseId, double? readingFreshnessMilliseconds = null)
@@ -180,7 +183,7 @@ public sealed class HostedIviDmmService
         var heartbeat = _registry.InspectOwnerHeartbeat(resourceId, leaseId);
         return status with { Heartbeat = heartbeat, State = _registry.PersistencePending(resourceId) ? "JournalUpdateRequired" : heartbeat?.State == "Expired" ? "OwnerExpired" : status.State,
             DiagnosticWriteFailures = LoggingFailureCount + _registry.LoggingFailureCount,
-            ReadingHealth = ReadingFreshness.Assess(status.ReadingAgeMilliseconds, readingFreshnessMilliseconds) };
+            ReadingHealth = ReadingFreshness.Assess(status.ReadingAgeMilliseconds, readingFreshnessMilliseconds ?? status.ReadingFreshnessMilliseconds) };
     }
 
     /// <summary>Configure a typed DMM operation under its existing lease.</summary>
@@ -284,14 +287,14 @@ public sealed class HostedIviDmmService
     private static T Copy<T>(T value) => JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value))!;
 
     private sealed class Runtime(IviDmmRegistration registration, SetupDriverBinding binding, string revision, SetupIdentity? expectedIdentity,
-        ILogger logger, TimeProvider clock) : IManagedShutdownResource
+        ILogger logger, TimeProvider clock, double? readingFreshnessMilliseconds) : IManagedShutdownResource
     {
         private readonly Guid _sessionId = Guid.NewGuid();
         private OwnedIviDmm? _driver;
         private volatile bool _faulted;
         private bool _closed;
         private long _sequence;
-        private volatile IviDmmSessionStatus _status = new(registration.ResourceId, revision, "Opening", null);
+        private volatile IviDmmSessionStatus _status = new(registration.ResourceId, revision, "Opening", null) { ReadingFreshnessMilliseconds=readingFreshnessMilliseconds };
         public IviDmmSessionStatus Status
         {
             get

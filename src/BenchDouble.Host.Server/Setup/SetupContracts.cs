@@ -74,7 +74,7 @@ public sealed record IviLeaseRequest([property: JsonRequired] Guid LeaseId, bool
 /// <summary>Cached session inspection with a per-experiment reading freshness budget.</summary>
 /// <param name="LeaseId">Existing canonical activation capability.</param>
 /// <param name="Confirmed">Legacy inspection field retained for request compatibility; does not authorize I/O.</param>
-/// <param name="ReadingFreshnessMilliseconds">Optional finite freshness limit from one millisecond through one day.</param>
+/// <param name="ReadingFreshnessMilliseconds">Optional observer override from one millisecond through one day; omission uses the saved role policy pinned at activation.</param>
 public sealed record IviStatusRequest([property: JsonRequired] Guid LeaseId, bool Confirmed = false, double? ReadingFreshnessMilliseconds = null);
 
 /// <summary>Typed DMM configuration under a host lease.</summary>
@@ -88,7 +88,14 @@ public sealed record IviDmmConfigureRequest([property: JsonRequired] Guid LeaseI
 /// <summary>Logical experiment role assignment.</summary>
 /// <param name="Role">Unique experiment role.</param>
 /// <param name="InstrumentId">Canonical instrument identity.</param>
-public sealed record SetupRole(string Role, string InstrumentId);
+/// <param name="ReadingFreshnessMilliseconds">Optional saved experiment freshness budget from one millisecond through one day; does not initiate measurements.</param>
+public sealed record SetupRole(string Role, string InstrumentId, double? ReadingFreshnessMilliseconds = null)
+{
+    /// <summary>Preserve the original two-field role deconstruction contract.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="instrumentId">Canonical instrument identity.</param>
+    public void Deconstruct(out string role,out string instrumentId) { role=Role;instrumentId=InstrumentId; }
+}
 
 /// <summary>Optional identity evidence or explicitly enforced expected fields.</summary>
 /// <param name="Manufacturer">Optional manufacturer.</param>

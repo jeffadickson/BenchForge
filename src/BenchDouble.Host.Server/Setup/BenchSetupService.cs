@@ -367,7 +367,11 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
             }
         }
         foreach (var role in configuration.Roles)
+        {
             if (!configuration.Instruments.Any(x => Same(x.Id, role.InstrumentId))) Error(role.Role, "Role refers to an unknown instrument.");
+            try { ReadingFreshness.Validate(role.ReadingFreshnessMilliseconds); }
+            catch(ArgumentOutOfRangeException) { Error(role.Role,"Reading freshness must be between one millisecond and one day, or omitted."); }
+        }
         return errors.ToArray();
     }
 
