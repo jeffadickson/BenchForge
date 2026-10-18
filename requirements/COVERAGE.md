@@ -530,4 +530,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: checkpoint 100 passed (80 targeted tests plus 19 checker regressions). 228 requirements, 0 Verified; 145 source-linked unverified. Full requirement acceptance remains open.
+
+Batch 200B current: Represent opt-in prepared scalar mock measurement timing. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
