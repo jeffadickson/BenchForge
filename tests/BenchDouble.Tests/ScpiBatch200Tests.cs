@@ -56,4 +56,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(unit:new string('v',81))]));
     }
+
+    /// <summary>Accept the unit length boundary.</summary>
+    [Fact] public void MaxUnit()
+    {
+        var s=new DefinitionDrivenScpiMockSession(1,[Parameter(unit:new string('v',80))]); Assert.Equal(80,s.GetReadingsSnapshot()[0].Unit.Length);
+    }
 }
