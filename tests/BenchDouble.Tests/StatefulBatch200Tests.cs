@@ -135,4 +135,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); var revision=e.Snapshot().Revision; Assert.Equal(0,e.ClearAllFaults()); Assert.Equal(revision,e.Snapshot().Revision);
     }
+
+    /// <summary>Bulk fault clear preserves mode and scalar overrides.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task FaultClearPreservesReadings()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",7); e.QueueFault("voltage",new TimeoutException()); e.ClearAllFaults(); Assert.Equal("voltage",e.Snapshot().Mode); Assert.Equal(7,await e.MeasureAsync("voltage"));
+    }
 }
