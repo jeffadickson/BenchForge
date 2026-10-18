@@ -80,5 +80,11 @@ public sealed class SimulationReplay
     /// <returns>Immutable position, length and remaining count.</returns>
     public SimulationReplayStatus Status(){lock(_gate)return new(_position,_samples.Length,_samples.Length-_position);}
 
+    /// <summary>Reset only the local cursor to the beginning of this immutable plan.</summary>
+    /// <param name="ct">Cancellation observed before cursor mutation.</param>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before reset.</exception>
+    public void Reset(CancellationToken ct=default)
+    {ct.ThrowIfCancellationRequested();lock(_gate){ct.ThrowIfCancellationRequested();_position=0;}}
+
     // Replay members.
 }
