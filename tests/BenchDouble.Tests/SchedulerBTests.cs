@@ -149,4 +149,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);Assert.Equal(0,s.Count);Assert.Equal(0,c.Reads);
     }
+
+    /// <summary>Capacity diagnostics follow queue mutation.</summary>
+    [Fact] public void RemainingCapacity()
+    {
+        var s=new SimulationScheduler(new Clock(),2);var a=s.Schedule(T(0),"a");Assert.Equal(1,s.RemainingCapacity);s.Cancel(a.Id);Assert.Equal(2,s.RemainingCapacity);
+    }
 }
