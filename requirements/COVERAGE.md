@@ -350,4 +350,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Sequence diagnostics reveal kind without consuming values. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Replacing a model updates exactly its diagnostic kind. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

@@ -87,4 +87,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetSequence("voltage",[3,4]); Assert.Equal("Sequence",e.Snapshot().BehaviorKinds["voltage"]); Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
     }
+
+    /// <summary>Replacing a model updates exactly its diagnostic kind.</summary>
+    [Fact] public void ModelReplacementKind()
+    {
+        var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetSequence("voltage",[4]); var s=e.Snapshot(); Assert.Single(s.BehaviorKinds); Assert.Equal("Sequence",s.BehaviorKinds["voltage"]);
+    }
 }
