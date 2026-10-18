@@ -84,4 +84,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay,1)));
     }
+
+    /// <summary>Aggregate phase upper bounds remain bounded.</summary>
+    [Fact] public void AggregateOverflow()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay,0),Stage(1,0,SimulationLatencyPhase.Display)));
+    }
 }
