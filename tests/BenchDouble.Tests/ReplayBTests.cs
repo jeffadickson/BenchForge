@@ -31,4 +31,10 @@ public sealed class ReplayBTests
     {
         var r=new SimulationReplay(Enumerable.Repeat(S(),4096));Assert.Equal(4096,r.Status().Length);
     }
+
+    /// <summary>Excess transcript size is rejected.</summary>
+    [Fact] public void ExcessPlan()
+    {
+        Assert.Throws<ArgumentException>(()=>new SimulationReplay(Enumerable.Repeat(S(),4097)));
+    }
 }
