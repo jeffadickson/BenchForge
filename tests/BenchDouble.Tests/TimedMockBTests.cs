@@ -44,4 +44,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await Assert.ThrowsAsync<NotSupportedException>(async()=>await e.PrepareMeasurementAsync("missing",Profile(),0));
     }
+
+    /// <summary>Null latency profiles are rejected before mutation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task NullProfile()
+    {
+        var e=Engine();await Assert.ThrowsAsync<ArgumentNullException>(async()=>await e.PrepareMeasurementAsync("voltage",null!,0));
+    }
 }
