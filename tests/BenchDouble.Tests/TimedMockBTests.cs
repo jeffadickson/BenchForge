@@ -58,4 +58,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),-1));Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Preparation captures mode start and sampled deadline.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task PinnedTiming()
+    {
+        var c=new Clock{Now=TimeSpan.FromTicks(5)};var e=Engine(c);await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),2);Assert.Equal("v",p.Mode);Assert.Equal(5,p.StartedAt.Ticks);Assert.Equal(15,p.ReadyAt.Ticks);Assert.Equal(2,p.Latency.OperationIndex);
+    }
 }
