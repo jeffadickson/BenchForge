@@ -25,4 +25,10 @@ public sealed class ReplayBTests
     {
         var r=R();Assert.Null(r.Peek());Assert.Equal(new SimulationReplayStatus(0,0,0),r.Status());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(0)));
     }
+
+    /// <summary>The supported transcript size boundary is accepted.</summary>
+    [Fact] public void MaximumPlan()
+    {
+        var r=new SimulationReplay(Enumerable.Repeat(S(),4096));Assert.Equal(4096,r.Status().Length);
+    }
 }
