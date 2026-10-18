@@ -99,4 +99,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetBehavior("voltage",null); Assert.Empty(e.Snapshot().BehaviorKinds);
     }
+
+    /// <summary>Captured model-kind maps survive replacement.</summary>
+    [Fact] public void DetachedModelKinds()
+    {
+        var e=Engine(); e.SetBehavior("voltage",_=>3); var s=e.Snapshot(); e.SetSequence("voltage",[4]); Assert.Equal("Synchronous",s.BehaviorKinds["voltage"]);
+    }
 }
