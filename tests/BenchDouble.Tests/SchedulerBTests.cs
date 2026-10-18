@@ -77,4 +77,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(10),"a");c.Now=T(9);Assert.Empty(s.DrainDue());Assert.Equal(1,s.Count);
     }
+
+    /// <summary>Late pumping returns already due events.</summary>
+    [Fact] public void LateDrain()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(10),"a");c.Now=T(100);Assert.Single(s.DrainDue());
+    }
 }
