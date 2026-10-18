@@ -212,4 +212,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);await e.ResetAsync();Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Preparation status never samples virtual time.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task StatusNoClock()
+    {
+        var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Fail=true;Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));
+    }
 }
