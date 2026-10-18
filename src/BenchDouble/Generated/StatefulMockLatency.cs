@@ -44,5 +44,15 @@ public sealed partial class StatefulMockEngine
         if(elapsed<prepared.ReadyAt)throw new InvalidOperationException("Simulated scalar measurement is not ready.");
     }
 
+    /// <summary>Inspect immutable scalar preparation metadata without reading time or consuming state.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Detached immutable preparation or null when none is pending.</returns>
+    /// <exception cref="NotSupportedException">Capability is not declared.</exception>
+    public PreparedMockMeasurement? PreparedMeasurementStatus(string capability)
+    {
+        _definition.Capability(capability);_gate.Wait();
+        try{return _prepared.GetValueOrDefault(capability);}finally{_gate.Release();}
+    }
+
     // Latency members.
 }
