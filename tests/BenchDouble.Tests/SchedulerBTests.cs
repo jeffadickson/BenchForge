@@ -209,4 +209,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var ids=Enumerable.Range(0,64).Select(i=>s.Schedule(T(0),"e"+i).Id).ToArray();Parallel.For(0,32,i=>Assert.True(s.Cancel(ids[i])));Assert.Equal(ids.Skip(32),s.DrainDue().Select(e=>e.Id));
     }
+
+    /// <summary>Clearing pending events does not sample virtual time.</summary>
+    [Fact] public void ClearNoClock()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(0),"a");var reads=c.Reads;s.Clear();Assert.Equal(reads,c.Reads);
+    }
 }
