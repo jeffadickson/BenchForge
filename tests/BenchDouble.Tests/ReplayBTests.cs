@@ -103,4 +103,10 @@ public sealed class ReplayBTests
     {
         foreach(var v in new[]{double.NaN,double.PositiveInfinity,double.NegativeInfinity})Assert.Throws<ArgumentException>(()=>R(S(0,v)));
     }
+
+    /// <summary>Finite extreme replay values preserve their original values.</summary>
+    [Fact] public void ExtremeValues()
+    {
+        foreach(var v in new[]{double.MaxValue,double.MinValue,0d,-1d})Assert.Equal(v,R(S(0,v)).ReadNext("v","voltage",T(0)).Value);
+    }
 }
