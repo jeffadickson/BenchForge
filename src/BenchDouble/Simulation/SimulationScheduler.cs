@@ -98,5 +98,12 @@ public sealed class SimulationScheduler
         lock(_gate){ct.ThrowIfCancellationRequested();if(!_keys.Remove(id,out var key))return false;_pending.Remove(key);return true;}
     }
 
+    /// <summary>Clear the queue without resetting identifiers or advancing time.</summary>
+    /// <param name="ct">Cancellation before clearing.</param>
+    /// <returns>Number of removed pending events.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before clearing.</exception>
+    public int Clear(CancellationToken ct=default)
+    {ct.ThrowIfCancellationRequested();lock(_gate){ct.ThrowIfCancellationRequested();var count=_pending.Count;_pending.Clear();_keys.Clear();return count;}}
+
     // Scheduler members.
 }

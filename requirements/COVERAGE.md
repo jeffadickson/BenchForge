@@ -486,4 +486,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Cancel exactly one pending virtual event. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Clear pending simulation events without reusing identifiers. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
