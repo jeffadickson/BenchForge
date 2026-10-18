@@ -76,4 +76,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(2,[Parameter(query:null),Parameter(name:"other",query:null,setter:"V1 {value}")]); await Assert.ThrowsAsync<InvalidOperationException>(async()=>await s.WriteAsync("V1 5")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Allow unambiguous channels beside overlapping templates.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task UnambiguousSibling()
+    {
+        var s=new DefinitionDrivenScpiMockSession(2,[Parameter(setter:null),Parameter(name:"other",query:"V1?",setter:null)]); Assert.Equal("1",await s.QueryAsync("V2?")); Assert.Single(s.GetTranscriptSnapshot());
+    }
 }
