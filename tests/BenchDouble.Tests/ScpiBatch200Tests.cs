@@ -44,4 +44,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:new string('v',128))]); Assert.Equal(128,s.GetReadingsSnapshot()[0].Quantity.Length);
     }
+
+    /// <summary>Reject control characters in unit identities.</summary>
+    [Fact] public void ControlUnit()
+    {
+        Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(unit:"V\0")]));
+    }
 }
