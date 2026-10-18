@@ -29,7 +29,7 @@ public sealed class ImportedInstrumentDefinition
         if (root.GetProperty("schemaVersion").GetInt32() != 2) throw new InvalidDataException("Expected schema v2.");
         var identity = root.GetProperty("identity");
         string name = identity.GetProperty("driverName").GetString() ?? "";
-        if (!Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$")) throw new InvalidDataException("Invalid driver identifier.");
+        if (!Regex.IsMatch(name, @"\A[A-Za-z_][A-Za-z0-9_]*\z")) throw new InvalidDataException("Invalid driver identifier.");
         var result = new ImportedInstrumentDefinition(name);
         foreach (var mode in root.GetProperty("modes").EnumerateArray())
         {
@@ -37,7 +37,7 @@ public sealed class ImportedInstrumentDefinition
             string command = mode.TryGetProperty("selectionCommand", out var node) && node.ValueKind == JsonValueKind.String
                 ? node.GetString()! : "";
             ValidateCommand(command, allowEmpty: false);
-            if (!Regex.IsMatch(id, "^[A-Za-z_][A-Za-z0-9_]*$") || !result._modeCommands.TryAdd(id, command))
+            if (!Regex.IsMatch(id, @"\A[A-Za-z_][A-Za-z0-9_]*\z") || !result._modeCommands.TryAdd(id, command))
                 throw new InvalidDataException("Invalid or duplicate mode.");
         }
         foreach (var capability in root.GetProperty("capabilities").EnumerateArray())
@@ -46,7 +46,7 @@ public sealed class ImportedInstrumentDefinition
             string quantity = capability.GetProperty("quantity").GetString() ?? "";
             string unit = capability.GetProperty("unit").GetString() ?? "";
             string query = capability.TryGetProperty("query", out var q) && q.ValueKind == JsonValueKind.String ? q.GetString()! : "";
-            if (!Regex.IsMatch(id, "^[A-Za-z_][A-Za-z0-9_]*$")) throw new InvalidDataException("Invalid capability.");
+            if (!Regex.IsMatch(id, @"\A[A-Za-z_][A-Za-z0-9_]*\z")) throw new InvalidDataException("Invalid capability.");
             if (!new[] { "ElectricPotential:Volt", "ElectricResistance:Ohm", "ElectricCurrent:Ampere", "Frequency:Hertz" }.Contains(quantity + ":" + unit))
                 throw new InvalidDataException("Unsupported quantity/unit.");
             ValidateCommand(query, allowEmpty: false);

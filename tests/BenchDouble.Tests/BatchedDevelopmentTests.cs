@@ -124,5 +124,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal("voltage",Assert.Single(definition.Capability("voltage").Modes));
     }
 
+    /// <summary>Driver, mode and capability identifiers must match the entire JSON string.</summary>
+    [Fact] public void DefinitionIdentifiersRejectTrailingNewlines()
+    {
+        foreach(var replacement in new[]{Definition.Replace("BatchMeter","BatchMeter\\n"),Definition.Replace("\"id\":\"voltage\"","\"id\":\"voltage\\n\""),Definition.Replace("\"name\":\"voltage\"","\"name\":\"voltage\\n\"")})
+            Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(replacement));
+    }
+
 // CASES
 }

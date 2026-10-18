@@ -131,3 +131,5 @@ Batch iteration 08/30 (2026-10-17), BD-SIM-001: Bound pending mock fault queues.
 Batch iteration 09/30 (2026-10-17), BD-SIM-001: Prevent overflow in finite virtual ramps. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 10/30 (2026-10-17), BD-SIM-001: Freeze imported capability mode metadata. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 11/30 (2026-10-17), BD-SIM-001: Require complete imported identifiers. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
