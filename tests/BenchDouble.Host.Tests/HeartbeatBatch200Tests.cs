@@ -42,4 +42,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds:value","10"))));
     }
+
+    /// <summary>Nested suspect budgets are rejected.</summary>
+    [Fact] public void NestedSuspect()
+    {
+        Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:SuspectMilliseconds:value","20"))));
+    }
 }
