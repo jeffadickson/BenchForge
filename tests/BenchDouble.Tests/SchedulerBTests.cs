@@ -107,4 +107,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");Assert.False(s.Cancel(999));Assert.Equal(1,s.Count);
     }
+
+    /// <summary>Nonpositive cancellation identifiers are rejected.</summary>
+    [Fact] public void InvalidId()
+    {
+        var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentOutOfRangeException>(()=>s.Cancel(0));
+    }
 }
