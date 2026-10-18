@@ -160,3 +160,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_catalog_failure(self):
         """Stop before generators after catalog failure."""
         (self.root/'fail-check_instrument_catalog.py').write_text('23');self.invoke('--command','build',expected=23);self.assertEqual(1,len(self.events()));self.assertEqual(23,self.report()['stages'][0]['ExitCode'])
+
+    def test_generator_failure(self):
+        """Stop before preview generation after generator failure."""
+        (self.root/'fail-run').write_text('24');self.invoke('--command','build',expected=24);self.assertEqual(2,len(self.events()));self.assertEqual(24,self.report()['stages'][-1]['ExitCode'])
