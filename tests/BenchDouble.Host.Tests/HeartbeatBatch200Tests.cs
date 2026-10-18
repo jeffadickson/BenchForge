@@ -228,4 +228,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),0));
     }
+
+    /// <summary>Repeated observer reads do not move the owner deadline.</summary>
+    [Fact] public void ObserverNoRenewal()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;for(var i=0;i<40;i++){c.At(i);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);}c.At(40);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }
