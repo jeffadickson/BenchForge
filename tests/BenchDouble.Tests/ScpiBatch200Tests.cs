@@ -104,4 +104,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.QueryAsync("V1?"); var snap=s.GetTranscriptSnapshot(); await s.ClearTranscriptAsync(); Assert.Single(snap); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Reading snapshots preserve quantity unit and one-based channel.</summary>
+    [Fact] public void ReadingMetadata()
+    {
+        var s=Session(); var r=s.GetReadingsSnapshot(); Assert.Equal(2,r.Count); Assert.Equal("voltage",r[0].Parameter); Assert.Equal("ElectricPotential",r[0].Quantity); Assert.Equal("Volt",r[0].Unit); Assert.Equal(1,r[0].Channel); Assert.Equal(2,r[1].Channel);
+    }
 }
