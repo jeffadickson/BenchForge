@@ -64,7 +64,7 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
         try
         {
             if (_status is "Lost" or "Stopped") return _status;
-            linked.CancelAfter(TimeSpan.FromMilliseconds(Math.Min(_initial.IntervalMilliseconds, 10000)));
+            linked.CancelAfter(TimeSpan.FromMilliseconds(Math.Clamp(_initial.IntervalMilliseconds, 1000, 10000)));
             var sequence = checked(++_sequence);
             using var response = await _client.PostAsJsonAsync($"api/v1/setup/ivi/{Uri.EscapeDataString(_resource)}/heartbeat",
                 new { leaseId = _lease, hostEpoch = _initial.HostEpoch, ownerGeneration = _initial.OwnerGeneration, peerEpoch = _peer, sequence }, linked.Token).ConfigureAwait(false);
