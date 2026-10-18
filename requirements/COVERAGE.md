@@ -331,4 +331,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Inspect fault counts without reading virtual time. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Clear all mock faults atomically without changing readings. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

@@ -347,6 +347,21 @@ public sealed partial class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Discard every queued mock fault without changing mode, readings or behavior.</summary>
+    /// <returns>Total discarded faults; an empty operation leaves revision unchanged.</returns>
+    public int ClearAllFaults()
+    {
+        _gate.Wait();
+        try
+        {
+            var count = _faults.Values.Sum(queue => queue.Count);
+            _faults.Clear();
+            if (count > 0) ++_revision;
+            return count;
+        }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Reset the mode, overrides, behaviors and pending faults.</summary>
     public void Reset()
     {

@@ -235,6 +235,10 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Clear all simulated faults without changing mode or reading models.</summary>
+    /// <returns>Total discarded faults; zero leaves revision unchanged.</returns>
+    public int ClearAllFaults() => _engine.ClearAllFaults();
+
     /// <summary>Inspect queued simulated fault count without sampling virtual time.</summary>
     /// <param name="capability">Declared scalar capability.</param>
     /// <returns>Pending fault count, zero through 256.</returns>
