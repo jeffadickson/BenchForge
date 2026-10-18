@@ -65,4 +65,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");Assert.Equal(e,Assert.Single(s.DrainDue()));
     }
+
+    /// <summary>Events become due at the exact logical deadline.</summary>
+    [Fact] public void DelayedBoundary()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);var e=s.Schedule(T(10),"a");c.Now=T(10);Assert.Equal(e,Assert.Single(s.DrainDue()));
+    }
 }
