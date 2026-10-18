@@ -204,4 +204,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage()).Sample(0).ReadyAt(TimeSpan.FromTicks(-1)));
     }
+
+    /// <summary>Ready times use exact logical tick addition.</summary>
+    [Fact] public void ExactReadiness()
+    {
+        Assert.Equal(TimeSpan.FromTicks(150),Profile(Stage(100,0)).Sample(0).ReadyAt(TimeSpan.FromTicks(50)));
+    }
 }
