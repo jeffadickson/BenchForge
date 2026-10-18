@@ -162,4 +162,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());var expected=p.Sample(7).Total;Parallel.For(0,128,_=>Assert.Equal(expected,p.Sample(7).Total));
     }
+
+    /// <summary>Parallel indexed sampling matches serial results exactly.</summary>
+    [Fact] public void ParallelIndices()
+    {
+        var p=Profile(Stage());var expected=Enumerable.Range(0,128).Select(i=>p.Sample(i).Total).ToArray();var actual=new TimeSpan[128];Parallel.For(0,128,i=>actual[i]=p.Sample(i).Total);Assert.Equal(expected,actual);
+    }
 }
