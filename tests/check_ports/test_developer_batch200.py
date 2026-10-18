@@ -196,3 +196,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_unknown_task(self):
         """Reject unsupported task names before launching work."""
         self.invoke('--command','plan','--task','unknown',expected=2);self.assertEqual([],self.events())
+
+    def test_unknown_option(self):
+        """Reject unsupported workflow options."""
+        self.invoke('--command','build','--unknown','x',expected=2);self.assertEqual([],self.events())
