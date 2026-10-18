@@ -149,4 +149,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(0),0);using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Callback cancellation preserves ready preparation and sequence state.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task CallbackCancellation()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");using var c=new CancellationTokenSource();e.SetBehavior("voltage",_=>{c.Cancel();return 7;});await e.PrepareMeasurementAsync("voltage",Profile(0),0);await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }
