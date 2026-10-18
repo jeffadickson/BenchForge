@@ -227,4 +227,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<FormatException>(async()=>await s.WriteAsync("V1 nope")); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Zero channel rejection preserves reading state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ChannelZero()
+    {
+        var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V0 4")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value));
+    }
 }
