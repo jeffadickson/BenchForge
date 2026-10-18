@@ -128,6 +128,7 @@ public sealed partial class HostResourceRegistry
         HostHeartbeatPolicy? heartbeatPolicy = null, TimeProvider? timeProvider = null)
     {
         heartbeatPolicy?.Validate(); _heartbeatPolicy = heartbeatPolicy; Clock = timeProvider ?? TimeProvider.System;
+        if (heartbeatPolicy is not null && Clock.TimestampFrequency <= 0) throw new ArgumentOutOfRangeException(nameof(timeProvider), "Heartbeat clock frequency must be positive.");
         _journal = journal;
         foreach (var record in journal?.Read() ?? [])
         {
