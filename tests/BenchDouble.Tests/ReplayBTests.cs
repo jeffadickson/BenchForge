@@ -19,4 +19,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(new SimulationReplaySample[]{null!}));
     }
+
+    /// <summary>Empty replay plans are explicitly exhausted.</summary>
+    [Fact] public void EmptyPlan()
+    {
+        var r=R();Assert.Null(r.Peek());Assert.Equal(new SimulationReplayStatus(0,0,0),r.Status());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(0)));
+    }
 }
