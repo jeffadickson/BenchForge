@@ -161,4 +161,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock{Now=T(10)};var s=new SimulationScheduler(c);s.Schedule(T(0),"a");c.Now=T(9);Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"bad"));c.Now=T(10);Assert.Equal(2,s.Schedule(T(0),"b").Id);
     }
+
+    /// <summary>Clock rollback never consumes pending events.</summary>
+    [Fact] public void BackwardsDrain()
+    {
+        var c=new Clock{Now=T(10)};var s=new SimulationScheduler(c);s.Schedule(T(0),"a");c.Now=T(9);Assert.Throws<InvalidOperationException>(()=>s.DrainDue());Assert.Equal(1,s.Count);
+    }
 }
