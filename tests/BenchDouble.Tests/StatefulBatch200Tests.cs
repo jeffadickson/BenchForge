@@ -235,4 +235,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetSequence("resistance",[4]); Assert.Equal(2,e.ClearAllBehaviors()); Assert.Empty(e.Snapshot().BehaviorKinds);
     }
+
+    /// <summary>Empty behavior clear leaves revision unchanged.</summary>
+    [Fact] public void EmptyBehaviorClearRevision()
+    {
+        var e=Engine(); var r=e.Snapshot().Revision; Assert.Equal(0,e.ClearAllBehaviors()); Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
