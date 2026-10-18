@@ -1,0 +1,167 @@
+{
+  "checkpoint": 50,
+  "result": "passed",
+  "tested_base_commit": "cd7b48ce2af7e922ced42d7eab0be6f4e91603d1",
+  "tested_worktree": "modified; same source committed in iteration-50 checkpoint",
+  "workflow": {
+    "milliseconds": 13545.3807,
+    "cpu_milliseconds": 9750.0,
+    "peak_working_set_bytes": 95170560,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 319.6597,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 101.8313,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 1740.3598,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 6733.8857,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 6472.1146,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 1575.4573,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 250.7425,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 13466.6413,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 6082.3704,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "architecture": [
+    {
+      "case": "Supported runtime win-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-x86",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects win host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects linux host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects osx host",
+      "result": "passed"
+    },
+    {
+      "case": "Cross-architecture build is not executable on caller",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported host architecture",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported platform runtime pair",
+      "result": "passed"
+    },
+    {
+      "case": "Configuration names are canonical",
+      "result": "passed"
+    },
+    {
+      "case": "Parent traversal cannot escape owned cache",
+      "result": "passed"
+    },
+    {
+      "case": "Absolute manifest path is rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Sibling prefix is not containment",
+      "result": "passed"
+    },
+    {
+      "case": "Empty manifest path is rejected",
+      "result": "passed"
+    }
+  ],
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "4fca2471868d9b6ad162d68c5ebfc3714dcb0decbdd7057186ef11fbbc504187",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "7c0f36a1e558908114c64e97b7956e335b958745a1253c45efa26d7da346cf3e",
+      "documentation-audit.json": "e112d9dfff9c11d2741d2780ee9b4fa5e8a6a0e523abdd9fa659793819c073b1",
+      "docs-parity.json": "af98ecfeafca058b91ed31fb8fafd41eb9bd74ee62e16b26e5ab1014f8f7705b"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally"
+  },
+  "cache_scenarios": 11,
+  "limitations": [
+    "Windows x64 execution only",
+    "Other RID plans are contract-tested",
+    "GNU Make unavailable",
+    "No application tests",
+    "NuGet vulnerability metadata unreachable; cached packages used"
+  ]
+}

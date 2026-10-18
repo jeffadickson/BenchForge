@@ -27,9 +27,12 @@ def main():
             target = source / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)
-        cache = folder / 'cache'
+        cache_base = folder / 'cache'
         timing = folder / 'timing.json'
-        command = ['powershell', '-NoLogo', '-NoProfile', '-NonInteractive', '-File', str(ROOT / 'scripts/checks.ps1'), '-Root', str(source), '-Cache', str(cache), '-Timing', str(timing), '-PrepareOnly']
+        command = ['powershell', '-NoLogo', '-NoProfile', '-NonInteractive', '-File', str(ROOT / 'scripts/checks.ps1'), '-Root', str(source), '-Cache', str(cache_base), '-Timing', str(timing), '-PrepareOnly']
+        plan = subprocess.run([*command, '-PlanOnly'], capture_output=True, check=True, timeout=30)
+        identity = json.loads(plan.stdout.decode('utf-8-sig'))
+        cache = cache_base / identity['cache_segment']
 
         def prepare(expect_build):
             """Run a fresh bootstrap and require the expected build-cache decision."""
@@ -55,6 +58,16 @@ def main():
         missing.unlink()
         assert prepare(True) == second
         assert hashlib.sha256(missing.read_bytes()).hexdigest() == expected
+        missing.write_bytes(b'corrupted cached parser')
+        assert prepare(True) == second
+        assert hashlib.sha256(missing.read_bytes()).hexdigest() == expected
+        release_identity = json.loads((cache / 'build-identity.json').read_text())
+        assert release_identity['rid'] == identity['rid'] and release_identity['configuration'] == 'Release'
+        assert release_identity['sdk']
+        debug = subprocess.run([*command, '-Configuration', 'Debug'], capture_output=True, timeout=600)
+        assert debug.returncode == 0, (debug.stdout, debug.stderr)
+        assert (cache_base / identity['rid'] / 'Debug/bin/BenchForge.CheckWorkflow.dll').is_file()
+        assert prepare(False) == second, 'Debug must not replace Release cache'
         manifest = cache / 'source-files.json'
         paths = json.loads(manifest.read_text())
         stale = cache / 'source/tools/BenchForge.Checks/Old.cs'
@@ -71,7 +84,7 @@ def main():
         result = subprocess.run(command, capture_output=True, timeout=60)
         assert result.returncode != 0
         assert sentinel.read_text() == 'preserve this owned test sentinel'
-    print('PASS: cold build, cached hit, content-only edit, repeated hit, missing artifact, stale source, manifest containment')
+    print('PASS: cold build, cached hit, content-only edit, repeated hit, missing artifact, corrupted artifact, SDK identity, Debug/Release isolation, Release reuse, stale source, manifest containment')
 
 
 if __name__ == '__main__':

@@ -179,3 +179,5 @@ Check/report ports (2026-10-17): BD-REQ-003, BD-CFG-007 and BD-DOC-004 reuse iss
 Full-workflow timing revision (2026-10-17): BD-REQ-003 / #17, BD-DOC-004 / #61 and BD-CFG-007 / #60 retain their statuses. Shared C# checks and Roslyn now have a managed workflow host, content-validated tooling cache and dependency-aware parallel scheduling; tracker fixtures copy only referenced real evidence. See docs/CHECK-WORKFLOW-BENCHMARKS.md for complete cold/cached timings, parity and machine-resource limitations. No application tests or third-party documentation exports are part of this focused workflow. Counts remain 228 total, 0 Verified.
 
 150-iteration batch, checkpoint 25: architecture-aware compiled workflow and Make routing added; tests intentionally pending iteration 50. Existing BD-CFG-007 (#60), BD-DOC-004 (#61), BD-REQ-003 (#17). Counts remain 228 requirements, 0 Verified; statuses unchanged. See docs/LOCAL-BATCH-150.md.
+
+Checkpoint 50 source: focused build/architecture/parity regressions added; execution recorded in batch ledger. Requirement counts and statuses unchanged.

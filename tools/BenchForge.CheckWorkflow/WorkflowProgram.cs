@@ -95,6 +95,10 @@ internal static class WorkflowProgram
             var info = new ProcessStartInfo(Program.Python) { WorkingDirectory = Program.Root, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
             info.Environment["PYTHONIOENCODING"] = "utf-8";
             info.Environment["PYTHONDONTWRITEBYTECODE"] = "1";
+            // Keep test fixtures inside the writable checkout, including sandboxed hosts.
+            var temporary = Data.At("build/check-workflow-temp");
+            Directory.CreateDirectory(temporary);
+            foreach (var variable in new[] { "TEMP", "TMP", "TMPDIR" }) info.Environment[variable] = temporary;
             foreach (var argument in arguments) info.ArgumentList.Add(argument);
             try
             {
