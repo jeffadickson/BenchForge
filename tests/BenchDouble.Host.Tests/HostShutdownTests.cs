@@ -17,7 +17,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace BenchDouble.Host.Tests;
 
+/// <summary>Keep real-deadline shutdown checks independent of unrelated blocking test fixtures.</summary>
+[CollectionDefinition("Host lifecycle timing", DisableParallelization = true)]
+public sealed class HostLifecycleTimingCollection { }
+
 /// <summary>Shutdown admission, bounded waiting and ownership-retention regression tests.</summary>
+[Collection("Host lifecycle timing")]
 public sealed partial class HostShutdownTests
 {
     /// <summary>Shutdown policy cannot silently select an infinite or excessive resource budget.</summary>

@@ -144,5 +144,14 @@ public sealed class LocalHardeningTests
         finally { Directory.Delete(folder, true); }
     }
 
+    /// <summary>Malformed labels never reach a vendor enumeration call.</summary>
+    [Fact]
+    public void DiscoveryRejectsMalformedHostnames()
+    {
+        foreach (var host in new[] { "scope..lab", "scope..", "scope-.lab", "scope.-lab", new string('x', 64) + ".lab", "scope\n" })
+            Assert.Throws<ArgumentException>(() => new NativeVisaDiscoveryProvider("Ethernet", host));
+        _ = new NativeVisaDiscoveryProvider("Ethernet", "scope.lab.");
+    }
+
 // CASES
 }

@@ -1359,7 +1359,8 @@ STATEMENT: The Instrument Definer shall batch-extract a pinned manifest of exter
 UID: BD-CFG-008
 STATUS: Active
 TITLE: BD-CFG-008 P1 Discovery-assisted inventory
-STATEMENT: The setup workflow shall discover supported controllers and instrument endpoints within an operator-selected host and network scope, showing transport, controller, address, available identity metadata, busy status and actionable diagnostics without requiring manual VISA syntax for discovered devices. Device probes shall respect the canonical ownership authority and shall not alter device configuration. Acceptance: Display an Ethernet instrument and two USB-GPIB controllers, distinguish missing provider from no response, allow cancellation, and show an actively reserved instrument from cached metadata without issuing probe I/O.
+STATEMENT: The setup workflow shall discover supported controllers and instrument endpoints within an operator-selected host and network scope, showing transport, controller, address, available identity metadata, busy status and actionable diagnostics without requiring manual VISA syntax for discovered devices. Device probes shall respect the canonical ownership authority and shall not alter device configuration. Acceptance: Display an Ethernet instrument and two USB-GPIB controllers, distinguish missing provider from no response, allow cancellation, and show an actively reserved instrument from cached metadata without issuing probe I/O. Acceptance: Ethernet discovery shall reject empty, overlong and hyphen-ended DNS labels before invoking the catalog.
+
 
 [REQUIREMENT]
 UID: BD-CFG-009

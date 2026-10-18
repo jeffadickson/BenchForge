@@ -93,3 +93,7 @@ Local iteration 11 (2026-10-17), BD-CFG-003: Normalize overflowing routing schem
 Local iteration 12 (2026-10-17), BD-CFG-002: Keep routing independent of diagnostic sinks. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 12 (2026-10-17), BD-CFG-002: Isolate routing logs and stabilize late-cleanup regression. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 13 (2026-10-17), BD-CFG-008: Validate DNS labels before VISA enumeration. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 13 (2026-10-17), BD-CFG-008: Validate discovery hostnames and isolate deadline-sensitive tests. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
