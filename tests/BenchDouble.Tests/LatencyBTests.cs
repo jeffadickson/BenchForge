@@ -174,4 +174,10 @@ public sealed class LatencyBTests
     {
         var s=Profile(Stage()).Sample(0);Assert.Throws<NotSupportedException>(()=>((IList<SampledLatencyStage>)s.Stages).Clear());
     }
+
+    /// <summary>Sample totals equal the exact tick sum of phases.</summary>
+    [Fact] public void ExactTotal()
+    {
+        var s=Profile(Stage(),Stage(80,20,SimulationLatencyPhase.Display)).Sample(3);Assert.Equal(s.Stages.Sum(v=>v.Duration.Ticks),s.Total.Ticks);
+    }
 }
