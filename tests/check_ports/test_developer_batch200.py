@@ -112,3 +112,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_debug_configuration(self):
         """Forward Debug configuration to every dotnet task."""
         steps=self.plan('build','--configuration','Debug');self.assertTrue(all('Debug' in s['Arguments'] for s in steps[1:]))
+
+    def test_release_configuration(self):
+        """Use Release for default developer tasks."""
+        self.assertTrue(all('Release' in s['Arguments'] for s in self.plan()[1:]))
