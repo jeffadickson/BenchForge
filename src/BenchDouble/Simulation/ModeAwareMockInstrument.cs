@@ -98,6 +98,11 @@ public sealed class ModeAwareMockInstrument : IModeAwareMockInstrument
         finally { _gate.Release(); }
     }
 
+    /// <summary>Read a configured quantity at a valid run time, observing cancellation after the callback.</summary>
+    /// <typeparam name="TQuantity">Explicit measurement quantity.</typeparam>
+    /// <param name="ct">Cancellation while waiting and before publishing the result.</param>
+    /// <returns>A finite reading representable in its canonical base unit.</returns>
+    /// <exception cref="InvalidOperationException">The mode, clock or reading is invalid.</exception>
     public async ValueTask<TQuantity> MeasureAsync<TQuantity>(
         CancellationToken ct = default) where TQuantity : struct, IQuantity
     {

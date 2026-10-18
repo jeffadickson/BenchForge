@@ -45,6 +45,11 @@ public sealed class ExperimentDefinitionBuilder
     /// Registers one named simulated instrument. Implementation constructor dependencies
     /// are resolved normally by the .NET DI container. The role is a keyed service.
     /// </summary>
+    /// <typeparam name="TInterface">Instrument contract for this role.</typeparam>
+    /// <typeparam name="TImplementation">Run-owned constructor-injected implementation.</typeparam>
+    /// <param name="role">Unique nonblank role, at most 128 characters without controls.</param>
+    /// <param name="hostId">Logical simulation host, at most 128 characters without controls.</param>
+    /// <returns>This mutable composition builder.</returns>
     public ExperimentDefinitionBuilder Simulated<TInterface, TImplementation>(
         string role, string hostId = "simulation-worker")
         where TInterface : class where TImplementation : class, TInterface
@@ -133,6 +138,10 @@ public sealed class ExperimentDefinitionBuilder
     /// Use with the Simulated factory overload to supply the selected behavior
     /// to a normal instrument constructor. No global behavior lookup is needed.
     /// </summary>
+    /// <param name="role">Unique bounded instrument role with a corresponding simulated registration.</param>
+    /// <param name="baselineFactory">Nonnull run-scoped baseline factory; a null result fails startup.</param>
+    /// <param name="configure">Rule configuration only; cannot reenter this builder.</param>
+    /// <returns>This mutable composition builder.</returns>
     public ExperimentDefinitionBuilder AutoMockLoadFor(
         string role,
         Func<IServiceProvider, ILoadBehavior> baselineFactory,
@@ -183,6 +192,10 @@ public sealed class ExperimentDefinitionBuilder
         return this;
     }
 
+    /// <summary>Freeze a detached experiment definition after validating keyed role bindings.</summary>
+    /// <param name="name">Nonblank display name, at most 128 characters without controls.</param>
+    /// <returns>A definition that creates independent run scopes.</returns>
+    /// <exception cref="InvalidOperationException">Frozen, called from a rule callback or a keyed role is missing.</exception>
     public ExperimentDefinition Build(string name)
     {
         EnsureMutable();

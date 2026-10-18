@@ -184,3 +184,33 @@ The user requested more tests during this batch. ApplicationDiagnosticsTests add
 Iteration 150 haiku: Small signals return / Patient threads untangle faults / Dawn lights up the bench.
 
 Checkpoint 150 passed: 113 focused core, 71 focused host and 46 experiment tests, plus 19 tracker/documentation tests and six report-byte parity comparisons at workers 1/8. Fifty-seven application cases were added since checkpoint 100. Three depth cases initially required an exact JsonException; the parser correctly returned its JsonReaderException subtype, so assertions were corrected and the host run passed. A launcher update raced with its retry and unnecessarily reran the already-passing core suite; unique counts above do not double-count that run. One automatic approval review timed out before launch; its permitted retry succeeded. Existing generated-nullability, XML-documentation, unused-field and analyzer warnings remain tracked. No remote push yet.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 151 | Introduce explicit mock sequence cursor status | Pending checkpoint 200 |
+| 152 | Install bounded finite scalar sequences | Pending checkpoint 200 |
+| 153 | Copy sequence inputs before state mutation | Pending checkpoint 200 |
+| 154 | Read sequences through the canonical mock transaction | Pending checkpoint 200 |
+| 155 | Fail explicitly on strict sequence exhaustion | Pending checkpoint 200 |
+| 156 | Hold the last value only when requested | Pending checkpoint 200 |
+| 157 | Advance cursors only after cancellation validation | Pending checkpoint 200 |
+| 158 | Advance state revision with successful cursor consumption | Pending checkpoint 200 |
+| 159 | Expose cached sequence status without clock reads | Pending checkpoint 200 |
+| 160 | Clear sequences and restore declared fallbacks | Pending checkpoint 200 |
+| 161 | Clear sequence state on reset | Pending checkpoint 200 |
+| 162 | Replace sequences with synchronous models | Pending checkpoint 200 |
+| 163 | Replace sequences with asynchronous models | Pending checkpoint 200 |
+| 164 | Capture independent read-only cursor positions in snapshots | Pending checkpoint 200 |
+| 165 | Expose sequence installation on imported mocks | Pending checkpoint 200 |
+| 166 | Expose sequence clearing on imported mocks | Pending checkpoint 200 |
+| 167 | Expose cursor status on imported mocks | Pending checkpoint 200 |
+| 168 | Serialize seeded noise draws for concurrent use | Pending checkpoint 200 |
+| 169 | Keep noise interpolation finite at opposite extreme bounds | Pending checkpoint 200 |
+| 170 | Validate sine configuration and logical time | Pending checkpoint 200 |
+| 171 | Bound sine phase and reject nonfinite output | Pending checkpoint 200 |
+| 172 | Copy composite signal membership at construction | Pending checkpoint 200 |
+| 173 | Reject null composite signal inputs | Pending checkpoint 200 |
+| 174 | Reject nonfinite component and composite output | Pending checkpoint 200 |
+| 175 | Document unfinished requirement feature and add initial regressions | Pending checkpoint 200 |
+
+This batch implements previously missing sequence output under TR-043, rather than adding another build-only increment. TR-049 gains copied cursor snapshots and serialized seeded draws. Initial feature tests and XML API contracts accompany source changes; broader feature regressions follow. Full transcript replay and calibrated model acceptance remain unfinished.

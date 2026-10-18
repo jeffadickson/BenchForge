@@ -36,6 +36,11 @@ public sealed class LoggingScpiSession : IScpiSession
     /// <summary>Monotonic redactor failure count; failed redactions never publish their payload.</summary>
     public long RedactionFailureCount => Interlocked.Read(ref _redactionFailures);
 
+    /// <summary>Wrap instrument I/O with bounded, failure-isolated diagnostics.</summary>
+    /// <param name="inner">Caller-owned session; this wrapper does not dispose it.</param>
+    /// <param name="logger">Diagnostic sink; sink exceptions are counted and isolated.</param>
+    /// <param name="options">Explicit name, payload permissions, redactor and prefix limit.</param>
+    /// <exception cref="ArgumentException">The name or payload limit is invalid.</exception>
     public LoggingScpiSession(IScpiSession inner,
         ILogger<LoggingScpiSession> logger, ScpiLoggingOptions options)
     {

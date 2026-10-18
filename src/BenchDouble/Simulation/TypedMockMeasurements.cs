@@ -66,6 +66,12 @@ public sealed class TypedMockMeasurements
 
     public IReadOnlyList<Type> SupportedQuantities => _handlers.Keys.ToArray();
 
+    /// <summary>Evaluate a supported typed model and require a representable finite base-unit result.</summary>
+    /// <typeparam name="TQuantity">Explicit UnitsNet quantity type.</typeparam>
+    /// <param name="elapsed">Nonnegative run-scoped logical elapsed time.</param>
+    /// <returns>The typed reading without discarding its physical dimension.</returns>
+    /// <exception cref="InvalidOperationException">The result cannot be represented in its base unit.</exception>
+    /// <exception cref="NotSupportedException">The quantity has no registered model.</exception>
     public TQuantity Evaluate<TQuantity>(TimeSpan elapsed)
         where TQuantity : struct, IQuantity
     {
@@ -89,6 +95,8 @@ public sealed class TypedMockMeasurements
 /// Stateful DMM-like mock. Mode must be explicitly selected; a generic
 /// measurement request never silently changes instrument configuration.
 /// </summary>
+/// <param name="measurements">Nonnull immutable capability and behavior registry.</param>
+/// <param name="clock">Nonnull canonical clock for this simulation run.</param>
 public sealed class TypedMockMeter(
     TypedMockMeasurements measurements,
     ISimulationClock clock) : ITypedConfigurableMeasurementSource
@@ -111,6 +119,9 @@ public sealed class TypedMockMeter(
     }
 
     /// <summary>Read the selected mode; reject an incompatible requested type.</summary>
+    /// <typeparam name="TQuantity">Explicit configured UnitsNet quantity.</typeparam>
+    /// <param name="ct">Cancellation while waiting and after the model callback.</param>
+    /// <returns>A finite representable typed reading.</returns>
     public async ValueTask<TQuantity> MeasureAsync<TQuantity>(
         CancellationToken ct = default)
         where TQuantity : struct, IQuantity

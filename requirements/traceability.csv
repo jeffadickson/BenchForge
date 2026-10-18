@@ -41,13 +41,13 @@ TR-039,P0,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchDouble
 TR-040,P2,DesignOnly,docs/VERSIONED-DRIVERS-AND-SHARING.md,,https://github.com/jeffadickson/BenchDouble/issues/46,,
 TR-041,P0,PartialSourceUnverified,src/BenchDouble/Simulation/PowerSupplyBehavior.cs,tests/BenchDouble.Tests/PowerSupplyBehaviorTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-042,P0,PartialSourceUnverified,src/BenchDouble/Simulation/TypedMockMeasurements.cs,tests/BenchDouble.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
-TR-043,P0,PartialSourceUnverified,src/BenchDouble/Simulation/SignalBehaviors.cs,tests/BenchDouble.Tests/SignalBehaviorTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
+TR-043,P0,PartialSourceUnverified,src/BenchDouble/Generated/StatefulMockSequences.cs,tests/BenchDouble.Tests/StatefulMockSequenceTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,docs/MOCK-SEQUENCES.md;tests/BenchDouble.Tests/SignalDomainTests.cs;tests/BenchDouble.Tests/StatefulMockSequenceTests.cs
 TR-044,P1,PartialSourceUnverified,src/BenchDouble/Simulation/PowerSupplyBehavior.cs,tests/BenchDouble.Tests/PowerSupplyBehaviorTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-045,P1,PartialSourceUnverified,examples/ThermalCycleMonitor/index.html,tests/BenchDouble.Tests/ThermalCycleTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-046,P0,DesignOnly,docs/MOCK-TIME-AND-LIFECYCLE.md,,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-047,P1,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-048,P1,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchDouble/issues/40,,
-TR-049,P1,PartialSourceUnverified,src/BenchDouble/Simulation/SignalBehaviors.cs,tests/BenchDouble.Tests/SignalBehaviorTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
+TR-049,P1,PartialSourceUnverified,src/BenchDouble/Simulation/SignalBehaviors.cs,tests/BenchDouble.Tests/SignalBehaviorTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,docs/MOCK-SEQUENCES.md;tests/BenchDouble.Tests/SignalDomainTests.cs;tests/BenchDouble.Tests/StatefulMockSequenceTests.cs
 TR-050,P2,PartialSourceUnverified,src/BenchDouble/Simulation/VirtualBenchGraph.cs,tests/BenchDouble.Tests/VirtualBenchGraphTests.cs,https://github.com/jeffadickson/BenchDouble/issues/40,,
 TR-051,P0,PartialSourceUnverified,src/BenchDouble/Simulation/TypedMockMeasurements.cs,tests/BenchDouble.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchDouble/issues/48,,
 TR-052,P0,PartialSourceUnverified,src/BenchDouble/Quantities/TypedInstruments.cs,tests/BenchDouble.Tests/TypedInstrumentTests.cs,https://github.com/jeffadickson/BenchDouble/issues/48,,

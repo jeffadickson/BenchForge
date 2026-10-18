@@ -50,7 +50,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     }
 
     /// <summary>Parse a strict versioned configuration, rejecting duplicate and unknown JSON fields.</summary>
-    /// <param name="json">Configuration JSON; not a saved-revision envelope.</param>
+    /// <param name="json">Configuration JSON, at most one Mi characters and 32 nesting levels; not a saved-revision envelope.</param>
     /// <returns>A detached configuration with structural validation applied.</returns>
     /// <exception cref="JsonException">The JSON is malformed or contains duplicate/unknown fields.</exception>
     /// <exception cref="ArgumentException">The document violates the setup schema.</exception>
@@ -66,7 +66,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     }
 
     /// <summary>Parse a save envelope using the same strict rules as configuration import.</summary>
-    /// <param name="json">Save request containing configuration, expected revision and draft flag.</param>
+    /// <param name="json">Bounded JSON save request containing configuration, expected revision and draft flag.</param>
     /// <returns>A structurally valid save request.</returns>
     public static SaveSetupRequest ParseSaveRequest(string json)
     {
@@ -77,7 +77,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     }
 
     /// <summary>Parse a reviewed IVI import request using strict duplicate and unknown-field checks.</summary>
-    /// <param name="json">Import request containing the current draft and selected source/target.</param>
+    /// <param name="json">Bounded JSON import request containing the current draft and selected source/target.</param>
     /// <returns>Request with a structurally validated configuration.</returns>
     public static ApplyIviBindingRequest ParseApplyIviBindingRequest(string json)
     {
@@ -89,7 +89,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
 
     /// <summary>Parse an IVI operation request without implicit required fields or ambiguous JSON.</summary>
     /// <typeparam name="T">IVI request contract with explicitly required properties.</typeparam>
-    /// <param name="json">Request JSON; duplicate and unknown properties are rejected.</param>
+    /// <param name="json">At most one Mi characters and 32 nesting levels; duplicate and unknown properties are rejected.</param>
     /// <returns>The parsed request; does not acquire a lease or dispatch I/O.</returns>
     /// <exception cref="JsonException">Required fields are missing, duplicated, unknown or malformed.</exception>
     public static T ParseIviRequest<T>(string json) where T : class

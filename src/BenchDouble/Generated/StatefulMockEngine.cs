@@ -18,7 +18,12 @@ public sealed record MockReadingContext(string Mode, string Capability, TimeSpan
 /// <param name="Revision">Monotonic state revision.</param>
 /// <param name="Elapsed">Virtual time at capture.</param>
 /// <param name="Overrides">Explicit readings copied at capture.</param>
-public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan Elapsed, IReadOnlyDictionary<string, double> Overrides);
+public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan Elapsed, IReadOnlyDictionary<string, double> Overrides)
+{
+    /// <summary>Independent cursor positions captured with the same mode and revision; contains no sequence values.</summary>
+    public IReadOnlyDictionary<string, int> SequencePositions { get; init; } =
+        new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
+}
 
 /// <summary>Provenance-preserving scalar measurement from a coherent virtual acquisition.</summary>
 /// <param name="AcquisitionId">Shared SMU and oscilloscope acquisition identifier.</param>
@@ -35,7 +40,7 @@ public sealed record CapturedMockReading(Guid AcquisitionId, long SourceRevision
 
 /// <summary>Exclusive mode-aware simulation state, with virtual-time behaviors and one-shot faults.</summary>
 /// <remarks>Callbacks execute inside the exclusive transaction and must never reenter this engine.</remarks>
-public sealed class StatefulMockEngine
+public sealed partial class StatefulMockEngine
 {
     private readonly ImportedInstrumentDefinition _definition;
     private readonly ISimulationClock _clock;
@@ -116,12 +121,14 @@ public sealed class StatefulMockEngine
             }
             double? fallback = _overrides.TryGetValue(capability, out var value) ? value : metadata.MockDefault;
             var context = new MockReadingContext(_mode, capability, elapsed, _revision, fallback);
-            double result = _asyncModels.TryGetValue(capability, out var asyncModel)
+            var fromSequence = TrySequence(capability, out var sequenceValue, out var advancing);
+            double result = fromSequence ? sequenceValue : _asyncModels.TryGetValue(capability, out var asyncModel)
                 ? await asyncModel(context, ct).ConfigureAwait(false)
                 : _models.TryGetValue(capability, out var model) ? model(context)
                 : fallback ?? throw new InvalidOperationException("No configured mock reading.");
             ct.ThrowIfCancellationRequested();
             if (!double.IsFinite(result)) throw new InvalidOperationException("Nonfinite mock reading.");
+            if (advancing is not null) { ++advancing.Position; ++_revision; }
             return result;
         }
         finally { _gate.Release(); }
@@ -236,9 +243,10 @@ public sealed class StatefulMockEngine
         _gate.Wait();
         try
         {
-            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
+            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability) && !_sequences.ContainsKey(capability)) return;
             if (behavior is not null && _models.TryGetValue(capability, out var current) && ReferenceEquals(current, behavior)) return;
             _asyncModels.Remove(capability);
+            _sequences.Remove(capability);
             if (behavior is null) _models.Remove(capability);
             else _models[capability] = behavior;
             ++_revision;
@@ -257,9 +265,10 @@ public sealed class StatefulMockEngine
         _gate.Wait();
         try
         {
-            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
+            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability) && !_sequences.ContainsKey(capability)) return;
             if (behavior is not null && _asyncModels.TryGetValue(capability, out var current) && ReferenceEquals(current, behavior)) return;
             _models.Remove(capability);
+            _sequences.Remove(capability);
             if (behavior is null) _asyncModels.Remove(capability);
             else _asyncModels[capability] = behavior;
             ++_revision;
@@ -310,7 +319,7 @@ public sealed class StatefulMockEngine
     {
         _gate.Wait();
         try { return new(_mode, _revision, ReadElapsed(),
-            new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))); }
+            new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))) { SequencePositions = SequencePositions() }; }
         finally { _gate.Release(); }
     }
 
@@ -324,6 +333,7 @@ public sealed class StatefulMockEngine
             _overrides.Clear();
             _models.Clear();
             _asyncModels.Clear();
+            _sequences.Clear();
             _faults.Clear();
             ++_revision;
             Emit(() => _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision));

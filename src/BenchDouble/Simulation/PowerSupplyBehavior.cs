@@ -80,6 +80,8 @@ public sealed class TimedOvercurrentBehavior(
 /// This is an idealized measurement model, NOT a physical compliance solver,
 /// calibrated supply model, or hardware safety interlock.
 /// </summary>
+/// <param name="behavior">Nonnull simulated load behavior.</param>
+/// <param name="clock">Nonnull run-scoped logical clock.</param>
 public sealed class MockPowerSupply(ILoadBehavior behavior, ISimulationClock clock)
 {
     private readonly ILoadBehavior _behavior = behavior ?? throw new ArgumentNullException(nameof(behavior));
@@ -109,6 +111,10 @@ public sealed class MockPowerSupply(ILoadBehavior behavior, ISimulationClock clo
         finally { _gate.Release(); }
     }
 
+    /// <summary>Sample the injected load at a valid run time, retaining an exceeded-limit indication.</summary>
+    /// <param name="ct">Cancellation while waiting and after the model callback.</param>
+    /// <returns>A simulated sample; disabled output returns zero without invoking the load.</returns>
+    /// <exception cref="InvalidOperationException">The clock or returned current is invalid.</exception>
     public async ValueTask<PowerSupplySample> MeasureAsync(CancellationToken ct = default)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);

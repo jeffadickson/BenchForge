@@ -181,6 +181,23 @@ public sealed class ImportedInstrumentMock
     /// <param name="value">Finite simulated reading.</param>
     public void SetReading(string capability, double value) => _engine.SetReading(capability, value);
 
+    /// <summary>Install a copied scalar sequence without dispatching physical commands.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <param name="values">One to 4096 finite canonical-unit values.</param>
+    /// <param name="repeatLast">Whether to hold the final value after initial exhaustion.</param>
+    /// <exception cref="ArgumentException">The values are missing, oversized or nonfinite.</exception>
+    public void SetSequence(string capability, IEnumerable<double> values, bool repeatLast = false) => _engine.SetSequence(capability, values, repeatLast);
+
+    /// <summary>Remove a sequence, restoring an override or definition fallback.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <returns>True only when an installed sequence was removed.</returns>
+    public bool ClearSequence(string capability) => _engine.ClearSequence(capability);
+
+    /// <summary>Read cached cursor diagnostics without consuming a value or reading the clock.</summary>
+    /// <param name="capability">Declared capability identifier.</param>
+    /// <returns>A detached status, or null when no sequence is installed.</returns>
+    public MockSequenceStatus? SequenceStatus(string capability) => _engine.SequenceStatus(capability);
+
     /// <summary>Install or remove a deterministic virtual-time behavior.</summary>
     /// <param name="capability">Declared capability identifier.</param>
     /// <param name="behavior">Pure, non-reentrant behavior, or null to remove.</param>
