@@ -188,3 +188,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_timeout(self):
         """Terminate timed-out children before dependent work."""
         (self.root/'sleep').touch();host=['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',sys.executable,'--command','build','--timeout-seconds','1'];r=subprocess.run(host,capture_output=True,text=True,timeout=30);self.assertEqual(124,r.returncode,r.stderr);self.assertEqual(1,len(self.events()));self.assertEqual(124,self.report()['stages'][0]['ExitCode'])
+
+    def test_missing_python(self):
+        """Record missing catalog executable without invoking dotnet tasks."""
+        r=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--python',str(self.root/'missing.exe'),'--command','build'],capture_output=True,text=True,timeout=30);self.assertEqual(2,r.returncode);self.assertEqual(2,self.report()['stages'][0]['ExitCode']);self.assertEqual([],self.events())
