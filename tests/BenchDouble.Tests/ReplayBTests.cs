@@ -169,4 +169,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>r.ReadNext("v","voltage",T(0),c.Token));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Exhausted transcripts reject extra reads without cursor drift.</summary>
+    [Fact] public void Exhaustion()
+    {
+        var r=R(S());r.ReadNext("v","voltage",T(0));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(0)));Assert.Equal(new SimulationReplayStatus(1,1,0),r.Status());
+    }
 }
