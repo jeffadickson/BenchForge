@@ -163,4 +163,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");e.SetBehavior("voltage",_=>double.NaN);await e.PrepareMeasurementAsync("voltage",Profile(0),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Negative preparation clock values are rejected.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task NegativeClock()
+    {
+        var e=Engine(new Clock{Now=TimeSpan.FromTicks(-1)});await e.ConfigureModeAsync("v");await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
