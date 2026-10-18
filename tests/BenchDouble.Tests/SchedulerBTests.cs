@@ -131,4 +131,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");var before=s.Snapshot();s.Cancel(e.Id);Assert.Single(before);Assert.Empty(s.Snapshot());
     }
+
+    /// <summary>Event snapshots reject caller mutation.</summary>
+    [Fact] public void ReadOnlySnapshot()
+    {
+        var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");Assert.Throws<NotSupportedException>(()=>((IList<SimulationScheduledEvent>)s.Snapshot()).Clear());
+    }
 }
