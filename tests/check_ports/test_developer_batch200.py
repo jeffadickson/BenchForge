@@ -92,3 +92,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_space_paths(self):
         """Preserve project paths containing spaces as one argument."""
         self.project('src/with space/My App.csproj');self.assertTrue(any('src/with space/My App.csproj' in s['Arguments'] for s in self.plan()))
+
+    def test_unicode_paths(self):
+        """Preserve Unicode project filenames."""
+        self.project('src/meter/測定.csproj');self.assertTrue(any('src/meter/測定.csproj' in s['Arguments'] for s in self.plan()))
