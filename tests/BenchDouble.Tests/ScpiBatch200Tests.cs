@@ -38,4 +38,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:new string('v',129))]));
     }
+
+    /// <summary>Accept the quantity length boundary.</summary>
+    [Fact] public void MaxQuantity()
+    {
+        var s=new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:new string('v',128))]); Assert.Equal(128,s.GetReadingsSnapshot()[0].Quantity.Length);
+    }
 }
