@@ -133,4 +133,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","current",T(0)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Early logical timestamps never consume replay samples.</summary>
+    [Fact] public void EarlyRead()
+    {
+        var r=R(S(10));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(9)));Assert.Equal(0,r.Status().Position);
+    }
 }
