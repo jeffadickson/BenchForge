@@ -161,4 +161,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); var r=e.Snapshot().Revision; Assert.Equal(0,e.ClearAllSequences()); Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Bulk sequence clear advances one revision.</summary>
+    [Fact] public void SequenceClearRevision()
+    {
+        var e=Engine(); e.SetSequence("voltage",[3]); e.SetSequence("resistance",[4]); var r=e.Snapshot().Revision; e.ClearAllSequences(); Assert.Equal(r+1,e.Snapshot().Revision);
+    }
 }
