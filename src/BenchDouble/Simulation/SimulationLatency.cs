@@ -52,5 +52,19 @@ public sealed class SimulationLatencyProfile
         // Profile validation.
         Seed=seed;Stages=Array.AsReadOnly(copied.OrderBy(s=>s.Phase).ToArray());
     }
+    private long JitterTicks(long index, SimulationLatencyStage stage)
+    {
+        if(stage.Jitter.Ticks==0)return 0;
+        ulong mixed;
+        unchecked
+        {
+            mixed=(ulong)(long)Seed ^ (ulong)index*0x9E3779B97F4A7C15UL ^ ((ulong)stage.Phase+1)*0xD1B54A32D192ED03UL;
+            mixed=(mixed^(mixed>>30))*0xBF58476D1CE4E5B9UL;
+            mixed=(mixed^(mixed>>27))*0x94D049BB133111EBUL;
+            mixed^=mixed>>31;
+        }
+        return (long)(mixed%(ulong)(2*stage.Jitter.Ticks+1))-stage.Jitter.Ticks;
+    }
+
     // Profile members.
 }
