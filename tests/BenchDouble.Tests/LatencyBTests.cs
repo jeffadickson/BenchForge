@@ -210,4 +210,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(TimeSpan.FromTicks(150),Profile(Stage(100,0)).Sample(0).ReadyAt(TimeSpan.FromTicks(50)));
     }
+
+    /// <summary>Unrepresentable readiness fails explicitly.</summary>
+    [Fact] public void ReadyOverflow()
+    {
+        Assert.Throws<OverflowException>(()=>Profile(Stage(1,0)).Sample(0).ReadyAt(TimeSpan.MaxValue));
+    }
 }
