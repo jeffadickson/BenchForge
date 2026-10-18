@@ -127,4 +127,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("r","voltage",T(0)));Assert.Equal(0,r.Status().Position);Assert.Equal(S(),r.ReadNext("v","voltage",T(0)));
     }
+
+    /// <summary>Mismatched replay capabilities preserve the next sample.</summary>
+    [Fact] public void CapabilityMismatch()
+    {
+        var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","current",T(0)));Assert.Equal(0,r.Status().Position);
+    }
 }
