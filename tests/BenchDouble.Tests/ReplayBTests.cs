@@ -61,4 +61,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(S() with{Quantity=new string('x',129)}));
     }
+
+    /// <summary>Canonical unit label size is bounded.</summary>
+    [Fact] public void LongUnit()
+    {
+        Assert.Throws<ArgumentException>(()=>R(S() with{Unit=new string('x',81)}));
+    }
 }
