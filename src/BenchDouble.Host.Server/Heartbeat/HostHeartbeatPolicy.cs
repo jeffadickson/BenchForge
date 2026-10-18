@@ -15,6 +15,7 @@ public sealed record HostHeartbeatPolicy(TimeSpan Interval, TimeSpan SuspectAfte
     /// <exception cref="ArgumentException">A configured value is malformed or out of range.</exception>
     public static HostHeartbeatPolicy FromConfiguration(IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
         TimeSpan Read(string key, TimeSpan fallback)
         {
             var value = configuration["BenchHeartbeat:" + key];
