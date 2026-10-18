@@ -87,3 +87,5 @@ Local iteration 10 (2026-10-17), BD-CFG-003: Reject control characters in instru
 Iteration 10 regression repair, BD-HB-002: a sub-second renewal period no longer imposes a sub-second HTTP cancellation budget. A delayed-success test covers the one-second minimum, while stalled-transport coverage retains a finite deadline. No status/count change.
 
 Local iteration 10 (2026-10-17), BD-CFG-003: Reject routing control characters and repair short-period heartbeat timeouts. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 11 (2026-10-17), BD-CFG-003: Normalize overflowing routing schema errors. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

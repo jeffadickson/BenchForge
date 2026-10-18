@@ -83,7 +83,7 @@ public sealed class InstrumentHostDirectory
             return new(new(StringComparer.OrdinalIgnoreCase), true, logger);
         }
         catch (Exception exception) when (exception is IOException or InvalidDataException or UnauthorizedAccessException
-            or JsonException or InvalidOperationException or KeyNotFoundException or FormatException)
+            or JsonException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
         {
             // Do not echo configuration payloads, paths or credentials in diagnostics.
             logger.LogError("Instrument routing configuration rejected; ErrorType={ErrorType}; no local fallback", exception.GetType().Name);

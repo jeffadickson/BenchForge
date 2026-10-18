@@ -1259,7 +1259,8 @@ STATEMENT: When the conventional configuration file is absent the framework shal
 UID: BD-CFG-003
 STATUS: Active
 TITLE: BD-CFG-003 P0
-STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete routing configuration shall fail without silently choosing a local or different instrument. Acceptance: Reject invalid versions, duplicate keys, unknown fields/hosts/roles and unsafe endpoints; verify no fallback request. Acceptance: Null roles and identifiers ending with newlines shall fail validation without creating a route.
+STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete routing configuration shall fail without silently choosing a local or different instrument. Acceptance: Reject invalid versions, duplicate keys, unknown fields/hosts/roles and unsafe endpoints; verify no fallback request. Acceptance: Null roles and identifiers ending with newlines shall fail validation without creating a route. Acceptance: Out-of-range numeric routing schema versions shall raise InvalidDataException without local fallback.
+
 
 
 [REQUIREMENT]

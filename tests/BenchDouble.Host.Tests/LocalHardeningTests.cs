@@ -110,5 +110,18 @@ public sealed class LocalHardeningTests
         Assert.Equal(ScopeHeartbeatStatus.Healthy, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
     }
 
+    /// <summary>Oversized numeric versions use the same explicit refusal contract as other invalid files.</summary>
+    [Fact]
+    public void RoutingRejectsOverflowingSchema()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(path, "{\"schemaVersion\":999999999999999999999,\"hosts\":{},\"instruments\":{}}");
+            Assert.Throws<InvalidDataException>(() => InstrumentHostDirectory.Load(NullLogger.Instance, path));
+        }
+        finally { File.Delete(path); }
+    }
+
 // CASES
 }
