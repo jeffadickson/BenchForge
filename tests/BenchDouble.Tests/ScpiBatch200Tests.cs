@@ -123,4 +123,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); var snap=Assert.IsAssignableFrom<IList<MockScpiReading>>(s.GetReadingsSnapshot()); Assert.Throws<NotSupportedException>(()=>snap.Clear());
     }
+
+    /// <summary>Reading snapshots retain declaration and channel order.</summary>
+    [Fact] public void ParameterOrder()
+    {
+        var s=new DefinitionDrivenScpiMockSession(2,[Parameter(name:"z",query:"Z?",setter:null),Parameter(name:"a",query:"A?",setter:null)]); Assert.Equal(new[]{"z1","z2","a1","a2"},s.GetReadingsSnapshot().Select(r=>r.Parameter+r.Channel));
+    }
 }
