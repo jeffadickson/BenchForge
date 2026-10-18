@@ -123,5 +123,26 @@ public sealed class LocalHardeningTests
         finally { File.Delete(path); }
     }
 
+    private sealed class ThrowingLogger : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => throw new Exception("sink");
+        public bool IsEnabled(LogLevel level) => throw new Exception("sink");
+        public void Log<TState>(LogLevel level, EventId id, TState state, Exception? error, Func<TState, Exception?, string> formatter) => throw new Exception("sink");
+    }
+
+    /// <summary>Logging failures cannot change default routing or replace configuration errors.</summary>
+    [Fact]
+    public void RoutingSurvivesSinkFailures()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
+        try
+        {
+            var directory = InstrumentHostDirectory.Load(new ThrowingLogger(), baseDirectory: folder);
+            Assert.Equal("meter", directory.Resolve("meter").ResourceId);
+            Assert.Throws<InvalidDataException>(() => InstrumentHostDirectory.Load(new ThrowingLogger(), Path.Combine(folder, "missing.json")));
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
 // CASES
 }

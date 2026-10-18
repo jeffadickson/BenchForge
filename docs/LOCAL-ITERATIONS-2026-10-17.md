@@ -15,3 +15,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 9 | Exclude vendor exception payloads from SCPI logs | TR-076 | BenchDouble.Tests | Passed |
 | 10 | Reject routing control characters and repair short-period heartbeat timeouts | BD-CFG-003 | BenchDouble.Host.Tests | Passed |
 | 11 | Normalize overflowing routing schema errors | BD-CFG-003 | BenchDouble.Host.Tests | Passed |
+| 12 | Isolate routing logs and stabilize late-cleanup regression | BD-CFG-002 | BenchDouble.Host.Tests | Passed |

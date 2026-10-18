@@ -39,6 +39,7 @@ public sealed class InstrumentHostDirectory
         var selected = path ?? Path.Combine(baseDirectory ?? Environment.CurrentDirectory, "instruments.json");
         try
         {
+            logger = new DiagnosticLogger(logger);
             using var stream = File.OpenRead(selected);
             if (stream.Length > 1024 * 1024)
                 throw new InvalidDataException("Instrument configuration exceeds 1 MiB.");
@@ -113,6 +114,16 @@ public sealed class InstrumentHostDirectory
     {
         var route = Resolve(role);
         return new(new InstrumentHostClient(http, route.Endpoint), route);
+    }
+
+    private sealed class DiagnosticLogger(ILogger inner) : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(LogLevel level) { try { return inner.IsEnabled(level); } catch { return false; } }
+        public void Log<TState>(LogLevel level, EventId id, TState state, Exception? error, Func<TState, Exception?, string> formatter)
+        {
+            try { inner.Log(level, id, state, error, formatter); } catch { /* Routing cannot depend on a sink. */ }
+        }
     }
 
     private static void CheckIdentifier(string value)

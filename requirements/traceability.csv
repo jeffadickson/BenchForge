@@ -205,7 +205,7 @@ BD-OWN-001,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/54,,
 BD-OWN-002,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/54,,
 BD-REQ-006,P0,SourceCommittedUnverified,AGENTS.md,tests/requirements/test_gate.py,https://github.com/jeffadickson/BenchDouble/issues/31,,
 BD-CFG-001,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,
-BD-CFG-002,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,
+BD-CFG-002,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,tests/BenchDouble.Host.Tests/LocalHardeningTests.cs
 BD-CFG-003,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,tests/BenchDouble.Host.Tests/LocalHardeningTests.cs
 BD-CFG-004,P0,PartialSourceUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,
 BD-CFG-005,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,

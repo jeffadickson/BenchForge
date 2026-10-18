@@ -263,11 +263,14 @@ public sealed partial class HostShutdownTests
     {
         using var f = new Fixture(shutdown: true); f.Activate();
         using var finish = new ManualResetEventSlim();
-        f.OnClose = () => { if (!finish.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException(); };
+        // Only the test releases this worker. A timer here races the test's
+        // continuation under load and no longer models deliberately late cleanup.
+        f.OnClose = () => finish.Wait();
         HostShutdownReport report;
         try
         {
-            report = await f.Registry.ShutdownAsync(new(TimeSpan.FromMilliseconds(100)));
+            report = await f.Registry.ShutdownAsync(new(TimeSpan.FromMilliseconds(100)))
+                .WaitAsync(TimeSpan.FromSeconds(30));
             Assert.Equal("DeadlineExceeded", Assert.Single(report.Items).Outcome);
             Assert.Equal(1, f.Registry.ShutdownWorkPending); Assert.Single(f.Journal!.Read());
         }

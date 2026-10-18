@@ -1253,7 +1253,8 @@ STATEMENT: The instrument client shall resolve roles through an optional version
 UID: BD-CFG-002
 STATUS: Active
 TITLE: BD-CFG-002 P0
-STATEMENT: When the conventional configuration file is absent the framework shall resolve instrument IDs to the localhost server and log the default decision and selected route. Acceptance: Resolve DMM1 without instruments.json and assert localhost endpoint and both log records.
+STATEMENT: When the conventional configuration file is absent the framework shall resolve instrument IDs to the localhost server and log the default decision and selected route. Acceptance: Resolve DMM1 without instruments.json and assert localhost endpoint and both log records. Acceptance: Routing decisions and configuration rejection shall retain their documented outcomes when logging sinks throw.
+
 
 [REQUIREMENT]
 UID: BD-CFG-003

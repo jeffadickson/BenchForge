@@ -89,3 +89,7 @@ Iteration 10 regression repair, BD-HB-002: a sub-second renewal period no longer
 Local iteration 10 (2026-10-17), BD-CFG-003: Reject routing control characters and repair short-period heartbeat timeouts. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 11 (2026-10-17), BD-CFG-003: Normalize overflowing routing schema errors. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 12 (2026-10-17), BD-CFG-002: Keep routing independent of diagnostic sinks. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 12 (2026-10-17), BD-CFG-002: Isolate routing logs and stabilize late-cleanup regression. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
