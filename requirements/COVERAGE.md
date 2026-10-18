@@ -276,3 +276,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 Batch 200 checkpoint 50: 110 focused application cases plus seven compiled checks and 19 checker regressions passed. Counts unchanged: 228 requirements, 0 Verified.
+
+Batch 200 current: Allow planning before optional project trees exist. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

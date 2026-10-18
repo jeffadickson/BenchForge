@@ -15,7 +15,7 @@ internal static class DeveloperTasks
             new(Program.Python, ["scripts/check_instrument_catalog.py"]),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "instrument-definitions", "src/BenchDouble/Generated"),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "--preview-v2", "instrument-definitions/drafts", "generated/BenchForge.Instruments/Code")];
-        string[] Projects(string folder) => Directory.GetFiles(Path.Combine(Program.Root, folder), "*.csproj", SearchOption.AllDirectories)
+        string[] Projects(string folder) => !Directory.Exists(Path.Combine(Program.Root, folder)) ? [] : Directory.GetFiles(Path.Combine(Program.Root, folder), "*.csproj", SearchOption.AllDirectories)
             .Where(p => !Path.GetRelativePath(Program.Root, p).Split(Path.DirectorySeparatorChar).Any(s => s is "obj" or "bin"))
             .Select(p => Path.GetRelativePath(Program.Root, p).Replace('\\', '/')).Order(StringComparer.Ordinal).ToArray();
         return task switch
