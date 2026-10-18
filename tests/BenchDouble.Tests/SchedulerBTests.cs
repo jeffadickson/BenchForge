@@ -113,4 +113,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentOutOfRangeException>(()=>s.Cancel(0));
     }
+
+    /// <summary>Observed caller cancellation preserves the selected event.</summary>
+    [Fact] public void CancelledCancel()
+    {
+        var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>s.Cancel(e.Id,c.Token));Assert.Equal(1,s.Count);
+    }
 }
