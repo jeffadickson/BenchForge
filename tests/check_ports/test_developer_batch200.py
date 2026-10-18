@@ -120,3 +120,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_reject_configuration(self):
         """Reject unknown configurations before launching tasks."""
         self.invoke('--command','build','--configuration','invalid',expected=2);self.assertEqual([],self.events())
+
+    def test_filter_argument(self):
+        """Forward a compound test filter as one argument."""
+        value='FullyQualifiedName~Clock|FullyQualifiedName~Mock';steps=self.plan('test','--test-filter',value);self.assertEqual(['--filter',value],steps[-1]['Arguments'][-2:])
