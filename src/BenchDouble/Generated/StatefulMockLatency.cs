@@ -54,5 +54,17 @@ public sealed partial class StatefulMockEngine
         try{return _prepared.GetValueOrDefault(capability);}finally{_gate.Release();}
     }
 
+    /// <summary>Remove an opt-in scalar preparation without changing readings, faults or clock.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>True when removed; an absent preparation leaves revision unchanged.</returns>
+    /// <exception cref="NotSupportedException">Capability is not declared.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public bool ClearPreparedMeasurement(string capability,CancellationToken ct=default)
+    {
+        _definition.Capability(capability);ct.ThrowIfCancellationRequested();_gate.Wait(ct);
+        try{ct.ThrowIfCancellationRequested();if(!_prepared.Remove(capability))return false;++_revision;return true;}finally{_gate.Release();}
+    }
+
     // Latency members.
 }

@@ -537,4 +537,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Inspect pending scalar timing without reading the clock. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Cancel one scalar preparation without disturbing readings or faults. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
