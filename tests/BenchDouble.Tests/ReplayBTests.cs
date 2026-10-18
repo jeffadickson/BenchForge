@@ -229,4 +229,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());var fork=r.Fork();r.ReadNext("v","voltage",T(0));fork.Reset();Assert.Equal(1,r.Status().Position);Assert.Equal(0,fork.Status().Position);
     }
+
+    /// <summary>Concurrent replay readers consume every sample exactly once.</summary>
+    [Fact] public void ParallelConsumption()
+    {
+        var r=new SimulationReplay(Enumerable.Range(0,128).Select(i=>S(0,i)));var values=new System.Collections.Concurrent.ConcurrentBag<double>();Parallel.For(0,128,_=>values.Add(r.ReadNext("v","voltage",T(0)).Value));Assert.Equal(Enumerable.Range(0,128).Select(i=>(double)i),values.Order());Assert.Equal(new SimulationReplayStatus(128,128,0),r.Status());
+    }
 }
