@@ -150,4 +150,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var reads=c.Reads;_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);Assert.Equal(reads+1,c.Reads);
     }
+
+    /// <summary>Renewal reuses one validated monotonic observation.</summary>
+    [Fact] public void SingleRenewalRead()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;var reads=c.Reads;var renewed=r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),1);Assert.Equal(reads+1,c.Reads);Assert.Equal(0,renewed.AgeMilliseconds);
+    }
 }
