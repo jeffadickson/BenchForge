@@ -128,3 +128,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_filter_spaces(self):
         """Preserve test filter spaces without token splitting."""
         value='DisplayName=some test name';self.assertEqual(value,self.plan('test','--test-filter',value)[-1]['Arguments'][-1])
+
+    def test_filter_metacharacters(self):
+        """Preserve filter shell metacharacters literally."""
+        value='Name=x; echo never';self.assertEqual(value,self.plan('test','--test-filter',value)[-1]['Arguments'][-1]);self.assertEqual([],self.events())
