@@ -166,5 +166,13 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"modes\":[\"voltage\"]","\"modes\":[\"voltage\",\"voltage\"]")));
     }
 
+    /// <summary>A string or boolean default cannot silently become an absent reading.</summary>
+    [Fact] public void DefaultsCannotSilentlyLoseTheirType()
+    {
+        foreach(var value in new[]{"\"bad\"","true"})
+            Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"mockDefault\":0.25","\"mockDefault\":"+value)));
+        Assert.Null(ImportedInstrumentDefinition.Parse(Definition.Replace("\"mockDefault\":0.25","\"mockDefault\":null")).Capability("voltage").MockDefault);
+    }
+
 // CASES
 }

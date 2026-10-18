@@ -60,6 +60,8 @@ public sealed class ImportedInstrumentDefinition
             var modes = capability.GetProperty("modes").EnumerateArray().Select(x => x.GetString() ?? "").ToArray();
             if (modes.Length == 0 || modes.Distinct(StringComparer.Ordinal).Count() != modes.Length || modes.Any(x => !result._modeCommands.ContainsKey(x)))
                 throw new InvalidDataException("Capability references unknown mode.");
+            if (capability.TryGetProperty("mockDefault", out var defaultNode) && defaultNode.ValueKind is not (JsonValueKind.Number or JsonValueKind.Null))
+                throw new InvalidDataException("Mock default must be numeric or null.");
             double? mockDefault = capability.TryGetProperty("mockDefault", out var value) && value.ValueKind == JsonValueKind.Number
                 ? value.GetDouble() : null;
             if (mockDefault.HasValue && !double.IsFinite(mockDefault.Value)) throw new InvalidDataException("Nonfinite default.");

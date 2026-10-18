@@ -20,3 +20,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 14 | Reject ambiguous imported mode commands | BD-SIM-001 | Pending checkpoint 20 |
 | 15 | Reject overlapping imported query bindings | BD-SIM-001 | Pending checkpoint 20 |
 | 16 | Reject repeated capability mode references | BD-SIM-001 | Pending checkpoint 20 |
+| 17 | Validate imported mock default types | BD-SIM-001 | Pending checkpoint 20 |
