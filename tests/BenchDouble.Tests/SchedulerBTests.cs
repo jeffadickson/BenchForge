@@ -239,4 +239,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock{Now=T(5)});Assert.Throws<ArgumentOutOfRangeException>(()=>s.ScheduleAt(T(4),"bad"));Assert.Equal(0,s.Count);
     }
+
+    /// <summary>Absolute deadlines at current time are immediately due.</summary>
+    [Fact] public void AbsoluteNow()
+    {
+        var s=new SimulationScheduler(new Clock{Now=T(5)});s.ScheduleAt(T(5),"a");Assert.Single(s.DrainDue());
+    }
 }
