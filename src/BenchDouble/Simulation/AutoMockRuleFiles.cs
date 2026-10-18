@@ -79,6 +79,8 @@ public static class AutoMockRuleFiles
         ArgumentNullException.ThrowIfNull(rules);
         var validated = rules.ToArray();
         foreach (var rule in validated) { ArgumentNullException.ThrowIfNull(rule); rule.Validate(); }
+        if (validated.Select(rule => rule.Name).Distinct(StringComparer.Ordinal).Count() != validated.Length)
+            throw new ArgumentException("AutoMock rule names must be unique.", nameof(rules));
         var canonical = JsonSerializer.Serialize(validated.Select(r => new
         {
             r.Name, r.Priority,

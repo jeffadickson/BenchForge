@@ -215,5 +215,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<ArgumentNullException>(()=>new RuleBasedLoadBehavior(new ConstantLoad(),new AutoMockLoadRule[]{null!}));
     }
 
+    /// <summary>Rule fingerprints cannot bless data that the load evaluator rejects.</summary>
+    [Fact] public void RuleHashesRejectDuplicateNames()
+    {
+        var rule=new AutoMockLoadRule("same",0,new(),AutoMockLoadActionKind.FixedCurrent,1);
+        Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Sha256(new[]{rule,rule}));
+    }
+
 // CASES
 }
