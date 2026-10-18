@@ -234,4 +234,10 @@ public sealed class LatencyBTests
     {
         var a=Stage();var d=Stage(50,5,SimulationLatencyPhase.Display);Assert.Equal(Profile(a,d).Sample(9).Stages,Profile(d,a).Sample(9).Stages);
     }
+
+    /// <summary>Out-of-order sampling does not mutate a random cursor.</summary>
+    [Fact] public void NoRandomCursor()
+    {
+        var p=Profile(Stage());var s=p.Sample(5).Total;_=p.Sample(1);_=p.Sample(100);Assert.Equal(s,p.Sample(5).Total);
+    }
 }
