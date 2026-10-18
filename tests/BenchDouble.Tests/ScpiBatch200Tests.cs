@@ -14,4 +14,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(name:"v\n")]));
     }
+
+    /// <summary>Reject oversized parameter names.</summary>
+    [Fact] public void LongName()
+    {
+        Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(name:new string('v',129))]));
+    }
 }
