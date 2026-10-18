@@ -48,3 +48,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_missing_optional(self):
         """Plan builds without optional example tool or generated folders."""
         self.assertEqual(4,len(self.plan()))
+
+    def test_generation_order(self):
+        """Validate catalog before both generators."""
+        steps=self.plan('generate');self.assertEqual('scripts/check_instrument_catalog.py',steps[0]['Arguments'][0]);self.assertIn('--preview-v2',steps[2]['Arguments'])
