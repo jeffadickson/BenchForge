@@ -518,4 +518,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Deadline overflow leaves identifiers and events untouched. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Maximum representable absolute deadlines are supported. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
