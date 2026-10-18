@@ -70,5 +70,16 @@ public sealed class BatchedDevelopmentTests
         }
     }
 
+    /// <summary>Initial renewal does not wait through a long configured periodic interval.</summary>
+    /// <returns>Completion after the first immediate renewal.</returns>
+    [Fact] public async Task ScopeRenewalStartsImmediately()
+    {
+        var called=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var handler=new ReplyHandler{Reply=(_,_)=>{called.TrySetResult();return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));}};
+        using var client=new HttpClient(handler){BaseAddress=new Uri("http://localhost/")};
+        await using var heartbeat=new ScopeLeaseHeartbeat(client,"meter",Guid.NewGuid(),TimeSpan.FromMinutes(1));
+        heartbeat.Start();await called.Task.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
 // CASES
 }

@@ -38,7 +38,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
         if (_period <= TimeSpan.Zero || _period > TimeSpan.FromMinutes(1)) throw new ArgumentOutOfRangeException(nameof(period));
     }
 
-    /// <summary>Begin renewal loop once; callers should stop using the instrument after status Lost.</summary>
+    /// <summary>Begin renewal immediately, then periodically; callers should stop using the instrument after status Lost.</summary>
     public void Start()
     {
         lock (_lifecycle)
@@ -53,8 +53,9 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
         using var timer = new PeriodicTimer(_period);
         try
         {
-            while (await timer.WaitForNextTickAsync(token).ConfigureAwait(false))
+            do
             {
+                token.ThrowIfCancellationRequested();
                 ScopeHeartbeatStatus status;
                 try
                 {
@@ -74,7 +75,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                 foreach (var handler in StatusChanged?.GetInvocationList() ?? [])
                     try { ((Action<ScopeHeartbeatStatus>)handler)(status); } catch { /* isolate each observer */ }
                 if (status == ScopeHeartbeatStatus.Lost) break;
-            }
+            } while (await timer.WaitForNextTickAsync(token).ConfigureAwait(false));
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
