@@ -222,4 +222,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(210,Profile(Stage(),Stage(80,20,SimulationLatencyPhase.Display)).MaximumDuration.Ticks);
     }
+
+    /// <summary>Extreme signed seeds remain supported.</summary>
+    [Fact] public void SignedSeed()
+    {
+        Assert.Equal(int.MinValue,new SimulationLatencyProfile(int.MinValue,[Stage()]).Sample(0).Seed);Assert.Equal(int.MaxValue,new SimulationLatencyProfile(int.MaxValue,[Stage()]).Sample(0).Seed);
+    }
 }
