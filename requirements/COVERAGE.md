@@ -500,4 +500,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Events become due at the exact logical deadline. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Future events remain pending before their deadline. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

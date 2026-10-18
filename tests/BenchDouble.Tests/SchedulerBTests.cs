@@ -71,4 +71,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);var e=s.Schedule(T(10),"a");c.Now=T(10);Assert.Equal(e,Assert.Single(s.DrainDue()));
     }
+
+    /// <summary>Future events remain pending before their deadline.</summary>
+    [Fact] public void BeforeDeadline()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(10),"a");c.Now=T(9);Assert.Empty(s.DrainDue());Assert.Equal(1,s.Count);
+    }
 }
