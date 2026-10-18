@@ -12,4 +12,10 @@ public sealed class LatencyBTests
     {
         var p=Profile();Assert.Empty(p.Stages);Assert.Equal(TimeSpan.Zero,p.Sample(0).Total);
     }
+
+    /// <summary>All seven phases remain distinct.</summary>
+    [Fact] public void AllPhases()
+    {
+        var p=Profile(Enum.GetValues<SimulationLatencyPhase>().Select(v=>Stage(10,0,v)).ToArray());Assert.Equal(7,p.Stages.Count);Assert.Equal(70,p.Sample(0).Total.Ticks);
+    }
 }
