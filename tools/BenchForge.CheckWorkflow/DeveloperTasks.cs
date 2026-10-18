@@ -18,16 +18,16 @@ internal static class DeveloperTasks
         string[] Projects(string folder)
         {
             var root = Path.Combine(Program.Root, folder);
-            if (!Directory.Exists(root)) return [];
+            if (!Directory.Exists(root) || (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0) return [];
             var pending = new Stack<string>(); pending.Push(root);
             var projects = new List<string>();
             while (pending.Count > 0)
             {
                 var directory = pending.Pop();
                 foreach (var file in Directory.EnumerateFiles(directory, "*.csproj"))
-                    projects.Add(Path.GetRelativePath(Program.Root, file).Replace('\\', '/'));
+                    if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) == 0) projects.Add(Path.GetRelativePath(Program.Root, file).Replace('\\', '/'));
                 foreach (var child in Directory.EnumerateDirectories(directory))
-                    if (!new[] { "bin", "obj" }.Contains(Path.GetFileName(child), StringComparer.OrdinalIgnoreCase)) pending.Push(child);
+                    if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) == 0 && !new[] { "bin", "obj" }.Contains(Path.GetFileName(child), StringComparer.OrdinalIgnoreCase)) pending.Push(child);
             }
             return projects.Order(StringComparer.Ordinal).ToArray();
         }
