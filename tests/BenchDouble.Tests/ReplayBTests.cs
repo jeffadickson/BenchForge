@@ -235,4 +235,10 @@ public sealed class ReplayBTests
     {
         var r=new SimulationReplay(Enumerable.Range(0,128).Select(i=>S(0,i)));var values=new System.Collections.Concurrent.ConcurrentBag<double>();Parallel.For(0,128,_=>values.Add(r.ReadNext("v","voltage",T(0)).Value));Assert.Equal(Enumerable.Range(0,128).Select(i=>(double)i),values.Order());Assert.Equal(new SimulationReplayStatus(128,128,0),r.Status());
     }
+
+    /// <summary>Concurrent excess reads never duplicate the final sample.</summary>
+    [Fact] public void ConcurrentExhaustion()
+    {
+        var r=R(S());var accepted=0;Parallel.For(0,32,_=>{try{r.ReadNext("v","voltage",T(0));Interlocked.Increment(ref accepted);}catch(InvalidOperationException){}});Assert.Equal(1,accepted);Assert.Equal(1,r.Status().Position);
+    }
 }
