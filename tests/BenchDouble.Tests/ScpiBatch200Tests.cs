@@ -117,4 +117,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); var before=s.GetReadingsSnapshot(); await s.WriteAsync("V1 7"); Assert.Equal(1,before[0].Value); Assert.Equal(7,s.GetReadingsSnapshot()[0].Value);
     }
+
+    /// <summary>Reading snapshot lists reject mutation.</summary>
+    [Fact] public void ReadOnlyReadings()
+    {
+        var s=Session(); var snap=Assert.IsAssignableFrom<IList<MockScpiReading>>(s.GetReadingsSnapshot()); Assert.Throws<NotSupportedException>(()=>snap.Clear());
+    }
 }
