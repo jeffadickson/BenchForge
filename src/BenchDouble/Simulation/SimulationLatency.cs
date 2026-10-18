@@ -105,5 +105,15 @@ public sealed class SimulationLatencySample
         if(!Enum.IsDefined(phase))throw new ArgumentOutOfRangeException(nameof(phase));
         return Stages.FirstOrDefault(s=>s.Phase==phase)?.Duration??TimeSpan.Zero;
     }
+    /// <summary>Calculate a logical ready time without advancing any clock.</summary>
+    /// <param name="start">Nonnegative run-scoped logical start.</param>
+    /// <returns>Start plus sampled total duration.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Start is negative.</exception>
+    /// <exception cref="OverflowException">The resulting logical deadline is unrepresentable.</exception>
+    public TimeSpan ReadyAt(TimeSpan start)
+    {
+        if(start<TimeSpan.Zero)throw new ArgumentOutOfRangeException(nameof(start));
+        return TimeSpan.FromTicks(checked(start.Ticks+Total.Ticks));
+    }
     // Sample members.
 }
