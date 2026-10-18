@@ -145,4 +145,10 @@ public sealed class ReplayBTests
     {
         var r=R(S(10));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(11)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Replay mode and capability comparisons are ordinal and case-sensitive.</summary>
+    [Fact] public void OrdinalLabels()
+    {
+        var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("V","voltage",T(0)));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","Voltage",T(0)));Assert.Equal(0,r.Status().Position);
+    }
 }
