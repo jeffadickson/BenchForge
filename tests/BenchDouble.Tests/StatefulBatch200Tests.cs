@@ -38,4 +38,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(new CallbackClock(()=>throw new InvalidOperationException())); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Unknown capabilities cannot acquire diagnostic entries.</summary>
+    [Fact] public void UnknownFaultCount()
+    {
+        var e=Engine(); Assert.Throws<NotSupportedException>(()=>e.FaultCount("missing")); Assert.Empty(e.Snapshot().PendingFaultCounts);
+    }
 }
