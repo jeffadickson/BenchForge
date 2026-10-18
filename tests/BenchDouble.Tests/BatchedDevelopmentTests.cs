@@ -203,5 +203,17 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(256,builder.Build().Count);
     }
 
+    private sealed class ConstantLoad : ILoadBehavior
+    {
+        public ElectricCurrent CurrentAt(ElectricPotential voltage,TimeSpan elapsed)=>ElectricCurrent.FromAmperes(1);
+    }
+    /// <summary>Null rule entries are explicit argument failures in builders, hashes and decorators.</summary>
+    [Fact] public void NullRulesFailAtTheBoundary()
+    {
+        Assert.Throws<ArgumentNullException>(()=>new AutoMockLoadRulesBuilder().AddRule(null!));
+        Assert.Throws<ArgumentNullException>(()=>AutoMockRuleFiles.Sha256(new AutoMockLoadRule[]{null!}));
+        Assert.Throws<ArgumentNullException>(()=>new RuleBasedLoadBehavior(new ConstantLoad(),new AutoMockLoadRule[]{null!}));
+    }
+
 // CASES
 }

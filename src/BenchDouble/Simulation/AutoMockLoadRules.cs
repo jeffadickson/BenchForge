@@ -90,6 +90,7 @@ public sealed class AutoMockLoadRulesBuilder
 
     private void Add(AutoMockLoadRule rule)
     {
+        ArgumentNullException.ThrowIfNull(rule);
         rule.Validate();
         if (_rules.Any(existing => existing.Name == rule.Name))
             throw new InvalidOperationException($"Duplicate AutoMock rule '{rule.Name}'.");
@@ -119,7 +120,7 @@ public sealed class RuleBasedLoadBehavior : ILoadBehavior
         _baseline = baseline ?? throw new ArgumentNullException(nameof(baseline));
         ArgumentNullException.ThrowIfNull(rules);
         _rules = rules.ToArray();
-        foreach (var rule in _rules) rule.Validate();
+        foreach (var rule in _rules) { ArgumentNullException.ThrowIfNull(rule); rule.Validate(); }
         if (_rules.Select(r => r.Name).Distinct(StringComparer.Ordinal).Count() != _rules.Length)
             throw new ArgumentException("AutoMock rule names must be unique.", nameof(rules));
         _rules = _rules.OrderByDescending(r => r.Priority).ToArray();

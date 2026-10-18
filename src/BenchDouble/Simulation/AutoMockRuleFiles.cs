@@ -78,7 +78,7 @@ public static class AutoMockRuleFiles
     {
         ArgumentNullException.ThrowIfNull(rules);
         var validated = rules.ToArray();
-        foreach (var rule in validated) rule.Validate();
+        foreach (var rule in validated) { ArgumentNullException.ThrowIfNull(rule); rule.Validate(); }
         var canonical = JsonSerializer.Serialize(validated.Select(r => new
         {
             r.Name, r.Priority,

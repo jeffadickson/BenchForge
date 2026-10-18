@@ -153,3 +153,5 @@ Batch iteration 19/30 (2026-10-17), BD-SIM-001: Require explicit AutoMock action
 Batch iteration 20/30 (2026-10-17), BD-SIM-001: Require symbolic AutoMock action names. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 21/30 (2026-10-17), BD-SIM-001: Bound programmatic AutoMock rule sets. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 22/30 (2026-10-17), BD-SIM-001: Validate null rule entries consistently. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.

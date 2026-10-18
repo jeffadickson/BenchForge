@@ -25,3 +25,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 19 | Require explicit AutoMock action values | BD-SIM-001 | Pending checkpoint 20 |
 | 20 | Require symbolic AutoMock action names | BD-SIM-001 | Checkpoint passed |
 | 21 | Bound programmatic AutoMock rule sets | BD-SIM-001 | Pending checkpoint 30 |
+| 22 | Validate null rule entries consistently | BD-SIM-001 | Pending checkpoint 30 |
