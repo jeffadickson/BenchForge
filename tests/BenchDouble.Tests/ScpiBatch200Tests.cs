@@ -199,4 +199,11 @@ public sealed class ScpiBatch200Tests
     {
         var a=Session(); var b=Session(); await a.WriteAsync("V1 2"); await b.WriteAsync("V1 3"); await a.ResetAsync(); Assert.Equal(3,b.GetReadingsSnapshot()[0].Value); Assert.Single(b.GetTranscriptSnapshot());
     }
+
+    /// <summary>Nonfinite writes preserve snapshot state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task NonfiniteWrite()
+    {
+        var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 NaN")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
