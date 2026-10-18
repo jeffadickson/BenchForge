@@ -28,5 +28,40 @@ public sealed class SimulationScheduler
     }
     /// <summary>Current pending event count without sampling or advancing the clock.</summary>
     public int Count {get{lock(_gate)return _pending.Count;}}
+    private TimeSpan ReadTime()
+    {
+        var now=_clock.Elapsed;
+        if(now<TimeSpan.Zero)throw new InvalidOperationException("Simulation clock is negative.");
+        // Clock validation.
+        _observed=now;return now;
+    }
+    /// <summary>Schedule one event after a logical delay without sleeping or advancing time.</summary>
+    /// <param name="delay">Nonnegative logical delay.</param>
+    /// <param name="label">Nonblank label, at most 128 characters without controls.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>Immutable accepted event with a unique positive identifier.</returns>
+    /// <exception cref="ArgumentException">Delay or label is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Queue is full or clock is invalid.</exception>
+    /// <exception cref="OverflowException">Identifier or deadline is unrepresentable.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public SimulationScheduledEvent Schedule(TimeSpan delay,string label,CancellationToken ct=default)=>ScheduleCore(delay,label,false,ct);
+    private SimulationScheduledEvent ScheduleCore(TimeSpan time,string label,bool absolute,CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(label);
+        if(label.Length>128||label.Any(char.IsControl))throw new ArgumentException("Invalid event label.",nameof(label));
+        if(time<TimeSpan.Zero)throw new ArgumentOutOfRangeException(nameof(time));
+        ct.ThrowIfCancellationRequested();
+        lock(_gate)
+        {
+            ct.ThrowIfCancellationRequested();
+            if(_pending.Count>=_capacity)throw new InvalidOperationException("Simulation event queue is full.");
+            var now=ReadTime();ct.ThrowIfCancellationRequested();
+            var due=absolute?time:TimeSpan.FromTicks(checked(now.Ticks+time.Ticks));
+            if(due<now)throw new ArgumentOutOfRangeException(nameof(time),"Deadline precedes current logical time.");
+            var id=checked(_nextId+1);var item=new SimulationScheduledEvent(id,label,due);
+            var key=(due.Ticks,id);_pending.Add(key,item);_keys.Add(id,key);_nextId=id;return item;
+        }
+    }
+
     // Scheduler members.
 }
