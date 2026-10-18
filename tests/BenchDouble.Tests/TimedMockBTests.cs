@@ -135,4 +135,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");var r=e.Snapshot().Revision;using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0,c.Token));Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Cancellation during preparation clock read precedes insertion.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ClockCancellation()
+    {
+        using var c=new CancellationTokenSource();var clock=new Clock{OnRead=c.Cancel};var e=Engine(clock);await e.ConfigureModeAsync("v");await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0,c.Token));Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
