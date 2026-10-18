@@ -185,4 +185,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.WriteAsync("V1 8"); await s.ClearTranscriptAsync(); Assert.Equal(8,s.GetReadingsSnapshot()[0].Value); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Repeated reset remains coherent and empty.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ResetIdempotence()
+    {
+        var s=Session(); await s.ResetAsync(); await s.ResetAsync(); Assert.Empty(s.GetTranscriptSnapshot()); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value));
+    }
 }
