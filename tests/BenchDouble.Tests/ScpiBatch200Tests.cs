@@ -255,4 +255,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Task.WhenAll(Enumerable.Range(0,64).Select(i=>Task.Run(async()=>{if(i%2==0)await s.ResetAsync();else await s.WriteAsync("V1 3");}))); Assert.Equal(2,s.GetReadingsSnapshot().Count); Assert.Contains(s.GetReadingsSnapshot()[0].Value,new[]{1d,3d});
     }
+
+    /// <summary>Maximum channel count produces complete snapshots.</summary>
+    [Fact] public void MaxChannelsSnapshot()
+    {
+        var s=new DefinitionDrivenScpiMockSession(256,[Parameter()]); Assert.Equal(256,s.GetReadingsSnapshot().Count); Assert.Equal(256,s.GetReadingsSnapshot()[255].Channel);
+    }
 }
