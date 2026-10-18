@@ -37,4 +37,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("r");var r=e.Snapshot().Revision;await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Unknown preparation capabilities are rejected.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task UnknownCapability()
+    {
+        var e=Engine();await Assert.ThrowsAsync<NotSupportedException>(async()=>await e.PrepareMeasurementAsync("missing",Profile(),0));
+    }
 }
