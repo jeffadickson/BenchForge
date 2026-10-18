@@ -178,4 +178,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await s.QueryAsync("V1?",c.Token)); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>History clear never resets reading state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ClearPreservesValues()
+    {
+        var s=Session(); await s.WriteAsync("V1 8"); await s.ClearTranscriptAsync(); Assert.Equal(8,s.GetReadingsSnapshot()[0].Value); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
