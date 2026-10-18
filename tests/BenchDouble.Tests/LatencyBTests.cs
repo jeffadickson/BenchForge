@@ -126,4 +126,10 @@ public sealed class LatencyBTests
     {
         var a=new SimulationLatencyProfile(1,[Stage()]);var b=new SimulationLatencyProfile(2,[Stage()]);Assert.NotEqual(Enumerable.Range(0,32).Select(i=>a.Sample(i).Total.Ticks),Enumerable.Range(0,32).Select(i=>b.Sample(i).Total.Ticks));
     }
+
+    /// <summary>Different operation indices vary nonzero jitter.</summary>
+    [Fact] public void IndexVariation()
+    {
+        var p=Profile(Stage());Assert.True(Enumerable.Range(0,64).Select(i=>p.Sample(i).Total.Ticks).Distinct().Count()>1);
+    }
 }
