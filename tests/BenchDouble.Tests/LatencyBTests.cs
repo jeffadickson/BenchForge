@@ -66,4 +66,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(TimeSpan.Zero,Profile(Stage(0,0)).Sample(4).Total);
     }
+
+    /// <summary>Negative jitter radii are rejected.</summary>
+    [Fact] public void NegativeJitter()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(10,-1)));
+    }
 }
