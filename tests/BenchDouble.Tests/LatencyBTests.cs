@@ -60,4 +60,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay+1,0)));
     }
+
+    /// <summary>Zero base duration remains exactly zero.</summary>
+    [Fact] public void ZeroDuration()
+    {
+        Assert.Equal(TimeSpan.Zero,Profile(Stage(0,0)).Sample(4).Total);
+    }
 }
