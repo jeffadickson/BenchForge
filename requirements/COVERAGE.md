@@ -123,3 +123,5 @@ Batch iteration 04/30 (2026-10-17), BD-SIM-001: Track consumed mock faults in st
 Batch iteration 05/30 (2026-10-17), BD-SIM-001: Add explicit queued mock fault clearing. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 06/30 (2026-10-17), BD-SIM-001: Keep absent model removal idempotent. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 07/30 (2026-10-17), BD-SIM-001: Avoid revisions for identical mock overrides. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.

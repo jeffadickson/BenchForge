@@ -10,3 +10,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 4 | Track consumed mock faults in state revisions | BD-SIM-001 | Pending checkpoint 10 |
 | 5 | Add explicit queued mock fault clearing | BD-SIM-001 | Pending checkpoint 10 |
 | 6 | Keep absent model removal idempotent | BD-SIM-001 | Pending checkpoint 10 |
+| 7 | Avoid revisions for identical mock overrides | BD-SIM-001 | Pending checkpoint 10 |

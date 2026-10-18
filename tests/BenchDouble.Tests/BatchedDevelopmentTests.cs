@@ -91,5 +91,13 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(revision,e.Snapshot().Revision);
     }
 
+    /// <summary>Repeating an existing finite override preserves the revision.</summary>
+    [Fact] public void IdenticalOverridesDoNotRevise()
+    {
+        var e=Engine();e.SetReading("voltage",2);var revision=e.Snapshot().Revision;
+        e.SetReading("voltage",2);Assert.Equal(revision,e.Snapshot().Revision);
+        e.SetReading("voltage",3);Assert.Equal(revision+1,e.Snapshot().Revision);
+    }
+
 // CASES
 }

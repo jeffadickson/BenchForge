@@ -188,7 +188,11 @@ public sealed class StatefulMockEngine
         _definition.Capability(capability);
         if (!double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));
         _gate.Wait();
-        try { _overrides[capability] = value; ++_revision; }
+        try
+        {
+            if (_overrides.TryGetValue(capability, out var existing) && existing == value) return;
+            _overrides[capability] = value; ++_revision;
+        }
         finally { _gate.Release(); }
     }
 
