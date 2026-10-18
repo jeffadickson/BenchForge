@@ -255,4 +255,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[4]); e.QueueFault("voltage",new TimeoutException()); e.ClearAllBehaviors(); await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Bulk clear restores bounded fault queue capacity.</summary>
+    [Fact] public void FaultCapacityAfterBulkClear()
+    {
+        var e=Engine(); for(var i=0;i<256;i++)e.QueueFault("voltage",new TimeoutException()); Assert.Throws<InvalidOperationException>(()=>e.QueueFault("voltage",new TimeoutException())); Assert.Equal(256,e.ClearAllFaults()); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
