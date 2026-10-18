@@ -93,4 +93,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetSequence("voltage",[4]); var s=e.Snapshot(); Assert.Single(s.BehaviorKinds); Assert.Equal("Sequence",s.BehaviorKinds["voltage"]);
     }
+
+    /// <summary>Removing a behavior removes its diagnostic entry.</summary>
+    [Fact] public void ModelRemovalKind()
+    {
+        var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetBehavior("voltage",null); Assert.Empty(e.Snapshot().BehaviorKinds);
+    }
 }
