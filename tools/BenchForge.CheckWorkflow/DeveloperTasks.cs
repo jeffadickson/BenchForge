@@ -5,6 +5,7 @@ using System.Text.Json;
 internal static class DeveloperTasks
 {
     internal sealed record Step(string Executable, string[] Arguments);
+    private sealed record Stage(string Executable, string[] Arguments, double Milliseconds, int ExitCode);
 
     internal static Step[] Plan(string task, string dotnet, string configuration)
     {
@@ -46,8 +47,12 @@ internal static class DeveloperTasks
     {
         var steps = Plan(task, dotnet, configuration);
         if (planOnly) { Console.WriteLine(JsonSerializer.Serialize(steps)); return 0; }
+        var results = new List<Stage>();
+        try
+        {
         foreach (var step in steps)
         {
+            var watch = Stopwatch.StartNew();
             Console.WriteLine($"Running {step.Executable} {string.Join(' ', step.Arguments)}");
             var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
             foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
@@ -59,10 +64,19 @@ internal static class DeveloperTasks
                 if (!process.HasExited) process.Kill(entireProcessTree: true);
                 await process.WaitForExitAsync();
                 Console.Error.WriteLine($"Development task timed out after {timeoutSeconds} seconds.");
+                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, 124));
                 return 124;
             }
+            results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, process.ExitCode));
             if (process.ExitCode != 0) return process.ExitCode;
         }
         return 0;
+        }
+        finally
+        {
+            var directory = Path.Combine(Program.Root, "build");
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(Path.Combine(directory, "developer-workflow.json"), JsonSerializer.Serialize(new { task, stages = results }));
+        }
     }
 }
