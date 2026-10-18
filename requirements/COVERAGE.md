@@ -572,4 +572,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Cancelled preparation clear preserves its operation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Preparation clear leaves overrides sequences and faults intact. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

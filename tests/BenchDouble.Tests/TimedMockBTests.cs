@@ -239,4 +239,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>e.ClearPreparedMeasurement("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Preparation clear leaves overrides sequences and faults intact.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ClearIsolation()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");e.SetReading("voltage",8);e.SetSequence("voltage",[7]);e.QueueFault("voltage",new IOException());await e.PrepareMeasurementAsync("voltage",Profile(),0);e.ClearPreparedMeasurement("voltage");Assert.Equal(8,e.Snapshot().Overrides["voltage"]);Assert.Equal(0,e.SequenceStatus("voltage")!.Position);Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
