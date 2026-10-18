@@ -90,4 +90,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay,0),Stage(1,0,SimulationLatencyPhase.Display)));
     }
+
+    /// <summary>The exact total day boundary is supported.</summary>
+    [Fact] public void ExactDay()
+    {
+        Assert.Equal(TimeSpan.FromDays(1),Profile(Stage(TimeSpan.TicksPerDay,0)).Sample(0).Total);
+    }
 }
