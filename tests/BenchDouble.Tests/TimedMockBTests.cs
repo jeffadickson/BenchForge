@@ -170,4 +170,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine(new Clock{Now=TimeSpan.FromTicks(-1)});await e.ConfigureModeAsync("v");await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Readiness overflow preserves preparation and revision state.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task DeadlineOverflow()
+    {
+        var e=Engine(new Clock{Now=TimeSpan.MaxValue});await e.ConfigureModeAsync("v");var r=e.Snapshot().Revision;await Assert.ThrowsAsync<OverflowException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Equal(r,e.Snapshot().Revision);Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
