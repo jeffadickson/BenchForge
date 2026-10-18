@@ -90,4 +90,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock{Frequency=-1}; Assert.Throws<ArgumentOutOfRangeException>(()=>Registry(c));
     }
+
+    /// <summary>Disabled heartbeat enforcement retains legacy provider compatibility.</summary>
+    [Fact] public void LegacyFrequency()
+    {
+        var c=new Clock{Frequency=0}; var r=new HostResourceRegistry(timeProvider:c); var g=r.Reserve("DMM1")!; Assert.Null(r.InspectOwnerHeartbeat("DMM1",g.LeaseId));
+    }
 }

@@ -400,4 +400,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Negative timestamp frequency prevents owner service startup. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Disabled heartbeat enforcement retains legacy provider compatibility. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
