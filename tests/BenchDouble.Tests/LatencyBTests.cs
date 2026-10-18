@@ -72,4 +72,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(10,-1)));
     }
+
+    /// <summary>Jitter cannot exceed base duration.</summary>
+    [Fact] public void JitterBeyondBase()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(10,11)));
+    }
 }
