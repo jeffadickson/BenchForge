@@ -53,4 +53,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0),new string('x',129)));
     }
+
+    /// <summary>Negative logical delays are rejected.</summary>
+    [Fact] public void NegativeDelay()
+    {
+        var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentOutOfRangeException>(()=>s.Schedule(T(-1),"a"));
+    }
 }
