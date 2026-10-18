@@ -584,4 +584,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Reject nonfinite transcript scalar values. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Consume transcript entries only on exact operation and logical-time matches. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

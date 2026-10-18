@@ -47,5 +47,30 @@ public sealed class SimulationReplay
         ArgumentException.ThrowIfNullOrWhiteSpace(label,parameter);
         if(label.Length>maximum||label.Any(char.IsControl))throw new ArgumentException("Invalid transcript label.",parameter);
     }
+    /// <summary>Consume one exact operation at its recorded logical timestamp.</summary>
+    /// <param name="mode">Exact ordinal mode label.</param>
+    /// <param name="capability">Exact ordinal scalar capability label.</param>
+    /// <param name="elapsed">Exact nonnegative logical sample timestamp.</param>
+    /// <param name="ct">Cancellation observed before cursor mutation.</param>
+    /// <returns>The immutable canonical sample including quantity and unit.</returns>
+    /// <exception cref="ArgumentException">An input label or timestamp is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Transcript is exhausted or the operation does not match.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before consumption.</exception>
+    public SimulationReplaySample ReadNext(string mode,string capability,TimeSpan elapsed,CancellationToken ct=default)
+    {
+        ValidateLabel(mode,nameof(mode),128);ValidateLabel(capability,nameof(capability),128);
+        if(elapsed<TimeSpan.Zero)throw new ArgumentOutOfRangeException(nameof(elapsed));
+        ct.ThrowIfCancellationRequested();
+        lock(_gate)
+        {
+            ct.ThrowIfCancellationRequested();
+            if(_position==_samples.Length)throw new InvalidOperationException("Transcript is exhausted.");
+            var item=_samples[_position];
+            if(!StringComparer.Ordinal.Equals(item.Mode,mode)||!StringComparer.Ordinal.Equals(item.Capability,capability)||item.Elapsed!=elapsed)
+                throw new InvalidOperationException("Operation differs from the next recorded sample.");
+            ++_position;return item;
+        }
+    }
+
     // Replay members.
 }
