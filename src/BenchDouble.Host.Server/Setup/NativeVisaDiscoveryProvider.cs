@@ -60,12 +60,12 @@ public sealed class NativeVisaDiscoveryProvider : ISetupDiscoveryProvider
                 if (_scope == "GPIB" && parts.Length >= 2 && Regex.IsMatch(parts[0], @"\AGPIB[0-9]+\z"))
                 {
                     controllers.TryAdd(parts[0], new("visa", parts[0], "VISA " + parts[0] + " (identify adapter manually)"));
-                    if (parts.Length == 3 && parts[2] == "INSTR" && int.TryParse(parts[1], out var address) && address is >= 0 and <= 30)
+                    if (parts.Length == 3 && parts[2] == "INSTR" && int.TryParse(parts[1], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var address) && address is >= 0 and <= 30)
                         endpoints.Add(new("visa", "GPIB", address.ToString(System.Globalization.CultureInfo.InvariantCulture), parts[0], null, null));
                     else if (parts.Length != 2 || parts[1] != "INTFC")
                         diagnostics.Add("Unsupported GPIB resource shape; use a provider supporting secondary addresses: " + resource);
                 }
-                else if (_scope == "USB" && Regex.IsMatch(parts[0], @"\AUSB[0-9]+\z") && parts.Length is 5 or 6 && parts[^1] == "INSTR" && parts.Skip(1).All(p => !string.IsNullOrWhiteSpace(p)))
+                else if (_scope == "USB" && Regex.IsMatch(parts[0], @"\AUSB[0-9]+\z") && parts.Length is 5 or 6 && parts[^1] == "INSTR" && parts.Skip(1).All(p => !string.IsNullOrWhiteSpace(p)) && (parts.Length == 5 || uint.TryParse(parts[4], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out _)))
                     endpoints.Add(new("visa", "USB", resource, null, null,
                         parts.Length >= 5 ? new SetupIdentity(Serial: parts[3]) : null));
                 else if (_scope == "Ethernet" && parts.Length == 4 && parts[^1] == "INSTR" && !string.IsNullOrWhiteSpace(parts[2]) && Regex.IsMatch(parts[0], @"\ATCPIP[0-9]+\z") && string.Equals(parts[1], _host, StringComparison.OrdinalIgnoreCase))

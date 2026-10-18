@@ -81,5 +81,15 @@ public sealed class BatchedDevelopmentTests
         heartbeat.Start();await called.Task.WaitAsync(TimeSpan.FromSeconds(5));
     }
 
+    /// <summary>Signed or padded GPIB addresses and nonnumeric USB interface tokens are excluded.</summary>
+    /// <returns>Completion after strict catalog translation.</returns>
+    [Fact] public async Task DiscoveryAddressesUseStrictNumericTokens()
+    {
+        var gpib=new NativeVisaDiscoveryProvider("GPIB",enumerate:(_,_)=>["GPIB0::+22::INSTR","GPIB0:: 22::INSTR","GPIB0::22::INSTR"]);
+        Assert.Single((await gpib.DiscoverAsync()).Endpoints);
+        var usb=new NativeVisaDiscoveryProvider("USB",enumerate:(_,_)=>["USB0::x::y::serial::bad::INSTR","USB0::x::y::serial::0::INSTR"]);
+        Assert.Single((await usb.DiscoverAsync()).Endpoints);
+    }
+
 // CASES
 }

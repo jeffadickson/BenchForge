@@ -32,3 +32,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 26 | Validate initial owner-health ages and expiry budgets | BD-HB-002 | Pending checkpoint 30 |
 | 27 | Reject inconsistent owner heartbeat acknowledgments | BD-HB-003 | Pending checkpoint 30 |
 | 28 | Renew scope ownership immediately on start | BD-HB-002 | Pending checkpoint 30 |
+| 29 | Validate discovery numeric address components | BD-CFG-008 | Pending checkpoint 30 |

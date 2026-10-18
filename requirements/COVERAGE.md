@@ -167,3 +167,5 @@ Batch iteration 26/30 (2026-10-17), BD-HB-002: Validate initial owner-health age
 Batch iteration 27/30 (2026-10-17), BD-HB-003: Reject inconsistent owner heartbeat acknowledgments. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 28/30 (2026-10-17), BD-HB-002: Renew scope ownership immediately on start. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 29/30 (2026-10-17), BD-CFG-008: Validate discovery numeric address components. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
