@@ -128,18 +128,25 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            foreach (var item in _parameters)
-            {
-                var match = item.Query?.Match(command);
-                if (match is not { Success: true }) continue;
-                int channel = ReadChannel(match);
-                Transcript.Add("Q:" + command);
-                return _values[(item.Spec.Name, channel)]
-                    .ToString("G17", CultureInfo.InvariantCulture);
-            }
-            throw new NotSupportedException($"Mock does not implement query '{command}'.");
+            var (item, match) = Resolve(command, false);
+            int channel = ReadChannel(match);
+            Transcript.Add("Q:" + command);
+            return _values[(item.Spec.Name, channel)].ToString("G17", CultureInfo.InvariantCulture);
         }
         finally { _gate.Release(); }
+    }
+
+    private (CompiledParameter Parameter, Match Match) Resolve(string command, bool setter)
+    {
+        (CompiledParameter Parameter, Match Match)? selected = null;
+        foreach (var item in _parameters)
+        {
+            var match = (setter ? item.Setter : item.Query)?.Match(command);
+            if (match is not { Success: true }) continue;
+            if (selected is not null) throw new InvalidOperationException("Ambiguous simulated SCPI command.");
+            selected = (item, match);
+        }
+        return selected ?? throw new NotSupportedException("Mock does not implement the requested command.");
     }
 
     private int ReadChannel(Match match)
