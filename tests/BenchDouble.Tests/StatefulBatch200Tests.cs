@@ -69,4 +69,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); Assert.Empty(e.Snapshot().BehaviorKinds);
     }
+
+    /// <summary>Synchronous callbacks are identified without execution.</summary>
+    [Fact] public void SynchronousKind()
+    {
+        var e=Engine(); e.SetBehavior("voltage",_=>throw new InvalidOperationException()); Assert.Equal("Synchronous",e.Snapshot().BehaviorKinds["voltage"]);
+    }
 }
