@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 
 namespace BenchDouble.Experiments;
@@ -55,16 +56,45 @@ public sealed class InMemoryExperimentResultSink : IExperimentResultSink
     /// <summary>Get a stable snapshot of all in-memory experiment samples.</summary>
     public IReadOnlyList<(Guid Id, ExperimentSample Sample)> Samples => _samples.ToArray();
 
-    /// <summary>Enqueue a measurement row in the in-memory sink.</summary>
+    /// <summary>Validate and copy a measurement row into immutable in-memory field dictionaries.</summary>
     /// <param name="experimentId">Experiment run identifier.</param>
     /// <param name="sample">Measurement row to enqueue.</param>
     /// <param name="cancellationToken">Cancellation before enqueue.</param>
     /// <returns>Completion of the in-memory enqueue.</returns>
+    /// <exception cref="ArgumentException">Run identity, bounded field/unit text, finite values or unit-to-field associations are invalid.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before the single enqueue.</exception>
     public ValueTask WriteAsync(Guid experimentId, ExperimentSample sample, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        _samples.Enqueue((experimentId, sample));
+        ArgumentNullException.ThrowIfNull(sample);
+        ArgumentNullException.ThrowIfNull(sample.Values);
+        if (experimentId==Guid.Empty) throw new ArgumentException("A sample requires a run identity.",nameof(experimentId));
+        var values=new Dictionary<string,double>(StringComparer.Ordinal);
+        foreach(var entry in sample.Values)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateName(entry.Key,128);
+            if(values.Count>=256 || !double.IsFinite(entry.Value)) throw new ArgumentException("Samples require at most 256 finite fields.",nameof(sample));
+            values.Add(entry.Key,entry.Value);
+        }
+        Dictionary<string,string>? units=null;
+        if(sample.Units is not null)
+        {
+            units=new(StringComparer.Ordinal);
+            foreach(var entry in sample.Units)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if(units.Count>=256 || !values.ContainsKey(entry.Key)) throw new ArgumentException("Units must refer to existing sample fields.",nameof(sample));
+                ValidateName(entry.Value,80);units.Add(entry.Key,entry.Value);
+            }
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        _samples.Enqueue((experimentId,new(sample.Timestamp,new ReadOnlyDictionary<string,double>(values),units is null ? null : new ReadOnlyDictionary<string,string>(units))));
         return ValueTask.CompletedTask;
+    }
+    private static void ValidateName(string? value,int maximum)
+    {
+        if(string.IsNullOrWhiteSpace(value)||value.Length>maximum||value.Any(char.IsControl)) throw new ArgumentException("Sample names and units must be bounded display text.");
     }
 }
 
@@ -147,10 +177,10 @@ public sealed record ExperimentRunnerOptions
     /// <summary>Get the maximum duration allowed for best-effort shutdown.</summary>
     public TimeSpan ShutdownTimeout { get; init; } = TimeSpan.FromSeconds(10);
 
-    /// <summary>Reject an infinite or nonpositive shutdown timeout.</summary>
+    /// <summary>Reject a nonpositive timeout or a value outside the platform timer interval.</summary>
     public void Validate()
     {
-        if (ShutdownTimeout <= TimeSpan.Zero || ShutdownTimeout == Timeout.InfiniteTimeSpan)
+        if (ShutdownTimeout <= TimeSpan.Zero || ShutdownTimeout > TimeSpan.FromMilliseconds(uint.MaxValue-1))
             throw new ArgumentOutOfRangeException(nameof(ShutdownTimeout),
                 "Shutdown timeout must be finite and positive.");
     }
@@ -163,13 +193,15 @@ public sealed record ExperimentRunnerOptions
 public sealed class ExperimentRunner
 {
     private readonly IExperimentResultSink _sink;
-    private readonly ILogger<ExperimentRunner> _logger;
+    private readonly ExperimentDiagnostics _logger;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly ExperimentRunnerOptions _options;
     private bool _recoveryRequired;
 
     /// <summary>True after an unconfirmed shutdown; this runner rejects subsequent runs.</summary>
     public bool RequiresRecovery => Volatile.Read(ref _recoveryRequired);
+    /// <summary>Monotonic diagnostic failure count; does not change run or cleanup outcomes.</summary>
+    public long LoggingFailureCount => _logger.FailureCount;
 
     /// <summary>Create a serialized experiment runner with structured logging.</summary>
     /// <param name="sink">Result sink receiving emitted samples.</param>
@@ -179,7 +211,7 @@ public sealed class ExperimentRunner
         ExperimentRunnerOptions? options = null)
     {
         _sink = sink ?? throw new ArgumentNullException(nameof(sink));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = new(logger ?? throw new ArgumentNullException(nameof(logger)));
         _options = options ?? new ExperimentRunnerOptions();
         _options.Validate();
     }
@@ -188,9 +220,12 @@ public sealed class ExperimentRunner
     /// <param name="procedure">Experiment procedure to execute.</param>
     /// <param name="cancellationToken">Cancellation requested for startup and execution.</param>
     /// <returns>Immutable run result including status, timestamps, and errors.</returns>
+    /// <exception cref="ArgumentException">Procedure name is blank, over 128 characters or contains controls.</exception>
     public async Task<ExperimentRun> RunAsync(IExperimentProcedure procedure, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(procedure);
+        var name=procedure.Name;
+        if(string.IsNullOrWhiteSpace(name)||name.Length>128||name.Any(char.IsControl)) throw new ArgumentException("Procedure name must be bounded display text.",nameof(procedure));
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -201,26 +236,29 @@ public sealed class ExperimentRunner
             var id = Guid.NewGuid();
             var started = DateTimeOffset.UtcNow;
             var context = new ExperimentContext(id, _sink, _logger);
-            using var scope = _logger.BeginScope(new Dictionary<string, object> { ["ExperimentId"] = id, ["Procedure"] = procedure.Name });
+            using var scope = _logger.BeginScope(new Dictionary<string, object> { ["ExperimentId"] = id, ["Procedure"] = name });
             Exception? error = null;
             var status = ExperimentStatus.Completed;
-            _logger.LogInformation("Experiment {ExperimentId} started: {Procedure}", id, procedure.Name);
+            _logger.LogInformation(new EventId(7700,"ExperimentStarted"),"Experiment {ExperimentId} started: {Procedure}", id, name);
             try
             {
-                await procedure.StartupAsync(context, cancellationToken).ConfigureAwait(false);
-                await procedure.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                await (procedure.StartupAsync(context, cancellationToken) ?? throw new InvalidOperationException("Startup returned no task.")).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                await (procedure.ExecuteAsync(context, cancellationToken) ?? throw new InvalidOperationException("Execution returned no task.")).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (OperationCanceledException exception) when (cancellationToken.IsCancellationRequested)
             {
                 error = exception;
                 status = ExperimentStatus.Cancelled;
-                _logger.LogWarning("Experiment {ExperimentId} cancelled", id);
+                _logger.LogWarning(new EventId(7701,"ExperimentCancelled"),"Experiment {ExperimentId} cancelled", id);
             }
             catch (Exception exception)
             {
                 error = exception;
                 status = ExperimentStatus.Failed;
-                _logger.LogError(exception, "Experiment {ExperimentId} failed", id);
+                _logger.LogError(new EventId(7702,"ExperimentFailed"),"Experiment {ExperimentId} failed with {ErrorType}", id,exception.GetType().Name);
             }
             finally
             {
@@ -231,12 +269,14 @@ public sealed class ExperimentRunner
                 Task? cleanup = null;
                 try
                 {
-                    cleanup = procedure.ShutdownAsync(context, cleanupCts.Token);
+                    cleanup = procedure.ShutdownAsync(context, cleanupCts.Token) ?? throw new InvalidOperationException("Shutdown returned no task.");
                     await cleanup.WaitAsync(_options.ShutdownTimeout).ConfigureAwait(false);
                 }
                 catch (TimeoutException timeout)
                 {
-                    cleanupCts.Cancel();
+                    Exception cleanupError=timeout;
+                    try { cleanupCts.Cancel(); }
+                    catch(Exception cancellationError) { cleanupError=new AggregateException(timeout,cancellationError); }
                     // If the driver ignores cancellation, shutdown may still
                     // be executing. Observe later faults; do not falsely
                     // report Completed, Failed or safe-state confirmation.
@@ -249,23 +289,23 @@ public sealed class ExperimentRunner
                                 TaskContinuationOptions.ExecuteSynchronously,
                             TaskScheduler.Default);
                     }
-                    _logger.LogCritical(timeout,
+                    _logger.LogCritical(new EventId(7703,"ExperimentCleanupTimeout"),
                         "Experiment {ExperimentId} cleanup timed out; physical state unknown", id);
-                    error = error is null ? timeout : new AggregateException(error, timeout);
+                    error = error is null ? cleanupError : new AggregateException(error, cleanupError);
                     status = ExperimentStatus.RecoveryRequired;
                 }
                 catch (Exception shutdownError)
                 {
-                    _logger.LogCritical(shutdownError,
-                        "Experiment {ExperimentId} cleanup failed; physical state unknown", id);
+                    _logger.LogCritical(new EventId(7704,"ExperimentCleanupFailed"),
+                        "Experiment {ExperimentId} cleanup failed with {ErrorType}; physical state unknown", id,shutdownError.GetType().Name);
                     error = error is null ? shutdownError : new AggregateException(error, shutdownError);
                     status = ExperimentStatus.RecoveryRequired;
                 }
             }
             if (status == ExperimentStatus.RecoveryRequired)
                 Volatile.Write(ref _recoveryRequired, true);
-            _logger.LogInformation("Experiment {ExperimentId} finished with status {Status}", id, status);
-            return new ExperimentRun(id, procedure.Name, status, started, DateTimeOffset.UtcNow, error);
+            _logger.LogInformation(new EventId(7705,"ExperimentFinished"),"Experiment {ExperimentId} finished with status {Status}", id, status);
+            return new ExperimentRun(id, name, status, started, DateTimeOffset.UtcNow, error);
         }
         finally
         {

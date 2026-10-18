@@ -211,3 +211,5 @@ Checkpoint 300: 454 focused application tests, 19 checker regressions, compiled 
 Checkpoint 325 source: generated mock result/cancellation contracts, architecture-specific optional Roslyn builds, explicit .NET selection, bounded cache lock waiting and fresh documentation producers. Execution pending 350. Counts unchanged: 228 requirements, 0 Verified.
 
 Checkpoint 350: 470 focused application tests, 19 checker regressions, compiled checks and report parity passed. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+New batch 2026-10-18, checkpoint 25 source: runner diagnostic isolation, cancellation/cleanup guards and detached in-memory samples. Runtime execution scheduled at iteration 50. Counts unchanged: 228 requirements, 0 Verified.
