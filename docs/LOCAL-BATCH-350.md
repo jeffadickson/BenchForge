@@ -374,3 +374,31 @@ Iteration 270 haiku: Old readings grow still / A green pulse crosses the wire / 
 Iteration 300 haiku: The old sample waits / Fresh questions name its limits / Threads return as one.
 
 Checkpoint 300: 454 related application tests passed (core 193, host 202, experiments 59), plus 19 requirement/documentation regressions, seven compiled checks and exact six-report byte parity at workers 1/8. Windows x64; GNU Make unavailable, source contracts only. No requirement status promoted.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 301 | Forward explicit .NET host through Make | Pending checkpoint 350 |
+| 302 | Resolve selected .NET executable once | Pending checkpoint 350 |
+| 303 | Fingerprint resolved .NET host identity | Pending checkpoint 350 |
+| 304 | Use selected host for managed builds | Pending checkpoint 350 |
+| 305 | Use selected host for workflow execution | Pending checkpoint 350 |
+| 306 | Wait for shared cache contention with bounded deadline | Pending checkpoint 350 |
+| 307 | Retry only recognized lock contention failures | Pending checkpoint 350 |
+| 308 | Release cache lock through existing failure cleanup | Pending checkpoint 350 |
+| 309 | Partition standalone Roslyn outputs by runtime | Pending checkpoint 350 |
+| 310 | Partition standalone Roslyn outputs by configuration | Pending checkpoint 350 |
+| 311 | Require explicit optional Roslyn runtime selection | Pending checkpoint 350 |
+| 312 | Pass selected native parity executable explicitly | Pending checkpoint 350 |
+| 313 | Pass selected Roslyn parity assembly explicitly | Pending checkpoint 350 |
+| 314 | Read explicit Roslyn path in differential verifier | Pending checkpoint 350 |
+| 315 | Regenerate Roslyn before standalone documentation gate | Pending checkpoint 350 |
+| 316 | Regenerate both producers before standalone comparison | Pending checkpoint 350 |
+| 317 | Stop consumers after producer failures | Pending checkpoint 350 |
+| 318 | Use compiled strict neutrality in CI | Pending checkpoint 350 |
+| 319 | Reconcile README with managed workflow default | Pending checkpoint 350 |
+| 320 | Enable nullable analysis in generated preview source | Pending checkpoint 350 |
+| 321 | Validate generated behavior results in canonical units | Pending checkpoint 350 |
+| 322 | Observe cancellation before generated callbacks | Pending checkpoint 350 |
+| 323 | Observe cancellation after generated callbacks | Pending checkpoint 350 |
+| 324 | Document generated callback failure contracts | Pending checkpoint 350 |
+| 325 | Regenerate previews and update requirement evidence | Pending checkpoint 350 |

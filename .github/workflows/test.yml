@@ -213,10 +213,5 @@ jobs:
 
       - name: Enforce source-neutrality release gate
         if: always()
-        shell: bash
-        run: |
-          if [ -f .tools/checks/native/BenchForge.Checks ] || [ -f .tools/checks/native/BenchForge.Checks.exe ]; then
-            .tools/checks/native/BenchForge.Checks neutrality --jobs 8 --strict --output build/source-neutrality-audit.json
-          else
-            python scripts/check_source_neutrality.py --strict --output build/source-neutrality-audit.json
-          fi
+        shell: pwsh
+        run: ./scripts/checks.ps1 -Python python -Command neutrality-strict

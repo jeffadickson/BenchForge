@@ -46,14 +46,19 @@ internal static class V2MockEmitter
             s.AppendLine($"  /// <summary>Measure {System.Security.SecurityElement.Escape(property)} with mode checks and optional injected behavior.</summary>");
             s.AppendLine("  /// <param name=\"ct\">Cancellation forwarded to both the preview and injected behavior.</param>");
             s.AppendLine($"  /// <returns>A typed {type} simulated measurement.</returns>");
-            s.AppendLine("  /// <exception cref=\"System.InvalidOperationException\">The selected mode does not permit this measurement.</exception>");
+            s.AppendLine("  /// <exception cref=\"System.InvalidOperationException\">The mode is incompatible or the behavior returns a non-finite reading.</exception>");
+            s.AppendLine("  /// <exception cref=\"System.OperationCanceledException\">Cancellation is observed before or after the injected behavior.</exception>");
             s.AppendLine($"  public async System.Threading.Tasks.ValueTask<{type}> Get{property}Async(System.Threading.CancellationToken ct = default)");
             s.AppendLine("  {");
             s.AppendLine($"    var defaultValue = await _inner.Get{property}Async(ct).ConfigureAwait(false);");
             s.AppendLine($"    var behavior = System.Threading.Volatile.Read(ref _{property}Behavior);");
             s.AppendLine($"    {type}? state;");
             s.AppendLine($"    lock (_stateGate) state = _{property}State;");
-            s.AppendLine("    return behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;");
+            s.AppendLine("    ct.ThrowIfCancellationRequested();");
+            s.AppendLine("    var value = behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;");
+            s.AppendLine("    ct.ThrowIfCancellationRequested();");
+            s.AppendLine($"    if (!double.IsFinite(value.{V2Emitter.UnitProperty(cap.Quantity, cap.Unit)})) throw new System.InvalidOperationException(\"Mock behavior returned a non-finite reading.\");");
+            s.AppendLine("    return value;");
             s.AppendLine("  }");
         }
         s.AppendLine("  /// <summary>Clear all injected scalar readings and restore definition defaults.</summary>");

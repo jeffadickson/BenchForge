@@ -3,11 +3,13 @@ param(
     [string]$Cache = '',
     [string]$Timing = '',
     [string]$Python = 'python',
+    [string]$Dotnet = 'dotnet',
     [int]$Jobs = 8,
     [ValidateSet('auto','x64','x86','arm64','arm')][string]$Architecture = 'auto',
     [ValidateSet('Debug','Release')][string]$Configuration = 'Release',
     [ValidateSet('checks','checks-only','requirements','scoreboard','neutrality','neutrality-strict','roslyn','preflight','docs','compare','identity')][string]$Command = 'checks',
     [ValidateRange(1,3600)][int]$TimeoutSeconds = 300,
+    [ValidateRange(1,3600)][int]$LockTimeoutSeconds = 300,
     [switch]$PlanOnly,
     [switch]$Rebuild,
     [switch]$PrepareOnly
@@ -28,7 +30,7 @@ if (!$Cache) { $Cache = Join-Path $Root '.tools/check-workflow' }
 $Cache = [System.IO.Path]::GetFullPath((Join-Path $Cache $plan.cache_segment))
 [System.IO.Directory]::CreateDirectory($Cache) | Out-Null
 # A cache belongs to one build at a time; a failed contender never changes it.
-$lock = [System.IO.File]::Open((Join-Path $Cache 'build.lock'),[System.IO.FileMode]::OpenOrCreate,[System.IO.FileAccess]::ReadWrite,[System.IO.FileShare]::None)
+$lock = Get-CheckCacheLock (Join-Path $Cache 'build.lock') ($LockTimeoutSeconds * 1000)
 try {
 if (!$Timing) { $Timing = Join-Path $Root 'build/check-workflow-timing.json' }
 $stages = [System.Collections.Generic.List[object]]::new()
@@ -54,11 +56,12 @@ $inputs = @(
         if (Test-Path -LiteralPath (Join-Path $Root $name)) { Get-Item -LiteralPath (Join-Path $Root $name) }
     }
 ) | Sort-Object FullName
-$sdk = (& dotnet --version | Out-String).Trim()
+$dotnetPath = (Get-Command -Name $Dotnet -CommandType Application -ErrorAction Stop).Source
+$sdk = (& $dotnetPath --version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or !$sdk) { throw 'Cannot identify the .NET SDK' }
 $sha = [System.Security.Cryptography.SHA256]::Create()
 try {
-    $fingerprintText = ($plan | ConvertTo-Json -Compress) + "`nSDK:$sdk`n" + (($inputs | ForEach-Object {
+    $fingerprintText = ($plan | ConvertTo-Json -Compress) + "`nSDK:$sdk`nHOST:$dotnetPath`n" + (($inputs | ForEach-Object {
         $stream = [System.IO.File]::OpenRead($_.FullName)
         try { $fileHash = [System.BitConverter]::ToString($sha.ComputeHash($stream)) }
         finally { $stream.Dispose() }
@@ -105,7 +108,7 @@ try {
         }
         $previousGcServer = $env:DOTNET_gcServer
         $env:DOTNET_gcServer = '0'
-        try { Invoke-WorkflowStep 'build-workflow' 'dotnet' @('build',(Join-Path $Cache 'source/tools/BenchForge.CheckWorkflow'),'-t:Rebuild','-c',$Configuration,'-r',$plan.rid,'--self-contained','false','--disable-build-servers','-m:1','-nr:false','-p:UseSharedCompilation=false','-o',(Join-Path $Cache 'bin')) }
+        try { Invoke-WorkflowStep 'build-workflow' $dotnetPath @('build',(Join-Path $Cache 'source/tools/BenchForge.CheckWorkflow'),'-t:Rebuild','-c',$Configuration,'-r',$plan.rid,'--self-contained','false','--disable-build-servers','-m:1','-nr:false','-p:UseSharedCompilation=false','-o',(Join-Path $Cache 'bin')) }
         finally { $env:DOTNET_gcServer = $previousGcServer }
         $artifacts = [ordered]@{}
         foreach ($name in $required) { $artifacts[$name] = Get-CheckFileHash (Join-Path $Cache ('bin/'+$name)) }
@@ -114,7 +117,7 @@ try {
         Write-CheckAtomic (Join-Path $Cache 'build-identity.json') (($plan | Select-Object *,@{Name='sdk';Expression={$sdk}}) | ConvertTo-Json)
         Write-CheckAtomic $fingerprintFile $fingerprint
     }
-    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' 'dotnet' @($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds") }
+    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' $dotnetPath @($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds") }
 }
 finally {
     [System.IO.Directory]::CreateDirectory((Split-Path -Parent ([System.IO.Path]::GetFullPath($Timing)))) | Out-Null

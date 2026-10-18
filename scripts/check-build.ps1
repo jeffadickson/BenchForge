@@ -1,6 +1,20 @@
 # Shared build identity and cache validation; dot-sourcing performs no build.
 Set-StrictMode -Version Latest
 
+function Get-CheckCacheLock([string]$Path, [int]$TimeoutMilliseconds = 300000) {
+    if ($TimeoutMilliseconds -lt 1 -or $TimeoutMilliseconds -gt 3600000) { throw 'Invalid cache lock wait budget' }
+    $watch = [System.Diagnostics.Stopwatch]::StartNew()
+    while ($true) {
+        try { return [System.IO.File]::Open($Path,[System.IO.FileMode]::OpenOrCreate,[System.IO.FileAccess]::ReadWrite,[System.IO.FileShare]::None) }
+        catch [System.IO.IOException] {
+            $code = $_.Exception.HResult -band 0xffff
+            if ($code -notin @(11,32,33)) { throw }
+            if ($watch.ElapsedMilliseconds -ge $TimeoutMilliseconds) { throw [System.TimeoutException]::new('Timed out waiting for the compiled check cache lock.', $_.Exception) }
+            [System.Threading.Thread]::Sleep([int][Math]::Min(50,[Math]::Max(1,$TimeoutMilliseconds-$watch.ElapsedMilliseconds)))
+        }
+    }
+}
+
 function Get-CheckBuildPlan {
     param(
         [string]$Platform,

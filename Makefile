@@ -7,14 +7,14 @@ PWSH ?= $(if $(filter Windows_NT,$(OS)),powershell,pwsh)
 CHECKS_ARCH ?= auto
 CHECKS_CONFIGURATION ?= Release
 CHECKS_RID ?=
-CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1 -Python "$(PYTHON)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
+CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1 -Python "$(PYTHON)" -Dotnet "$(DOTNET)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
 
 # Windows local measurements: docs/CHECK-PORT-BENCHMARKS.md. Build native tools
-# once per source change; the normal checks invoke cached executables directly.
+# only for optional microbenchmarks; normal checks use the validated managed host.
 CHECKS_NATIVE_PATH := .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchForge.Checks$(if $(filter Windows_NT,$(OS)),.exe,)
 CHECKS_NATIVE := "$(CURDIR)/$(CHECKS_NATIVE_PATH)" --python "$(PYTHON)"
 CHECKS_SOURCES := $(wildcard tools/BenchForge.Checks/*.cs) tools/BenchForge.Checks/BenchForge.Checks.csproj tools/BenchForge.Checks/scoreboard.html scripts/python_ast_inventory.py
-ROSLYN_DLL := tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll
+ROSLYN_DLL := .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchDouble.DocumentationAudit.dll
 ROSLYN_JOBS ?= 8
 
 $(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES)
@@ -22,7 +22,8 @@ $(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES)
 	$(DOTNET) publish tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)
 
 $(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/RoslynAudit.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj
-	$(DOTNET) build tools/BenchDouble.DocumentationAudit -c Release --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly for the optional standalone Roslyn build))
+	$(DOTNET) build tools/BenchDouble.DocumentationAudit -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
 
 .PHONY: checks-native check-ports checks
 # Full check/report workflow: one managed build, content-validated cache, parallel checks.
@@ -45,7 +46,7 @@ checks-native: $(CHECKS_NATIVE_PATH)
 check-ports: $(CHECKS_NATIVE_PATH) $(ROSLYN_DLL)
 	$(DOTNET) build tools/BenchForge.Checks -c Release
 	$(PYTHON) tests/check_ports/benchmark.py --prepare-baseline 68113cc72de785e5329a3df2bcf3087d0059c294 --prepare-only
-	$(PYTHON) tests/check_ports/verify.py
+	BENCHFORGE_CHECKS_NATIVE="$(CURDIR)/$(CHECKS_NATIVE_PATH)" BENCHFORGE_ROSLYN_DLL="$(CURDIR)/$(ROSLYN_DLL)" $(PYTHON) tests/check_ports/verify.py
 
 
 .PHONY: alpha-check demo-alpha import-check setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check setup-browser scoreboard requirements-check

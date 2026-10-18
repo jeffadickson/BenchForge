@@ -207,3 +207,5 @@ Checkpoint 250: 323 focused application tests, 19 checker regressions, compiled 
 Checkpoint 275 source: BD-HB-006 per-observer freshness policy and local health panel implemented; execution pending 300. Fleet dashboards and persisted experiment policies remain open. Counts unchanged: 228 requirements, 0 Verified.
 
 Checkpoint 300: 454 focused application tests, 19 checker regressions, compiled checks and report parity passed. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 325 source: generated mock result/cancellation contracts, architecture-specific optional Roslyn builds, explicit .NET selection, bounded cache lock waiting and fresh documentation producers. Execution pending 350. Counts unchanged: 228 requirements, 0 Verified.

@@ -298,7 +298,7 @@ planned. Run `make demo-capture` and read [save/retrieve examples](docs/LOCAL-CA
 
 ### Measured check/report tools
 
-The six repository check/report scripts have C# ports with bounded parallel scans. Normal Make/CI entrypoints use native C# for the five measured winners, retain Python for the documentation gate, and use eight-worker Roslyn. See [benchmarks and exact-output validation](docs/CHECK-PORT-BENCHMARKS.md) for measurements, native build prerequisites, cached tools, original-script fallbacks and remaining platform limits.
+The repository check/report scripts have C# ports with bounded parallel scans. Normal Make/CI entrypoints use the shared compiled managed C# workflow with eight-worker scans and a validated architecture-specific cache. Standalone native microbenchmarks remain optional. See [benchmarks and exact-output validation](docs/CHECK-PORT-BENCHMARKS.md) for measurements, native build prerequisites, cached tools, original-script fallbacks and remaining platform limits.
 
 ### Complete check/report workflow
 

@@ -29,6 +29,15 @@ internal static class WorkflowProgram
         catch (Exception error) { Console.Error.WriteLine("ERROR: " + error.Message); return 2; }
     }
 
+    private static int FreshDocumentation(bool compare)
+    {
+        var code = RoslynAudit.Run(Program.Root, "build/api-audit.json", Program.Jobs);
+        if (code != 0) return code;
+        if (!compare) return Documentation.Gate(null);
+        code = Documentation.Preflight("build/docs-preflight.json", false);
+        return code != 0 ? code : Reports.Compare("build/api-audit.json", "build/docs-preflight.json", "build/docs-parity.json");
+    }
+
     private static async Task<int> Run(string[] args)
     {
         var keys = new HashSet<string> { "--root", "--python", "--jobs", "--timing", "--command", "--expected-architecture", "--timeout-seconds" };
@@ -69,8 +78,8 @@ internal static class WorkflowProgram
             "neutrality-strict" => Reports.Neutrality("build/source-neutrality-audit.json", true),
             "roslyn" => RoslynAudit.Run(Program.Root, "build/api-audit.json", Program.Jobs),
             "preflight" => Documentation.Preflight("build/docs-preflight.json", false),
-            "docs" => Documentation.Gate(null),
-            "compare" => Reports.Compare("build/api-audit.json", "build/docs-preflight.json", "build/docs-parity.json"),
+            "docs" => FreshDocumentation(false),
+            "compare" => FreshDocumentation(true),
             _ => throw new InvalidOperationException()
         };
         var originalOut = Console.Out; var originalErr = Console.Error;

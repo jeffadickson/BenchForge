@@ -245,5 +245,17 @@
     "Focused related suites only",
     "GNU Make source contracts only",
     "No requirement promoted to Verified"
-  ]
+  ],
+  "initial_failure": {
+    "suite": "host",
+    "failed": 3,
+    "cause": "xUnit integer InlineData could not bind nullable double",
+    "resolution": "Use double-valued InlineData; full related host rerun passed 202 cases"
+  },
+  "page_checks": {
+    "result": "passed",
+    "renderer_scenarios": 5,
+    "command": "node tests/check_ports/reading_health.cjs",
+    "syntax_command": "node --check src/BenchDouble.Host.Server/wwwroot/setup/setup.js"
+  }
 }

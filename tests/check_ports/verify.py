@@ -170,7 +170,7 @@ def main():
         fixtures(Path(temp))
     output = ROOT / "build/api-audit.json"
     original = folder / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
-    updated = ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
+    updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll")))
     baseline = subprocess.run(["dotnet", str(original), str(ROOT), str(output)], cwd=ROOT, capture_output=True, check=True)
     content = output.read_bytes()
     for jobs in (1, 8):

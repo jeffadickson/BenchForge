@@ -33,6 +33,6 @@ public sealed class GeneratedV2MockDecoratorTests
     public void BuildMetadataContainsDefinitionDigest()
     {
         Assert.Equal(64, ExampleTwoModeDmmPreview.DefinitionSha256.Length);
-        Assert.Equal("v2-stateful-2", ExampleTwoModeDmmPreview.GeneratorVersion);
+        Assert.Equal("v2-stateful-3", ExampleTwoModeDmmPreview.GeneratorVersion);
     }
 }
