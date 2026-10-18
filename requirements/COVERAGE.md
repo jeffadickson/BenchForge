@@ -99,3 +99,5 @@ Local iteration 13 (2026-10-17), BD-CFG-008: Validate DNS labels before VISA enu
 Local iteration 13 (2026-10-17), BD-CFG-008: Validate discovery hostnames and isolate deadline-sensitive tests. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 14 (2026-10-17), BD-CFG-008: Reject incomplete VISA endpoint descriptors. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 15 (2026-10-17), BD-CFG-008: Bound every VISA discovery catalog. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

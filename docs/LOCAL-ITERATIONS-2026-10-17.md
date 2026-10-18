@@ -18,3 +18,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 12 | Isolate routing logs and stabilize late-cleanup regression | BD-CFG-002 | BenchDouble.Host.Tests | Passed |
 | 13 | Validate discovery hostnames and isolate deadline-sensitive tests | BD-CFG-008 | BenchDouble.Host.Tests | Passed |
 | 14 | Reject incomplete VISA endpoint descriptors | BD-CFG-008 | BenchDouble.Host.Tests | Passed |
+| 15 | Bound every VISA discovery catalog | BD-CFG-008 | BenchDouble.Host.Tests | Passed |

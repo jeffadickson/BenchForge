@@ -164,5 +164,18 @@ public sealed class LocalHardeningTests
         Assert.Single((await lan.DiscoverAsync()).Endpoints);
     }
 
+    /// <summary>Native and injected inventory paths share count and descriptor bounds.</summary>
+    /// <returns>Completion of bounded refusal checks.</returns>
+    [Fact]
+    public async Task DiscoveryBoundsInjectedCatalogs()
+    {
+        foreach (var resources in new[] { new string[4097], new[] { new string('x', 256) }, new[] { "USB0::x::y::serial\n::INSTR" } })
+        {
+            var result = await new NativeVisaDiscoveryProvider("USB", enumerate: (_, _) => resources).DiscoverAsync();
+            Assert.Empty(result.Endpoints);
+            Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Contains("unavailable"));
+        }
+    }
+
 // CASES
 }

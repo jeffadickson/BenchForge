@@ -48,11 +48,14 @@ public sealed class NativeVisaDiscoveryProvider : ISetupDiscoveryProvider
         {
             var resources = await Task.Run(() => _enumerate(expression, ct), ct).ConfigureAwait(false);
             ct.ThrowIfCancellationRequested();
+            if (resources is null || resources.Length > 4096 || resources.Any(r => r is null || r.Length > 255 || r.Any(char.IsControl)))
+                throw new InvalidOperationException("Invalid or oversized VISA inventory.");
             var controllers = new Dictionary<string, DiscoveredController>(StringComparer.OrdinalIgnoreCase);
             var endpoints = new List<DiscoveredEndpoint>();
             var diagnostics = new List<string> { "VISA address enumeration only: model, availability and physical identity have not been probed; any USB serial is descriptor evidence only. Save physical mappings as untested drafts until host drivers are installed." };
             foreach (var resource in resources.Distinct(StringComparer.OrdinalIgnoreCase))
             {
+                ct.ThrowIfCancellationRequested();
                 var parts = resource.Split("::");
                 if (_scope == "GPIB" && parts.Length >= 2 && Regex.IsMatch(parts[0], @"\AGPIB[0-9]+\z"))
                 {
