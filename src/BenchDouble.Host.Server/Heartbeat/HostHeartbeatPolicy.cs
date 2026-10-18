@@ -21,6 +21,7 @@ public sealed record HostHeartbeatPolicy(TimeSpan Interval, TimeSpan SuspectAfte
             if (!allowed.Contains(child.Key, StringComparer.OrdinalIgnoreCase)) throw new ArgumentException("Unknown heartbeat setting: " + child.Key);
         TimeSpan Read(string key, TimeSpan fallback)
         {
+            if (configuration.GetSection("BenchHeartbeat:" + key).GetChildren().Any()) throw new ArgumentException("Heartbeat setting must be scalar: " + key);
             var value = configuration["BenchHeartbeat:" + key];
             if (value is null) return fallback;
             if (!int.TryParse(value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var milliseconds))
