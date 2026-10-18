@@ -235,6 +235,23 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Prepare an opt-in simulated scalar operation using the canonical engine.</summary>
+    /// <param name="capability">Declared compatible scalar capability.</param>
+    /// <param name="profile">Immutable logical latency profile.</param>
+    /// <param name="operationIndex">Nonnegative deterministic sample index.</param>
+    /// <param name="ct">Cancellation before preparation.</param>
+    /// <returns>Immutable logical timing; makes no physical acquisition claim.</returns>
+    public ValueTask<PreparedMockMeasurement> PrepareMeasurementAsync(string capability,BenchDouble.Simulation.SimulationLatencyProfile profile,long operationIndex,CancellationToken ct=default)=>_engine.PrepareMeasurementAsync(capability,profile,operationIndex,ct);
+    /// <summary>Inspect scalar preparation without clock reads.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Immutable preparation or null.</returns>
+    public PreparedMockMeasurement? PreparedMeasurementStatus(string capability)=>_engine.PreparedMeasurementStatus(capability);
+    /// <summary>Cancel one simulated preparation without releasing ownership or changing readings.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>True when preparation was removed.</returns>
+    public bool ClearPreparedMeasurement(string capability,CancellationToken ct=default)=>_engine.ClearPreparedMeasurement(capability,ct);
+
     /// <summary>Remove all scalar behavior models while retaining overrides and faults.</summary>
     /// <returns>Removed configuration count; zero leaves revision unchanged.</returns>
     public int ClearAllBehaviors() => _engine.ClearAllBehaviors();
