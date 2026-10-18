@@ -1,0 +1,33 @@
+using BenchDouble.Host.Server.Heartbeat;
+using BenchDouble.Host.Contracts;
+using Microsoft.Extensions.Configuration;
+using Xunit;
+namespace BenchDouble.Host.Tests;
+/// <summary>Deterministic heartbeat clock, configuration and ownership regressions for batch 200.</summary>
+public sealed class HeartbeatBatch200Tests
+{
+    private sealed class Clock : TimeProvider
+    {
+        internal long Ticks;
+        internal long Frequency=TimeSpan.TicksPerSecond;
+        internal int Reads;
+        internal bool Fail;
+        internal DateTimeOffset Utc=DateTimeOffset.UnixEpoch;
+        /// <inheritdoc/>
+        public override long TimestampFrequency=>Frequency;
+        /// <inheritdoc/>
+        public override long GetTimestamp(){++Reads;if(Fail)throw new IOException("clock");return Ticks;}
+        /// <inheritdoc/>
+        public override DateTimeOffset GetUtcNow()=>Utc;
+        internal void At(double milliseconds)=>Ticks=TimeSpan.FromMilliseconds(milliseconds).Ticks;
+    }
+    private static HostHeartbeatPolicy Policy()=>new(TimeSpan.FromMilliseconds(10),TimeSpan.FromMilliseconds(20),TimeSpan.FromMilliseconds(40));
+    private static HostResourceRegistry Registry(Clock c)=>new(heartbeatPolicy:Policy(),timeProvider:c);
+    private static IConfiguration Config(params (string Key,string? Value)[] values)=>new ConfigurationBuilder().AddInMemoryCollection(values.Select(p=>new KeyValuePair<string,string?>(p.Key,p.Value))).Build();
+
+    /// <summary>Null heartbeat configuration fails explicitly.</summary>
+    [Fact] public void NullConfiguration()
+    {
+        Assert.Throws<ArgumentNullException>(()=>HostHeartbeatPolicy.FromConfiguration(null!));
+    }
+}
