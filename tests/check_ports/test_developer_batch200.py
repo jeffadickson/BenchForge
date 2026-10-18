@@ -192,3 +192,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_missing_python(self):
         """Record missing catalog executable without invoking dotnet tasks."""
         r=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--python',str(self.root/'missing.exe'),'--command','build'],capture_output=True,text=True,timeout=30);self.assertEqual(2,r.returncode);self.assertEqual(2,self.report()['stages'][0]['ExitCode']);self.assertEqual([],self.events())
+
+    def test_unknown_task(self):
+        """Reject unsupported task names before launching work."""
+        self.invoke('--command','plan','--task','unknown',expected=2);self.assertEqual([],self.events())
