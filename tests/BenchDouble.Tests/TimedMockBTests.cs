@@ -198,4 +198,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);await e.ConfigureModeAsync("v");Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Synchronous reset invalidates timed scalar state.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task SyncReset()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);e.Reset();Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
