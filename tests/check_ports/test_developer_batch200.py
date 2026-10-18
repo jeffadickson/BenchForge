@@ -104,3 +104,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_no_plan_report(self):
         """Plan mode does not create an execution report."""
         self.plan();self.assertFalse((self.root/'build/developer-workflow.json').exists())
+
+    def test_preserve_plan_report(self):
+        """Plan mode preserves a prior execution report."""
+        path=self.root/'build/developer-workflow.json';path.parent.mkdir();path.write_text('prior');self.plan();self.assertEqual('prior',path.read_text())
