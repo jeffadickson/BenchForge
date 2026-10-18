@@ -86,14 +86,16 @@ public static class AutoMockRuleFiles
             r.Name, r.Priority,
             FromTicks = r.Condition.From?.Ticks,
             UntilTicks = r.Condition.Until?.Ticks,
-            MinimumVolts = r.Condition.MinimumVoltage?.Volts,
-            MaximumVolts = r.Condition.MaximumVoltage?.Volts,
+            MinimumVolts = NormalizeZero(r.Condition.MinimumVoltage?.Volts),
+            MaximumVolts = NormalizeZero(r.Condition.MaximumVoltage?.Volts),
             Action = (int)r.Action,
-            r.Value
+            Value = r.Value == 0 ? 0 : r.Value
         }).ToArray());
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)))
             .ToLowerInvariant();
     }
+
+    private static double? NormalizeZero(double? value) => value == 0 ? 0d : value;
 
     private static void ValidateUniqueKeys(JsonElement node)
     {

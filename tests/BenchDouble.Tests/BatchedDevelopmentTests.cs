@@ -222,5 +222,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Sha256(new[]{rule,rule}));
     }
 
+    /// <summary>Signed zero cannot change the provenance of behaviorally identical rule data.</summary>
+    [Fact] public void EquivalentZerosHaveTheSameFingerprint()
+    {
+        var rule=new AutoMockLoadRule("zero",0,new(),AutoMockLoadActionKind.FixedCurrent,0);
+        Assert.Equal(AutoMockRuleFiles.Sha256(new[]{rule}),AutoMockRuleFiles.Sha256(new[]{rule with{Value=-0d}}));
+    }
+
 // CASES
 }

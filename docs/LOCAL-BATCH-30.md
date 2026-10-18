@@ -27,3 +27,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 21 | Bound programmatic AutoMock rule sets | BD-SIM-001 | Pending checkpoint 30 |
 | 22 | Validate null rule entries consistently | BD-SIM-001 | Pending checkpoint 30 |
 | 23 | Align rule fingerprint validation with execution | BD-SIM-001 | Pending checkpoint 30 |
+| 24 | Canonicalize signed zeros in rule provenance | BD-SIM-001 | Pending checkpoint 30 |
