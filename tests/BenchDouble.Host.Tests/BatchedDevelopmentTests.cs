@@ -52,5 +52,23 @@ public sealed class BatchedDevelopmentTests
             Assert.Throws<ArgumentException>(()=>new OwnerLeaseHeartbeat(client,"meter",Guid.NewGuid(),invalid));
     }
 
+    /// <summary>Valid sequence identity cannot hide malformed ages or changed server timing budgets.</summary>
+    /// <returns>Completion after each invalid acknowledgment becomes terminal Lost.</returns>
+    [Fact] public async Task AcknowledgmentsCannotChangeOwnerBudgets()
+    {
+        foreach(var change in new Func<OwnerHeartbeatSnapshot,OwnerHeartbeatSnapshot>[] {s=>s with{AgeMilliseconds=-1},s=>s with{IntervalMilliseconds=20},s=>s with{ExpireMilliseconds=40000},s=>s with{LossPolicy="Release"}})
+        {
+            var initial=Snapshot();var handler=new ReplyHandler();
+            handler.Reply=async(request,ct)=>
+            {
+                var body=await request.Content!.ReadFromJsonAsync<OwnerHeartbeatRequest>(ct);
+                return new(HttpStatusCode.OK){Content=JsonContent.Create(change(initial with{PeerEpoch=body!.PeerEpoch,Sequence=body.Sequence}))};
+            };
+            using var client=new HttpClient(handler){BaseAddress=new Uri("http://localhost/")};
+            await using var heartbeat=new OwnerLeaseHeartbeat(client,"meter",Guid.NewGuid(),initial);
+            Assert.Equal("Lost",await heartbeat.RenewAsync());Assert.Null(heartbeat.LastAcknowledgment);
+        }
+    }
+
 // CASES
 }

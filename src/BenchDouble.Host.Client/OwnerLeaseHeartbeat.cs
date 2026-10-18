@@ -73,7 +73,9 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
             if (!response.IsSuccessStatusCode)
                 return Set(response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict ? "Lost" : "Degraded");
             var ack = await response.Content.ReadFromJsonAsync<OwnerHeartbeatSnapshot>(linked.Token).ConfigureAwait(false);
-            if (ack is null || ack.HostEpoch != _initial.HostEpoch || ack.OwnerGeneration != _initial.OwnerGeneration || ack.PeerEpoch != _peer || ack.Sequence != sequence || ack.State != "Healthy")
+            if (ack is null || ack.HostEpoch != _initial.HostEpoch || ack.OwnerGeneration != _initial.OwnerGeneration || ack.PeerEpoch != _peer || ack.Sequence != sequence || ack.State != "Healthy" ||
+                !double.IsFinite(ack.AgeMilliseconds) || ack.AgeMilliseconds < 0 || ack.AgeMilliseconds >= ack.ExpireMilliseconds ||
+                ack.IntervalMilliseconds != _initial.IntervalMilliseconds || ack.ExpireMilliseconds != _initial.ExpireMilliseconds || ack.LossPolicy != "FenceAndRetain")
                 return Set("Lost");
             LastAcknowledgment = ack; return Set("Healthy");
         }
