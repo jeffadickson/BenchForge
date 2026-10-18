@@ -58,7 +58,7 @@ public sealed class ImportedInstrumentDefinition
             if (capability.GetProperty("access").GetString() is not "read" and not "readwrite")
                 throw new InvalidDataException("Only readable scalar capabilities supported.");
             var modes = capability.GetProperty("modes").EnumerateArray().Select(x => x.GetString() ?? "").ToArray();
-            if (modes.Length == 0 || modes.Any(x => !result._modeCommands.ContainsKey(x)))
+            if (modes.Length == 0 || modes.Distinct(StringComparer.Ordinal).Count() != modes.Length || modes.Any(x => !result._modeCommands.ContainsKey(x)))
                 throw new InvalidDataException("Capability references unknown mode.");
             double? mockDefault = capability.TryGetProperty("mockDefault", out var value) && value.ValueKind == JsonValueKind.Number
                 ? value.GetDouble() : null;

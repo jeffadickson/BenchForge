@@ -141,3 +141,5 @@ Batch iteration 13/30 (2026-10-17), BD-SIM-001: Reject duplicate imported JSON f
 Batch iteration 14/30 (2026-10-17), BD-SIM-001: Reject ambiguous imported mode commands. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 15/30 (2026-10-17), BD-SIM-001: Reject overlapping imported query bindings. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 16/30 (2026-10-17), BD-SIM-001: Reject repeated capability mode references. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.

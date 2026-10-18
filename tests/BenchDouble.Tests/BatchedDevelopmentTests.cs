@@ -160,5 +160,11 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(json));
     }
 
+    /// <summary>Repeated mode references are rejected rather than retained as ambiguous metadata.</summary>
+    [Fact] public void RepeatedCapabilityModesAreRejected()
+    {
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"modes\":[\"voltage\"]","\"modes\":[\"voltage\",\"voltage\"]")));
+    }
+
 // CASES
 }
