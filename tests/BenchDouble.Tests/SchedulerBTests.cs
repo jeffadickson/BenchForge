@@ -95,4 +95,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(20),"later");s.Schedule(T(10),"earlier");c.Now=T(20);Assert.Equal(new[]{"earlier","later"},s.DrainDue().Select(e=>e.Label));
     }
+
+    /// <summary>Cancellation removes exactly the selected event.</summary>
+    [Fact] public void CancelPresent()
+    {
+        var s=new SimulationScheduler(new Clock());var a=s.Schedule(T(0),"a");s.Schedule(T(0),"b");Assert.True(s.Cancel(a.Id));Assert.Equal("b",Assert.Single(s.DrainDue()).Label);
+    }
 }

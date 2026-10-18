@@ -504,4 +504,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Earlier deadlines drain before later accepted identifiers. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Cancellation removes exactly the selected event. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
