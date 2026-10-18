@@ -88,7 +88,7 @@ async function loadIviFunctions(preferred){
  if(iviFunctions.includes(preferred))$('iviFunction').value=String(preferred);
 }
 function retainIvi(){
- if(!activeIvi)stopOwnerHeartbeat();
+ if(!activeIvi){stopOwnerHeartbeat();$('readingHealth').textContent='No retained session. Reading health has not been inspected.';}
  try{
   if(activeIvi){const {resourceId,leaseId,revision}=activeIvi.lease;sessionStorage.setItem(iviStorageKey,JSON.stringify({resourceId,leaseId,revision}));}
   else { sessionStorage.removeItem(iviStorageKey); stopOwnerHeartbeat(); }

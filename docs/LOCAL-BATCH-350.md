@@ -315,30 +315,62 @@ Checkpoint 250: 323 related application tests passed (core 193, host 71, experim
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 251 | Define detached cached-reading health snapshots | Pending checkpoint 300 |
-| 252 | Validate finite observer freshness budgets | Pending checkpoint 300 |
-| 253 | Bound freshness budgets to one millisecond through one day | Pending checkpoint 300 |
-| 254 | Represent missing readings explicitly | Pending checkpoint 300 |
-| 255 | Avoid inferring freshness without a policy | Pending checkpoint 300 |
-| 256 | Treat the exact freshness boundary as stale | Pending checkpoint 300 |
-| 257 | Validate nonnegative finite cached ages | Pending checkpoint 300 |
-| 258 | Keep freshness assessment pure and thread safe | Pending checkpoint 300 |
-| 259 | Expose request-specific health in cached DMM status | Pending checkpoint 300 |
-| 260 | Preserve independent owner and device state | Pending checkpoint 300 |
-| 261 | Add backward-compatible authenticated status request | Pending checkpoint 300 |
-| 262 | Route freshness budgets through the status endpoint | Pending checkpoint 300 |
-| 263 | Retain strict status request parsing | Pending checkpoint 300 |
-| 264 | Add tab-specific freshness input | Pending checkpoint 300 |
-| 265 | Reject invalid browser freshness values | Pending checkpoint 300 |
-| 266 | Display owner contact separately | Pending checkpoint 300 |
-| 267 | Display device readiness separately | Pending checkpoint 300 |
-| 268 | Display cached reading freshness and age | Pending checkpoint 300 |
-| 269 | Display last device success and reading receipt | Pending checkpoint 300 |
-| 270 | Label status as a snapshot at refresh | Pending checkpoint 300 |
-| 271 | Use text-only health rendering | Pending checkpoint 300 |
-| 272 | Mark unavailable status as unconfirmed | Pending checkpoint 300 |
-| 273 | Add accessible health status region | Pending checkpoint 300 |
-| 274 | Document limits and remaining dashboard requirements | Pending checkpoint 300 |
-| 275 | Add initial freshness policy regression sources | Pending checkpoint 300 |
+| 251 | Define detached cached-reading health snapshots | Checkpoint 300 passed |
+| 252 | Validate finite observer freshness budgets | Checkpoint 300 passed |
+| 253 | Bound freshness budgets to one millisecond through one day | Checkpoint 300 passed |
+| 254 | Represent missing readings explicitly | Checkpoint 300 passed |
+| 255 | Avoid inferring freshness without a policy | Checkpoint 300 passed |
+| 256 | Treat the exact freshness boundary as stale | Checkpoint 300 passed |
+| 257 | Validate nonnegative finite cached ages | Checkpoint 300 passed |
+| 258 | Keep freshness assessment pure and thread safe | Checkpoint 300 passed |
+| 259 | Expose request-specific health in cached DMM status | Checkpoint 300 passed |
+| 260 | Preserve independent owner and device state | Checkpoint 300 passed |
+| 261 | Add backward-compatible authenticated status request | Checkpoint 300 passed |
+| 262 | Route freshness budgets through the status endpoint | Checkpoint 300 passed |
+| 263 | Retain strict status request parsing | Checkpoint 300 passed |
+| 264 | Add tab-specific freshness input | Checkpoint 300 passed |
+| 265 | Reject invalid browser freshness values | Checkpoint 300 passed |
+| 266 | Display owner contact separately | Checkpoint 300 passed |
+| 267 | Display device readiness separately | Checkpoint 300 passed |
+| 268 | Display cached reading freshness and age | Checkpoint 300 passed |
+| 269 | Display last device success and reading receipt | Checkpoint 300 passed |
+| 270 | Label status as a snapshot at refresh | Checkpoint 300 passed |
+| 271 | Use text-only health rendering | Checkpoint 300 passed |
+| 272 | Mark unavailable status as unconfirmed | Checkpoint 300 passed |
+| 273 | Add accessible health status region | Checkpoint 300 passed |
+| 274 | Document limits and remaining dashboard requirements | Checkpoint 300 passed |
+| 275 | Add initial freshness policy regression sources | Checkpoint 300 passed |
 
 Iteration 270 haiku: Old readings grow still / A green pulse crosses the wire / Truth keeps separate clocks.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 276 | Reject invalid budgets even before readings | Checkpoint 300 passed |
+| 277 | Reject invalid observed ages | Checkpoint 300 passed |
+| 278 | Cover inclusive budget endpoints | Checkpoint 300 passed |
+| 279 | Exercise parallel pure policy assessments | Checkpoint 300 passed |
+| 280 | Keep returned health snapshots detached | Checkpoint 300 passed |
+| 281 | Preserve legacy status request fields | Checkpoint 300 passed |
+| 282 | Carry fractional budgets through strict JSON | Checkpoint 300 passed |
+| 283 | Reject missing duplicate and unknown status fields | Checkpoint 300 passed |
+| 284 | Exclude internal timestamps from JSON | Checkpoint 300 passed |
+| 285 | Verify missing status never queries devices | Checkpoint 300 passed |
+| 286 | Verify independent policies on shared cached data | Checkpoint 300 passed |
+| 287 | Exercise exact live-session stale boundary | Checkpoint 300 passed |
+| 288 | Verify monotonic age across UTC jumps | Checkpoint 300 passed |
+| 289 | Retain reading evidence after device faults | Checkpoint 300 passed |
+| 290 | Reset age only after successful new readings | Checkpoint 300 passed |
+| 291 | Prove inspection never renews expired owners | Checkpoint 300 passed |
+| 292 | Reject invalid live policies without dispatch | Checkpoint 300 passed |
+| 293 | Enforce lease authentication with freshness budgets | Checkpoint 300 passed |
+| 294 | Exercise concurrent live observers | Checkpoint 300 passed |
+| 295 | Preserve status inspection during drain | Checkpoint 300 passed |
+| 296 | Render stale data separately from healthy contact | Checkpoint 300 passed |
+| 297 | Render device faults separately from fresh data | Checkpoint 300 passed |
+| 298 | Cover missing and zero-age page states | Checkpoint 300 passed |
+| 299 | Clear health on released leases and mark unavailable status | Checkpoint 300 passed |
+| 300 | Validate accessible controls and text-only renderer | Checkpoint 300 passed |
+
+Iteration 300 haiku: The old sample waits / Fresh questions name its limits / Threads return as one.
+
+Checkpoint 300: 454 related application tests passed (core 193, host 202, experiments 59), plus 19 requirement/documentation regressions, seven compiled checks and exact six-report byte parity at workers 1/8. Windows x64; GNU Make unavailable, source contracts only. No requirement status promoted.
