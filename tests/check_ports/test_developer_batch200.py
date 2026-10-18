@@ -124,3 +124,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_filter_argument(self):
         """Forward a compound test filter as one argument."""
         value='FullyQualifiedName~Clock|FullyQualifiedName~Mock';steps=self.plan('test','--test-filter',value);self.assertEqual(['--filter',value],steps[-1]['Arguments'][-2:])
+
+    def test_filter_spaces(self):
+        """Preserve test filter spaces without token splitting."""
+        value='DisplayName=some test name';self.assertEqual(value,self.plan('test','--test-filter',value)[-1]['Arguments'][-1])
