@@ -260,6 +260,7 @@ public sealed class StatefulMockEngine
     /// <summary>Queue a fault consumed only by the next mode-compatible measurement.</summary>
     /// <param name="capability">Declared capability.</param>
     /// <param name="failure">Exception to throw once.</param>
+    /// <exception cref="InvalidOperationException">The capability already has 256 pending faults.</exception>
     public void QueueFault(string capability, Exception failure)
     {
         _definition.Capability(capability);
@@ -269,6 +270,7 @@ public sealed class StatefulMockEngine
         {
             if (!_faults.TryGetValue(capability, out var queue))
                 _faults[capability] = queue = new Queue<Exception>();
+            if (queue.Count >= 256) throw new InvalidOperationException("Pending mock fault limit reached.");
             queue.Enqueue(failure);
             ++_revision;
         }

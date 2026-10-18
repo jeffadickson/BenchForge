@@ -99,5 +99,14 @@ public sealed class BatchedDevelopmentTests
         e.SetReading("voltage",3);Assert.Equal(revision+1,e.Snapshot().Revision);
     }
 
+    /// <summary>Excess fault injection fails without changing the accepted queue or revision.</summary>
+    [Fact] public void FaultQueueIsBounded()
+    {
+        var e=Engine();for(var i=0;i<256;i++) e.QueueFault("voltage",new IOException());
+        var revision=e.Snapshot().Revision;
+        Assert.Throws<InvalidOperationException>(()=>e.QueueFault("voltage",new IOException()));
+        Assert.Equal(revision,e.Snapshot().Revision);Assert.Equal(256,e.ClearFaults("voltage"));
+    }
+
 // CASES
 }
