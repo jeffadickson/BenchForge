@@ -132,4 +132,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();c.At(10);var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(9);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);Assert.Null(r.Reserve("DMM1"));
     }
+
+    /// <summary>Rollback after an observation cannot restore healthy status.</summary>
+    [Fact] public void ObservationRollback()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);c.At(10);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }
