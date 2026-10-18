@@ -29,4 +29,10 @@ public sealed class SchedulerBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>new SimulationScheduler(new Clock(),4097));
     }
+
+    /// <summary>Both queue capacity boundaries are supported.</summary>
+    [Fact] public void CapacityBounds()
+    {
+        Assert.Equal(1,new SimulationScheduler(new Clock(),1).RemainingCapacity);Assert.Equal(4096,new SimulationScheduler(new Clock(),4096).RemainingCapacity);
+    }
 }
