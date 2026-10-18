@@ -32,6 +32,7 @@ public sealed class SimulationScheduler
     {
         var now=_clock.Elapsed;
         if(now<TimeSpan.Zero)throw new InvalidOperationException("Simulation clock is negative.");
+        if(now<_observed)throw new InvalidOperationException("Simulation clock moved backwards.");
         // Clock validation.
         _observed=now;return now;
     }
