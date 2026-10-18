@@ -137,4 +137,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");Assert.Throws<NotSupportedException>(()=>((IList<SimulationScheduledEvent>)s.Snapshot()).Clear());
     }
+
+    /// <summary>Peeking never reads the simulation clock.</summary>
+    [Fact] public void PeekNoClock()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);var e=s.Schedule(T(0),"a");var reads=c.Reads;Assert.Equal(e,s.Peek());Assert.Equal(reads,c.Reads);
+    }
 }
