@@ -440,4 +440,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Expose the configured worst-case logical latency bound. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Empty latency is explicitly instantaneous. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
