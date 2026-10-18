@@ -181,5 +181,11 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"FixedCurrent\",\"value\":1,\"Value\":0}]}"));
     }
 
+    /// <summary>An omitted action value cannot silently configure zero current.</summary>
+    [Fact] public void RuleValuesMustBeExplicit()
+    {
+        Assert.Throws<JsonException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"FixedCurrent\"}]}"));
+    }
+
 // CASES
 }

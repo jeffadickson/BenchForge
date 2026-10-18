@@ -22,6 +22,7 @@ public static class AutoMockRuleFiles
     {
         public string? Name { get; set; }
         public string? Action { get; set; }
+        [JsonRequired]
         public double Value { get; set; }
         public int Priority { get; set; }
         public double? FromSeconds { get; set; }
