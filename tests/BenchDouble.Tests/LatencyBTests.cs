@@ -18,4 +18,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Enum.GetValues<SimulationLatencyPhase>().Select(v=>Stage(10,0,v)).ToArray());Assert.Equal(7,p.Stages.Count);Assert.Equal(70,p.Sample(0).Total.Ticks);
     }
+
+    /// <summary>Over-limit phase enumeration is rejected.</summary>
+    [Fact] public void TooMany()
+    {
+        Assert.Throws<ArgumentException>(()=>Profile(Enumerable.Repeat(Stage(),8).ToArray()));
+    }
 }
