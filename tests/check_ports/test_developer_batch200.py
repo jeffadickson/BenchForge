@@ -88,3 +88,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_stable_order(self):
         """Sort projects deterministically within a source tree."""
         self.project('src/Z/Z.csproj');self.project('src/A/A.csproj');self.assertEqual(['src/A/A.csproj','src/App/App.csproj','src/Z/Z.csproj'],[s['Arguments'][1] for s in self.plan()[3:]])
+
+    def test_space_paths(self):
+        """Preserve project paths containing spaces as one argument."""
+        self.project('src/with space/My App.csproj');self.assertTrue(any('src/with space/My App.csproj' in s['Arguments'] for s in self.plan()))
