@@ -81,4 +81,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetAsyncBehavior("voltage",(_,_)=>throw new InvalidOperationException()); Assert.Equal("Asynchronous",e.Snapshot().BehaviorKinds["voltage"]);
     }
+
+    /// <summary>Sequence diagnostics reveal kind without consuming values.</summary>
+    [Fact] public void SequenceKind()
+    {
+        var e=Engine(); e.SetSequence("voltage",[3,4]); Assert.Equal("Sequence",e.Snapshot().BehaviorKinds["voltage"]); Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
+    }
 }
