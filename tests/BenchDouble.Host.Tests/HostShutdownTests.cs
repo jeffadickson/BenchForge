@@ -67,7 +67,7 @@ public sealed partial class HostShutdownTests
         public readonly string Id, Revision;
         public Action? OnClose, OnMeasure, OnOpen, OnPrepare, OnRecover;
         public int CloseCalls, MeasureCalls, OpenCalls, PrepareCalls, RecoveryCalls;
-        public Fixture(HostResourceRegistry? registry = null, string id = "METER", bool shutdown = false, ILogger<HostResourceRegistry>? logger = null, HostHeartbeatPolicy? heartbeat = null, TimeProvider? clock = null)
+        public Fixture(HostResourceRegistry? registry = null, string id = "METER", bool shutdown = false, ILogger<HostResourceRegistry>? logger = null, HostHeartbeatPolicy? heartbeat = null, TimeProvider? clock = null, double? freshness = null)
         {
             Directory.CreateDirectory(_directory); Id = id;
             if (registry is null) Journal = new FileHostOwnershipJournal(Path.Combine(_directory, "ownership"));
@@ -76,7 +76,7 @@ public sealed partial class HostShutdownTests
             var binding = new SetupDriverBinding(new string('a',64), "meter", "session",
                 new("driver", "IviNetSoftwareModule", "Vendor.Driver, Vendor"), "TCPIP0::" + id + "::inst0::INSTR", new(), new());
             var config = new BenchSetup(2, [], [new(id, id, "primary",
-                [new("primary", "visa", "VISA", binding.ResourceDescriptor, DriverBinding: binding)], true)], [new("meter", id)]);
+                [new("primary", "visa", "VISA", binding.ResourceDescriptor, DriverBinding: binding)], true)], [new("meter", id, freshness)]);
             Revision = Setup.Save(new(config, null, true)).Revision;
             Service = new(Registry, Setup, [new(id, [binding], _ =>
             {
