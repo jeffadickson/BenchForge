@@ -167,4 +167,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock{Now=T(10)};var s=new SimulationScheduler(c);s.Schedule(T(0),"a");c.Now=T(9);Assert.Throws<InvalidOperationException>(()=>s.DrainDue());Assert.Equal(1,s.Count);
     }
+
+    /// <summary>Negative clock values cannot enter scheduling state.</summary>
+    [Fact] public void NegativeClock()
+    {
+        var c=new Clock{Now=T(-1)};var s=new SimulationScheduler(c);Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"bad"));Assert.Equal(0,s.Count);
+    }
 }
