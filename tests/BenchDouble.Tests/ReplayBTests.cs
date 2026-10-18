@@ -55,4 +55,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentNullException>(()=>R(S() with{Capability=null!}));
     }
+
+    /// <summary>Oversized canonical quantity labels are rejected.</summary>
+    [Fact] public void LongQuantity()
+    {
+        Assert.Throws<ArgumentException>(()=>R(S() with{Quantity=new string('x',129)}));
+    }
 }
