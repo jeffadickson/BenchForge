@@ -79,4 +79,10 @@ public sealed class ReplayBTests
     {
         var s=S() with{Mode=new string('m',128),Capability=new string('c',128),Quantity=new string('q',128),Unit=new string('u',80)};Assert.Equal(s,R(s).ReadNext(s.Mode,s.Capability,T(0)));
     }
+
+    /// <summary>Negative recorded logical timestamps are rejected.</summary>
+    [Fact] public void NegativeTime()
+    {
+        Assert.Throws<ArgumentException>(()=>R(S(-1)));
+    }
 }
