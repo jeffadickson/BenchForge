@@ -40,6 +40,8 @@ public sealed class ImportedInstrumentDefinition
             string command = mode.TryGetProperty("selectionCommand", out var node) && node.ValueKind == JsonValueKind.String
                 ? node.GetString()! : "";
             ValidateCommand(command, allowEmpty: false);
+            if (result._modeCommands.Values.Contains(command, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidDataException("Ambiguous mode selection command.");
             if (!Regex.IsMatch(id, @"\A[A-Za-z_][A-Za-z0-9_]*\z") || !result._modeCommands.TryAdd(id, command))
                 throw new InvalidDataException("Invalid or duplicate mode.");
         }

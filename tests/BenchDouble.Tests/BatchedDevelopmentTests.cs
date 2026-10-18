@@ -144,5 +144,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"mockDefault\":0.25","\"mockDefault\":9,\"mockDefault\":0.25")));
     }
 
+    /// <summary>Distinct mode IDs cannot use the same case-insensitive SCPI selection command.</summary>
+    [Fact] public void ModesCannotShareSelectionCommands()
+    {
+        var json=Definition.Replace("\"selectionCommand\":\"CONF:VOLT\"}","\"selectionCommand\":\"CONF:VOLT\"},{\"id\":\"other\",\"selectionCommand\":\"conf:volt\"}");
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(json));
+    }
+
 // CASES
 }
