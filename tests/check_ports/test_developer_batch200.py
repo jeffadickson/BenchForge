@@ -116,3 +116,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_release_configuration(self):
         """Use Release for default developer tasks."""
         self.assertTrue(all('Release' in s['Arguments'] for s in self.plan()[1:]))
+
+    def test_reject_configuration(self):
+        """Reject unknown configurations before launching tasks."""
+        self.invoke('--command','build','--configuration','invalid',expected=2);self.assertEqual([],self.events())
