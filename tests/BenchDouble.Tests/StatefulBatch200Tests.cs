@@ -248,4 +248,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",9); e.SetBehavior("voltage",_=>3); e.ClearAllBehaviors(); Assert.Equal(9,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Bulk behavior clear retains injected fault precedence.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task BehaviorClearPreservesFault()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[4]); e.QueueFault("voltage",new TimeoutException()); e.ClearAllBehaviors(); await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage"));
+    }
 }
