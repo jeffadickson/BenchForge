@@ -71,6 +71,12 @@ public sealed record ActivateIviRoleRequest([property: JsonRequired] string Expe
 /// <param name="Confirmed">Explicit authorization, required for provider recovery.</param>
 public sealed record IviLeaseRequest([property: JsonRequired] Guid LeaseId, bool Confirmed = false);
 
+/// <summary>Cached session inspection with a per-experiment reading freshness budget.</summary>
+/// <param name="LeaseId">Existing canonical activation capability.</param>
+/// <param name="Confirmed">Legacy inspection field retained for request compatibility; does not authorize I/O.</param>
+/// <param name="ReadingFreshnessMilliseconds">Optional finite freshness limit from one millisecond through one day.</param>
+public sealed record IviStatusRequest([property: JsonRequired] Guid LeaseId, bool Confirmed = false, double? ReadingFreshnessMilliseconds = null);
+
 /// <summary>Typed DMM configuration under a host lease.</summary>
 /// <param name="LeaseId">Canonical activation lease.</param>
 /// <param name="Function">Measurement function.</param>

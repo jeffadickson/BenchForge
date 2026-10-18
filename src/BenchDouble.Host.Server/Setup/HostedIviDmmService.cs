@@ -61,6 +61,8 @@ public sealed record IviDmmSessionStatus(string ResourceId, string Revision, str
 {
     /// <summary>Internal monotonic reading timestamp; excluded from public JSON.</summary>
     internal long? ReadingTimestamp { get; init; }
+    /// <summary>Per-observer cached-data freshness; no readiness, ownership or safety guarantee.</summary>
+    public CachedReadingHealth? ReadingHealth { get; init; }
 }
 
 /// <summary>Operator-facing startup recovery evidence with registration readiness; contains no lease capability.</summary>
@@ -168,14 +170,17 @@ public sealed class HostedIviDmmService
     /// <summary>Inspect cached state without waiting for or dispatching synchronous vendor I/O.</summary>
     /// <param name="resourceId">Canonical instrument.</param>
     /// <param name="leaseId">Existing activation capability; stale or mismatched leases are rejected.</param>
+    /// <param name="readingFreshnessMilliseconds">Optional caller-specific freshness budget from one millisecond through one day.</param>
     /// <returns>Immutable state snapshot pinned to the original activation revision.</returns>
     /// <exception cref="UnauthorizedAccessException">The lease does not own this managed resource.</exception>
-    public IviDmmSessionStatus Status(string resourceId, Guid leaseId)
+    public IviDmmSessionStatus Status(string resourceId, Guid leaseId, double? readingFreshnessMilliseconds = null)
     {
+        ReadingFreshness.Validate(readingFreshnessMilliseconds);
         var status = _registry.InspectManaged(resourceId, leaseId, d => ((Runtime)d).Status);
         var heartbeat = _registry.InspectOwnerHeartbeat(resourceId, leaseId);
         return status with { Heartbeat = heartbeat, State = _registry.PersistencePending(resourceId) ? "JournalUpdateRequired" : heartbeat?.State == "Expired" ? "OwnerExpired" : status.State,
-            DiagnosticWriteFailures = LoggingFailureCount + _registry.LoggingFailureCount };
+            DiagnosticWriteFailures = LoggingFailureCount + _registry.LoggingFailureCount,
+            ReadingHealth = ReadingFreshness.Assess(status.ReadingAgeMilliseconds, readingFreshnessMilliseconds) };
     }
 
     /// <summary>Configure a typed DMM operation under its existing lease.</summary>

@@ -93,7 +93,10 @@ public static class SetupEndpoints
         group.MapGet("/ivi/{resourceId}/capabilities", (string resourceId, HostedIviDmmService drivers) =>
             Results.Ok(new { functions = drivers.SupportedFunctions(resourceId) }));
         group.MapPost("/ivi/{resourceId}/status", (string resourceId, JsonElement document, HostedIviDmmService drivers) =>
-            Results.Ok(drivers.Status(resourceId, BenchSetupService.ParseIviRequest<IviLeaseRequest>(document.GetRawText()).LeaseId)));
+        {
+            var request = BenchSetupService.ParseIviRequest<IviStatusRequest>(document.GetRawText());
+            return Results.Ok(drivers.Status(resourceId, request.LeaseId, request.ReadingFreshnessMilliseconds));
+        });
         group.MapPost("/ivi/{resourceId}/configure", (string resourceId, JsonElement document, HostedIviDmmService drivers, CancellationToken ct) =>
         {
             var request = BenchSetupService.ParseIviRequest<IviDmmConfigureRequest>(document.GetRawText());

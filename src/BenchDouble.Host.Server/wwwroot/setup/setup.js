@@ -100,18 +100,31 @@ async function refreshIvi(){
  iviVerified=false;
  const lease=activeIvi.lease;
  try{
-  const snapshot=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/status',{leaseId:lease.leaseId});
+  const freshness=Number($('readingFreshness').value);
+  if(!Number.isFinite(freshness)||freshness<1||freshness>86400000)throw Error('Choose a reading freshness limit from 1 to 86400000 milliseconds.');
+  const snapshot=await api('ivi/'+encodeURIComponent(lease.resourceId)+'/status',{leaseId:lease.leaseId,readingFreshnessMilliseconds:freshness});
   if(activeIvi?.lease!==lease)return;
   if(snapshot.resourceId?.toLowerCase()!==lease.resourceId.toLowerCase()||snapshot.revision!==lease.revision)throw Error('Session metadata changed; retain the token and investigate the host.');
   iviVerified=true;activeIvi.active=snapshot.state==='Ready'; syncOwnerHeartbeat(snapshot.heartbeat);
   await loadIviFunctions(snapshot.function);if(activeIvi?.lease!==lease)return;
   $('iviRuntime').textContent=JSON.stringify(snapshot,null,2);
+  renderReadingHealth(snapshot);
   status('Retained IVI session: '+snapshot.state+'. No driver was reopened.',snapshot.state==='RecoveryRequired');
  }catch(error){
   if(activeIvi?.lease!==lease)return;
+  $('readingHealth').textContent='Status unavailable. Previously displayed device and reading health are unconfirmed.';
   if(error.httpStatus===403){activeIvi=null;retainIvi();$('iviRuntime').textContent='Host no longer recognizes this lease. Physical state has not been verified. Inspect recovery after host restart.';try{await refreshRecovery();}catch{/* The recovery panel reports unavailable inspection. */}}
   throw error;
  }
+}
+function renderReadingHealth(snapshot){
+ const health=snapshot.readingHealth;
+ const age=typeof health?.ageMilliseconds==='number'?health.ageMilliseconds.toFixed(0)+' ms':'No successful reading';
+ const owner=snapshot.heartbeat?.state||'Not enabled';
+ $('readingHealth').textContent='Owner contact: '+owner+'\nDevice: '+snapshot.state+'\nCached reading: '+(health?.state||'Unspecified')+' · '+age+
+  '\nFreshness limit: '+(health?.maximumAgeMilliseconds??'Unspecified')+' ms\nLast device success: '+(snapshot.lastDeviceSuccessUtc||'None')+
+  '\nLast reading receipt: '+(snapshot.lastReadingUtc||'None')+'\nSnapshot at refresh; contact and freshness do not certify physical safety.';
+ $('readingHealth').className=health?.state==='Stale'||health?.state==='Missing'||snapshot.state!=='Ready'?'notice error':'notice';
 }
 function parseIviLease(raw){
  const lease=JSON.parse(raw);

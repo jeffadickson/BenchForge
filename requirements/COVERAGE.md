@@ -203,3 +203,5 @@ Checkpoint 200 execution passed: 276 application tests, 19 tracker/documentation
 Checkpoint 225: TR-045 clock-mode foundation with BD-EXP-002 canonical run-clock integration; TR-046 physical deadline separation documented. Automatic runner pacing and UI controls remain open. Initial core/composition sources added; runtime tests pending checkpoint 250. Counts remain 228 requirements, 0 Verified; statuses unchanged.
 
 Checkpoint 250: 323 focused application tests, 19 checker regressions, compiled checks and report parity passed. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 275 source: BD-HB-006 per-observer freshness policy and local health panel implemented; execution pending 300. Fleet dashboards and persisted experiment policies remain open. Counts unchanged: 228 requirements, 0 Verified.

@@ -312,3 +312,33 @@ TR-045 clock-mode foundation is now implemented in the simulation library and ex
 Iteration 240 haiku: Paused hands hold the light / Threads meet at a single clock / Time resumes its path.
 
 Checkpoint 250: 323 related application tests passed (core 193, host 71, experiments 59), plus 19 requirement/documentation regressions, seven compiled checks and exact six-report byte parity at workers 1/8. Windows x64; GNU Make unavailable, source contracts only. No requirement status promoted.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 251 | Define detached cached-reading health snapshots | Pending checkpoint 300 |
+| 252 | Validate finite observer freshness budgets | Pending checkpoint 300 |
+| 253 | Bound freshness budgets to one millisecond through one day | Pending checkpoint 300 |
+| 254 | Represent missing readings explicitly | Pending checkpoint 300 |
+| 255 | Avoid inferring freshness without a policy | Pending checkpoint 300 |
+| 256 | Treat the exact freshness boundary as stale | Pending checkpoint 300 |
+| 257 | Validate nonnegative finite cached ages | Pending checkpoint 300 |
+| 258 | Keep freshness assessment pure and thread safe | Pending checkpoint 300 |
+| 259 | Expose request-specific health in cached DMM status | Pending checkpoint 300 |
+| 260 | Preserve independent owner and device state | Pending checkpoint 300 |
+| 261 | Add backward-compatible authenticated status request | Pending checkpoint 300 |
+| 262 | Route freshness budgets through the status endpoint | Pending checkpoint 300 |
+| 263 | Retain strict status request parsing | Pending checkpoint 300 |
+| 264 | Add tab-specific freshness input | Pending checkpoint 300 |
+| 265 | Reject invalid browser freshness values | Pending checkpoint 300 |
+| 266 | Display owner contact separately | Pending checkpoint 300 |
+| 267 | Display device readiness separately | Pending checkpoint 300 |
+| 268 | Display cached reading freshness and age | Pending checkpoint 300 |
+| 269 | Display last device success and reading receipt | Pending checkpoint 300 |
+| 270 | Label status as a snapshot at refresh | Pending checkpoint 300 |
+| 271 | Use text-only health rendering | Pending checkpoint 300 |
+| 272 | Mark unavailable status as unconfirmed | Pending checkpoint 300 |
+| 273 | Add accessible health status region | Pending checkpoint 300 |
+| 274 | Document limits and remaining dashboard requirements | Pending checkpoint 300 |
+| 275 | Add initial freshness policy regression sources | Pending checkpoint 300 |
+
+Iteration 270 haiku: Old readings grow still / A green pulse crosses the wire / Truth keeps separate clocks.
