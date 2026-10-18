@@ -223,4 +223,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());r.ReadNext("v","voltage",T(0));var fork=r.Fork();Assert.Equal(0,fork.Status().Position);Assert.Equal(1,r.Status().Position);Assert.Equal(S(),fork.ReadNext("v","voltage",T(0)));
     }
+
+    /// <summary>Resetting a fork does not mutate its parent cursor.</summary>
+    [Fact] public void ForkIsolation()
+    {
+        var r=R(S());var fork=r.Fork();r.ReadNext("v","voltage",T(0));fork.Reset();Assert.Equal(1,r.Status().Position);Assert.Equal(0,fork.Status().Position);
+    }
 }
