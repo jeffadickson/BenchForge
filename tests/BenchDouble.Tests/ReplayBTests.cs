@@ -67,4 +67,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(S() with{Unit=new string('x',81)}));
     }
+
+    /// <summary>Control characters in every transcript label are rejected.</summary>
+    [Fact] public void ControlLabels()
+    {
+        foreach(var s in new[]{S() with{Mode="v\n"},S() with{Capability="x\t"},S() with{Quantity="x\r"},S() with{Unit="x\0"}})Assert.Throws<ArgumentException>(()=>R(s));
+    }
 }
