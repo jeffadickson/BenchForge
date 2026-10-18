@@ -54,4 +54,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(-1,0)));
     }
+
+    /// <summary>Durations beyond one day are rejected.</summary>
+    [Fact] public void OverDayDuration()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay+1,0)));
+    }
 }
