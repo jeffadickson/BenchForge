@@ -96,4 +96,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock{Frequency=0}; var r=new HostResourceRegistry(timeProvider:c); var g=r.Reserve("DMM1")!; Assert.Null(r.InspectOwnerHeartbeat("DMM1",g.LeaseId));
     }
+
+    /// <summary>New ownership begins healthy at zero age.</summary>
+    [Fact] public void InitialAge()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Equal("Healthy",s.State);Assert.Equal(0,s.AgeMilliseconds);
+    }
 }
