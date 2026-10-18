@@ -15,9 +15,22 @@ internal static class DeveloperTasks
             new(Program.Python, ["scripts/check_instrument_catalog.py"]),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "instrument-definitions", "src/BenchDouble/Generated"),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "--preview-v2", "instrument-definitions/drafts", "generated/BenchForge.Instruments/Code")];
-        string[] Projects(string folder) => !Directory.Exists(Path.Combine(Program.Root, folder)) ? [] : Directory.GetFiles(Path.Combine(Program.Root, folder), "*.csproj", SearchOption.AllDirectories)
-            .Where(p => !Path.GetRelativePath(Program.Root, p).Split(Path.DirectorySeparatorChar).Any(s => s is "obj" or "bin"))
-            .Select(p => Path.GetRelativePath(Program.Root, p).Replace('\\', '/')).Order(StringComparer.Ordinal).ToArray();
+        string[] Projects(string folder)
+        {
+            var root = Path.Combine(Program.Root, folder);
+            if (!Directory.Exists(root)) return [];
+            var pending = new Stack<string>(); pending.Push(root);
+            var projects = new List<string>();
+            while (pending.Count > 0)
+            {
+                var directory = pending.Pop();
+                foreach (var file in Directory.EnumerateFiles(directory, "*.csproj"))
+                    projects.Add(Path.GetRelativePath(Program.Root, file).Replace('\\', '/'));
+                foreach (var child in Directory.EnumerateDirectories(directory))
+                    if (!new[] { "bin", "obj" }.Contains(Path.GetFileName(child), StringComparer.OrdinalIgnoreCase)) pending.Push(child);
+            }
+            return projects.Order(StringComparer.Ordinal).ToArray();
+        }
         return task switch
         {
             "generate" => Generate(),
