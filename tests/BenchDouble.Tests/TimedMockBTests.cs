@@ -184,4 +184,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock{Now=TimeSpan.FromTicks(5)};var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(4);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Real mode changes invalidate outstanding preparations.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ModeChange()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);await e.ConfigureModeAsync("r");Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
