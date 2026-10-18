@@ -48,4 +48,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:SuspectMilliseconds:value","20"))));
     }
+
+    /// <summary>Nested expiry budgets are rejected.</summary>
+    [Fact] public void NestedExpiry()
+    {
+        Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:ExpireMilliseconds:value","40"))));
+    }
 }
