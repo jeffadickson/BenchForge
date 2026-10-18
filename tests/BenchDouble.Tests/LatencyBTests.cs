@@ -186,4 +186,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(TimeSpan.Zero,Profile(Stage()).Sample(0).DurationOf(SimulationLatencyPhase.Display));
     }
+
+    /// <summary>Configured phases return their sampled duration.</summary>
+    [Fact] public void PresentPhase()
+    {
+        var s=Profile(Stage()).Sample(0);Assert.Equal(s.Total,s.DurationOf(SimulationLatencyPhase.Integration));
+    }
 }
