@@ -120,4 +120,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.Ticks=TimeSpan.FromMilliseconds(40).Ticks-1;Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
     }
+
+    /// <summary>The exact expiry deadline permanently fences ownership.</summary>
+    [Fact] public void ExactExpiry()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(40);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);Assert.Null(r.Reserve("DMM1"));
+    }
 }

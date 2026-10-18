@@ -405,4 +405,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: The final tick before expiry remains suspect. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: The exact expiry deadline permanently fences ownership. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
