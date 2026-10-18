@@ -20,6 +20,10 @@ public sealed record MockReadingContext(string Mode, string Capability, TimeSpan
 /// <param name="Overrides">Explicit readings copied at capture.</param>
 public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan Elapsed, IReadOnlyDictionary<string, double> Overrides)
 {
+    /// <summary>Detached nonempty pending-fault counts; contains no exception objects.</summary>
+    public IReadOnlyDictionary<string, int> PendingFaultCounts { get; init; } =
+        new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
+
     /// <summary>Independent cursor positions captured with the same mode and revision; contains no sequence values.</summary>
     public IReadOnlyDictionary<string, int> SequencePositions { get; init; } =
         new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
@@ -319,7 +323,8 @@ public sealed partial class StatefulMockEngine
     {
         _gate.Wait();
         try { return new(_mode, _revision, ReadElapsed(),
-            new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))) { SequencePositions = SequencePositions() }; }
+            new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))) { SequencePositions = SequencePositions(),
+                PendingFaultCounts = new ReadOnlyDictionary<string, int>(_faults.Where(p => p.Value.Count > 0).ToDictionary(p => p.Key, p => p.Value.Count, StringComparer.Ordinal)) }; }
         finally { _gate.Release(); }
     }
 
