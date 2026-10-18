@@ -56,4 +56,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.QueueFault("voltage",new TimeoutException()); var map=Assert.IsAssignableFrom<IDictionary<string,int>>(e.Snapshot().PendingFaultCounts); Assert.Throws<NotSupportedException>(()=>map.Clear());
     }
+
+    /// <summary>Consumed fault queues disappear from nonempty diagnostics.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ConsumedFaultExcluded()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage")); Assert.Empty(e.Snapshot().PendingFaultCounts);
+    }
 }
