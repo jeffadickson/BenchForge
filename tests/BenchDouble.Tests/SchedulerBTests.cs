@@ -173,4 +173,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock{Now=T(-1)};var s=new SimulationScheduler(c);Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"bad"));Assert.Equal(0,s.Count);
     }
+
+    /// <summary>Deadline overflow leaves identifiers and events untouched.</summary>
+    [Fact] public void DeadlineOverflow()
+    {
+        var c=new Clock{Now=TimeSpan.MaxValue};var s=new SimulationScheduler(c);Assert.Throws<OverflowException>(()=>s.Schedule(T(1),"bad"));Assert.Equal(0,s.Count);Assert.Equal(1,s.Schedule(T(0),"valid").Id);
+    }
 }
