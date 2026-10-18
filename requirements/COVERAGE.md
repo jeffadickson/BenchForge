@@ -432,4 +432,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker regressions passed. Counts unchanged: 228 requirements, 0 Verified.
 
 
-Batch 200B current: Copy and canonicalize bounded unique latency phase definitions. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Bound logical phase durations to zero through one day. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
