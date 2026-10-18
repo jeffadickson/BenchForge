@@ -241,4 +241,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.QueryAsync("V3?")); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Concurrent writes and snapshots remain coherent.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ConcurrentSnapshots()
+    {
+        var s=Session(); await Task.WhenAll(Enumerable.Range(0,64).Select(i=>Task.Run(async()=>{await s.WriteAsync($"V{1+i%2} {2+i%2}"); Assert.Equal(2,s.GetReadingsSnapshot().Count); Assert.All(s.GetReadingsSnapshot(),r=>Assert.InRange(r.Value,1,3));}))); Assert.Equal(64,s.GetTranscriptSnapshot().Count);
+    }
 }
