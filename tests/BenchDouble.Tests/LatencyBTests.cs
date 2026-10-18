@@ -144,4 +144,10 @@ public sealed class LatencyBTests
     {
         var s=Profile(Stage()).Sample(long.MaxValue);Assert.InRange(s.Total.Ticks,90,110);Assert.Equal(long.MaxValue,s.OperationIndex);
     }
+
+    /// <summary>Jitter never leaves declared integer tick bounds.</summary>
+    [Fact] public void Bounds()
+    {
+        var p=Profile(Stage());for(var i=0;i<4096;i++)Assert.InRange(p.Sample(i).Total.Ticks,90,110);
+    }
 }
