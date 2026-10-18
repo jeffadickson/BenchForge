@@ -141,7 +141,9 @@ public sealed partial class StatefulMockEngine
                 : fallback ?? throw new InvalidOperationException("No configured mock reading.");
             ct.ThrowIfCancellationRequested();
             if (!double.IsFinite(result)) throw new InvalidOperationException("Nonfinite mock reading.");
-            if (advancing is not null) { ++advancing.Position; ++_revision; }
+            var changed = _prepared.Remove(capability);
+            if (advancing is not null) { ++advancing.Position; changed = true; }
+            if (changed) ++_revision;
             return result;
         }
         finally { _gate.Release(); }
