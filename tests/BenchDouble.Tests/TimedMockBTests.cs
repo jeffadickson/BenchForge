@@ -51,4 +51,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await Assert.ThrowsAsync<ArgumentNullException>(async()=>await e.PrepareMeasurementAsync("voltage",null!,0));
     }
+
+    /// <summary>Negative preparation indices preserve prior state.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task NegativeIndex()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),-1));Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
