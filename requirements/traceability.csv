@@ -74,7 +74,7 @@ TR-072,P1,PartialSourceUnverified,src/BenchDouble.Host.Server/Program.cs,tests/B
 TR-073,P1,PartialSourceUnverified,examples/ThermalCycleMonitor/index.html,tests/BenchDouble.Browser.Tests/UnattendedMonitorBrowserTests.cs,https://github.com/jeffadickson/BenchDouble/issues/49,,
 TR-074,P1,PartialSourceUnverified,examples/ProjectOverview/index.html,,https://github.com/jeffadickson/BenchDouble/issues/49,,
 TR-075,P2,DesignOnly,docs/INTEGRATED-PROCEDURE-RUNNER.md,,https://github.com/jeffadickson/BenchDouble/issues/49,,
-TR-076,P0,PartialSourceUnverified,src/BenchDouble/Observability/LoggingScpiSession.cs,tests/BenchDouble.Tests/LoggingScpiSessionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/49,,tests/BenchDouble.Tests/LocalHardeningTests.cs
+TR-076,P0,PartialSourceUnverified,src/BenchDouble/Observability/LoggingScpiSession.cs,tests/BenchDouble.Tests/LoggingScpiSessionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/49,,tests/BenchDouble.Tests/BatchedDevelopmentTests.cs;tests/BenchDouble.Tests/LocalHardeningTests.cs
 TR-077,P1,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchDouble/issues/49,,
 TR-078,P0,PartialSourceUnverified,src/BenchDouble/Observability/LoggingScpiSession.cs,tests/BenchDouble.Tests/LoggingScpiSessionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/49,,
 TR-079,P0,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchDouble/issues/49,,

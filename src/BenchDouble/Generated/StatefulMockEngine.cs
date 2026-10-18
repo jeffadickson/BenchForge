@@ -47,6 +47,15 @@ public sealed class StatefulMockEngine
     private readonly Dictionary<string, Queue<Exception>> _faults = new(StringComparer.Ordinal);
     private string? _mode;
     private long _revision;
+    private long _loggingFailures;
+
+    /// <summary>Number of diagnostic sink failures; never changes simulated I/O outcomes.</summary>
+    public long LoggingFailureCount => Interlocked.Read(ref _loggingFailures);
+
+    private void Emit(Action emit)
+    {
+        try { emit(); } catch { Interlocked.Increment(ref _loggingFailures); }
+    }
 
     /// <summary>Construct a simulated instrument with injected clock and logger.</summary>
     /// <param name="definition">Validated instrument definition.</param>
@@ -73,7 +82,7 @@ public sealed class StatefulMockEngine
             if (_mode == mode) return;
             _mode = mode;
             ++_revision;
-            _logger.LogInformation("Mock {Instrument} mode {Mode} revision {Revision}", _definition.DriverName, mode, _revision);
+            Emit(() => _logger.LogInformation("Mock {Instrument} mode {Mode} revision {Revision}", _definition.DriverName, mode, _revision));
         }
         finally { _gate.Release(); }
     }
@@ -93,7 +102,7 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
-                _logger.LogWarning(error, "Mock {Instrument} fault on {Capability}", _definition.DriverName, capability);
+                Emit(() => _logger.LogWarning(error, "Mock {Instrument} fault on {Capability}", _definition.DriverName, capability));
                 throw error;
             }
             double? fallback = _overrides.TryGetValue(capability, out var value) ? value : metadata.MockDefault;
@@ -145,14 +154,14 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
-                _logger.LogWarning(error,
+                Emit(() => _logger.LogWarning(error,
                     "Mock {Instrument} acquisition {AcquisitionId} fault on {Capability}",
-                    _definition.DriverName, acquisition.AcquisitionId, capability);
+                    _definition.DriverName, acquisition.AcquisitionId, capability));
                 throw error;
             }
-            _logger.LogDebug(
+            Emit(() => _logger.LogDebug(
                 "Mock {Instrument} acquisition {AcquisitionId} source revision {SourceRevision} mock revision {MockRevision} capability {Capability}",
-                _definition.DriverName, acquisition.AcquisitionId, acquisition.SourceRevision, _revision, capability);
+                _definition.DriverName, acquisition.AcquisitionId, acquisition.SourceRevision, _revision, capability));
             return new CapturedMockReading(acquisition.AcquisitionId, acquisition.SourceRevision,
                 acquisition.Measurement.Elapsed, capability, metadata.Quantity, metadata.Unit, value, _mode, _revision);
         }
@@ -279,7 +288,7 @@ public sealed class StatefulMockEngine
             _asyncModels.Clear();
             _faults.Clear();
             ++_revision;
-            _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision);
+            Emit(() => _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision));
         }
         finally { _gate.Release(); }
     }
