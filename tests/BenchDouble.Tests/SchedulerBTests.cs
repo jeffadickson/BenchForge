@@ -203,4 +203,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var ids=new System.Collections.Concurrent.ConcurrentBag<long>();Parallel.For(0,128,i=>ids.Add(s.Schedule(T(0),"e"+i).Id));Assert.Equal(128,s.Count);Assert.Equal(128,ids.Distinct().Count());Assert.Equal(Enumerable.Range(1,128).Select(i=>(long)i),s.DrainDue().Select(e=>e.Id));
     }
+
+    /// <summary>Parallel cancellation removes only selected pending events.</summary>
+    [Fact] public void ParallelCancel()
+    {
+        var s=new SimulationScheduler(new Clock());var ids=Enumerable.Range(0,64).Select(i=>s.Schedule(T(0),"e"+i).Id).ToArray();Parallel.For(0,32,i=>Assert.True(s.Cancel(ids[i])));Assert.Equal(ids.Skip(32),s.DrainDue().Select(e=>e.Id));
+    }
 }
