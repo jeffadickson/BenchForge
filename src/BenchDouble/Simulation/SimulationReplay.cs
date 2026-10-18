@@ -33,6 +33,12 @@ public sealed class SimulationReplay
             ValidateLabel(item.Mode,nameof(item.Mode),128);ValidateLabel(item.Capability,nameof(item.Capability),128);
             ValidateLabel(item.Quantity,nameof(item.Quantity),128);ValidateLabel(item.Unit,nameof(item.Unit),80);
         }
+        var previous=TimeSpan.Zero;
+        foreach(var item in _samples)
+        {
+            if(item.Elapsed<previous)throw new ArgumentException("Transcript time must be nonnegative and ordered.",nameof(samples));
+            previous=item.Elapsed;
+        }
         // Validate plan.
     }
     private static void ValidateLabel(string label,string parameter,int maximum)
