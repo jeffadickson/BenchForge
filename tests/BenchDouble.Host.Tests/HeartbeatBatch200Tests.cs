@@ -168,4 +168,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.Utc=c.Utc.AddYears(10);Assert.Equal(0,r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.AgeMilliseconds);
     }
+
+    /// <summary>UTC jumps backward do not renew or expire ownership.</summary>
+    [Fact] public void WallClockBackward()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);c.Utc=c.Utc.AddYears(-10);Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }

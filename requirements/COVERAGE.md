@@ -413,4 +413,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: UTC jumps forward do not affect monotonic heartbeat age. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: UTC jumps backward do not renew or expire ownership. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
