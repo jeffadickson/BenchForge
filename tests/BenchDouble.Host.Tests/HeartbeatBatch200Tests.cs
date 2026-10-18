@@ -144,4 +144,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);c.At(10);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);c.At(26);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
     }
+
+    /// <summary>One health observation samples the monotonic clock once.</summary>
+    [Fact] public void SingleObservationRead()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var reads=c.Reads;_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);Assert.Equal(reads+1,c.Reads);
+    }
 }
