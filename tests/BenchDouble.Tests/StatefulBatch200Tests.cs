@@ -117,4 +117,10 @@ public sealed class StatefulBatch200Tests
     {
         var count=0; var e=Engine(new CallbackClock(()=>{++count;return TimeSpan.Zero;})); _=e.Snapshot(); Assert.Equal(1,count);
     }
+
+    /// <summary>Bulk fault clear returns the exact discarded total.</summary>
+    [Fact] public void ClearAllFaultCount()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); Assert.Equal(2,e.ClearAllFaults()); Assert.Empty(e.Snapshot().PendingFaultCounts);
+    }
 }
