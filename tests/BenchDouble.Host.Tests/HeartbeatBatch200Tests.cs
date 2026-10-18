@@ -108,4 +108,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.Ticks=TimeSpan.FromMilliseconds(20).Ticks-1;Assert.Equal("Healthy",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
     }
+
+    /// <summary>The exact suspect deadline is inclusive.</summary>
+    [Fact] public void ExactSuspect()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(20);Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }
