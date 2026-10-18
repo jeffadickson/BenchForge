@@ -282,4 +282,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Write structured stage duration and exit evidence for developer tasks. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Cancel the active developer child on console interruption. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

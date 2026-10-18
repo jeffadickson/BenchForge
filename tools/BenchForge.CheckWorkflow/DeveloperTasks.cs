@@ -48,6 +48,9 @@ internal static class DeveloperTasks
         var steps = Plan(task, dotnet, configuration);
         if (planOnly) { Console.WriteLine(JsonSerializer.Serialize(steps)); return 0; }
         var results = new List<Stage>();
+        using var interrupted = new CancellationTokenSource();
+        ConsoleCancelEventHandler handler = (_, e) => { e.Cancel = true; interrupted.Cancel(); };
+        Console.CancelKeyPress += handler;
         try
         {
         foreach (var step in steps)
@@ -57,15 +60,17 @@ internal static class DeveloperTasks
             var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
             foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
             using var process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task");
-            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(interrupted.Token);
+            deadline.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
             try { await process.WaitForExitAsync(deadline.Token); }
             catch (OperationCanceledException)
             {
                 if (!process.HasExited) process.Kill(entireProcessTree: true);
                 await process.WaitForExitAsync();
-                Console.Error.WriteLine($"Development task timed out after {timeoutSeconds} seconds.");
-                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, 124));
-                return 124;
+                var code = interrupted.IsCancellationRequested ? 130 : 124;
+                Console.Error.WriteLine(code == 130 ? "Development task interrupted." : $"Development task timed out after {timeoutSeconds} seconds.");
+                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, code));
+                return code;
             }
             results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, process.ExitCode));
             if (process.ExitCode != 0) return process.ExitCode;
@@ -74,6 +79,7 @@ internal static class DeveloperTasks
         }
         finally
         {
+            Console.CancelKeyPress -= handler;
             var directory = Path.Combine(Program.Root, "build");
             Directory.CreateDirectory(directory);
             File.WriteAllText(Path.Combine(directory, "developer-workflow.json"), JsonSerializer.Serialize(new { task, stages = results }));
