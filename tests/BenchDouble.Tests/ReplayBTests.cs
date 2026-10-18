@@ -157,4 +157,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<ArgumentOutOfRangeException>(()=>r.ReadNext("v","voltage",T(-1)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Invalid requested labels preserve the replay cursor.</summary>
+    [Fact] public void InvalidReadLabel()
+    {
+        var r=R(S());Assert.Throws<ArgumentException>(()=>r.ReadNext(" ","voltage",T(0)));Assert.Throws<ArgumentException>(()=>r.ReadNext("v","x\n",T(0)));Assert.Equal(0,r.Status().Position);
+    }
 }
