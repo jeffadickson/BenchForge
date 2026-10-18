@@ -23,4 +23,10 @@ public sealed class SchedulerBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>new SimulationScheduler(new Clock(),0));
     }
+
+    /// <summary>Queue capacity is bounded at 4096.</summary>
+    [Fact] public void ExcessCapacity()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new SimulationScheduler(new Clock(),4097));
+    }
 }
