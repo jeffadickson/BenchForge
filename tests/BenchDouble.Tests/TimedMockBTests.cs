@@ -226,4 +226,10 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;Assert.True(e.ClearPreparedMeasurement("voltage"));Assert.Equal(r+1,e.Snapshot().Revision);
     }
+
+    /// <summary>Clearing absent preparation preserves revision.</summary>
+    [Fact] public void ClearAbsent()
+    {
+        var e=Engine();var r=e.Snapshot().Revision;Assert.False(e.ClearPreparedMeasurement("voltage"));Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
