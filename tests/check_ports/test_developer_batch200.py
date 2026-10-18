@@ -52,3 +52,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_generation_order(self):
         """Validate catalog before both generators."""
         steps=self.plan('generate');self.assertEqual('scripts/check_instrument_catalog.py',steps[0]['Arguments'][0]);self.assertIn('--preview-v2',steps[2]['Arguments'])
+
+    def test_nested_projects(self):
+        """Discover nested application projects."""
+        self.project('src/group/Nested/Nested.csproj');self.assertTrue(any('src/group/Nested/Nested.csproj' in s['Arguments'] for s in self.plan()))
