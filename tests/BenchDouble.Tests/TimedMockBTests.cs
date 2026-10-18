@@ -253,4 +253,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(10),0);await e.PrepareMeasurementAsync("current",Profile(20),0);c.Now=TimeSpan.FromTicks(10);Assert.Equal(1,await e.MeasureAsync("voltage"));await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("current"));
     }
+
+    /// <summary>Independent mock engines do not share preparations.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task IndependentRuns()
+    {
+        var c=new Clock();var a=Engine(c);var d=Engine(c);await a.ConfigureModeAsync("v");await d.ConfigureModeAsync("v");await a.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Null(d.PreparedMeasurementStatus("voltage"));Assert.Equal(1,await d.MeasureAsync("voltage"));
+    }
 }
