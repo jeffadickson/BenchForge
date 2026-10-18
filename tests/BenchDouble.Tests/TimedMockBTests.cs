@@ -142,4 +142,11 @@ public sealed class TimedMockBTests
     {
         using var c=new CancellationTokenSource();var clock=new Clock{OnRead=c.Cancel};var e=Engine(clock);await e.ConfigureModeAsync("v");await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0,c.Token));Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Cancelled timed reads preserve prepared operations.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task CancelledRead()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(0),0);using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }
