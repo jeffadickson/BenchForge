@@ -132,3 +132,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_filter_metacharacters(self):
         """Preserve filter shell metacharacters literally."""
         value='Name=x; echo never';self.assertEqual(value,self.plan('test','--test-filter',value)[-1]['Arguments'][-1]);self.assertEqual([],self.events())
+
+    def test_filter_not_generation(self):
+        """Do not apply test filters to generation."""
+        steps=self.plan('generate','--test-filter','Name=x');self.assertFalse(any('--filter' in s['Arguments'] for s in steps))
