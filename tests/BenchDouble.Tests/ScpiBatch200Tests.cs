@@ -136,4 +136,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.WriteAsync("V1 3"); await s.WriteAsync("V2 4"); await s.ResetAsync(); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Reset uses declared defaults rather than zero.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ResetCustomDefault()
+    {
+        var s=new DefinitionDrivenScpiMockSession(1,[Parameter(initial:7)]); await s.WriteAsync("V1 2"); await s.ResetAsync(); Assert.Equal("7",await s.QueryAsync("V1?"));
+    }
 }
