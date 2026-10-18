@@ -26,4 +26,10 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(1,[Parameter(name:new string('v',128))]); Assert.Equal(128,s.GetReadingsSnapshot()[0].Parameter.Length);
     }
+
+    /// <summary>Reject control characters in quantity identities.</summary>
+    [Fact] public void ControlQuantity()
+    {
+        Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:"V\t")]));
+    }
 }
