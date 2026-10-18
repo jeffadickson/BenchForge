@@ -269,4 +269,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Zero channel rejection preserves reading state. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Over-limit channel rejection preserves history. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

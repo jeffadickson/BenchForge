@@ -234,4 +234,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V0 4")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value));
     }
+
+    /// <summary>Over-limit channel rejection preserves history.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ChannelBeyondMaximum()
+    {
+        var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.QueryAsync("V3?")); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
