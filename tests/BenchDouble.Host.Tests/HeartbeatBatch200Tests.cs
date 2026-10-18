@@ -60,4 +60,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Equal(HostHeartbeatPolicy.Default,HostHeartbeatPolicy.FromConfiguration(Config()));
     }
+
+    /// <summary>Explicit scalar heartbeat budgets survive configuration.</summary>
+    [Fact] public void ExplicitConfiguration()
+    {
+        Assert.Equal(Policy(),HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds","10"),("BenchHeartbeat:SuspectMilliseconds","20"),("BenchHeartbeat:ExpireMilliseconds","40"))));
+    }
 }
