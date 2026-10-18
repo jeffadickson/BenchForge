@@ -7,6 +7,7 @@ namespace BenchDouble.Generated;
 /// <param name="ReadyAt">Logical ready deadline.</param>
 /// <param name="Latency">Detached seeded phase timing sample.</param>
 public sealed record PreparedMockMeasurement(string Capability,string Mode,TimeSpan StartedAt,TimeSpan ReadyAt,SimulationLatencySample Latency);
+/// <summary>Canonical stateful engine extensions for opt-in logical scalar preparation.</summary>
 public sealed partial class StatefulMockEngine
 {
     private readonly Dictionary<string,PreparedMockMeasurement> _prepared=new(StringComparer.Ordinal);

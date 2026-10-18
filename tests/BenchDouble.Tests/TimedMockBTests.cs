@@ -288,4 +288,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var m=new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition),c);await m.ConfigureModeAsync("v");var p=await m.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Equal(p,m.Engine.PreparedMeasurementStatus("voltage"));Assert.True(m.ClearPreparedMeasurement("voltage"));
     }
+
+    /// <summary>Successful non-sequence timed reads advance exactly one revision.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task OneShotRevision()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(0),0);var r=e.Snapshot().Revision;await e.MeasureAsync("voltage");Assert.Equal(r+1,e.Snapshot().Revision);await e.MeasureAsync("voltage");Assert.Equal(r+1,e.Snapshot().Revision);
+    }
 }

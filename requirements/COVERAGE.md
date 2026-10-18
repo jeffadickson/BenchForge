@@ -579,4 +579,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Imported facade timed reads use the same canonical engine. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: checkpoint 150 passed (163 targeted tests plus 19 checker regressions). 228 requirements, 0 Verified; 145 source-linked unverified. Full requirement acceptance remains open.
