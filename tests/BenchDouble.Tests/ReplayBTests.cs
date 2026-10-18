@@ -217,4 +217,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());r.ReadNext("v","voltage",T(0));using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>r.Reset(c.Token));Assert.Equal(1,r.Status().Position);
     }
+
+    /// <summary>Forked replay starts at zero after parent consumption.</summary>
+    [Fact] public void ForkStartsAtZero()
+    {
+        var r=R(S());r.ReadNext("v","voltage",T(0));var fork=r.Fork();Assert.Equal(0,fork.Status().Position);Assert.Equal(1,r.Status().Position);Assert.Equal(S(),fork.ReadNext("v","voltage",T(0)));
+    }
 }
