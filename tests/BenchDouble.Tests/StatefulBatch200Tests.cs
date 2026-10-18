@@ -44,4 +44,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); Assert.Throws<NotSupportedException>(()=>e.FaultCount("missing")); Assert.Empty(e.Snapshot().PendingFaultCounts);
     }
+
+    /// <summary>Captured fault counts survive later queue mutation.</summary>
+    [Fact] public void DetachedFaultCounts()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); var before=e.Snapshot(); e.ClearFaults("voltage"); Assert.Equal(1,before.PendingFaultCounts["voltage"]); Assert.Empty(e.Snapshot().PendingFaultCounts);
+    }
 }
