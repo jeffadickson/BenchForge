@@ -296,4 +296,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Retain ordinary tests with Browser in their name. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Sort projects deterministically within a source tree. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

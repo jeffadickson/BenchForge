@@ -84,3 +84,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_ordinary_browser_name(self):
         """Retain ordinary tests with Browser in their name."""
         self.project('tests/BrowserHelpers/BrowserHelpers.csproj');self.assertEqual(5,len(self.plan('test')))
+
+    def test_stable_order(self):
+        """Sort projects deterministically within a source tree."""
+        self.project('src/Z/Z.csproj');self.project('src/A/A.csproj');self.assertEqual(['src/A/A.csproj','src/App/App.csproj','src/Z/Z.csproj'],[s['Arguments'][1] for s in self.plan()[3:]])
