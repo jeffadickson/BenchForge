@@ -11,3 +11,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 5 | Isolate every scope heartbeat observer | BD-HB-002 | BenchDouble.Host.Tests | Passed |
 | 6 | Bound each scope heartbeat HTTP renewal | BD-HB-002 | BenchDouble.Host.Tests | Passed |
 | 7 | Isolate SCPI logging sink failures | TR-076 | BenchDouble.Tests | Passed |
+| 8 | Fail closed when SCPI payload redactors fail | TR-076 | BenchDouble.Tests | Passed |

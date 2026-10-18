@@ -79,6 +79,11 @@ public sealed class LoggingScpiSession : IScpiSession
         try { emit(); } catch { /* Diagnostic sinks cannot alter instrument I/O. */ }
     }
 
-    private string Display(string content, bool permitted) =>
-        permitted ? (_options.Redact?.Invoke(content) ?? content) : "[redacted]";
+    private string Display(string content, bool permitted)
+    {
+        if (!permitted) return "[redacted]";
+        if (_options.Redact is null) return content;
+        try { return _options.Redact(content) ?? "[redacted]"; }
+        catch { return "[redacted]"; }
+    }
 }

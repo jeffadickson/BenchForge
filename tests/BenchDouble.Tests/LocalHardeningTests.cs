@@ -43,5 +43,20 @@ public sealed class LocalHardeningTests
         Assert.Equal(2, inner.Calls);
     }
 
+    /// <summary>Broken or null-returning redactors cannot expose payloads or change I/O.</summary>
+    [Fact]
+    public void RedactorFailureIsClosed()
+    {
+        foreach (Func<string, string> redact in new Func<string, string>[] { _ => throw new Exception("secret"), _ => null! })
+        {
+            var sink = new Sink(); var inner = new Session();
+            var session = new LoggingScpiSession(inner, sink, new("meter", true, true, redact));
+            Assert.Equal("secret", session.Query("secret"));
+            Assert.Equal(1, inner.Calls);
+            Assert.All(sink.Messages, message => Assert.DoesNotContain("secret", message));
+            Assert.Contains(sink.Messages, message => message.Contains("[redacted]"));
+        }
+    }
+
 // CASES
 }
