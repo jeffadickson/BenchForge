@@ -41,4 +41,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0)," "));Assert.Equal(0,s.Count);
     }
+
+    /// <summary>Control characters cannot enter event labels.</summary>
+    [Fact] public void ControlLabel()
+    {
+        var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0),"x\n"));
+    }
 }
