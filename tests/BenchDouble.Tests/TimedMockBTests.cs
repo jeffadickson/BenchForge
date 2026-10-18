@@ -128,4 +128,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");e.QueueFault("voltage",new TimeoutException());await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(10);await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));Assert.Equal(1,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Precancelled preparation leaves revision unchanged.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task CancelledPrepare()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");var r=e.Snapshot().Revision;using var c=new CancellationTokenSource();c.Cancel();await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0,c.Token));Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
