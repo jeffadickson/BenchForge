@@ -30,4 +30,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentNullException>(()=>new SimulationLatencyProfile(0,null!));
     }
+
+    /// <summary>Null phase entries are rejected.</summary>
+    [Fact] public void NullStage()
+    {
+        Assert.Throws<ArgumentNullException>(()=>Profile(null!));
+    }
 }
