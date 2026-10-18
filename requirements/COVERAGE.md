@@ -464,4 +464,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Jitter never leaves declared integer tick bounds. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Zero jitter preserves every operation duration. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

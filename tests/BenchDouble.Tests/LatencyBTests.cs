@@ -150,4 +150,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());for(var i=0;i<4096;i++)Assert.InRange(p.Sample(i).Total.Ticks,90,110);
     }
+
+    /// <summary>Zero jitter preserves every operation duration.</summary>
+    [Fact] public void NoJitter()
+    {
+        var p=Profile(Stage(100,0));for(var i=0;i<64;i++)Assert.Equal(100,p.Sample(i).Total.Ticks);
+    }
 }
