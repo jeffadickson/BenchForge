@@ -155,4 +155,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetSequence("voltage",[3]); e.SetSequence("resistance",[4]); Assert.Equal(2,e.ClearAllSequences()); Assert.Empty(e.Snapshot().SequencePositions);
     }
+
+    /// <summary>Empty bulk sequence clear leaves revision unchanged.</summary>
+    [Fact] public void EmptySequenceClearRevision()
+    {
+        var e=Engine(); var r=e.Snapshot().Revision; Assert.Equal(0,e.ClearAllSequences()); Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
