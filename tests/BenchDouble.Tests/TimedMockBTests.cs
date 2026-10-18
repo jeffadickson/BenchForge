@@ -281,4 +281,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");var accepted=0;await Task.WhenAll(Enumerable.Range(0,32).Select(i=>Task.Run(async()=>{try{await e.PrepareMeasurementAsync("voltage",Profile(),i);Interlocked.Increment(ref accepted);}catch(InvalidOperationException){}})));Assert.Equal(1,accepted);Assert.Single(e.Snapshot().PreparedMeasurements);
     }
+
+    /// <summary>Imported facade timed reads use the same canonical engine.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task Facade()
+    {
+        var c=new Clock();var m=new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition),c);await m.ConfigureModeAsync("v");var p=await m.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Equal(p,m.Engine.PreparedMeasurementStatus("voltage"));Assert.True(m.ClearPreparedMeasurement("voltage"));
+    }
 }
