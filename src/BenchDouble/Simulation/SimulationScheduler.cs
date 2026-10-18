@@ -86,5 +86,17 @@ public sealed class SimulationScheduler
     public IReadOnlyList<SimulationScheduledEvent> Snapshot()
     {lock(_gate)return Array.AsReadOnly(_pending.Values.ToArray());}
 
+    /// <summary>Remove one pending simulation event; does not alter clock or ownership.</summary>
+    /// <param name="id">Positive event identifier from this scheduler.</param>
+    /// <param name="ct">Cancellation before removal.</param>
+    /// <returns>True only when a pending event was removed.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Identifier is not positive.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before removal.</exception>
+    public bool Cancel(long id,CancellationToken ct=default)
+    {
+        if(id<=0)throw new ArgumentOutOfRangeException(nameof(id));ct.ThrowIfCancellationRequested();
+        lock(_gate){ct.ThrowIfCancellationRequested();if(!_keys.Remove(id,out var key))return false;_pending.Remove(key);return true;}
+    }
+
     // Scheduler members.
 }
