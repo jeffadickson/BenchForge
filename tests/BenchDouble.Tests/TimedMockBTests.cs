@@ -177,4 +177,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine(new Clock{Now=TimeSpan.MaxValue});await e.ConfigureModeAsync("v");var r=e.Snapshot().Revision;await Assert.ThrowsAsync<OverflowException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Equal(r,e.Snapshot().Revision);Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Clock rollback before the trigger time preserves the operation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ClockRollback()
+    {
+        var c=new Clock{Now=TimeSpan.FromTicks(5)};var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(4);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }
