@@ -89,4 +89,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var a=s.Schedule(T(0),"a");var d=s.Schedule(T(0),"d");Assert.Equal(new[]{a.Id,d.Id},s.DrainDue().Select(e=>e.Id));
     }
+
+    /// <summary>Earlier deadlines drain before later accepted identifiers.</summary>
+    [Fact] public void DeadlineOrder()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(20),"later");s.Schedule(T(10),"earlier");c.Now=T(20);Assert.Equal(new[]{"earlier","later"},s.DrainDue().Select(e=>e.Label));
+    }
 }
