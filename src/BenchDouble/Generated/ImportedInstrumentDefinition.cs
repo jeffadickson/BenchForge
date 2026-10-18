@@ -28,6 +28,7 @@ public sealed class ImportedInstrumentDefinition
         if (json.Length > 1024 * 1024) throw new InvalidDataException("Instrument definition exceeds one million characters.");
         using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 32 });
         var root = doc.RootElement;
+        ValidateUniqueKeys(root);
         if (root.GetProperty("schemaVersion").GetInt32() != 2) throw new InvalidDataException("Expected schema v2.");
         var identity = root.GetProperty("identity");
         string name = identity.GetProperty("driverName").GetString() ?? "";
@@ -66,6 +67,21 @@ public sealed class ImportedInstrumentDefinition
         if (result._modeCommands.Count == 0 || result._capabilities.Count == 0)
             throw new InvalidDataException("Definition needs modes and capabilities.");
         return result;
+    }
+
+    private static void ValidateUniqueKeys(JsonElement node)
+    {
+        if (node.ValueKind == JsonValueKind.Object)
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in node.EnumerateObject())
+            {
+                if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate instrument definition field.");
+                ValidateUniqueKeys(property.Value);
+            }
+        }
+        else if (node.ValueKind == JsonValueKind.Array)
+            foreach (var item in node.EnumerateArray()) ValidateUniqueKeys(item);
     }
 
     private static void ValidateCommand(string command, bool allowEmpty)

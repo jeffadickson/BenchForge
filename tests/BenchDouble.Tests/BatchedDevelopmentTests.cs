@@ -137,5 +137,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(new string(' ',1024*1024+1)));
     }
 
+    /// <summary>Repeated fields cannot silently replace validated identity or default values.</summary>
+    [Fact] public void DefinitionDuplicateKeysAreRejected()
+    {
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"schemaVersion\":2","\"schemaVersion\":1,\"schemaVersion\":2")));
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(Definition.Replace("\"mockDefault\":0.25","\"mockDefault\":9,\"mockDefault\":0.25")));
+    }
+
 // CASES
 }

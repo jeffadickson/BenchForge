@@ -135,3 +135,5 @@ Batch iteration 10/30 (2026-10-17), BD-SIM-001: Freeze imported capability mode 
 Batch iteration 11/30 (2026-10-17), BD-SIM-001: Require complete imported identifiers. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 12/30 (2026-10-17), BD-SIM-001: Bound imported definition size and depth. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 13/30 (2026-10-17), BD-SIM-001: Reject duplicate imported JSON fields. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
