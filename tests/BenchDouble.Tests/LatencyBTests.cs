@@ -108,4 +108,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());Assert.Throws<NotSupportedException>(()=>((IList<SimulationLatencyStage>)p.Stages).Clear());
     }
+
+    /// <summary>Profile phases use canonical enum order.</summary>
+    [Fact] public void CanonicalOrder()
+    {
+        var p=Profile(Stage(10,0,SimulationLatencyPhase.Display),Stage(10,0,SimulationLatencyPhase.Trigger));Assert.Equal(SimulationLatencyPhase.Trigger,p.Stages[0].Phase);
+    }
 }
