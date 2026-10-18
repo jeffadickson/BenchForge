@@ -193,4 +193,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<NotSupportedException>(()=>((IList<SimulationReplaySample>)r.RemainingSamples()).Clear());
     }
+
+    /// <summary>Captured remaining samples survive later cursor changes.</summary>
+    [Fact] public void RemainingDetached()
+    {
+        var r=R(S(0,1),S(1,2));var old=r.RemainingSamples();r.ReadNext("v","voltage",T(0));Assert.Equal(2,old.Count);Assert.Equal(2,Assert.Single(r.RemainingSamples()).Value);
+    }
 }
