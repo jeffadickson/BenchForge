@@ -27,12 +27,15 @@ public sealed record AutoMockLoadCondition(
 
     public bool Matches(ElectricPotential voltage, TimeSpan elapsed)
     {
-        if (!double.IsFinite(voltage.Volts)) throw new ArgumentOutOfRangeException(nameof(voltage));
+        double volts;
+        try { volts = voltage.Volts; }
+        catch (ArgumentException) { throw new ArgumentOutOfRangeException(nameof(voltage), "Voltage cannot be represented in volts."); }
+        if (!double.IsFinite(volts)) throw new ArgumentOutOfRangeException(nameof(voltage));
         if (elapsed < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(elapsed));
         return (From is null || elapsed >= From.Value) &&
         (Until is null || elapsed < Until.Value) &&
-        (MinimumVoltage is null || voltage.Volts >= MinimumVoltage.Value.Volts) &&
-        (MaximumVoltage is null || voltage.Volts <= MaximumVoltage.Value.Volts);
+        (MinimumVoltage is null || volts >= MinimumVoltage.Value.Volts) &&
+        (MaximumVoltage is null || volts <= MaximumVoltage.Value.Volts);
     }
 }
 

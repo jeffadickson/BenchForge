@@ -1,0 +1,126 @@
+{
+  "checkpoint": 100,
+  "result": "passed",
+  "tested_base_commit": "b9078ef0398924186a0ee57b7c53b98180770f4e",
+  "tested_worktree": "modified; same application source committed in checkpoint100",
+  "application_tests": {
+    "core": {
+      "total": "74",
+      "executed": "74",
+      "passed": "74",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "host": {
+      "total": "48",
+      "executed": "48",
+      "passed": "48",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "workflow": {
+    "milliseconds": 23111.4395,
+    "cpu_milliseconds": 9625.0,
+    "peak_working_set_bytes": 91914240,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 530.6932,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 213.5369,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 7973.1719,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 5653.2237,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 13092.6907,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 7180.5532,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 293.8523,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 21882.9124,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 14781.491,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "39112df2739023b24304f17b9b44867dcdb2d632f0becd73b55cf3d03d29f5ed",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "4ee27d33c3e9e2d935d5d4ac2643f74b06d699f7d4bb82d34bd77dd64807d293",
+      "documentation-audit.json": "9eafc86992239ceea20075e25d43ca427636175620f3786b2a7b3fc76c147120",
+      "docs-parity.json": "7c25cf479023999a8e15075f633fedc5939bae2c97de285506734366ffa38a25"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally"
+  },
+  "limitations": [
+    "Windows x64 execution",
+    "GNU Make source-contract validation only",
+    "Focused application classes only; not all tests",
+    "Initial sandbox VSTest connection aborted; local-permission retries used",
+    "No requirement status promoted"
+  ]
+}

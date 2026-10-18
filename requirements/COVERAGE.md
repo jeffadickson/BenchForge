@@ -178,8 +178,12 @@ Check/report ports (2026-10-17): BD-REQ-003, BD-CFG-007 and BD-DOC-004 reuse iss
 
 Full-workflow timing revision (2026-10-17): BD-REQ-003 / #17, BD-DOC-004 / #61 and BD-CFG-007 / #60 retain their statuses. Shared C# checks and Roslyn now have a managed workflow host, content-validated tooling cache and dependency-aware parallel scheduling; tracker fixtures copy only referenced real evidence. See docs/CHECK-WORKFLOW-BENCHMARKS.md for complete cold/cached timings, parity and machine-resource limitations. No application tests or third-party documentation exports are part of this focused workflow. Counts remain 228 total, 0 Verified.
 
-150-iteration batch, checkpoint 25: architecture-aware compiled workflow and Make routing added; tests intentionally pending iteration 50. Existing BD-CFG-007 (#60), BD-DOC-004 (#61), BD-REQ-003 (#17). Counts remain 228 requirements, 0 Verified; statuses unchanged. See docs/LOCAL-BATCH-150.md.
+150-iteration batch, checkpoint 25: architecture-aware compiled workflow and Make routing added; tests intentionally pending iteration 50. Existing BD-CFG-007 (#60), BD-DOC-004 (#61), BD-REQ-003 (#17). Counts remain 228 requirements, 0 Verified; statuses unchanged. See docs/LOCAL-BATCH-350.md.
 
 Checkpoint 50 source: focused build/architecture/parity regressions added; execution recorded in batch ledger. Requirement counts and statuses unchanged.
 
 Checkpoint 75: main application simulation, setup, discovery and heartbeat hardening added; tests pending checkpoint 100 under user cadence. Existing BD-SIM-001, BD-HB-003, TR-076 and BD-CFG-007 reused with existing issue links. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 100 source: 25 focused application regression methods added. User extended total to 300 iterations; execution evidence follows checkpoint completion. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 100 execution passed: focused core and host classes, compiled workflow and report parity. See docs/check-evidence/batch350-100.json. Counts remain 228 requirements, 0 Verified; statuses unchanged. Final batch total is now 350.

@@ -111,7 +111,10 @@ public sealed class ModeAwareMockInstrument : IModeAwareMockInstrument
                     $"Mode '{_mode}' cannot measure {typeof(TQuantity).Name}.");
             var result = (TQuantity)behavior(_clock.Elapsed);
             ct.ThrowIfCancellationRequested();
-            if (!double.IsFinite((double)result.Value)) throw new InvalidOperationException("Nonfinite mock reading.");
+            double canonical;
+            try { canonical = result.As(result.QuantityInfo.BaseUnitInfo.Value); }
+            catch (ArgumentException error) { throw new InvalidOperationException("Mock reading cannot be represented in its base unit.", error); }
+            if (!double.IsFinite(canonical)) throw new InvalidOperationException("Nonfinite mock reading.");
             return result;
         }
         finally { _gate.Release(); }

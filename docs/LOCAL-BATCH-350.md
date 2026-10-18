@@ -1,4 +1,4 @@
-# Local development batch: 150 requested iterations
+# Local development batch: 350 requested iterations
 
 Started from b296bb852699e8d526179a3290312acafcb99bda, including the uncommitted combined-workflow work inherited from the interrupted measurement task. Tests run only at iterations 50, 100 and 150; local commits at each multiple of 25. No application tests or native AOT benchmarks are included. Later regression-development iterations add explicit contract cases; adding a case is not a passing execution claim.
 
@@ -61,28 +61,62 @@ User steering after iteration 50: include main application work. Iterations 51 o
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 51 | Reject null SCPI metadata entries | Pending checkpoint 100 |
-| 52 | Bound SCPI metadata enumeration to 513 entries | Pending checkpoint 100 |
-| 53 | Reject blank SCPI templates | Pending checkpoint 100 |
-| 54 | Reject duplicate query patterns | Pending checkpoint 100 |
-| 55 | Reject duplicate setter patterns | Pending checkpoint 100 |
-| 56 | Reject repeated value placeholders | Pending checkpoint 100 |
-| 57 | Reject repeated channel placeholders | Pending checkpoint 100 |
-| 58 | Require full template character match | Pending checkpoint 100 |
-| 59 | Require full SCPI command match | Pending checkpoint 100 |
-| 60 | Bound SCPI command length | Pending checkpoint 100 |
-| 61 | Bound SCPI template length | Pending checkpoint 100 |
-| 62 | Reject overflowing channel indices consistently | Pending checkpoint 100 |
-| 63 | Bound AutoMock decorator enumeration | Pending checkpoint 100 |
-| 64 | Bound AutoMock fingerprint enumeration | Pending checkpoint 100 |
-| 65 | Reject nonfinite condition voltage | Pending checkpoint 100 |
-| 66 | Reject negative condition elapsed time | Pending checkpoint 100 |
-| 67 | Reject nonfinite mode-aware model output | Pending checkpoint 100 |
-| 68 | Honor cancellation after mode-aware callbacks | Pending checkpoint 100 |
-| 69 | Publish selected mode across threads | Pending checkpoint 100 |
-| 70 | Treat transport cancellation as degraded scope health | Pending checkpoint 100 |
-| 71 | Publish scope health across threads | Pending checkpoint 100 |
-| 72 | Publish owner acknowledgments across threads | Pending checkpoint 100 |
-| 73 | Isolate and count setup logging failures | Pending checkpoint 100 |
-| 74 | Reject host arguments for local discovery scopes | Pending checkpoint 100 |
-| 75 | Preserve revisions for identical installed model delegates | Pending checkpoint 100 |
+| 51 | Reject null SCPI metadata entries | Checkpoint 100 passed |
+| 52 | Bound SCPI metadata enumeration to 513 entries | Checkpoint 100 passed |
+| 53 | Reject blank SCPI templates | Checkpoint 100 passed |
+| 54 | Reject duplicate query patterns | Checkpoint 100 passed |
+| 55 | Reject duplicate setter patterns | Checkpoint 100 passed |
+| 56 | Reject repeated value placeholders | Checkpoint 100 passed |
+| 57 | Reject repeated channel placeholders | Checkpoint 100 passed |
+| 58 | Require full template character match | Checkpoint 100 passed |
+| 59 | Require full SCPI command match | Checkpoint 100 passed |
+| 60 | Bound SCPI command length | Checkpoint 100 passed |
+| 61 | Bound SCPI template length | Checkpoint 100 passed |
+| 62 | Reject overflowing channel indices consistently | Checkpoint 100 passed |
+| 63 | Bound AutoMock decorator enumeration | Checkpoint 100 passed |
+| 64 | Bound AutoMock fingerprint enumeration | Checkpoint 100 passed |
+| 65 | Reject nonfinite condition voltage | Checkpoint 100 passed |
+| 66 | Reject negative condition elapsed time | Checkpoint 100 passed |
+| 67 | Reject nonfinite mode-aware model output | Checkpoint 100 passed |
+| 68 | Honor cancellation after mode-aware callbacks | Checkpoint 100 passed |
+| 69 | Publish selected mode across threads | Checkpoint 100 passed |
+| 70 | Treat transport cancellation as degraded scope health | Checkpoint 100 passed |
+| 71 | Publish scope health across threads | Checkpoint 100 passed |
+| 72 | Publish owner acknowledgments across threads | Checkpoint 100 passed |
+| 73 | Isolate and count setup logging failures | Checkpoint 100 passed |
+| 74 | Reject host arguments for local discovery scopes | Checkpoint 100 passed |
+| 75 | Preserve revisions for identical installed model delegates | Checkpoint 100 passed |
+
+User extended the requested total to 300 during iterations 76-100. Commits remain every 25; focused test checkpoints are 50, 100, 150, 200, 250 and 300, with a single push after 300. Earlier batch150 evidence names identify the original scope and remain historical.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 76 | Regression for null SCPI metadata | Checkpoint 100 passed |
+| 77 | Regression for bounded SCPI metadata enumeration | Checkpoint 100 passed |
+| 78 | Regression for blank SCPI template | Checkpoint 100 passed |
+| 79 | Regression for duplicate query binding | Checkpoint 100 passed |
+| 80 | Regression for duplicate setter binding | Checkpoint 100 passed |
+| 81 | Regression for repeated value placeholder | Checkpoint 100 passed |
+| 82 | Regression for repeated channel placeholder | Checkpoint 100 passed |
+| 83 | Regression for newline in template | Checkpoint 100 passed |
+| 84 | Regression for newline in query | Checkpoint 100 passed |
+| 85 | Regression for rejected setter preserving readings | Checkpoint 100 passed |
+| 86 | Regression for oversized SCPI commands | Checkpoint 100 passed |
+| 87 | Regression for oversized template | Checkpoint 100 passed |
+| 88 | Regression for overflowing channel preserving state | Checkpoint 100 passed |
+| 89 | Regression for bounded decorator inputs | Checkpoint 100 passed |
+| 90 | Regression for bounded fingerprint inputs | Checkpoint 100 passed |
+| 91 | Regression for nonfinite condition voltage | Checkpoint 100 passed |
+| 92 | Regression for negative condition time | Checkpoint 100 passed |
+| 93 | Regression for nonfinite mode-aware callback | Checkpoint 100 passed |
+| 94 | Regression for cancelled mode-aware callback | Checkpoint 100 passed |
+| 95 | Regression for identical model revision | Checkpoint 100 passed |
+| 96 | Regression for scope transport recovery | Checkpoint 100 passed |
+| 97 | Regression for parallel owner renewal acknowledgments | Checkpoint 100 passed |
+| 98 | Regression for setup logging and durable save isolation | Checkpoint 100 passed |
+| 99 | Regression for local discovery selector mismatch | Checkpoint 100 passed |
+| 100 | Regression for parallel channel state and command accounting | Checkpoint 100 passed |
+
+The user extended the final total to 350 at checkpoint 100 and requested a haiku every 30 iterations, next at 120. Commits remain at multiples of 25, focused tests at multiples of 50, with one final push after 350.
+
+Checkpoint 100 passed: 74 focused core tests, 48 focused host tests, 19 tracker/documentation tests, seven compiled checks and six exact report hashes at workers 1/8. Initial sandbox runner connection failed before execution; the local-permission retry ran normally. UnitsNet conversion-overflow regressions were corrected and rerun. Generated nullable, existing XML-comment, unused-field and xUnit analyzer warnings remain separate backlog.
