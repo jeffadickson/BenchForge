@@ -81,7 +81,8 @@ public static class AutoMockRuleFiles
     public static string Sha256(IEnumerable<AutoMockLoadRule> rules)
     {
         ArgumentNullException.ThrowIfNull(rules);
-        var validated = rules.ToArray();
+        var validated = rules.Take(257).ToArray();
+        if (validated.Length > 256) throw new ArgumentException("AutoMock rule limit reached.", nameof(rules));
         foreach (var rule in validated) { ArgumentNullException.ThrowIfNull(rule); rule.Validate(); }
         if (validated.Select(rule => rule.Name).Distinct(StringComparer.Ordinal).Count() != validated.Length)
             throw new ArgumentException("AutoMock rule names must be unique.", nameof(rules));

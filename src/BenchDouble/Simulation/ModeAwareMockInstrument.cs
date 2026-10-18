@@ -71,7 +71,7 @@ public sealed class ModeAwareMockInstrument : IModeAwareMockInstrument
     private readonly IReadOnlyDictionary<(string Mode, Type Quantity),
         Func<TimeSpan, object>> _measurements;
     private readonly SemaphoreSlim _gate = new(1, 1);
-    private string? _mode;
+    private volatile string? _mode;
 
     internal ModeAwareMockInstrument(
         ISimulationClock clock, HashSet<string> modes,
@@ -109,7 +109,10 @@ public sealed class ModeAwareMockInstrument : IModeAwareMockInstrument
             if (!_measurements.TryGetValue((_mode, typeof(TQuantity)), out var behavior))
                 throw new InvalidOperationException(
                     $"Mode '{_mode}' cannot measure {typeof(TQuantity).Name}.");
-            return (TQuantity)behavior(_clock.Elapsed);
+            var result = (TQuantity)behavior(_clock.Elapsed);
+            ct.ThrowIfCancellationRequested();
+            if (!double.IsFinite((double)result.Value)) throw new InvalidOperationException("Nonfinite mock reading.");
+            return result;
         }
         finally { _gate.Release(); }
     }

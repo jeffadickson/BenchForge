@@ -24,6 +24,7 @@ public sealed class NativeVisaDiscoveryProvider : ISetupDiscoveryProvider
         Func<string, CancellationToken, string[]>? enumerate = null)
     {
         if (scope is not ("GPIB" or "USB" or "Ethernet")) throw new ArgumentException("Choose GPIB, USB or Ethernet discovery.", nameof(scope));
+        if (scope != "Ethernet" && host is not null) throw new ArgumentException("A host is valid only for Ethernet discovery.", nameof(host));
         if (scope == "Ethernet" && (host is null || host.Length > 253 || !Regex.IsMatch(host, @"\A[A-Za-z0-9][A-Za-z0-9.-]*\z") ||
             (host.EndsWith('.') ? host[..^1] : host).Split('.').Any(label => label.Length is < 1 or > 63 || label[0] == '-' || label[^1] == '-')))
             throw new ArgumentException("Ethernet discovery requires one hostname or IPv4 address, without wildcards.", nameof(host));

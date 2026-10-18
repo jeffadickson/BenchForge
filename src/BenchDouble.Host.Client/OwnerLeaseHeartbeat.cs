@@ -19,11 +19,12 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
     private Task? _dispose;
     private long _sequence;
     private volatile string _status = "NotStarted";
+    private OwnerHeartbeatSnapshot? _lastAcknowledgment;
 
     /// <summary>NotStarted, Healthy, Degraded, Lost or Stopped; health is not device readiness.</summary>
     public string Status => _status;
     /// <summary>Latest validated host acknowledgment, or null before the first successful renewal.</summary>
-    public OwnerHeartbeatSnapshot? LastAcknowledgment { get; private set; }
+    public OwnerHeartbeatSnapshot? LastAcknowledgment => Volatile.Read(ref _lastAcknowledgment);
     /// <summary>Owner-health notifications; observer exceptions cannot stop renewal.</summary>
     public event Action<string>? StatusChanged;
 
@@ -78,7 +79,7 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
                 !double.IsFinite(ack.AgeMilliseconds) || ack.AgeMilliseconds < 0 || ack.AgeMilliseconds >= ack.ExpireMilliseconds ||
                 ack.IntervalMilliseconds != _initial.IntervalMilliseconds || ack.ExpireMilliseconds != _initial.ExpireMilliseconds || ack.LossPolicy != "FenceAndRetain")
                 return Set("Lost");
-            LastAcknowledgment = ack; return Set("Healthy");
+            Volatile.Write(ref _lastAcknowledgment, ack); return Set("Healthy");
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested || _stop.IsCancellationRequested) { throw; }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException or NotSupportedException) { return Set("Degraded"); }

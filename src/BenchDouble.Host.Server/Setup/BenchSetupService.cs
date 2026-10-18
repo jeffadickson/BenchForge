@@ -15,6 +15,13 @@ namespace BenchDouble.Host.Server.Setup;
 public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDiscoveryProvider discovery, string path, ILogger<BenchSetupService>? logger = null)
 {
     private readonly ILogger<BenchSetupService> _logger = logger ?? NullLogger<BenchSetupService>.Instance;
+    private long _loggingFailures;
+    /// <summary>Diagnostic sink failures, counted without changing setup or persistence outcomes.</summary>
+    public long LoggingFailureCount => Interlocked.Read(ref _loggingFailures);
+    private void Emit(Action action)
+    {
+        try { action(); } catch { Interlocked.Increment(ref _loggingFailures); }
+    }
     private readonly object _gate = new();
     private SetupDiscovery? _discovered;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
@@ -32,7 +39,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         var result = await (provider ?? discovery).DiscoverAsync(ct).ConfigureAwait(false);
         ct.ThrowIfCancellationRequested();
         lock (_gate) _discovered = Copy(result);
-        _logger.LogInformation(new EventId(7420, "SetupDiscovered"), "Setup discovery completed: {ControllerCount} controllers, {EndpointCount} endpoints", result.Controllers.Length, result.Endpoints.Length);
+        Emit(() => _logger.LogInformation(new EventId(7420, "SetupDiscovered"), "Setup discovery completed: {ControllerCount} controllers, {EndpointCount} endpoints", result.Controllers.Length, result.Endpoints.Length));
         return Copy(result);
     }
 
@@ -101,7 +108,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         lock (_gate)
         {
             var problems = ValidateCore(Copy(configuration));
-            _logger.LogInformation(new EventId(7421, "SetupValidated"), "Setup validation completed with {ProblemCount} problems; codes {ProblemCodes}", problems.Length, string.Join(",", problems.Select(p => p.Code).Distinct()));
+            Emit(() => _logger.LogInformation(new EventId(7421, "SetupValidated"), "Setup validation completed with {ProblemCount} problems; codes {ProblemCodes}", problems.Length, string.Join(",", problems.Select(p => p.Code).Distinct())));
             return problems;
         }
     }
@@ -123,13 +130,13 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
         try
         {
             var saved = SaveCore(request);
-            _logger.LogInformation(new EventId(7422, "SetupSaved"), "Setup saved: revision {Revision}, draft {Draft}, {InstrumentCount} instruments, {BindingCount} IVI bindings; active runs unchanged",
-                saved.Revision, saved.Draft, saved.Configuration.Instruments.Length, saved.Configuration.Instruments.Sum(i => i.Connections.Count(c => c.DriverBinding is not null)));
+            Emit(() => _logger.LogInformation(new EventId(7422, "SetupSaved"), "Setup saved: revision {Revision}, draft {Draft}, {InstrumentCount} instruments, {BindingCount} IVI bindings; active runs unchanged",
+                saved.Revision, saved.Draft, saved.Configuration.Instruments.Length, saved.Configuration.Instruments.Sum(i => i.Connections.Count(c => c.DriverBinding is not null))));
             return saved;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(new EventId(7423, "SetupSaveRejected"), "Setup save failed: {FailureKind}", ex.GetType().Name);
+            Emit(() => _logger.LogWarning(new EventId(7423, "SetupSaveRejected"), "Setup save failed: {FailureKind}", ex.GetType().Name));
             throw;
         }
     }

@@ -56,3 +56,33 @@ Started from b296bb852699e8d526179a3290312acafcb99bda, including the uncommitted
 | 50 | Whole compiled workflow report-byte parity at one and eight workers | Checkpoint 50 passed |
 
 Checkpoint 50: 19 architecture/path contracts, 11 cache scenarios, seven compiled checks, 19 tracker/documentation tests, and six exact report hashes at jobs=1/8 passed. Initial failures exposed corrupt-output incremental reuse and sandbox temporary-directory handling; both were fixed and affected checks rerun successfully. Native AOT and application tests were not run. GNU Make target contracts were inspected; GNU Make itself is unavailable.
+
+User steering after iteration 50: include main application work. Iterations 51 onward include simulation, discovery, setup, heartbeat and experiment composition; focused application tests join checkpoints 100 and 150.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 51 | Reject null SCPI metadata entries | Pending checkpoint 100 |
+| 52 | Bound SCPI metadata enumeration to 513 entries | Pending checkpoint 100 |
+| 53 | Reject blank SCPI templates | Pending checkpoint 100 |
+| 54 | Reject duplicate query patterns | Pending checkpoint 100 |
+| 55 | Reject duplicate setter patterns | Pending checkpoint 100 |
+| 56 | Reject repeated value placeholders | Pending checkpoint 100 |
+| 57 | Reject repeated channel placeholders | Pending checkpoint 100 |
+| 58 | Require full template character match | Pending checkpoint 100 |
+| 59 | Require full SCPI command match | Pending checkpoint 100 |
+| 60 | Bound SCPI command length | Pending checkpoint 100 |
+| 61 | Bound SCPI template length | Pending checkpoint 100 |
+| 62 | Reject overflowing channel indices consistently | Pending checkpoint 100 |
+| 63 | Bound AutoMock decorator enumeration | Pending checkpoint 100 |
+| 64 | Bound AutoMock fingerprint enumeration | Pending checkpoint 100 |
+| 65 | Reject nonfinite condition voltage | Pending checkpoint 100 |
+| 66 | Reject negative condition elapsed time | Pending checkpoint 100 |
+| 67 | Reject nonfinite mode-aware model output | Pending checkpoint 100 |
+| 68 | Honor cancellation after mode-aware callbacks | Pending checkpoint 100 |
+| 69 | Publish selected mode across threads | Pending checkpoint 100 |
+| 70 | Treat transport cancellation as degraded scope health | Pending checkpoint 100 |
+| 71 | Publish scope health across threads | Pending checkpoint 100 |
+| 72 | Publish owner acknowledgments across threads | Pending checkpoint 100 |
+| 73 | Isolate and count setup logging failures | Pending checkpoint 100 |
+| 74 | Reject host arguments for local discovery scopes | Pending checkpoint 100 |
+| 75 | Preserve revisions for identical installed model delegates | Pending checkpoint 100 |

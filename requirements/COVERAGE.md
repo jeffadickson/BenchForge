@@ -181,3 +181,5 @@ Full-workflow timing revision (2026-10-17): BD-REQ-003 / #17, BD-DOC-004 / #61 a
 150-iteration batch, checkpoint 25: architecture-aware compiled workflow and Make routing added; tests intentionally pending iteration 50. Existing BD-CFG-007 (#60), BD-DOC-004 (#61), BD-REQ-003 (#17). Counts remain 228 requirements, 0 Verified; statuses unchanged. See docs/LOCAL-BATCH-150.md.
 
 Checkpoint 50 source: focused build/architecture/parity regressions added; execution recorded in batch ledger. Requirement counts and statuses unchanged.
+
+Checkpoint 75: main application simulation, setup, discovery and heartbeat hardening added; tests pending checkpoint 100 under user cadence. Existing BD-SIM-001, BD-HB-003, TR-076 and BD-CFG-007 reused with existing issue links. Counts remain 228 requirements, 0 Verified; statuses unchanged.

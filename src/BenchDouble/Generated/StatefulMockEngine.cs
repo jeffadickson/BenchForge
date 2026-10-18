@@ -229,6 +229,7 @@ public sealed class StatefulMockEngine
         try
         {
             if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
+            if (behavior is not null && _models.TryGetValue(capability, out var current) && ReferenceEquals(current, behavior)) return;
             _asyncModels.Remove(capability);
             if (behavior is null) _models.Remove(capability);
             else _models[capability] = behavior;
@@ -249,6 +250,7 @@ public sealed class StatefulMockEngine
         try
         {
             if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
+            if (behavior is not null && _asyncModels.TryGetValue(capability, out var current) && ReferenceEquals(current, behavior)) return;
             _models.Remove(capability);
             if (behavior is null) _asyncModels.Remove(capability);
             else _asyncModels[capability] = behavior;

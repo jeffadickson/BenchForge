@@ -25,11 +25,15 @@ public sealed record AutoMockLoadCondition(
             throw new ArgumentOutOfRangeException(nameof(MaximumVoltage));
     }
 
-    public bool Matches(ElectricPotential voltage, TimeSpan elapsed) =>
-        (From is null || elapsed >= From.Value) &&
+    public bool Matches(ElectricPotential voltage, TimeSpan elapsed)
+    {
+        if (!double.IsFinite(voltage.Volts)) throw new ArgumentOutOfRangeException(nameof(voltage));
+        if (elapsed < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(elapsed));
+        return (From is null || elapsed >= From.Value) &&
         (Until is null || elapsed < Until.Value) &&
         (MinimumVoltage is null || voltage.Volts >= MinimumVoltage.Value.Volts) &&
         (MaximumVoltage is null || voltage.Volts <= MaximumVoltage.Value.Volts);
+    }
 }
 
 /// <summary>Supported safe, finite and serializable mock actions; no executable expression strings.</summary>
@@ -119,7 +123,8 @@ public sealed class RuleBasedLoadBehavior : ILoadBehavior
     {
         _baseline = baseline ?? throw new ArgumentNullException(nameof(baseline));
         ArgumentNullException.ThrowIfNull(rules);
-        _rules = rules.ToArray();
+        _rules = rules.Take(257).ToArray();
+        if (_rules.Length > 256) throw new ArgumentException("AutoMock rule limit reached.", nameof(rules));
         foreach (var rule in _rules) { ArgumentNullException.ThrowIfNull(rule); rule.Validate(); }
         if (_rules.Select(r => r.Name).Distinct(StringComparer.Ordinal).Count() != _rules.Length)
             throw new ArgumentException("AutoMock rule names must be unique.", nameof(rules));

@@ -16,9 +16,10 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     private Task? _loop;
     private Task? _disposal;
     private readonly object _lifecycle = new();
+    private volatile ScopeHeartbeatStatus _status = ScopeHeartbeatStatus.NotStarted;
 
     /// <summary>Latest observed renewal status.</summary>
-    public ScopeHeartbeatStatus Status { get; private set; } = ScopeHeartbeatStatus.NotStarted;
+    public ScopeHeartbeatStatus Status => _status;
     /// <summary>Raised after a renewal succeeds or fails. Handler exceptions are isolated.</summary>
     public event Action<ScopeHeartbeatStatus>? StatusChanged;
 
@@ -70,8 +71,8 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
                 catch (HttpRequestException) { status = ScopeHeartbeatStatus.Degraded; }
-                catch (TaskCanceledException) { status = ScopeHeartbeatStatus.Degraded; }
-                Status = status;
+                catch (OperationCanceledException) { status = ScopeHeartbeatStatus.Degraded; }
+                _status = status;
                 foreach (var handler in StatusChanged?.GetInvocationList() ?? [])
                     try { ((Action<ScopeHeartbeatStatus>)handler)(status); } catch { /* isolate each observer */ }
                 if (status == ScopeHeartbeatStatus.Lost) break;

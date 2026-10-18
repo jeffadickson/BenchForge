@@ -27,6 +27,10 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
     private readonly CompiledParameter[] _parameters;
     private readonly int _channelCount;
 
+    /// <summary>Create bounded, unambiguous channel state from definition metadata.</summary>
+    /// <param name="channelCount">Supported channel count, from one to 256.</param>
+    /// <param name="parameters">One to 512 nonnull parameters with unique query/setter patterns.</param>
+    /// <exception cref="ArgumentException">Metadata, templates, defaults or bounds are invalid.</exception>
     public DefinitionDrivenScpiMockSession(
         int channelCount, IEnumerable<MockScpiParameter> parameters)
     {
@@ -34,9 +38,10 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
             throw new ArgumentOutOfRangeException(nameof(channelCount));
         ArgumentNullException.ThrowIfNull(parameters);
         _channelCount = channelCount;
-        var items = parameters.ToArray();
+        var items = parameters.Take(513).ToArray();
         if (items.Length == 0 || items.Length > 512)
             throw new ArgumentException("Instrument requires 1 to 512 parameters.", nameof(parameters));
+        foreach (var item in items) ArgumentNullException.ThrowIfNull(item);
         if (items.Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() != items.Length)
             throw new ArgumentException("Duplicate parameter names.", nameof(parameters));
 
@@ -55,6 +60,12 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
             return new CompiledParameter(p,
                 Compile(p.QueryTemplate, false), Compile(p.SetTemplate, true));
         }).ToArray();
+        foreach (var selectors in new[] { _parameters.Select(p => p.Query), _parameters.Select(p => p.Setter) })
+        {
+            var patterns = selectors.Where(p => p is not null).Select(p => p!.ToString()).ToArray();
+            if (patterns.Distinct(StringComparer.Ordinal).Count() != patterns.Length)
+                throw new ArgumentException("Ambiguous SCPI command templates.", nameof(parameters));
+        }
 
         foreach (var item in items)
             for (var channel = 1; channel <= _channelCount; channel++)
@@ -80,9 +91,11 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         finally { _gate.Release(); }
     }
 
+    /// <inheritdoc/>
     public async ValueTask WriteAsync(string command, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(command);
+        if (command.Length > 4096) throw new ArgumentException("SCPI command exceeds 4096 characters.", nameof(command));
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -104,9 +117,11 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         finally { _gate.Release(); }
     }
 
+    /// <inheritdoc/>
     public async ValueTask<string> QueryAsync(string command, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(command);
+        if (command.Length > 4096) throw new ArgumentException("SCPI command exceeds 4096 characters.", nameof(command));
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -127,8 +142,9 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
     private int ReadChannel(Match match)
     {
         var group = match.Groups["channel"];
-        int channel = group.Success
-            ? int.Parse(group.Value, CultureInfo.InvariantCulture) : 1;
+        int channel = 1;
+        if (group.Success && !int.TryParse(group.Value, NumberStyles.None, CultureInfo.InvariantCulture, out channel))
+            throw new ArgumentOutOfRangeException(nameof(channel), "Invalid channel index.");
         if (channel < 1 || channel > _channelCount)
             throw new ArgumentOutOfRangeException(nameof(channel),
                 $"Channel must be between 1 and {_channelCount}.");
@@ -137,20 +153,23 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
 
     private static Regex? Compile(string? template, bool setter)
     {
-        if (string.IsNullOrWhiteSpace(template)) return null;
-        if (!Regex.IsMatch(template, @"^[A-Za-z0-9_:+? .{}-]+$") ||
+        if (template is null) return null;
+        if (string.IsNullOrWhiteSpace(template) || template.Length > 4096 || !Regex.IsMatch(template, @"\A[A-Za-z0-9_:+? .{}-]+\z") ||
             template.Replace("{channel}", "", StringComparison.Ordinal)
                 .Replace("{value}", "", StringComparison.Ordinal).Contains('{') ||
             template.Replace("{channel}", "", StringComparison.Ordinal)
                 .Replace("{value}", "", StringComparison.Ordinal).Contains('}'))
             throw new ArgumentException("Unsupported SCPI template.");
+        if (template.Split("{value}", StringSplitOptions.None).Length > 2 ||
+            template.Split("{channel}", StringSplitOptions.None).Length > 2)
+            throw new ArgumentException("SCPI placeholders must occur at most once.");
 
         if (setter != template.Contains("{value}", StringComparison.Ordinal))
             throw new ArgumentException("SCPI setter must contain {value}; query must not.");
         string pattern = Regex.Escape(template)
             .Replace(Regex.Escape("{channel}"), @"(?<channel>[0-9]+)", StringComparison.Ordinal)
             .Replace(Regex.Escape("{value}"), @"(?<value>\S+)", StringComparison.Ordinal);
-        return new Regex("^" + pattern + "$",
+        return new Regex("\\A" + pattern + "\\z",
             RegexOptions.CultureInvariant | RegexOptions.Compiled,
             TimeSpan.FromMilliseconds(100));
     }
