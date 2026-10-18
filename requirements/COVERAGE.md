@@ -382,4 +382,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Fence retained owners when monotonic time precedes their renewal. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Detect clock rollback relative to the latest owner observation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

@@ -12,6 +12,7 @@ public sealed partial class HostResourceRegistry
         public readonly string ResourceId = resourceId;
         public readonly long Generation = generation;
         public long LastTimestamp = timestamp;
+        public long LastObservedTimestamp = timestamp;
         public Guid PeerEpoch;
         public long Sequence;
         public string State = "Healthy";
@@ -84,9 +85,12 @@ public sealed partial class HostResourceRegistry
     private void EvaluateHealth(OwnerHealth health)
     {
         if (health.State == "Expired") return;
-        var age = Clock.GetElapsedTime(health.LastTimestamp);
+        var now = Clock.GetTimestamp();
+        var backwards = Clock.GetElapsedTime(health.LastObservedTimestamp, now) < TimeSpan.Zero;
+        var age = Clock.GetElapsedTime(health.LastTimestamp, now);
+        if (!backwards) health.LastObservedTimestamp = now;
         var previous = health.State;
-        health.State = age < TimeSpan.Zero || age >= _heartbeatPolicy!.ExpireAfter ? "Expired" : age >= _heartbeatPolicy.SuspectAfter ? "Suspect" : "Healthy";
+        health.State = backwards || age < TimeSpan.Zero || age >= _heartbeatPolicy!.ExpireAfter ? "Expired" : age >= _heartbeatPolicy.SuspectAfter ? "Suspect" : "Healthy";
         if (health.State != previous)
             _logger.LogWarning(new EventId(health.State == "Expired" ? 7491 : 7490, "OwnerHeartbeatChanged"),
                 "Owner heartbeat {ResourceId} generation {OwnerGeneration}: {HealthState}; loss policy FenceAndRetain",
