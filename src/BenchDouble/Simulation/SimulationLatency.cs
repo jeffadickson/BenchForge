@@ -44,6 +44,7 @@ public sealed class SimulationLatencyProfile
             ArgumentNullException.ThrowIfNull(stage);
             if(!Enum.IsDefined(stage.Phase))throw new ArgumentException("Unknown latency phase.",nameof(stages));
             if(stage.Duration<TimeSpan.Zero || stage.Duration>TimeSpan.FromDays(1))throw new ArgumentOutOfRangeException(nameof(stages),"Invalid phase duration.");
+            if(stage.Jitter<TimeSpan.Zero || stage.Jitter>stage.Duration || stage.Duration.Ticks+stage.Jitter.Ticks>TimeSpan.TicksPerDay)throw new ArgumentOutOfRangeException(nameof(stages),"Invalid phase jitter.");
             // Stage validation.
         }
         if(copied.Select(s=>s.Phase).Distinct().Count()!=copied.Length)throw new ArgumentException("Duplicate latency phase.",nameof(stages));
