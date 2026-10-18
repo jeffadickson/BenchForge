@@ -18,3 +18,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 12 | Bound imported definition size and depth | BD-SIM-001 | Pending checkpoint 20 |
 | 13 | Reject duplicate imported JSON fields | BD-SIM-001 | Pending checkpoint 20 |
 | 14 | Reject ambiguous imported mode commands | BD-SIM-001 | Pending checkpoint 20 |
+| 15 | Reject overlapping imported query bindings | BD-SIM-001 | Pending checkpoint 20 |

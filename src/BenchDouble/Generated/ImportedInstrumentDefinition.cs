@@ -63,6 +63,8 @@ public sealed class ImportedInstrumentDefinition
             double? mockDefault = capability.TryGetProperty("mockDefault", out var value) && value.ValueKind == JsonValueKind.Number
                 ? value.GetDouble() : null;
             if (mockDefault.HasValue && !double.IsFinite(mockDefault.Value)) throw new InvalidDataException("Nonfinite default.");
+            if (result._capabilities.Values.Any(existing => string.Equals(existing.Query, query, StringComparison.OrdinalIgnoreCase) && existing.Modes.Intersect(modes).Any()))
+                throw new InvalidDataException("Ambiguous query in the same operating mode.");
             if (!result._capabilities.TryAdd(id, new ImportedCapability(id, quantity, unit, query, Array.AsReadOnly(modes), mockDefault)))
                 throw new InvalidDataException("Duplicate capability.");
         }

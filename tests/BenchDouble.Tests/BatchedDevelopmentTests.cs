@@ -151,5 +151,14 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(json));
     }
 
+    /// <summary>Two capabilities in the same mode cannot claim the same SCPI query.</summary>
+    [Fact] public void QueriesAreUnambiguousWithinModes()
+    {
+        using var doc=JsonDocument.Parse(Definition);
+        var capability=doc.RootElement.GetProperty("capabilities")[0].GetRawText();
+        var json=Definition.Replace(capability,capability+","+capability.Replace("\"name\":\"voltage\"","\"name\":\"other\""));
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(json));
+    }
+
 // CASES
 }
