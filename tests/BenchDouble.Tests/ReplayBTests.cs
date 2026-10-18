@@ -121,4 +121,10 @@ public sealed class ReplayBTests
     {
         var s=S(7,8);var r=R(s);Assert.Equal(s,r.ReadNext("v","voltage",T(7)));Assert.Equal(new SimulationReplayStatus(1,1,0),r.Status());
     }
+
+    /// <summary>Mismatched replay modes preserve the next sample.</summary>
+    [Fact] public void ModeMismatch()
+    {
+        var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("r","voltage",T(0)));Assert.Equal(0,r.Status().Position);Assert.Equal(S(),r.ReadNext("v","voltage",T(0)));
+    }
 }
