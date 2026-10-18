@@ -76,5 +76,9 @@ public sealed class SimulationReplay
     /// <returns>Next sample, or null when exhausted.</returns>
     public SimulationReplaySample? Peek(){lock(_gate)return _position==_samples.Length?null:_samples[_position];}
 
+    /// <summary>Capture the cursor and plan length under one gate.</summary>
+    /// <returns>Immutable position, length and remaining count.</returns>
+    public SimulationReplayStatus Status(){lock(_gate)return new(_position,_samples.Length,_samples.Length-_position);}
+
     // Replay members.
 }
