@@ -113,3 +113,5 @@ Local iteration 19 (2026-10-17), BD-SIM-001: Validate AutoMock fallback currents
 Local iteration 19 (2026-10-17), BD-SIM-001: Validate AutoMock fallback currents and voltage bounds. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Batch iteration 01/30 (2026-10-17), TR-076: Isolate stateful mock diagnostic sinks. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 02/30 (2026-10-17), TR-076: Redact stateful mock fault payloads. Canonical statuses unchanged; runtime verification deferred to checkpoint 10 under the requested cadence. See docs/LOCAL-BATCH-30.md.

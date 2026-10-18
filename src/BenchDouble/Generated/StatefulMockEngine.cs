@@ -102,7 +102,7 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
-                Emit(() => _logger.LogWarning(error, "Mock {Instrument} fault on {Capability}", _definition.DriverName, capability));
+                Emit(() => _logger.LogWarning("Mock {Instrument} fault on {Capability}; ErrorType={ErrorType}", _definition.DriverName, capability, error.GetType().Name));
                 throw error;
             }
             double? fallback = _overrides.TryGetValue(capability, out var value) ? value : metadata.MockDefault;
@@ -154,9 +154,9 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
-                Emit(() => _logger.LogWarning(error,
-                    "Mock {Instrument} acquisition {AcquisitionId} fault on {Capability}",
-                    _definition.DriverName, acquisition.AcquisitionId, capability));
+                Emit(() => _logger.LogWarning(
+                    "Mock {Instrument} acquisition {AcquisitionId} fault on {Capability}; ErrorType={ErrorType}",
+                    _definition.DriverName, acquisition.AcquisitionId, capability, error.GetType().Name));
                 throw error;
             }
             Emit(() => _logger.LogDebug(

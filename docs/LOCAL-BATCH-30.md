@@ -5,3 +5,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | Iteration | Change | Requirement | Execution status when committed |
 |---|---|---|---|
 | 1 | Isolate stateful mock diagnostic sinks | TR-076 | Pending checkpoint 10 |
+| 2 | Redact stateful mock fault payloads | TR-076 | Pending checkpoint 10 |

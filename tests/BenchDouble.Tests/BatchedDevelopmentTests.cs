@@ -43,5 +43,15 @@ public sealed class BatchedDevelopmentTests
         e.Reset();Assert.Null(e.Snapshot().Mode);Assert.Equal(3,e.LoggingFailureCount);
     }
 
+    /// <summary>Injected exception payloads stay with callers and do not enter diagnostic sinks.</summary>
+    /// <returns>Completion after observing a redacted fault event.</returns>
+    [Fact] public async Task MockFaultMessagesArePrivate()
+    {
+        var sink=new Sink();var e=new StatefulMockEngine(ImportedInstrumentDefinition.Parse(Definition),logger:sink);
+        await e.ConfigureModeAsync("voltage");e.QueueFault("voltage",new IOException("SECRET"));
+        await Assert.ThrowsAsync<IOException>(async()=>await e.MeasureAsync("voltage"));
+        Assert.All(sink.Errors,Assert.Null);Assert.All(sink.Messages,m=>Assert.DoesNotContain("SECRET",m));
+    }
+
 // CASES
 }
