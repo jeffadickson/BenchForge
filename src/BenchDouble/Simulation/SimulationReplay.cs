@@ -27,6 +27,12 @@ public sealed class SimulationReplay
         ArgumentNullException.ThrowIfNull(samples);
         _samples=samples.Take(4097).ToArray();
         if(_samples.Length>4096)throw new ArgumentException("Transcript exceeds 4096 samples.",nameof(samples));
+        foreach(var item in _samples)
+        {
+            if(item is null)throw new ArgumentException("Null transcript sample.",nameof(samples));
+            ValidateLabel(item.Mode,nameof(item.Mode),128);ValidateLabel(item.Capability,nameof(item.Capability),128);
+            ValidateLabel(item.Quantity,nameof(item.Quantity),128);ValidateLabel(item.Unit,nameof(item.Unit),80);
+        }
         // Validate plan.
     }
     private static void ValidateLabel(string label,string parameter,int maximum)
