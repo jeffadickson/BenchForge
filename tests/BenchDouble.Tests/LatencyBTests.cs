@@ -42,4 +42,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentException>(()=>Profile(Stage(10,0,(SimulationLatencyPhase)99)));
     }
+
+    /// <summary>Duplicate phase identities are rejected.</summary>
+    [Fact] public void Duplicate()
+    {
+        Assert.Throws<ArgumentException>(()=>Profile(Stage(),Stage()));
+    }
 }
