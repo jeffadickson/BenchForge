@@ -96,4 +96,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(TimeSpan.FromDays(1),Profile(Stage(TimeSpan.TicksPerDay,0)).Sample(0).Total);
     }
+
+    /// <summary>Later caller array edits cannot rewire a profile.</summary>
+    [Fact] public void CopiedInput()
+    {
+        var a=new[]{Stage(100,0)};var p=Profile(a);a[0]=Stage(200,0);Assert.Equal(100,p.Sample(0).Total.Ticks);
+    }
 }
