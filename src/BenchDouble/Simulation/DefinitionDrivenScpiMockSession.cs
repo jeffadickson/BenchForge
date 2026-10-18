@@ -102,20 +102,14 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            foreach (var item in _parameters)
-            {
-                var match = item.Setter?.Match(command);
-                if (match is not { Success: true }) continue;
-                int channel = ReadChannel(match);
-                if (!double.TryParse(match.Groups["value"].Value, NumberStyles.Float,
-                        CultureInfo.InvariantCulture, out double number))
-                    throw new FormatException("Invalid numeric SCPI value.");
-                ValidateNumber(item.Spec, number);
-                _values[(item.Spec.Name, channel)] = number;
-                Transcript.Add("W:" + command);
-                return;
-            }
-            throw new NotSupportedException($"Mock does not implement command '{command}'.");
+            var (item, match) = Resolve(command, true);
+            int channel = ReadChannel(match);
+            if (!double.TryParse(match.Groups["value"].Value, NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out double number))
+                throw new FormatException("Invalid numeric SCPI value.");
+            ValidateNumber(item.Spec, number);
+            _values[(item.Spec.Name, channel)] = number;
+            Transcript.Add("W:" + command);
         }
         finally { _gate.Release(); }
     }
