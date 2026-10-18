@@ -32,6 +32,7 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
     /// <param name="resourceId">Canonical resource ID.</param>
     /// <param name="leaseId">Current control capability; never used as a log correlation.</param>
     /// <param name="snapshot">Host epoch, generation and prior peer sequence from owner-health inspection.</param>
+    /// <exception cref="ArgumentException">Identity, age, timing budgets or the loss policy are invalid or expired.</exception>
     public OwnerLeaseHeartbeat(HttpClient client, string resourceId, Guid leaseId, OwnerHeartbeatSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(client); ArgumentNullException.ThrowIfNull(snapshot);

@@ -33,3 +33,7 @@ cannot silently retain an old audit. Issue existence/state was reviewed against
 GitHub during the audit; offline validation checks URL shape, not remote status.
 StrictDoc is the requirement tracker, GitHub Issues tracks work, and Reqnroll/xUnit/
 Playwright provide executable acceptance evidence. Stable IDs are not renumbered.
+
+## Supplemental local regressions
+
+The optional `supplemental_verification` field contains semicolon-separated additional regression source paths, preserving the primary acceptance links and GitHub work item. These are source links, not full verification evidence. The thirty-iteration batch deliberately defers runtime test execution to iterations 10, 20 and 30 at the user's request; see `docs/LOCAL-BATCH-30.md`. No requirement status is promoted by that cadence.

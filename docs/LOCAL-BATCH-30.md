@@ -2,6 +2,8 @@
 
 Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs the core, host and experiment projects, tracker tests and documentation checks. Earlier commits in a batch await that checkpoint. Static requirement consistency is checked before each commit. No requirement is promoted to Verified.
 
+The first checkpoint-30 host run exposed scheduling-sensitive shutdown tests. Iteration 30 replaced self-expiring callback gates with explicit release, isolated blocking initialization from the worker pool, and widened coordination budgets while retaining cleanup, ownership and deadline assertions. A subsequent failure-injection case also needed a larger scheduling budget to observe its provider outcome before timeout. The initial failure evidence is retained with the final checkpoint results.
+
 | Iteration | Change | Requirement | Execution status when committed |
 |---|---|---|---|
 | 1 | Isolate stateful mock diagnostic sinks | TR-076 | Pending checkpoint 10 |
@@ -33,3 +35,8 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 27 | Reject inconsistent owner heartbeat acknowledgments | BD-HB-003 | Pending checkpoint 30 |
 | 28 | Renew scope ownership immediately on start | BD-HB-002 | Pending checkpoint 30 |
 | 29 | Validate discovery numeric address components | BD-CFG-008 | Pending checkpoint 30 |
+| 30 | Prevent AutoMock dependency replacement | BD-EXP-003 | Checkpoint passed |
+
+All pending statuses in the historical column above are resolved by the passing checkpoints at iterations 10, 20 and 30. Each checkpoint includes the complete core, host and experiment test projects, all nine tracker tests, API documentation audit, documentation gate and all ten documentation tests. Tests were not run between checkpoints.
+
+Physical driver activation, authenticated multi-host discovery, durable remote log replay and hardware/cross-platform acceptance remain incomplete. The 228 requirement statuses are retained, with no Verified promotion.

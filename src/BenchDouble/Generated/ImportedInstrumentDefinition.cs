@@ -21,7 +21,9 @@ public sealed class ImportedInstrumentDefinition
     /// <summary>Parse schema v2 with strict supported-subset validation and no code execution.</summary>
     /// <param name="json">Schema-v2 JSON, at most 1 Mi characters and 32 nesting levels.</param>
     /// <returns>A validated simulation-only definition.</returns>
-    /// <exception cref="InvalidDataException">The definition contains unsupported or invalid capabilities.</exception>
+    /// <exception cref="InvalidDataException">The definition is oversized, ambiguous or contains unsupported capabilities.</exception>
+    /// <exception cref="JsonException">JSON is malformed or exceeds the nesting limit.</exception>
+    /// <exception cref="ArgumentNullException">The input is null.</exception>
     public static ImportedInstrumentDefinition Parse(string json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -202,6 +204,7 @@ public sealed class ImportedInstrumentMock
     /// <summary>Clear pending simulated faults for one capability without changing its mode or reading.</summary>
     /// <param name="capability">Declared scalar capability.</param>
     /// <returns>Number of discarded pending faults.</returns>
+    /// <exception cref="NotSupportedException">The capability is not declared by this simulation definition.</exception>
     public int ClearFaults(string capability) => _engine.ClearFaults(capability);
 
     /// <summary>Queue a one-shot simulated measurement failure.</summary>

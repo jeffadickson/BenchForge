@@ -91,6 +91,10 @@ public sealed class ExperimentDefinitionBuilder
     /// instrument load behavior. The rules are frozen with the experiment definition.
     /// The factory is used only at the composition root, never by the instrument.
     /// </summary>
+    /// <param name="baselineFactory">Creates the baseline; DI owns dependencies resolved from the run scope. The factory owns other allocated resources.</param>
+    /// <param name="configure">Data-only rule configuration, evaluated only after registration conflicts are rejected.</param>
+    /// <returns>This mutable experiment builder.</returns>
+    /// <exception cref="InvalidOperationException">An unkeyed load dependency already exists or the builder is frozen.</exception>
     public ExperimentDefinitionBuilder AutoMockLoad(
         Func<IServiceProvider, ILoadBehavior> baselineFactory,
         Action<AutoMockLoadRulesBuilder> configure)
@@ -98,8 +102,8 @@ public sealed class ExperimentDefinitionBuilder
         EnsureMutable();
         ArgumentNullException.ThrowIfNull(baselineFactory);
         ArgumentNullException.ThrowIfNull(configure);
-        if (_hasAutoMockLoad)
-            throw new InvalidOperationException("Only one unkeyed default ILoadBehavior AutoMock is supported; use AutoMockLoadFor for named instruments.");
+        if (_hasAutoMockLoad || _services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(ILoadBehavior)))
+            throw new InvalidOperationException("An unkeyed ILoadBehavior is already registered; use AutoMockLoadFor for named instruments.");
         var rulesBuilder = new AutoMockLoadRulesBuilder();
         configure(rulesBuilder);
         var rules = rulesBuilder.Build();

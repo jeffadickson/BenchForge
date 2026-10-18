@@ -31,7 +31,11 @@ public static class AutoMockRuleFiles
         public double? MaximumVolts { get; set; }
     }
 
-    /// <summary>Parse a bounded version-one JSON rule set and validate before use.</summary>
+    /// <summary>Parse a bounded version-one data-only rule set without executing code.</summary>
+    /// <param name="json">At most 128 Ki characters and sixteen nesting levels; action values must be explicit.</param>
+    /// <returns>Immutable ordered rules with finite nonnegative action values and canonical voltage/time bounds.</returns>
+    /// <exception cref="ArgumentException">Fields are duplicated or rule semantics are invalid.</exception>
+    /// <exception cref="JsonException">JSON is malformed, contains unknown fields or omits required action values.</exception>
     public static IReadOnlyList<AutoMockLoadRule> Parse(string json)
     {
         ArgumentNullException.ThrowIfNull(json);

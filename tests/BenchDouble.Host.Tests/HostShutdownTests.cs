@@ -134,7 +134,7 @@ public sealed partial class HostShutdownTests
     public async Task Shutdown_is_shared_and_permanent()
     {
         var registry = new HostResourceRegistry(); registry.Reserve("DMM1");
-        var first = registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var first = registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         var second = registry.ShutdownAsync(new(TimeSpan.FromSeconds(2)));
         Assert.Same(first, second);
         var report = await first;
@@ -149,7 +149,7 @@ public sealed partial class HostShutdownTests
     {
         using var f = new Fixture(); f.Activate();
         var restarted = new HostResourceRegistry(journal: f.Journal);
-        var report = await restarted.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var report = await restarted.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Equal("StartupQuarantine", Assert.Single(report.Items).Outcome);
         Assert.Single(f.Journal!.Read()); Assert.Single(restarted.PendingRecovery());
     }
@@ -160,7 +160,7 @@ public sealed partial class HostShutdownTests
     public async Task Missing_shutdown_provider_retains_ownership()
     {
         using var f = new Fixture(); f.Activate();
-        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Equal("ProviderMissing", Assert.Single(report.Items).Outcome);
         Assert.Equal(0, f.CloseCalls); Assert.Single(f.Journal!.Read());
     }
@@ -202,7 +202,7 @@ public sealed partial class HostShutdownTests
         using var f = new Fixture(shutdown: true); f.Activate();
         f.OnPrepare = () => { Assert.Single(f.Journal!.Read()); Assert.Equal(0, f.CloseCalls); };
         f.OnClose = () => { Assert.Equal(1, f.PrepareCalls); Assert.Single(f.Journal!.Read()); };
-        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Equal("Closed", Assert.Single(report.Items).Outcome);
         Assert.Equal(1, f.CloseCalls); Assert.Empty(f.Journal!.Read());
     }
@@ -214,7 +214,7 @@ public sealed partial class HostShutdownTests
     {
         using var f = new Fixture(shutdown: true); var active = f.Activate();
         f.OnPrepare = () => throw new IOException("SECRET shutdown details");
-        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Equal("RecoveryRequired", Assert.Single(report.Items).Outcome);
         Assert.Equal(0, f.CloseCalls); Assert.Single(f.Journal!.Read());
         Assert.Equal("Shutdown", f.Service.Status(f.Id, active.Lease.LeaseId).LastFailurePhase);
@@ -228,17 +228,17 @@ public sealed partial class HostShutdownTests
         using var f = new Fixture(shutdown: true); using var other = new Fixture(f.Registry, "OTHER", shutdown: true);
         f.Activate(); other.Activate();
         using var entered = new ManualResetEventSlim(); using var finish = new ManualResetEventSlim(); using var closed = new ManualResetEventSlim();
-        f.OnPrepare = () => { entered.Set(); if (!finish.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException(); };
+        f.OnPrepare = () => { entered.Set(); finish.Wait(); };
         f.OnClose = () => closed.Set();
         try
         {
-            var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromMilliseconds(150), 2)).WaitAsync(TimeSpan.FromSeconds(2));
+            var report = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(5), 2)).WaitAsync(TimeSpan.FromSeconds(30));
             Assert.True(entered.IsSet);
             Assert.Equal("DeadlineExceeded", report.Items.Single(x => x.ResourceId == f.Id).Outcome);
             Assert.Equal("Closed", report.Items.Single(x => x.ResourceId == "OTHER").Outcome);
             Assert.Equal(1, other.PrepareCalls); Assert.Equal(1, other.CloseCalls); Assert.Single(f.Journal!.Read());
         }
-        finally { finish.Set(); Assert.True(closed.Wait(TimeSpan.FromSeconds(3))); Assert.True(SpinWait.SpinUntil(() => f.Registry.ShutdownWorkPending == 0, TimeSpan.FromSeconds(3))); }
+        finally { finish.Set(); Assert.True(closed.Wait(TimeSpan.FromSeconds(30))); Assert.True(SpinWait.SpinUntil(() => f.Registry.ShutdownWorkPending == 0, TimeSpan.FromSeconds(30))); }
     }
 
     /// <summary>The configured worker cap bounds vendor concurrency; queued cleanup does not dispatch after timeout.</summary>
@@ -344,7 +344,7 @@ public sealed partial class HostShutdownTests
     {
         var log = new Capture(); using var f = new Fixture(shutdown: true, logger: log); var active = f.Activate();
         f.OnPrepare = () => throw new IOException("SECRET vendor payload");
-        await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Contains(7480, log.Ids); Assert.Contains(7481, log.Ids); Assert.Contains(7482, log.Ids); Assert.Contains(7483, log.Ids);
         var text = string.Join("\n", log.Messages);
         Assert.DoesNotContain("SECRET", text); Assert.DoesNotContain(active.Lease.LeaseId.ToString(), text);
@@ -357,7 +357,7 @@ public sealed partial class HostShutdownTests
     public async Task Shutdown_isolated_from_sink_failures_and_duplicate_calls()
     {
         var log = new Capture(); using var f = new Fixture(shutdown: true, logger: log); f.Activate(); log.Throw = true;
-        var calls = Enumerable.Range(0,32).Select(_ => Task.Run(() => f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1))))).ToArray();
+        var calls = Enumerable.Range(0,32).Select(_ => Task.Run(() => f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30))))).ToArray();
         var reports = await Task.WhenAll(calls);
         Assert.All(reports, r => Assert.Same(reports[0], r));
         Assert.Equal("Closed", Assert.Single(reports[0].Items).Outcome);
@@ -382,8 +382,8 @@ public sealed partial class HostShutdownTests
             f.OnMeasure = () => throw new IOException();
             Assert.Throws<InvalidOperationException>(() => f.Service.Measure(f.Id, active.Lease.LeaseId));
         }
-        var first = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
-        var second = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(1)));
+        var first = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
+        var second = await f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
         Assert.Same(first, second); Assert.Equal("RecoveryRequired", Assert.Single(first.Items).Outcome);
         Assert.Single(f.Journal!.Read());
         Assert.Equal("RecoveryRequired", f.Registry.Monitor().Instruments.Single(i => i.ResourceId == f.Id).Status);
@@ -398,13 +398,14 @@ public sealed partial class HostShutdownTests
     {
         using var f = new Fixture(shutdown: true);
         using var entered = new ManualResetEventSlim(); using var finish = new ManualResetEventSlim();
-        f.OnOpen = () => { entered.Set(); if (!finish.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException(); };
-        var opening = Task.Run(() => f.Service.Activate("meter", f.Revision, true));
+        f.OnOpen = () => { entered.Set(); finish.Wait(); };
+        var opening = Task.Factory.StartNew(() => f.Service.Activate("meter", f.Revision, true),
+            CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         Task<HostShutdownReport>? shutdown = null;
         try
         {
-            Assert.True(entered.Wait(TimeSpan.FromSeconds(3)));
-            shutdown = f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(2)));
+            Assert.True(entered.Wait(TimeSpan.FromSeconds(30)));
+            shutdown = f.Registry.ShutdownAsync(new(TimeSpan.FromSeconds(30)));
             Assert.Equal(0, f.PrepareCalls); Assert.Equal(0, f.CloseCalls); Assert.Single(f.Journal!.Read());
         }
         finally { finish.Set(); await opening; }

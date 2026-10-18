@@ -9,8 +9,8 @@ IVI architecture review (2026-10-16): [configuration/driver integration assessme
 | DesignOnly | 7 |
 | NoImplementationEvidence | 39 |
 | PartialSourceUnverified | 74 |
-| Planned | 39 |
-| SourceCommittedUnverified | 69 |
+| Planned | 38 |
+| SourceCommittedUnverified | 70 |
 
 The original 90 TR findings are retained in [legacy-runner-audit.csv](legacy-runner-audit.csv). New lifecycle, heartbeat, command, resilience, identification, ownership and change-control requirements have explicit acceptance conditions.
 
@@ -169,3 +169,7 @@ Batch iteration 27/30 (2026-10-17), BD-HB-003: Reject inconsistent owner heartbe
 Batch iteration 28/30 (2026-10-17), BD-HB-002: Renew scope ownership immediately on start. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 29/30 (2026-10-17), BD-CFG-008: Validate discovery numeric address components. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+
+
+Batch iteration 30/30 (2026-10-17), BD-EXP-003: Prevent AutoMock dependency replacement. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.

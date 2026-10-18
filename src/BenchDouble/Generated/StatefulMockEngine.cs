@@ -280,6 +280,7 @@ public sealed class StatefulMockEngine
     /// <summary>Discard pending faults for one capability without changing mode, readings or models.</summary>
     /// <param name="capability">Declared scalar capability.</param>
     /// <returns>Number of discarded faults; zero does not advance the revision.</returns>
+    /// <exception cref="NotSupportedException">The capability is not declared by this simulation definition.</exception>
     public int ClearFaults(string capability)
     {
         _definition.Capability(capability);
