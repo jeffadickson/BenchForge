@@ -76,6 +76,9 @@ public sealed class SimulationLatencyProfile
         return new(Seed,operationIndex,Stages.Select(s=>new SampledLatencyStage(s.Phase,TimeSpan.FromTicks(s.Duration.Ticks+JitterTicks(operationIndex,s)))).ToArray());
     }
 
+    /// <summary>Aggregate base-plus-jitter upper duration, no greater than one logical day.</summary>
+    public TimeSpan MaximumDuration => TimeSpan.FromTicks(Stages.Sum(s=>s.Duration.Ticks+s.Jitter.Ticks));
+
     // Profile members.
 }
 
