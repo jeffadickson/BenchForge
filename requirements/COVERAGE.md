@@ -312,4 +312,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Execute exactly the catalog and two generation steps. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Build source projects only after generation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

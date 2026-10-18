@@ -148,3 +148,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_generation_execution(self):
         """Execute exactly the catalog and two generation steps."""
         self.invoke('--command','generate');self.assertEqual(3,len(self.events()));self.assertEqual(3,len(self.report()['stages']))
+
+    def test_build_execution(self):
+        """Build source projects only after generation."""
+        self.invoke('--command','build');self.assertEqual(['check_instrument_catalog.py','run','run','build'],[Path(e[0]).name for e in self.events()])
