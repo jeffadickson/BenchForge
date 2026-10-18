@@ -215,4 +215,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(0),"a");var reads=c.Reads;s.Clear();Assert.Equal(reads,c.Reads);
     }
+
+    /// <summary>Snapshots never advance or sample virtual time.</summary>
+    [Fact] public void SnapshotNoClock()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(0),"a");var reads=c.Reads;_=s.Snapshot();Assert.Equal(reads,c.Reads);
+    }
 }
