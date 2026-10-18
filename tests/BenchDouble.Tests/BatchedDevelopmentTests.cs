@@ -194,5 +194,14 @@ public sealed class BatchedDevelopmentTests
         Assert.Single(AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"fixedcurrent\",\"value\":1}]}"));
     }
 
+    /// <summary>Fluent and JSON rule sets have the same finite count limit.</summary>
+    [Fact] public void FluentRuleSetsAreBounded()
+    {
+        var builder=new AutoMockLoadRulesBuilder();
+        for(var i=0;i<256;i++) builder.ScaleBaseline("r"+i,1);
+        Assert.Throws<InvalidOperationException>(()=>builder.ScaleBaseline("extra",1));
+        Assert.Equal(256,builder.Build().Count);
+    }
+
 // CASES
 }

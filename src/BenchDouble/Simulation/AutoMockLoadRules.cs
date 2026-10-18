@@ -93,6 +93,7 @@ public sealed class AutoMockLoadRulesBuilder
         rule.Validate();
         if (_rules.Any(existing => existing.Name == rule.Name))
             throw new InvalidOperationException($"Duplicate AutoMock rule '{rule.Name}'.");
+        if (_rules.Count >= 256) throw new InvalidOperationException("AutoMock rule limit reached.");
         _rules.Add(rule);
     }
 
