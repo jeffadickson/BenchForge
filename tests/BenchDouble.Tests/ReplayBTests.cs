@@ -73,4 +73,10 @@ public sealed class ReplayBTests
     {
         foreach(var s in new[]{S() with{Mode="v\n"},S() with{Capability="x\t"},S() with{Quantity="x\r"},S() with{Unit="x\0"}})Assert.Throws<ArgumentException>(()=>R(s));
     }
+
+    /// <summary>Exact supported label lengths are accepted.</summary>
+    [Fact] public void LabelBounds()
+    {
+        var s=S() with{Mode=new string('m',128),Capability=new string('c',128),Quantity=new string('q',128),Unit=new string('u',80)};Assert.Equal(s,R(s).ReadNext(s.Mode,s.Capability,T(0)));
+    }
 }
