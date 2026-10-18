@@ -185,4 +185,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Equal(TimeSpan.MaxValue,s.ScheduleAt(TimeSpan.MaxValue,"a").DueAt);
     }
+
+    /// <summary>Cancellation from clock observation precedes event insertion.</summary>
+    [Fact] public void CancellationDuringClock()
+    {
+        using var token=new CancellationTokenSource();var c=new Clock{OnRead=token.Cancel};var s=new SimulationScheduler(c);Assert.ThrowsAny<OperationCanceledException>(()=>s.Schedule(T(0),"bad",token.Token));Assert.Equal(0,s.Count);
+    }
 }
