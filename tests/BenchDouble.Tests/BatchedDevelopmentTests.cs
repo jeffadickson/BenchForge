@@ -108,5 +108,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(revision,e.Snapshot().Revision);Assert.Equal(256,e.ClearFaults("voltage"));
     }
 
+    /// <summary>Opposite finite extremes interpolate without overflow in their difference.</summary>
+    [Fact] public void ExtremeRampsRemainFinite()
+    {
+        var ramp=StatefulMockBehaviors.Ramp(TimeSpan.Zero,TimeSpan.FromSeconds(2),double.MaxValue,-double.MaxValue);
+        Assert.Equal(0,ramp(new("voltage","voltage",TimeSpan.FromSeconds(1),0,null)));
+    }
+
 // CASES
 }

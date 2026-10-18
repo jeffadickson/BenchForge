@@ -12,3 +12,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 6 | Keep absent model removal idempotent | BD-SIM-001 | Pending checkpoint 10 |
 | 7 | Avoid revisions for identical mock overrides | BD-SIM-001 | Pending checkpoint 10 |
 | 8 | Bound pending mock fault queues | BD-SIM-001 | Pending checkpoint 10 |
+| 9 | Prevent overflow in finite virtual ramps | BD-SIM-001 | Pending checkpoint 10 |

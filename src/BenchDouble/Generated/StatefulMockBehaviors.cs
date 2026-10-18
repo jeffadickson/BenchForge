@@ -28,8 +28,13 @@ public static class StatefulMockBehaviors
     {
         if (start < TimeSpan.Zero || end <= start || !double.IsFinite(from) || !double.IsFinite(to))
             throw new ArgumentOutOfRangeException(nameof(end));
-        return context => context.Elapsed <= start ? from : context.Elapsed >= end ? to :
-            from + (to - from) * ((context.Elapsed - start).TotalSeconds / (end - start).TotalSeconds);
+        return context =>
+        {
+            if (context.Elapsed <= start) return from;
+            if (context.Elapsed >= end) return to;
+            var fraction = (context.Elapsed - start).TotalSeconds / (end - start).TotalSeconds;
+            return Math.Clamp(from * (1 - fraction) + to * fraction, Math.Min(from, to), Math.Max(from, to));
+        };
     }
 
     /// <summary>Read voltage from a shared virtual signal at mock time.</summary>
