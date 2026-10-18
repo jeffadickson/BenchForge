@@ -108,3 +108,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_preserve_plan_report(self):
         """Plan mode preserves a prior execution report."""
         path=self.root/'build/developer-workflow.json';path.parent.mkdir();path.write_text('prior');self.plan();self.assertEqual('prior',path.read_text())
+
+    def test_debug_configuration(self):
+        """Forward Debug configuration to every dotnet task."""
+        steps=self.plan('build','--configuration','Debug');self.assertTrue(all('Debug' in s['Arguments'] for s in steps[1:]))

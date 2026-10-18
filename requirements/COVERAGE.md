@@ -302,4 +302,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Plan mode preserves a prior execution report. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Forward Debug configuration to every dotnet task. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
