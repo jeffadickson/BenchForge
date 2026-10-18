@@ -175,6 +175,11 @@ public sealed class ImportedInstrumentMock
     /// <summary>Clear all explicit scalar readings while retaining the selected mode.</summary>
     public void ClearAllReadings() => _engine.ClearAllReadings();
 
+    /// <summary>Clear pending simulated faults for one capability without changing its mode or reading.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Number of discarded pending faults.</returns>
+    public int ClearFaults(string capability) => _engine.ClearFaults(capability);
+
     /// <summary>Queue a one-shot simulated measurement failure.</summary>
     /// <param name="capability">Declared capability identifier.</param>
     /// <param name="failure">Exception to throw on the next compatible measurement.</param>

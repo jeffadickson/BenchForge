@@ -72,5 +72,16 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(before+1,e.Snapshot().Revision);
     }
 
+    /// <summary>Fault clearing retains overrides and mode and is idempotent.</summary>
+    /// <returns>Completion after explicit fault clearing.</returns>
+    [Fact] public async Task FaultClearingPreservesOtherState()
+    {
+        var e=Engine();await e.ConfigureModeAsync("voltage");e.SetReading("voltage",3);
+        e.QueueFault("voltage",new IOException());e.QueueFault("voltage",new IOException());
+        Assert.Equal(2,e.ClearFaults("voltage"));var revision=e.Snapshot().Revision;
+        Assert.Equal(0,e.ClearFaults("voltage"));Assert.Equal(revision,e.Snapshot().Revision);
+        Assert.Equal(3,await e.MeasureAsync("voltage"));
+    }
+
 // CASES
 }

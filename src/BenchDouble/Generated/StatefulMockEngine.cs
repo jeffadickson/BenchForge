@@ -269,6 +269,22 @@ public sealed class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Discard pending faults for one capability without changing mode, readings or models.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Number of discarded faults; zero does not advance the revision.</returns>
+    public int ClearFaults(string capability)
+    {
+        _definition.Capability(capability);
+        _gate.Wait();
+        try
+        {
+            if (!_faults.Remove(capability, out var faults) || faults.Count == 0) return 0;
+            ++_revision;
+            return faults.Count;
+        }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Capture immutable mode, virtual time, revision and explicit readings.</summary>
     /// <returns>Independent state snapshot.</returns>
     public StatefulMockSnapshot Snapshot()

@@ -636,7 +636,8 @@ STATEMENT: Plot downsampling shall preserve peak excursions and raw acceptance e
 UID: BD-SIM-001
 STATUS: Active
 TITLE: BD-SIM-001 P0
-STATEMENT: Instrument mocks shall accept injected behavior and a run-scoped simulation clock. Acceptance: Captured meter reads shall reject missing acquisition components, empty or mismatched correlation IDs and mismatched meter/waveform start times before consuming queued faults; a subsequent valid read shall consume the fault exactly once. Acceptance: AutoMock shall reject negative maximum voltage conditions and nonfinite or negative unmatched baseline currents just as it rejects invalid rule results. Acceptance: A model that returns after its measurement token is cancelled shall not publish a successful scalar reading. Acceptance: Consuming a scalar or captured one-shot fault shall advance the mock state revision exactly once.
+STATEMENT: Instrument mocks shall accept injected behavior and a run-scoped simulation clock. Acceptance: Captured meter reads shall reject missing acquisition components, empty or mismatched correlation IDs and mismatched meter/waveform start times before consuming queued faults; a subsequent valid read shall consume the fault exactly once. Acceptance: AutoMock shall reject negative maximum voltage conditions and nonfinite or negative unmatched baseline currents just as it rejects invalid rule results. Acceptance: A model that returns after its measurement token is cancelled shall not publish a successful scalar reading. Acceptance: Consuming a scalar or captured one-shot fault shall advance the mock state revision exactly once. Acceptance: Clearing pending faults shall return their count, preserve mode and overrides, and leave revision unchanged when already empty.
+
 
 
 
