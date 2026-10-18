@@ -268,4 +268,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.WriteAsync("V1 2e0"); Assert.Equal(2,s.GetReadingsSnapshot()[0].Value); Assert.Equal("2",await s.QueryAsync("V1?"));
     }
+
+    /// <summary>Unsupported query cannot change captured state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task SnapshotAfterFailedQuery()
+    {
+        var s=Session(); await Assert.ThrowsAsync<NotSupportedException>(async()=>await s.QueryAsync("UNKNOWN?")); Assert.Empty(s.GetTranscriptSnapshot()); Assert.Equal(2,s.GetReadingsSnapshot().Count);
+    }
 }
