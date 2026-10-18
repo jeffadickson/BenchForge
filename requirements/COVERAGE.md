@@ -436,4 +436,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Add deterministic integer-tick jitter mixing without shared random state. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Expose immutable latency samples with exact total duration. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

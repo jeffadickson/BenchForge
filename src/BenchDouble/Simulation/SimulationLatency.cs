@@ -66,5 +66,35 @@ public sealed class SimulationLatencyProfile
         return (long)(mixed%(ulong)(2*stage.Jitter.Ticks+1))-stage.Jitter.Ticks;
     }
 
+    /// <summary>Sample all logical phases by explicit nonnegative operation index without mutable RNG state.</summary>
+    /// <param name="operationIndex">Stable index, zero through Int64.MaxValue.</param>
+    /// <returns>Detached immutable phase durations and their exact tick sum.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative.</exception>
+    public SimulationLatencySample Sample(long operationIndex)
+    {
+        if(operationIndex<0)throw new ArgumentOutOfRangeException(nameof(operationIndex));
+        return new(Seed,operationIndex,Stages.Select(s=>new SampledLatencyStage(s.Phase,TimeSpan.FromTicks(s.Duration.Ticks+JitterTicks(operationIndex,s)))).ToArray());
+    }
+
     // Profile members.
+}
+
+/// <summary>One sampled logical phase duration.</summary>
+/// <param name="Phase">Declared phase identity.</param>
+/// <param name="Duration">Nonnegative sampled logical duration.</param>
+public sealed record SampledLatencyStage(SimulationLatencyPhase Phase, TimeSpan Duration);
+/// <summary>Detached latency sample; no worker, timer, wall clock or lease authority.</summary>
+public sealed class SimulationLatencySample
+{
+    internal SimulationLatencySample(int seed,long index,SampledLatencyStage[] stages)
+    {Seed=seed;OperationIndex=index;Stages=Array.AsReadOnly(stages.ToArray());Total=TimeSpan.FromTicks(stages.Sum(s=>s.Duration.Ticks));}
+    /// <summary>Configured deterministic seed.</summary>
+    public int Seed { get; }
+    /// <summary>Caller-selected nonnegative operation index.</summary>
+    public long OperationIndex { get; }
+    /// <summary>Detached immutable logical phase durations.</summary>
+    public IReadOnlyList<SampledLatencyStage> Stages { get; }
+    /// <summary>Exact total logical duration, from zero through one day.</summary>
+    public TimeSpan Total { get; }
+    // Sample members.
 }
