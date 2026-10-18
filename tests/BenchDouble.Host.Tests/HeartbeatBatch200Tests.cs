@@ -174,4 +174,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);c.Utc=c.Utc.AddYears(-10);Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
     }
+
+    /// <summary>Valid renewal restores suspect health with the same owner generation.</summary>
+    [Fact] public void RenewalRestoresSuspect()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;c.At(25);var renewed=r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),1);Assert.Equal("Healthy",renewed.State);Assert.Equal(s.OwnerGeneration,renewed.OwnerGeneration);Assert.Equal(0,renewed.AgeMilliseconds);
+    }
 }
