@@ -211,4 +211,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());var first=r.ReadNext("v","voltage",T(0));r.Reset();Assert.Equal(first,r.ReadNext("v","voltage",T(0)));
     }
+
+    /// <summary>Cancelled reset preserves an exhausted cursor.</summary>
+    [Fact] public void CancelledReset()
+    {
+        var r=R(S());r.ReadNext("v","voltage",T(0));using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>r.Reset(c.Token));Assert.Equal(1,r.Status().Position);
+    }
 }
