@@ -108,7 +108,7 @@ try {
         }
         $previousGcServer = $env:DOTNET_gcServer
         $env:DOTNET_gcServer = '0'
-        try { Invoke-WorkflowStep 'build-workflow' $dotnetPath @('build',(Join-Path $Cache 'source/tools/BenchForge.CheckWorkflow'),'-t:Rebuild','-c',$Configuration,'-r',$plan.rid,'--self-contained','false','--disable-build-servers','-m:1','-nr:false','-p:UseSharedCompilation=false','-o',(Join-Path $Cache 'bin')) }
+        try { Invoke-WorkflowStep 'build-workflow' $dotnetPath @('build',(Join-Path $Cache 'source/tools/BenchForge.CheckWorkflow'),'-t:Rebuild','-c',$Configuration,'-r',$plan.rid,'--self-contained','false','--disable-build-servers','-m:1','-nr:false','-p:UseSharedCompilation=false',('-p:BaseIntermediateOutputPath='+(Join-Path $Cache 'obj/')),'-o',(Join-Path $Cache 'bin')) }
         finally { $env:DOTNET_gcServer = $previousGcServer }
         $artifacts = [ordered]@{}
         foreach ($name in $required) { $artifacts[$name] = Get-CheckFileHash (Join-Path $Cache ('bin/'+$name)) }

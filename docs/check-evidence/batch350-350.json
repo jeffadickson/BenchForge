@@ -1,0 +1,770 @@
+{
+  "checkpoint": 350,
+  "result": "passed",
+  "tested_base_commit": "cc71503a4c1a656c86c98bd080b4d467f38fe026",
+  "tested_worktree": "modified feature and test sources committed at this checkpoint; execution evidence and ledger added after the run",
+  "platform": "win32",
+  "application_tests": {
+    "core": {
+      "total": "209",
+      "executed": "209",
+      "passed": "209",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "host": {
+      "total": "202",
+      "executed": "202",
+      "passed": "202",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "experiments": {
+      "total": "59",
+      "executed": "59",
+      "passed": "59",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "test_classes": {
+    "core": {
+      "StatefulMockSequenceTests": 34,
+      "BatchedDevelopmentTests": 24,
+      "ApplicationBatch300Tests": 21,
+      "LocalHardeningTests": 4,
+      "StatefulMockEngineTests": 9,
+      "LoggingScpiSessionTests": 3,
+      "AdjustableSimulationClockTests": 36,
+      "ApplicationDiagnosticsTests": 20,
+      "GeneratedMockBehaviorContractTests": 14,
+      "SignalDomainTests": 7,
+      "AutoMockLoadRulesTests": 6,
+      "ModeAwareMockInstrumentTests": 4,
+      "TypedMockMeasurementsTests": 6,
+      "DefinitionDrivenMockTests": 5,
+      "PowerSupplyBehaviorTests": 4,
+      "SignalBehaviorTests": 3,
+      "AutoMockRuleFileTests": 5,
+      "GeneratedV2MockDecoratorTests": 2,
+      "PowerSupplyDiTests": 2
+    },
+    "host": {
+      "IviSetupBindingTests": 4,
+      "ReadingFreshnessTests": 30,
+      "VisaSetupDiscoveryTests": 5,
+      "BatchedDevelopmentTests": 5,
+      "HostShutdownTests": 55,
+      "HostedIviDmmTests": 46,
+      "BenchSetupTests": 18,
+      "ApplicationHeartbeatDiagnosticsTests": 19,
+      "ScopeLeaseHeartbeatTests": 5,
+      "ApplicationBatch300Tests": 4,
+      "LocalHardeningTests": 11
+    },
+    "experiments": {
+      "ExperimentDisposalTests": 2,
+      "ExperimentCompositionTests": 9,
+      "VirtualInstrumentIntegrationTests": 5,
+      "ExperimentStartupTests": 5,
+      "SimulationClockCompositionTests": 11,
+      "ApplicationCompositionTests": 18,
+      "StatefulMockCompositionTests": 2,
+      "LocalHardeningTests": 3,
+      "VirtualSmuCompositionTests": 1,
+      "BatchedDevelopmentTests": 1,
+      "SequenceCompositionTests": 2
+    }
+  },
+  "application_runs": [
+    {
+      "suite": "core",
+      "exit_code": 0,
+      "seconds": 56.36199540000234,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~GeneratedMockBehaviorContractTests|FullyQualifiedName~GeneratedV2MockDecoratorTests|FullyQualifiedName~AdjustableSimulationClockTests|FullyQualifiedName~StatefulMockSequenceTests|FullyQualifiedName~SignalDomainTests|FullyQualifiedName~SignalBehaviorTests|FullyQualifiedName~ApplicationBatch300Tests|FullyQualifiedName~ApplicationDiagnosticsTests|FullyQualifiedName~DefinitionDrivenMockTests|FullyQualifiedName~StatefulMockEngineTests|FullyQualifiedName~ModeAwareMockInstrumentTests|FullyQualifiedName~AutoMockLoadRulesTests|FullyQualifiedName~AutoMockRuleFileTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~TypedMockMeasurementsTests|FullyQualifiedName~PowerSupplyBehaviorTests|FullyQualifiedName~PowerSupplyDiTests|FullyQualifiedName~LoggingScpiSessionTests|FullyQualifiedName~LocalHardeningTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint350-core.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    },
+    {
+      "suite": "host",
+      "exit_code": 0,
+      "seconds": 216.63245199999074,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~ApplicationBatch300Tests|FullyQualifiedName~ReadingFreshnessTests|FullyQualifiedName~HostShutdownTests|FullyQualifiedName~HostedIviDmmTests|FullyQualifiedName~ApplicationHeartbeatDiagnosticsTests|FullyQualifiedName~ScopeLeaseHeartbeatTests|FullyQualifiedName~HostHeartbeatTests|FullyQualifiedName~VisaSetupDiscoveryTests|FullyQualifiedName~BenchSetupTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~LocalHardeningTests|FullyQualifiedName~IviSetupBindingTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint350-host.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    },
+    {
+      "suite": "experiments",
+      "exit_code": 0,
+      "seconds": 61.65063360000204,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~SimulationClockCompositionTests|FullyQualifiedName~SequenceCompositionTests|FullyQualifiedName~ApplicationCompositionTests|FullyQualifiedName~ExperimentCompositionTests|FullyQualifiedName~ExperimentDisposalTests|FullyQualifiedName~ExperimentStartupTests|FullyQualifiedName~LocalHardeningTests|FullyQualifiedName~StatefulMockCompositionTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~VirtualInstrumentIntegrationTests|FullyQualifiedName~VirtualSmuCompositionTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint350-experiments.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    }
+  ],
+  "workflow": {
+    "milliseconds": 41281.7517,
+    "cpu_milliseconds": 11421.875,
+    "peak_working_set_bytes": 70377472,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 382.2852,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 157.369,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 6377.3355,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 6595.4697,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 14574.2239,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 8261.4649,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 362.2744,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 40955.6431,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 12144.0541,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "87f9f8c99602674671ddd8338e1dfe4793049d934fa4ff20eb110a476004822a",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "9307e936e3b66b1114e7077af9dad88df6bc952c5bbac1b41f17269a1f8e3073",
+      "documentation-audit.json": "2d5426957588d40fac78ca787bd8595c3aced936d99d4cc49ecd39a6cae318ef",
+      "docs-parity.json": "a68c04cb7fd8b55bd0225f4d0120af266795ee2e98860cdc95fb646d95f5dc8e"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally",
+    "standalone_producers": "docs and compare regenerated stale inputs; failed producer skipped consumer"
+  },
+  "limitations": [
+    "Windows x64 execution only",
+    "Focused related suites only",
+    "GNU Make source contracts only",
+    "No requirement promoted to Verified"
+  ],
+  "architecture_contracts": [
+    {
+      "case": "Supported runtime win-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-x86",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects win host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects linux host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects osx host",
+      "result": "passed"
+    },
+    {
+      "case": "Cross-architecture build is not executable on caller",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported host architecture",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported platform runtime pair",
+      "result": "passed"
+    },
+    {
+      "case": "Configuration names are canonical",
+      "result": "passed"
+    },
+    {
+      "case": "Parent traversal cannot escape owned cache",
+      "result": "passed"
+    },
+    {
+      "case": "Absolute manifest path is rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Sibling prefix is not containment",
+      "result": "passed"
+    },
+    {
+      "case": "Empty manifest path is rejected",
+      "result": "passed"
+    }
+  ],
+  "cache_lock_contracts": [
+    {
+      "case": "Immediate acquisition and repeat reuse",
+      "result": "passed"
+    },
+    {
+      "case": "Contention waits and times out without modifying cache",
+      "result": "passed"
+    },
+    {
+      "case": "Released contention becomes available before deadline",
+      "result": "passed"
+    },
+    {
+      "case": "Invalid budgets fail before creating lock files",
+      "result": "passed"
+    },
+    {
+      "case": "Non-contention I/O errors propagate",
+      "result": "passed"
+    }
+  ],
+  "cache_scenarios": {
+    "count": 11,
+    "result": "passed",
+    "command": "python tests/check_ports/workflow_cache.py",
+    "summary": "PASS: cold build, cached hit, content-only edit, repeated hit, missing artifact, corrupted artifact, SDK identity, Debug/Release isolation, Release reuse, stale source, manifest containment",
+    "scope_note": "Cache logic regressions passed before the final packaging/path repair; subsequent complete cold/cached runs and default-cache migration validate that packaging repair."
+  },
+  "page_checks": {
+    "renderer_scenarios": 5,
+    "result": "passed",
+    "commands": [
+      "node --check src/BenchDouble.Host.Server/wwwroot/setup/setup.js",
+      "node tests/check_ports/reading_health.cjs"
+    ]
+  },
+  "generated_drift": {
+    "previews": 2,
+    "result": "passed",
+    "command": "dotnet tools/BenchDouble.DriverGen/bin/Release/net10.0/BenchDouble.DriverGen.dll --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check"
+  },
+  "full_workflow_benchmark": {
+    "result": "passed",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "samples": [
+      {
+        "state": "cold-artifacts",
+        "exit_code": 0,
+        "seconds_including_startup": 51.181750700008706,
+        "command": [
+          "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "scripts/checks.ps1",
+          "-Python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-Dotnet",
+          "C:\\Program Files\\dotnet\\dotnet.EXE",
+          "-Cache",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\final-workflow-cache-244f53a795d440d5b2d49aec4079821b",
+          "-Timing",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\checkpoint350-benchmark-cold-artifacts.json"
+        ],
+        "bootstrap_stages": [
+          {
+            "name": "build-workflow",
+            "milliseconds": 26419.791,
+            "exit_code": 0
+          },
+          {
+            "name": "checks-and-focused-regressions",
+            "milliseconds": 10880.305400000001,
+            "exit_code": 0
+          }
+        ],
+        "check_stages": {
+          "milliseconds": 10269.4405,
+          "cpu_milliseconds": 8968.75,
+          "peak_working_set_bytes": 83595264,
+          "jobs": 8,
+          "logical_processors": 12,
+          "architecture": "x64",
+          "runtime": "win-x64",
+          "command": "checks",
+          "stages": [
+            {
+              "name": "requirements",
+              "milliseconds": 193.0468,
+              "exit_code": 0
+            },
+            {
+              "name": "scoreboard",
+              "milliseconds": 66.4276,
+              "exit_code": 0
+            },
+            {
+              "name": "neutrality",
+              "milliseconds": 3376.5264,
+              "exit_code": 0
+            },
+            {
+              "name": "roslyn",
+              "milliseconds": 3601.2573,
+              "exit_code": 0
+            },
+            {
+              "name": "preflight",
+              "milliseconds": 4540.34,
+              "exit_code": 0
+            },
+            {
+              "name": "docs",
+              "milliseconds": 2633.7794,
+              "exit_code": 0
+            },
+            {
+              "name": "compare",
+              "milliseconds": 293.0841,
+              "exit_code": 0
+            },
+            {
+              "name": "tracker-tests",
+              "milliseconds": 10229.6154,
+              "exit_code": 0
+            },
+            {
+              "name": "documentation-tests",
+              "milliseconds": 4535.0592,
+              "exit_code": 0
+            }
+          ],
+          "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+        }
+      },
+      {
+        "state": "cached-artifacts",
+        "exit_code": 0,
+        "seconds_including_startup": 28.5782421999902,
+        "command": [
+          "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "scripts/checks.ps1",
+          "-Python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-Dotnet",
+          "C:\\Program Files\\dotnet\\dotnet.EXE",
+          "-Cache",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\final-workflow-cache-244f53a795d440d5b2d49aec4079821b",
+          "-Timing",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\checkpoint350-benchmark-cached-artifacts.json"
+        ],
+        "bootstrap_stages": [
+          {
+            "name": "checks-and-focused-regressions",
+            "milliseconds": 18801.9833,
+            "exit_code": 0
+          }
+        ],
+        "check_stages": {
+          "milliseconds": 17827.0097,
+          "cpu_milliseconds": 8937.5,
+          "peak_working_set_bytes": 75374592,
+          "jobs": 8,
+          "logical_processors": 12,
+          "architecture": "x64",
+          "runtime": "win-x64",
+          "command": "checks",
+          "stages": [
+            {
+              "name": "requirements",
+              "milliseconds": 275.3106,
+              "exit_code": 0
+            },
+            {
+              "name": "scoreboard",
+              "milliseconds": 112.5322,
+              "exit_code": 0
+            },
+            {
+              "name": "neutrality",
+              "milliseconds": 4417.2237,
+              "exit_code": 0
+            },
+            {
+              "name": "roslyn",
+              "milliseconds": 3162.8909,
+              "exit_code": 0
+            },
+            {
+              "name": "preflight",
+              "milliseconds": 6155.7819,
+              "exit_code": 0
+            },
+            {
+              "name": "docs",
+              "milliseconds": 3059.2719,
+              "exit_code": 0
+            },
+            {
+              "name": "compare",
+              "milliseconds": 370.606,
+              "exit_code": 0
+            },
+            {
+              "name": "tracker-tests",
+              "milliseconds": 17700.5856,
+              "exit_code": 0
+            },
+            {
+              "name": "documentation-tests",
+              "milliseconds": 7725.5363,
+              "exit_code": 0
+            }
+          ],
+          "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+        }
+      }
+    ],
+    "scope": "Complete compiled workflow including process startup, SDK discovery, fingerprinting, build/restore if needed, seven checks and 19 focused checker regressions. Application tests excluded.",
+    "caches": "Cold artifact cache was a new empty directory. Existing SDK, package and OS caches retained. Cached run reused the exact same artifact cache.",
+    "limitations": [
+      "One sample per state; no statistical speedup claim",
+      "Shared desktop load and network advisory lookup can affect measurements",
+      "No OS page cache purge or package redownload"
+    ]
+  },
+  "cold_build_repair": {
+    "initial_attempts": [
+      {
+        "result": "incomplete",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "samples": [
+          {
+            "state": "cold-artifacts",
+            "exit_code": 1,
+            "seconds_including_startup": 54.94693979999283,
+            "command": [
+              "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+              "-NoLogo",
+              "-NoProfile",
+              "-NonInteractive",
+              "-File",
+              "scripts/checks.ps1",
+              "-Python",
+              "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+              "-Dotnet",
+              "C:\\Program Files\\dotnet\\dotnet.EXE",
+              "-Cache",
+              "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\final-workflow-cache-41dd074a08c24b01b0e558d9fb0cffad",
+              "-Timing",
+              "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\checkpoint350-benchmark-cold-artifacts.json"
+            ],
+            "bootstrap_stages": [
+              {
+                "name": "build-workflow",
+                "milliseconds": 39539.4891,
+                "exit_code": 1
+              }
+            ]
+          }
+        ],
+        "scope": "Complete compiled workflow including process startup, SDK discovery, fingerprinting, build/restore if needed, seven checks and 19 focused checker regressions. Application tests excluded.",
+        "caches": "Cold artifact cache was a new empty directory. Existing SDK, package and OS caches retained. Cached run reused the exact same artifact cache.",
+        "limitations": [
+          "One sample per state; no statistical speedup claim",
+          "Shared desktop load and network advisory lookup can affect measurements",
+          "No OS page cache purge or package redownload"
+        ]
+      },
+      {
+        "result": "incomplete",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "samples": [
+          {
+            "state": "cold-artifacts",
+            "exit_code": 1,
+            "seconds_including_startup": 33.07232069999736,
+            "command": [
+              "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+              "-NoLogo",
+              "-NoProfile",
+              "-NonInteractive",
+              "-File",
+              "scripts/checks.ps1",
+              "-Python",
+              "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+              "-Dotnet",
+              "C:\\Program Files\\dotnet\\dotnet.EXE",
+              "-Cache",
+              "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\final-workflow-cache-cb86c6f772cc4e868e736bb05fdaaa19",
+              "-Timing",
+              "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\checkpoint350-benchmark-cold-artifacts.json"
+            ],
+            "bootstrap_stages": [
+              {
+                "name": "build-workflow",
+                "milliseconds": 27855.0462,
+                "exit_code": 1
+              }
+            ]
+          }
+        ],
+        "scope": "Complete compiled workflow including process startup, SDK discovery, fingerprinting, build/restore if needed, seven checks and 19 focused checker regressions. Application tests excluded.",
+        "caches": "Cold artifact cache was a new empty directory. Existing SDK, package and OS caches retained. Cached run reused the exact same artifact cache.",
+        "limitations": [
+          "One sample per state; no statistical speedup claim",
+          "Shared desktop load and network advisory lookup can affect measurements",
+          "No OS page cache purge or package redownload"
+        ]
+      }
+    ],
+    "cause": "Windows MSBuild copy failed at a 266-character intermediate output path even though the compiled DLL existed.",
+    "resolution": "Disable unused native apphost, shorten intermediates to cache-local obj and exclude old obj/bin source folders.",
+    "new_intermediate_path_characters": 228,
+    "output_dll_exists": true,
+    "unused_apphost_absent": true
+  },
+  "initial_failure": {
+    "suite": "core",
+    "failed": 7,
+    "cause": "Six fixtures attempted invalid UnitsNet quantity construction before reaching the guard; one case exposed a real canonical conversion exception gap.",
+    "resolution": "Corrected fixture expectations and asynchronous conversion-overflow input; generated canonical conversion now wraps conversion failures in InvalidOperationException while preserving callback exceptions. Final 209 related core cases passed."
+  },
+  "initial_application_runs": [
+    {
+      "suite": "core",
+      "exit_code": 1,
+      "seconds": 100.60368729999755,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~GeneratedMockBehaviorContractTests|FullyQualifiedName~GeneratedV2MockDecoratorTests|FullyQualifiedName~AdjustableSimulationClockTests|FullyQualifiedName~StatefulMockSequenceTests|FullyQualifiedName~SignalDomainTests|FullyQualifiedName~SignalBehaviorTests|FullyQualifiedName~ApplicationBatch300Tests|FullyQualifiedName~ApplicationDiagnosticsTests|FullyQualifiedName~DefinitionDrivenMockTests|FullyQualifiedName~StatefulMockEngineTests|FullyQualifiedName~ModeAwareMockInstrumentTests|FullyQualifiedName~AutoMockLoadRulesTests|FullyQualifiedName~AutoMockRuleFileTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~TypedMockMeasurementsTests|FullyQualifiedName~PowerSupplyBehaviorTests|FullyQualifiedName~PowerSupplyDiTests|FullyQualifiedName~LoggingScpiSessionTests|FullyQualifiedName~LocalHardeningTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint350-core.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    }
+  ],
+  "final_metadata_checks": {
+    "milliseconds": 10316.76,
+    "cpu_milliseconds": 9796.875,
+    "peak_working_set_bytes": 77008896,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks-only",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 417.41,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 175.9509,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 5689.6163,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 4246.1952,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 6345.0556,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 5971.2737,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 433.4283,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "existing_cache_migration": {
+    "result": "passed",
+    "command": "powershell -NoProfile -File scripts/checks.ps1 -PrepareOnly",
+    "summary": "Existing default source cache containing old obj folders rebuilt with short cache-local intermediates; zero warnings and errors."
+  }
+}

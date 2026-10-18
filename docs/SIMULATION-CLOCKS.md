@@ -43,4 +43,4 @@ fencing, physical safety delays and physical I/O deadlines retain their existing
 real-time mechanisms. A speed change has no effect on those mechanisms.
 
 Clock tests use injected timestamp providers and require no real sleeps. Runtime
-verification is scheduled at checkpoint 250; no requirement status is promoted.
+verification passed at checkpoint 250; no requirement status is promoted.

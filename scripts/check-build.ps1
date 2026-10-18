@@ -7,9 +7,11 @@ function Get-CheckCacheLock([string]$Path, [int]$TimeoutMilliseconds = 300000) {
     while ($true) {
         try { return [System.IO.File]::Open($Path,[System.IO.FileMode]::OpenOrCreate,[System.IO.FileAccess]::ReadWrite,[System.IO.FileShare]::None) }
         catch [System.IO.IOException] {
-            $code = $_.Exception.HResult -band 0xffff
+            $failure = $_.Exception
+            while ($failure.InnerException) { $failure = $failure.InnerException }
+            $code = $failure.HResult -band 0xffff
             if ($code -notin @(11,32,33)) { throw }
-            if ($watch.ElapsedMilliseconds -ge $TimeoutMilliseconds) { throw [System.TimeoutException]::new('Timed out waiting for the compiled check cache lock.', $_.Exception) }
+            if ($watch.ElapsedMilliseconds -ge $TimeoutMilliseconds) { throw [System.TimeoutException]::new('Timed out waiting for the compiled check cache lock.', $failure) }
             [System.Threading.Thread]::Sleep([int][Math]::Min(50,[Math]::Max(1,$TimeoutMilliseconds-$watch.ElapsedMilliseconds)))
         }
     }

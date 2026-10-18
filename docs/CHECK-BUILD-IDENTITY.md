@@ -11,3 +11,5 @@ The optional standalone Roslyn output is `.tools/roslyn/<RID>/<Configuration>`. 
 Standalone `docs` regenerates Roslyn before applying the documentation gate. Standalone `compare` regenerates Roslyn and portable producer reports before comparing; producer failure stops the consumer. The full workflow retains parallel independent producers and deterministic report bytes.
 
 GNU Make is unavailable on the local machine. Final verification covers Make source contracts and the underlying build commands, not an actual Make invocation or foreign runtime execution.
+
+The managed workflow disables its unused native apphost and puts intermediates in cache-local `obj/`, reducing Windows copy-path length. Old nested `obj`/`bin` directories are excluded from compilation when an existing cache migrates. Checkpoint 350 exercised a custom cache whose former intermediate DLL path was 266 characters, then validated both a new cold build and the existing default-cache migration.

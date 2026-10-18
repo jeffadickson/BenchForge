@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORTS = ('api-audit.json', 'requirements-scoreboard.html', 'source-neutrality-audit.json',
@@ -38,6 +39,10 @@ def main():
         body = make.split(target + ':\n', 1)[1].split('\n\n', 1)[0]
         assert '$(CHECK_HOST) -Command ' + command in body, (target, body)
     assert '-r $(CHECKS_RID)' in make and '/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)' in make
+    assert '-Dotnet "$(DOTNET)"' in make
+    assert 'BENCHFORGE_CHECKS_NATIVE="$(CURDIR)/$(CHECKS_NATIVE_PATH)"' in make
+    assert 'BENCHFORGE_ROSLYN_DLL="$(CURDIR)/$(ROSLYN_DLL)"' in make
+    assert 'ROSLYN_DLL := .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/' in make
     execute([*host, '--command', 'roslyn'])
     reference = [sys.executable, 'tests/check_ports/reference.py']
     for command, extra in [('requirements', []), ('scoreboard', []),
@@ -53,8 +58,27 @@ def main():
         report = json.loads((ROOT / timing).read_text())
         assert len(report['stages']) == 7 and all(stage['exit_code'] == 0 for stage in report['stages'])
         assert report['architecture'] == plan['architecture']
+    # Standalone consumers must replace stale producer files, not trust the previous run.
+    (ROOT / 'build/api-audit.json').write_text('{}', encoding='utf-8')
+    execute([*host, '--command', 'docs'])
+    assert hashes()['api-audit.json'] == original['api-audit.json']
+    assert hashes()['documentation-audit.json'] == original['documentation-audit.json']
+    for name in ('api-audit.json', 'docs-preflight.json'):
+        (ROOT / 'build' / name).write_text('{}', encoding='utf-8')
+    execute([*host, '--command', 'compare'])
+    assert hashes() == original
+    with tempfile.TemporaryDirectory(dir=ROOT / 'build/check-ports') as temporary:
+        fixture = Path(temporary)
+        (fixture / 'src').mkdir()
+        (fixture / 'build').mkdir()
+        (fixture / 'src/Broken.cs').write_text('public class Broken { public void (', encoding='utf-8')
+        sentinel = fixture / 'build/docs-parity.json'
+        sentinel.write_text('consumer must not run', encoding='utf-8')
+        execute([*host, '--root', str(fixture), '--command', 'compare'], expected=2)
+        assert sentinel.read_text(encoding='utf-8') == 'consumer must not run'
     result = {'result':'passed','reports':original,'jobs':[1,8], 'architecture':plan['architecture'],
-              'make_validation':'source contract only; GNU Make is not installed locally'}
+              'make_validation':'source contract only; GNU Make is not installed locally',
+              'standalone_producers':'docs and compare regenerated stale inputs; failed producer skipped consumer'}
     (ROOT / 'build/check-ports/workflow-contract.json').write_text(json.dumps(result, indent=2)+'\n',encoding='utf-8')
     print('PASS: compiled identity, Make routing, seven stages, six exact report hashes at jobs=1 and jobs=8')
 

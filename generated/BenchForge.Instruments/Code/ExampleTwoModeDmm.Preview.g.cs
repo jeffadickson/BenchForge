@@ -105,7 +105,10 @@ public sealed class ExampleTwoModeDmmMockDecorator
     ct.ThrowIfCancellationRequested();
     var value = behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;
     ct.ThrowIfCancellationRequested();
-    if (!double.IsFinite(value.Volts)) throw new System.InvalidOperationException("Mock behavior returned a non-finite reading.");
+    double canonical;
+    try { canonical = value.Volts; }
+    catch (System.ArgumentException error) { throw new System.InvalidOperationException("Mock reading cannot be represented in its base unit.", error); }
+    if (!double.IsFinite(canonical)) throw new System.InvalidOperationException("Mock behavior returned a non-finite reading.");
     return value;
   }
   private System.Func<System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<ElectricResistance>>? _resistanceBehavior;
@@ -138,7 +141,10 @@ public sealed class ExampleTwoModeDmmMockDecorator
     ct.ThrowIfCancellationRequested();
     var value = behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;
     ct.ThrowIfCancellationRequested();
-    if (!double.IsFinite(value.Ohms)) throw new System.InvalidOperationException("Mock behavior returned a non-finite reading.");
+    double canonical;
+    try { canonical = value.Ohms; }
+    catch (System.ArgumentException error) { throw new System.InvalidOperationException("Mock reading cannot be represented in its base unit.", error); }
+    if (!double.IsFinite(canonical)) throw new System.InvalidOperationException("Mock behavior returned a non-finite reading.");
     return value;
   }
   /// <summary>Clear all injected scalar readings and restore definition defaults.</summary>

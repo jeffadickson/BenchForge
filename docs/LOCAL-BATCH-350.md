@@ -341,7 +341,7 @@ Checkpoint 250: 323 related application tests passed (core 193, host 71, experim
 | 274 | Document limits and remaining dashboard requirements | Checkpoint 300 passed |
 | 275 | Add initial freshness policy regression sources | Checkpoint 300 passed |
 
-Iteration 270 haiku: Old readings grow still / A green pulse crosses the wire / Truth keeps separate clocks.
+Iteration 270 haiku: Old readings grow still / A green pulse crosses the wire / Truth keeps its own clocks.
 
 | Iteration | Change | Execution status |
 |---|---|---|
@@ -377,28 +377,66 @@ Checkpoint 300: 454 related application tests passed (core 193, host 202, experi
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 301 | Forward explicit .NET host through Make | Pending checkpoint 350 |
-| 302 | Resolve selected .NET executable once | Pending checkpoint 350 |
-| 303 | Fingerprint resolved .NET host identity | Pending checkpoint 350 |
-| 304 | Use selected host for managed builds | Pending checkpoint 350 |
-| 305 | Use selected host for workflow execution | Pending checkpoint 350 |
-| 306 | Wait for shared cache contention with bounded deadline | Pending checkpoint 350 |
-| 307 | Retry only recognized lock contention failures | Pending checkpoint 350 |
-| 308 | Release cache lock through existing failure cleanup | Pending checkpoint 350 |
-| 309 | Partition standalone Roslyn outputs by runtime | Pending checkpoint 350 |
-| 310 | Partition standalone Roslyn outputs by configuration | Pending checkpoint 350 |
-| 311 | Require explicit optional Roslyn runtime selection | Pending checkpoint 350 |
-| 312 | Pass selected native parity executable explicitly | Pending checkpoint 350 |
-| 313 | Pass selected Roslyn parity assembly explicitly | Pending checkpoint 350 |
-| 314 | Read explicit Roslyn path in differential verifier | Pending checkpoint 350 |
-| 315 | Regenerate Roslyn before standalone documentation gate | Pending checkpoint 350 |
-| 316 | Regenerate both producers before standalone comparison | Pending checkpoint 350 |
-| 317 | Stop consumers after producer failures | Pending checkpoint 350 |
-| 318 | Use compiled strict neutrality in CI | Pending checkpoint 350 |
-| 319 | Reconcile README with managed workflow default | Pending checkpoint 350 |
-| 320 | Enable nullable analysis in generated preview source | Pending checkpoint 350 |
-| 321 | Validate generated behavior results in canonical units | Pending checkpoint 350 |
-| 322 | Observe cancellation before generated callbacks | Pending checkpoint 350 |
-| 323 | Observe cancellation after generated callbacks | Pending checkpoint 350 |
-| 324 | Document generated callback failure contracts | Pending checkpoint 350 |
-| 325 | Regenerate previews and update requirement evidence | Pending checkpoint 350 |
+| 301 | Forward explicit .NET host through Make | Checkpoint 350 passed |
+| 302 | Resolve selected .NET executable once | Checkpoint 350 passed |
+| 303 | Fingerprint resolved .NET host identity | Checkpoint 350 passed |
+| 304 | Use selected host for managed builds | Checkpoint 350 passed |
+| 305 | Use selected host for workflow execution | Checkpoint 350 passed |
+| 306 | Wait for shared cache contention with bounded deadline | Checkpoint 350 passed |
+| 307 | Retry only recognized lock contention failures | Checkpoint 350 passed |
+| 308 | Release cache lock through existing failure cleanup | Checkpoint 350 passed |
+| 309 | Partition standalone Roslyn outputs by runtime | Checkpoint 350 passed |
+| 310 | Partition standalone Roslyn outputs by configuration | Checkpoint 350 passed |
+| 311 | Require explicit optional Roslyn runtime selection | Checkpoint 350 passed |
+| 312 | Pass selected native parity executable explicitly | Checkpoint 350 passed |
+| 313 | Pass selected Roslyn parity assembly explicitly | Checkpoint 350 passed |
+| 314 | Read explicit Roslyn path in differential verifier | Checkpoint 350 passed |
+| 315 | Regenerate Roslyn before standalone documentation gate | Checkpoint 350 passed |
+| 316 | Regenerate both producers before standalone comparison | Checkpoint 350 passed |
+| 317 | Stop consumers after producer failures | Checkpoint 350 passed |
+| 318 | Use compiled strict neutrality in CI | Checkpoint 350 passed |
+| 319 | Reconcile README with managed workflow default | Checkpoint 350 passed |
+| 320 | Enable nullable analysis in generated preview source | Checkpoint 350 passed |
+| 321 | Validate generated behavior results in canonical units | Checkpoint 350 passed |
+| 322 | Observe cancellation before generated callbacks | Checkpoint 350 passed |
+| 323 | Observe cancellation after generated callbacks | Checkpoint 350 passed |
+| 324 | Document generated callback failure contracts | Checkpoint 350 passed |
+| 325 | Regenerate previews and update requirement evidence | Checkpoint 350 passed |
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 326 | Reject generated NaN callback readings | Checkpoint 350 passed |
+| 327 | Reject generated positive-infinity readings | Checkpoint 350 passed |
+| 328 | Reject generated negative-infinity readings | Checkpoint 350 passed |
+| 329 | Reject overflow during canonical-unit conversion | Checkpoint 350 passed |
+| 330 | Observe cancellation requested by callbacks | Checkpoint 350 passed |
+| 331 | Skip callbacks on precancelled requests | Checkpoint 350 passed |
+| 332 | Skip callbacks on incompatible modes | Checkpoint 350 passed |
+| 333 | Preserve callback exception identity | Checkpoint 350 passed |
+| 334 | Reject asynchronous nonfinite results | Checkpoint 350 passed |
+| 335 | Observe cancellation after asynchronous suspension | Checkpoint 350 passed |
+| 336 | Preserve scalar state when callbacks are removed | Checkpoint 350 passed |
+| 337 | Exercise parallel typed scalar reads and writes | Checkpoint 350 passed |
+| 338 | Validate generated resistance callbacks | Checkpoint 350 passed |
+| 339 | Test cache lock timeout and retained contents | Checkpoint 350 passed |
+| 340 | Test lock release and reacquisition | Checkpoint 350 passed |
+| 341 | Reject invalid wait budgets before file mutation | Checkpoint 350 passed |
+| 342 | Propagate unrelated cache I/O failures | Checkpoint 350 passed |
+| 343 | Rerun architecture and containment contracts | Checkpoint 350 passed |
+| 344 | Rerun content and artifact cache regressions | Checkpoint 350 passed |
+| 345 | Verify fresh standalone documentation producers | Checkpoint 350 passed |
+| 346 | Check exact generated source drift | Checkpoint 350 passed |
+| 347 | Validate explicit native and Roslyn routing | Checkpoint 350 passed |
+| 348 | Measure and repair complete cold-artifact workflow | Checkpoint 350 passed |
+| 349 | Measure complete cached workflow | Checkpoint 350 passed |
+| 350 | Run final focused checkpoint and repository review | Checkpoint 350 passed |
+
+Iteration 330 haiku: Threads return in turn / A late answer meets the gate / No false reading blooms.
+
+Checkpoint 350: 470 related application tests passed (core 209, host 202, experiments 59), plus 19 requirement/documentation regressions, seven compiled checks and exact six-report byte parity at workers 1/8. Windows x64; GNU Make unavailable, source contracts only. No requirement status promoted.
+
+Final 350 review: 470 focused application tests passed; 19 checker regressions; seven compiled checks; six exact report hashes at workers 1/8; 19 architecture/containment contracts; five cache-lock contracts; 11 cache scenarios; five text-renderer scenarios and JS syntax; two exact generated-preview drift checks. Complete workflow samples including startup: cold artifacts 51.182 s, cached artifacts 28.578 s. Cached execution skipped the build; SDK/package/OS caches stayed warm. One sample per state is not a statistical speedup claim.
+
+Remaining work includes TR-043/TR-049 scheduled timeout/latency and comprehensive instrument/replay models, TR-045 automatic runner pacing/UI controls, BD-HB-006 persisted experiment policies/fleet dashboards, cross-platform and physical-device qualification, and legacy documentation gaps. GNU Make and a real browser were not executed locally for these changes. Requirement counts remain 228, 0 Verified. Fourteen checkpoint commits are planned including this final 350 commit; remote publication is checked separately after the final commit.
+
+Final cold-build repair: the first long custom-cache attempts failed during MSBuild copies at a 266-character intermediate path. The workflow now disables its unused native apphost, builds intermediates in cache-local obj and excludes old obj/bin source directories. New cold/cached runs passed, and migration of the existing default cache rebuilt with zero warnings/errors. Final metadata gates and exact report parity passed after evidence updates.

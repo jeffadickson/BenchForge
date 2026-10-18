@@ -57,7 +57,10 @@ internal static class V2MockEmitter
             s.AppendLine("    ct.ThrowIfCancellationRequested();");
             s.AppendLine("    var value = behavior is not null ? await behavior(ct).ConfigureAwait(false) : state ?? defaultValue;");
             s.AppendLine("    ct.ThrowIfCancellationRequested();");
-            s.AppendLine($"    if (!double.IsFinite(value.{V2Emitter.UnitProperty(cap.Quantity, cap.Unit)})) throw new System.InvalidOperationException(\"Mock behavior returned a non-finite reading.\");");
+            s.AppendLine("    double canonical;");
+            s.AppendLine($"    try {{ canonical = value.{V2Emitter.UnitProperty(cap.Quantity, cap.Unit)}; }}");
+            s.AppendLine("    catch (System.ArgumentException error) { throw new System.InvalidOperationException(\"Mock reading cannot be represented in its base unit.\", error); }");
+            s.AppendLine("    if (!double.IsFinite(canonical)) throw new System.InvalidOperationException(\"Mock behavior returned a non-finite reading.\");");
             s.AppendLine("    return value;");
             s.AppendLine("  }");
         }
