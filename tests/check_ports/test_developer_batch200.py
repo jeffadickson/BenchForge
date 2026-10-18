@@ -176,3 +176,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_duration_report(self):
         """Record nonnegative stage durations on success."""
         self.invoke('--command','generate');self.assertTrue(all(s['Milliseconds']>=0 for s in self.report()['stages']))
+
+    def test_executable_report(self):
+        """Record selected executable identities."""
+        self.invoke('--command','generate');self.assertTrue(all(s['Executable']==sys.executable for s in self.report()['stages']))
