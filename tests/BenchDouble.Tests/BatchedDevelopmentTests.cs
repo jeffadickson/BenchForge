@@ -174,5 +174,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Null(ImportedInstrumentDefinition.Parse(Definition.Replace("\"mockDefault\":0.25","\"mockDefault\":null")).Capability("voltage").MockDefault);
     }
 
+    /// <summary>Case-insensitive rule deserialization cannot hide duplicate fields.</summary>
+    [Fact] public void RuleJsonRejectsDuplicateFields()
+    {
+        Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"Version\":1,\"rules\":[]}"));
+        Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"FixedCurrent\",\"value\":1,\"Value\":0}]}"));
+    }
+
 // CASES
 }

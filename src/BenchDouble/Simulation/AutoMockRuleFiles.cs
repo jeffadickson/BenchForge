@@ -36,6 +36,8 @@ public static class AutoMockRuleFiles
         ArgumentNullException.ThrowIfNull(json);
         if (json.Length > 131072)
             throw new ArgumentException("AutoMock configuration exceeds the 128K character limit.", nameof(json));
+        using var syntax = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 16 });
+        ValidateUniqueKeys(syntax.RootElement);
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -88,6 +90,21 @@ public static class AutoMockRuleFiles
         }).ToArray());
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)))
             .ToLowerInvariant();
+    }
+
+    private static void ValidateUniqueKeys(JsonElement node)
+    {
+        if (node.ValueKind == JsonValueKind.Object)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var property in node.EnumerateObject())
+            {
+                if (!names.Add(property.Name)) throw new ArgumentException("Duplicate AutoMock field.");
+                ValidateUniqueKeys(property.Value);
+            }
+        }
+        else if (node.ValueKind == JsonValueKind.Array)
+            foreach (var item in node.EnumerateArray()) ValidateUniqueKeys(item);
     }
 
     private static TimeSpan Seconds(double value)

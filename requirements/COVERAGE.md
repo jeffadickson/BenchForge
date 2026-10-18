@@ -145,3 +145,5 @@ Batch iteration 15/30 (2026-10-17), BD-SIM-001: Reject overlapping imported quer
 Batch iteration 16/30 (2026-10-17), BD-SIM-001: Reject repeated capability mode references. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 17/30 (2026-10-17), BD-SIM-001: Validate imported mock default types. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 18/30 (2026-10-17), BD-SIM-001: Reject duplicate AutoMock JSON keys. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
