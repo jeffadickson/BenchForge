@@ -83,4 +83,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(2,[Parameter(setter:null),Parameter(name:"other",query:"V1?",setter:null)]); Assert.Equal("1",await s.QueryAsync("V2?")); Assert.Single(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>History snapshots do not change after later commands.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task DetachedHistory()
+    {
+        var s=Session(); await s.WriteAsync("V1 2"); var snap=s.GetTranscriptSnapshot(); await s.QueryAsync("V1?"); Assert.Single(snap); Assert.Equal(2,s.GetTranscriptSnapshot().Count);
+    }
 }

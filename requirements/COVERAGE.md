@@ -247,4 +247,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Allow unambiguous channels beside overlapping templates. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: History snapshots do not change after later commands. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
