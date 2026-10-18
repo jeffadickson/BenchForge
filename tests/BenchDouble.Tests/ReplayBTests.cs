@@ -151,4 +151,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());Assert.Throws<InvalidOperationException>(()=>r.ReadNext("V","voltage",T(0)));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","Voltage",T(0)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Negative requested timestamps preserve the replay cursor.</summary>
+    [Fact] public void NegativeReadTime()
+    {
+        var r=R(S());Assert.Throws<ArgumentOutOfRangeException>(()=>r.ReadNext("v","voltage",T(-1)));Assert.Equal(0,r.Status().Position);
+    }
 }
