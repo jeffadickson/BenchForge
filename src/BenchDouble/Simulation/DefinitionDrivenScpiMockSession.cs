@@ -143,6 +143,15 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         return selected ?? throw new NotSupportedException("Mock does not implement the requested command.");
     }
 
+    /// <summary>Copy accepted command history under the mock transaction lock.</summary>
+    /// <returns>Read-only detached commands; never performs physical I/O.</returns>
+    public IReadOnlyList<string> GetTranscriptSnapshot()
+    {
+        _gate.Wait();
+        try { return Array.AsReadOnly(Transcript.ToArray()); }
+        finally { _gate.Release(); }
+    }
+
     private int ReadChannel(Match match)
     {
         var group = match.Groups["channel"];
