@@ -56,7 +56,7 @@ internal static class DeveloperTasks
         foreach (var step in steps)
         {
             var watch = Stopwatch.StartNew();
-            Console.WriteLine($"Running {step.Executable} {string.Join(' ', step.Arguments)}");
+            Console.WriteLine($"Running {step.Executable} {JsonSerializer.Serialize(step.Arguments)}");
             var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
             foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
             Process process;
