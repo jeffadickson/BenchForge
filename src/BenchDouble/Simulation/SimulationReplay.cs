@@ -40,7 +40,6 @@ public sealed class SimulationReplay
             previous=item.Elapsed;
         }
         if(_samples.Any(item=>!double.IsFinite(item.Value)))throw new ArgumentException("Transcript values must be finite.",nameof(samples));
-        // Validate plan.
     }
     private static void ValidateLabel(string label,string parameter,int maximum)
     {
@@ -97,5 +96,4 @@ public sealed class SimulationReplay
     /// <returns>Detached read-only remaining samples in recording order.</returns>
     public IReadOnlyList<SimulationReplaySample> RemainingSamples(){lock(_gate)return Array.AsReadOnly(_samples.Skip(_position).ToArray());}
 
-    // Replay members.
 }

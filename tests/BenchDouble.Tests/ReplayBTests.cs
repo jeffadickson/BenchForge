@@ -1,4 +1,5 @@
 using BenchDouble.Simulation;
+using BenchDouble.Generated;
 using Xunit;
 namespace BenchDouble.Tests;
 /// <summary>Bounded standalone canonical transcript replay and concurrent consumption regressions.</summary>
@@ -240,5 +241,28 @@ public sealed class ReplayBTests
     [Fact] public void ConcurrentExhaustion()
     {
         var r=R(S());var accepted=0;Parallel.For(0,32,_=>{try{r.ReadNext("v","voltage",T(0));Interlocked.Increment(ref accepted);}catch(InvalidOperationException){}});Assert.Equal(1,accepted);Assert.Equal(1,r.Status().Position);
+    }
+
+    /// <summary>Explicit run-clock scheduling reproduces exact replay timestamps.</summary>
+    /// <returns>Completion of explicit clock, preparation, sequence and replay validation.</returns>
+    [Fact] public async Task SchedulerTimeline()
+    {
+        var definition=ImportedInstrumentDefinition.Parse("""
+        {"schemaVersion":2,"identity":{"driverName":"ReplayTimeline"},"modes":[{"id":"v","selectionCommand":"CONF:V"}],"capabilities":[{"name":"voltage","quantity":"ElectricPotential","unit":"Volt","access":"read","query":"V?","modes":["v"],"mockDefault":1}]}
+        """);
+        var clock=new ManualSimulationClock();
+        var engine=new StatefulMockEngine(definition,clock);
+        await engine.ConfigureModeAsync("v");engine.SetSequence("voltage",[7,8]);
+        var profile=new SimulationLatencyProfile(7,[new(SimulationLatencyPhase.Acquisition,T(10),T(0))]);
+        var prepared=await engine.PrepareMeasurementAsync("voltage",profile,0);
+        var queue=new SimulationScheduler(clock);queue.ScheduleAt(prepared.ReadyAt,"sample");
+        var replay=R(S(prepared.ReadyAt.Ticks,7));
+        clock.AdvanceBy(T(9));Assert.Empty(queue.DrainDue());
+        await Assert.ThrowsAsync<InvalidOperationException>(async()=>await engine.MeasureAsync("voltage"));
+        Assert.Equal(0,engine.SequenceStatus("voltage")!.Position);Assert.Equal(0,replay.Status().Position);
+        clock.AdvanceBy(T(1));Assert.Single(queue.DrainDue());
+        var actual=await engine.MeasureAsync("voltage");
+        Assert.Equal(replay.ReadNext("v","voltage",clock.Elapsed).Value,actual);
+        Assert.Null(engine.PreparedMeasurementStatus("voltage"));Assert.Equal(1,engine.SequenceStatus("voltage")!.Position);
     }
 }

@@ -1,0 +1,222 @@
+{
+  "batch": "200B",
+  "base_commit": "ebe558c93eac75436f61eef70df041df90955d71",
+  "tested_parent_commit": "5773d3f150f13511760b4374880b5817d77f6dcc",
+  "checkpoint_worktree_included": true,
+  "source_sha256": {
+    "src/BenchDouble/Generated/ImportedInstrumentDefinition.cs": "8bf6b094c5dd34e540b5503c83847d0a1f776af86e56cf67019a48c86e0d04fb",
+    "src/BenchDouble/Generated/StatefulMockEngine.cs": "4e1dc1e7b84473957fa6ed3a7090e57fd33fc7a8eda7928c19aced03826e3980",
+    "src/BenchDouble/Generated/StatefulMockLatency.cs": "d6eeb94f136a191770f6d465dc306165718d857802ae512ea4d887a20f4a0d4f",
+    "src/BenchDouble/Simulation/SimulationLatency.cs": "a5afee8d78a7e0c9d8275be6cc16204d4c44a9902de7d7faf8d53a5b8c6f915e",
+    "src/BenchDouble/Simulation/SimulationReplay.cs": "e1992830eae56078bbcb611a46fd4bd045cb6b79de1aaff185b586d083e42708",
+    "src/BenchDouble/Simulation/SimulationScheduler.cs": "f40a774e68e14d794d00ae12e0ade828819bb2ca43c437ae77d5ca7beb4af18d",
+    "tests/BenchDouble.Tests/LatencyBTests.cs": "274fe5f4dda632691628226287e556fdbf6e2a04f796a32bfc21a6636456ee49",
+    "tests/BenchDouble.Tests/ReplayBTests.cs": "10ab3b581e9f889b90faf3a41190ca1aa9fa138bb71982dcf8a25e3bf819b455",
+    "tests/BenchDouble.Tests/SchedulerBTests.cs": "d476df815bfee63bfe53d48a1c5704e7d305e186b63278725fbb9f89442cb81f",
+    "tests/BenchDouble.Tests/TimedMockBTests.cs": "11ce5f487570b5af1547cd7ff1880192a3524fb86577237bce90df6bcba19410"
+  },
+  "hash_normalization": "UTF-8 source with CRLF normalized to LF (Git canonical blob bytes)",
+  "checkpoints": [
+    {
+      "checkpoint": 50,
+      "tested_commit": "5e0b897132f1a164ae3fcd6e5e834a083aaaa1f1",
+      "worktree_has_pending_checkpoint_changes": true,
+      "platform": "Windows-11-10.0.26300-SP0",
+      "commands": [
+        {
+          "command": [
+            "dotnet",
+            "test",
+            "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+            "-c",
+            "Release",
+            "--filter",
+            "FullyQualifiedName~LatencyBTests|FullyQualifiedName~SignalDomainTests",
+            "--disable-build-servers",
+            "-m:1",
+            "-nr:false",
+            "-p:UseSharedCompilation=false"
+          ],
+          "exit_code": 0,
+          "seconds": 46.76928979999502,
+          "log": "build\\batch200B\\50\\1.log"
+        },
+        {
+          "command": [
+            "powershell",
+            "-NoProfile",
+            "-File",
+            "build.ps1",
+            "-Command",
+            "checks"
+          ],
+          "exit_code": 0,
+          "seconds": 10.388507800002117,
+          "log": "build\\batch200B\\50\\2.log"
+        }
+      ],
+      "requirements": [
+        "TR-047"
+      ],
+      "result": "passed",
+      "targeted_test_count": 47,
+      "checker_regression_count": 19
+    },
+    {
+      "checkpoint": 100,
+      "tested_commit": "b807fe4a3c95d86f974c1af65da3ddf42ad1a112",
+      "worktree_has_pending_checkpoint_changes": true,
+      "platform": "Windows-11-10.0.26300-SP0",
+      "commands": [
+        {
+          "command": [
+            "dotnet",
+            "test",
+            "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+            "-c",
+            "Release",
+            "--filter",
+            "FullyQualifiedName~SchedulerBTests|FullyQualifiedName~LatencyBTests",
+            "--disable-build-servers",
+            "-m:1",
+            "-nr:false",
+            "-p:UseSharedCompilation=false"
+          ],
+          "exit_code": 0,
+          "seconds": 77.20148689999769,
+          "log": "build\\batch200B\\100\\1.log"
+        },
+        {
+          "command": [
+            "powershell",
+            "-NoProfile",
+            "-File",
+            "build.ps1",
+            "-Command",
+            "checks"
+          ],
+          "exit_code": 0,
+          "seconds": 19.65622259999509,
+          "log": "build\\batch200B\\100\\2.log"
+        }
+      ],
+      "requirements": [
+        "TR-047",
+        "TR-049"
+      ],
+      "result": "passed",
+      "targeted_test_count": 80,
+      "checker_regression_count": 19
+    },
+    {
+      "checkpoint": 150,
+      "tested_commit": "877b108c8d1e6382df08c73d7eb7586481715129",
+      "worktree_has_pending_checkpoint_changes": true,
+      "platform": "Windows-11-10.0.26300-SP0",
+      "commands": [
+        {
+          "command": [
+            "dotnet",
+            "test",
+            "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+            "-c",
+            "Release",
+            "--filter",
+            "FullyQualifiedName~TimedMockBTests|FullyQualifiedName~StatefulMockSequenceTests|FullyQualifiedName~StatefulMockEngineTests|FullyQualifiedName~LatencyBTests|FullyQualifiedName~SchedulerBTests",
+            "--disable-build-servers",
+            "-m:1",
+            "-nr:false",
+            "-p:UseSharedCompilation=false"
+          ],
+          "exit_code": 0,
+          "seconds": 73.48524950000865,
+          "log": "build\\batch200B\\150\\1.log"
+        },
+        {
+          "command": [
+            "powershell",
+            "-NoProfile",
+            "-File",
+            "build.ps1",
+            "-Command",
+            "checks"
+          ],
+          "exit_code": 0,
+          "seconds": 11.043654100009007,
+          "log": "build\\batch200B\\150\\2.log"
+        }
+      ],
+      "requirements": [
+        "TR-043",
+        "TR-047"
+      ],
+      "result": "passed",
+      "prior_attempts": [
+        "docs\\check-evidence\\batch200B-20261018-150-initial-failure.json"
+      ],
+      "repair": "Added XML summary to new partial engine declaration; runtime code unchanged after passing targeted tests.",
+      "targeted_test_count": 163,
+      "checker_regression_count": 19
+    },
+    {
+      "checkpoint": 200,
+      "tested_commit": "5773d3f150f13511760b4374880b5817d77f6dcc",
+      "worktree_has_pending_checkpoint_changes": true,
+      "platform": "Windows-11-10.0.26300-SP0",
+      "commands": [
+        {
+          "command": [
+            "dotnet",
+            "test",
+            "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+            "-c",
+            "Release",
+            "--filter",
+            "FullyQualifiedName~ReplayBTests|FullyQualifiedName~TimedMockBTests|FullyQualifiedName~SchedulerBTests|FullyQualifiedName~LatencyBTests|FullyQualifiedName~StatefulBatch200Tests",
+            "--disable-build-servers",
+            "-m:1",
+            "-nr:false",
+            "-p:UseSharedCompilation=false"
+          ],
+          "exit_code": 0,
+          "seconds": 45.05502080000588,
+          "log": "build\\batch200B\\200\\1.log"
+        },
+        {
+          "command": [
+            "powershell",
+            "-NoProfile",
+            "-File",
+            "build.ps1",
+            "-Command",
+            "checks"
+          ],
+          "exit_code": 0,
+          "seconds": 9.697864299989305,
+          "log": "build\\batch200B\\200\\2.log"
+        },
+        {
+          "command": [
+            "python",
+            "tests/check_ports/workflow_contract.py"
+          ],
+          "exit_code": 0,
+          "seconds": 26.589624100000947,
+          "log": "build\\batch200B\\200\\3.log"
+        }
+      ],
+      "requirements": [
+        "TR-043",
+        "TR-047",
+        "TR-049"
+      ],
+      "result": "passed",
+      "targeted_test_count": 201,
+      "checker_regression_count": 19
+    }
+  ],
+  "full_suite_run": false,
+  "requirement_status_promoted": false,
+  "planned_commit_count": 200,
+  "push_policy": "One push after iteration 200 and repository review."
+}

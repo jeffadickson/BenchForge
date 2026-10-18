@@ -33,7 +33,6 @@ public sealed class SimulationScheduler
         var now=_clock.Elapsed;
         if(now<TimeSpan.Zero)throw new InvalidOperationException("Simulation clock is negative.");
         if(now<_observed)throw new InvalidOperationException("Simulation clock moved backwards.");
-        // Clock validation.
         _observed=now;return now;
     }
     /// <summary>Schedule one event after a logical delay without sleeping or advancing time.</summary>
@@ -123,5 +122,4 @@ public sealed class SimulationScheduler
     /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
     public SimulationScheduledEvent ScheduleAt(TimeSpan dueAt,string label,CancellationToken ct=default)=>ScheduleCore(dueAt,label,true,ct);
 
-    // Scheduler members.
 }

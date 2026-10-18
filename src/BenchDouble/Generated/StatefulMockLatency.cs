@@ -67,5 +67,4 @@ public sealed partial class StatefulMockEngine
         try{ct.ThrowIfCancellationRequested();if(!_prepared.Remove(capability))return false;++_revision;return true;}finally{_gate.Release();}
     }
 
-    // Latency members.
 }
