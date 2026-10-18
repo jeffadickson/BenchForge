@@ -138,4 +138,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);Assert.Equal("Suspect",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);c.At(10);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
     }
+
+    /// <summary>Clock recovery cannot unfence an expired owner.</summary>
+    [Fact] public void RollbackIrreversible()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(25);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);c.At(10);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);c.At(26);Assert.Equal("Expired",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }
