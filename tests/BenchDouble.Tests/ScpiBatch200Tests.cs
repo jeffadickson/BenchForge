@@ -157,4 +157,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.WriteAsync("V1 6"); using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await s.ResetAsync(c.Token)); Assert.Equal(6,s.GetReadingsSnapshot()[0].Value); Assert.Single(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Cancelled history clear preserves history.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ClearCancellation()
+    {
+        var s=Session(); await s.QueryAsync("V1?"); using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await s.ClearTranscriptAsync(c.Token)); Assert.Single(s.GetTranscriptSnapshot());
+    }
 }
