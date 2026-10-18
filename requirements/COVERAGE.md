@@ -232,4 +232,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Expose coherent detached SCPI reading snapshots. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Observe SCPI cancellation after acquiring the transaction. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

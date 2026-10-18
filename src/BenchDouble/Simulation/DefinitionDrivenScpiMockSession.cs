@@ -102,6 +102,7 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var (item, match) = Resolve(command, true);
             int channel = ReadChannel(match);
             if (!double.TryParse(match.Groups["value"].Value, NumberStyles.Float,
@@ -122,6 +123,7 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var (item, match) = Resolve(command, false);
             int channel = ReadChannel(match);
             Transcript.Add("Q:" + command);
