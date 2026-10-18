@@ -26,4 +26,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage")); Assert.Equal(1,e.Snapshot().PendingFaultCounts["voltage"]);
     }
+
+    /// <summary>Fault counts remain capability scoped.</summary>
+    [Fact] public void IndependentFaultCounts()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage")); Assert.Equal(2,e.FaultCount("resistance"));
+    }
 }
