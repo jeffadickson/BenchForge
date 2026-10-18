@@ -156,4 +156,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage(100,0));for(var i=0;i<64;i++)Assert.Equal(100,p.Sample(i).Total.Ticks);
     }
+
+    /// <summary>Parallel identical-index samples are repeatable.</summary>
+    [Fact] public void ParallelSameIndex()
+    {
+        var p=Profile(Stage());var expected=p.Sample(7).Total;Parallel.For(0,128,_=>Assert.Equal(expected,p.Sample(7).Total));
+    }
 }
