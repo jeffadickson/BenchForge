@@ -79,10 +79,26 @@
       "SignalBehaviorTests": 3
     },
     "host": {
-      "Tests": 71
+      "ApplicationHeartbeatDiagnosticsTests": 19,
+      "BatchedDevelopmentTests": 5,
+      "VisaSetupDiscoveryTests": 5,
+      "BenchSetupTests": 18,
+      "ScopeLeaseHeartbeatTests": 5,
+      "ApplicationBatch300Tests": 4,
+      "LocalHardeningTests": 11,
+      "IviSetupBindingTests": 4
     },
     "experiments": {
-      "Tests": 48
+      "ApplicationCompositionTests": 18,
+      "VirtualSmuCompositionTests": 1,
+      "ExperimentStartupTests": 5,
+      "ExperimentCompositionTests": 9,
+      "LocalHardeningTests": 3,
+      "SequenceCompositionTests": 2,
+      "StatefulMockCompositionTests": 2,
+      "VirtualInstrumentIntegrationTests": 5,
+      "BatchedDevelopmentTests": 1,
+      "ExperimentDisposalTests": 2
     }
   },
   "workflow": {

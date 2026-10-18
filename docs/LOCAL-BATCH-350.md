@@ -248,3 +248,35 @@ Iteration 180 haiku: Numbers fall in line / Old loose ends become new paths / Cl
 Extra acceptance cases cover maximum sequence length, enumeration failure, snapshot deconstruction and sequence/fault isolation across DI runs. They add coverage without inflating the iteration count.
 
 Checkpoint 200 passed: 157 focused core, 71 host and 48 experiment tests (276 application tests), plus 19 tracker/documentation tests and exact six-report parity at workers 1/8. The initial workflow detected a genuine canonical/legacy audit-link mismatch for TR-043. The original runner-audit row now points to the new sequence source/tests and explicitly retains scheduled timeout/latency and comprehensive state-model gaps. All tracker and workflow checks passed after repair; passing application suites were not rerun for that metadata-only correction.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 201 | Introduce explicit simulation clock advancement modes | Pending checkpoint 250 |
+| 202 | Inject a monotonic time provider | Pending checkpoint 250 |
+| 203 | Synchronize logical elapsed-time reads | Pending checkpoint 250 |
+| 204 | Support explicit manual advancement | Pending checkpoint 250 |
+| 205 | Start running clocks idempotently | Pending checkpoint 250 |
+| 206 | Pause without losing elapsed time | Pending checkpoint 250 |
+| 207 | Select manual control after automatic advancement | Pending checkpoint 250 |
+| 208 | Validate speed domain | Pending checkpoint 250 |
+| 209 | Change speed without retroactive time jumps | Pending checkpoint 250 |
+| 210 | Retain fractional scaled ticks | Pending checkpoint 250 |
+| 211 | Reject time overflow before state mutation | Pending checkpoint 250 |
+| 212 | Reject backwards monotonic providers | Pending checkpoint 250 |
+| 213 | Expose coherent clock status | Pending checkpoint 250 |
+| 214 | Avoid background timers and workers | Pending checkpoint 250 |
+| 215 | Select one canonical clock through experiment composition | Pending checkpoint 250 |
+| 216 | Reject repeated clock selection | Pending checkpoint 250 |
+| 217 | Remove hidden manual registration on custom selection | Pending checkpoint 250 |
+| 218 | Diagnose null clock factories before role startup | Pending checkpoint 250 |
+| 219 | Create fresh adjustable clocks per run | Pending checkpoint 250 |
+| 220 | Expose guarded canonical SimulationTime | Pending checkpoint 250 |
+| 221 | Preserve legacy manual Clock compatibility | Pending checkpoint 250 |
+| 222 | Document real-time deadline separation and pacing gaps | Pending checkpoint 250 |
+| 223 | Add deterministic core clock acceptance sources | Pending checkpoint 250 |
+| 224 | Add run-scoped clock composition and cleanup sources | Pending checkpoint 250 |
+| 225 | Update unfinished requirement traceability and usage documentation | Pending checkpoint 250 |
+
+Iteration 210 haiku: One clock marks the run / New frames hold the drifting light / Quiet checks agree.
+
+TR-045 clock-mode foundation is now implemented in the simulation library and experiment composition. Existing step-runner automatic pacing and UI clock controls remain unfinished, documented in docs/SIMULATION-CLOCKS.md.

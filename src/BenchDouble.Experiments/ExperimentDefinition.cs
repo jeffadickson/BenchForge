@@ -20,6 +20,7 @@ public sealed class ExperimentDefinitionBuilder
     private readonly Dictionary<string, string> _roleRuleHashes = new(StringComparer.Ordinal);
     private bool _built;
     private bool _configuring;
+    private bool _selectedClock;
 
     private static void ValidateName(string value, string parameter)
     {
@@ -39,6 +40,44 @@ public sealed class ExperimentDefinitionBuilder
     {
         _services.AddScoped<ManualSimulationClock>();
         _services.AddScoped<ISimulationClock>(sp => sp.GetRequiredService<ManualSimulationClock>());
+    }
+
+    private void EnsureClockSelection()
+    {
+        EnsureMutable();
+        if (_selectedClock) throw new InvalidOperationException("The canonical run clock was already selected.");
+    }
+
+    /// <summary>Select one canonical simulation clock per run at the composition root.</summary>
+    /// <param name="factory">Run-scoped factory returning a fresh nonnull clock; DI owns returned disposable clocks.</param>
+    /// <returns>This mutable builder.</returns>
+    /// <exception cref="InvalidOperationException">Clock selection is duplicated, reentrant, frozen or returns null at run resolution.</exception>
+    /// <remarks>This affects simulated elapsed time only, never host leases, heartbeat expiry or physical I/O deadlines.</remarks>
+    public ExperimentDefinitionBuilder UseSimulationClock(Func<IServiceProvider, ISimulationClock> factory)
+    {
+        EnsureClockSelection();
+        ArgumentNullException.ThrowIfNull(factory);
+        var descriptors=(ICollection<ServiceDescriptor>)_services;
+        foreach(var descriptor in _services.Where(item=>!item.IsKeyedService &&
+            (item.ServiceType==typeof(ManualSimulationClock) || item.ServiceType==typeof(ISimulationClock))).ToArray())
+            descriptors.Remove(descriptor);
+        _services.AddScoped<ISimulationClock>(sp=>factory(sp) ?? throw new InvalidOperationException("Simulation clock factory returned null."));
+        _selectedClock=true;
+        return this;
+    }
+
+    /// <summary>Select a fresh adjustable clock for every run, initially in manual mode at zero.</summary>
+    /// <param name="speed">Logical seconds per monotonic second when started, from 0.001 to 1000000.</param>
+    /// <param name="provider">Caller-owned monotonic provider, defaulting to system time.</param>
+    /// <returns>This mutable builder.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Speed or provider frequency is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Clock selection is duplicated, reentrant or frozen.</exception>
+    public ExperimentDefinitionBuilder AdjustableClock(double speed=1, TimeProvider? provider=null)
+    {
+        EnsureClockSelection();
+        // Construction owns no timers and validates policy before freezing a definition.
+        _=new AdjustableSimulationClock(provider,speed);
+        return UseSimulationClock(_=>new AdjustableSimulationClock(provider,speed));
     }
 
     /// <summary>
@@ -100,6 +139,8 @@ public sealed class ExperimentDefinitionBuilder
         where TInterface : class where TImplementation : class, TInterface
     {
         EnsureMutable();
+        if (typeof(TInterface)==typeof(ISimulationClock) || typeof(TInterface)==typeof(ManualSimulationClock))
+            throw new InvalidOperationException("Use explicit canonical simulation clock selection instead of a behavior registration.");
         if (_services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(TInterface)))
             throw new InvalidOperationException($"Service '{typeof(TInterface).Name}' already registered.");
         _services.AddScoped<TInterface, TImplementation>();
@@ -186,6 +227,8 @@ public sealed class ExperimentDefinitionBuilder
     {
         EnsureMutable();
         ArgumentNullException.ThrowIfNull(factory);
+        if (typeof(TService)==typeof(ISimulationClock) || typeof(TService)==typeof(ManualSimulationClock))
+            throw new InvalidOperationException("Use explicit canonical simulation clock selection instead of a model registration.");
         if (_services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(TService)))
             throw new InvalidOperationException($"Service '{typeof(TService).Name}' already registered.");
         _services.AddScoped(sp => factory(sp) ?? throw new InvalidOperationException($"Model factory for '{typeof(TService).Name}' returned null."));
@@ -261,7 +304,7 @@ public sealed class ExperimentDefinition
             AutoMockRuleSha256, AutoMockRuleHashes);
     }
 
-    /// <summary>Create a simulation run and resolve all registered instrument roles before returning it.</summary>
+    /// <summary>Create a simulation run and resolve its canonical clock and all instrument roles before returning it.</summary>
     /// <remarks>
     /// Factories are synchronous; cancellation is checked between factories and after the last one.
     /// Failed startup disposes the DI scope and provider, including asynchronous disposable services.
@@ -322,14 +365,25 @@ public sealed class ExperimentSession : IAsyncDisposable
     /// <summary>Digest of declarative mock rules; excludes code, drivers and dependencies.</summary>
     public string? AutoMockRuleSha256 { get; }
     public IReadOnlyDictionary<string, string> AutoMockRuleHashes { get; }
+    /// <summary>The canonical clock shared by injected simulation models, available until disposal starts.</summary>
+    /// <exception cref="ObjectDisposedException">Run cleanup has started.</exception>
+    public ISimulationClock SimulationTime
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposalCompletion) is not null,this);
+            return _scope.ServiceProvider.GetRequiredService<ISimulationClock>();
+        }
+    }
     /// <summary>Run-scoped virtual clock, available until disposal starts.</summary>
     /// <exception cref="ObjectDisposedException">Run cleanup has started.</exception>
+    /// <exception cref="InvalidOperationException">This run selected a nonmanual clock; use SimulationTime and its explicit controls.</exception>
     public ManualSimulationClock Clock
     {
         get
         {
-            ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposalCompletion) is not null, this);
-            return _scope.ServiceProvider.GetRequiredService<ManualSimulationClock>();
+            return SimulationTime as ManualSimulationClock
+                ?? throw new InvalidOperationException("This run uses a nonmanual simulation clock; use SimulationTime and its explicit controls.");
         }
     }
 
@@ -344,6 +398,8 @@ public sealed class ExperimentSession : IAsyncDisposable
 
     internal void ResolveInstruments(CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        _=SimulationTime;
         foreach (var instrument in _instruments)
         {
             ct.ThrowIfCancellationRequested();
