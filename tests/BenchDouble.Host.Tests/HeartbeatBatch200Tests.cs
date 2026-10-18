@@ -252,4 +252,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var field=typeof(HostResourceRegistry).GetField("_ownerGeneration",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;field.SetValue(r,long.MaxValue);Assert.Throws<OverflowException>(()=>r.Reserve("DMM1"));field.SetValue(r,0L);Assert.NotNull(r.Reserve("DMM1"));
     }
+
+    /// <summary>Parallel observers preserve generation and sequence.</summary>
+    [Fact] public void ParallelObservers()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Parallel.For(0,64,_=>{var h=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Equal(s.OwnerGeneration,h.OwnerGeneration);Assert.Equal(0,h.Sequence);Assert.Equal("Healthy",h.State);});
+    }
 }
