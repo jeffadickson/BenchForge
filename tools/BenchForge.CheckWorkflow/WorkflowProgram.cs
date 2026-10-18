@@ -40,7 +40,7 @@ internal static class WorkflowProgram
 
     private static async Task<int> Run(string[] args)
     {
-        var keys = new HashSet<string> { "--root", "--python", "--jobs", "--timing", "--command", "--expected-architecture", "--timeout-seconds" };
+        var keys = new HashSet<string> { "--root", "--python", "--jobs", "--timing", "--command", "--expected-architecture", "--timeout-seconds", "--dotnet", "--configuration", "--task" };
         var seen = new HashSet<string>();
         for (int index = 0; index < args.Length; index += 2)
         {
@@ -68,8 +68,11 @@ internal static class WorkflowProgram
             Console.WriteLine(new JsonObject { ["architecture"] = architecture, ["os_architecture"] = RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant(), ["runtime"] = RuntimeInformation.RuntimeIdentifier, ["framework"] = RuntimeInformation.FrameworkDescription }.ToJsonString());
             return 0;
         }
-        if (!new[] { "checks", "checks-only", "requirements", "scoreboard", "neutrality", "neutrality-strict", "roslyn", "preflight", "docs", "compare" }.Contains(command)) throw new ArgumentException($"Unknown command {command}");
+        if (!new[] { "checks", "checks-only", "requirements", "scoreboard", "neutrality", "neutrality-strict", "roslyn", "preflight", "docs", "compare", "build", "test", "generate", "plan" }.Contains(command)) throw new ArgumentException($"Unknown command {command}");
         Directory.SetCurrentDirectory(Program.Root);
+        if (command is "build" or "test" or "generate" or "plan")
+            return await DeveloperTasks.Run(command == "plan" ? Value("--task", "build") : command,
+                Value("--dotnet", "dotnet"), Value("--configuration", "Release"), command == "plan");
         if (command is not ("checks" or "checks-only")) return command switch
         {
             "requirements" => Requirements.Run(),

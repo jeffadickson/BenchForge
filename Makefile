@@ -1,5 +1,4 @@
-# BenchForge developer entrypoints. Requires GNU Make on Unix; Windows can
-# use scripts/bootstrap.ps1 and dotnet CLI directly without Make.
+# Optional compatibility entrypoints. Primary workflow: ./build.ps1 (compiled C#).
 .DEFAULT_GOAL := setup
 DOTNET ?= $(if $(wildcard .tools/dotnet/dotnet),$(CURDIR)/.tools/dotnet/dotnet,dotnet)
 PYTHON ?= python3
@@ -85,20 +84,14 @@ requirements: requirements-check scoreboard
 	.tools/requirements-venv/bin/strictdoc export requirements --output-dir build/requirements
 
 generate:
-	$(PYTHON) scripts/check_instrument_catalog.py
-	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
+	$(CHECK_HOST) -Command generate
 
 # Discover projects so new libraries/examples/tools participate automatically.
-build: generate build-generated
-	@set -e; for project in src/*/*.csproj examples/*/*.csproj tools/*/*.csproj; do \
-		[ ! -f "$$project" ] || $(DOTNET) build "$$project"; \
-	done
+build:
+	$(CHECK_HOST) -Command build
 
-test: generate generate-v2-preview
-	@set -e; for project in tests/*/*.csproj; do \
-		case "$$project" in *BenchDouble.Browser.Tests*) continue ;; esac; \
-		[ ! -f "$$project" ] || $(DOTNET) test "$$project"; \
-	done
+test:
+	$(CHECK_HOST) -Command test
 
 test-browser:
 	$(DOTNET) build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj

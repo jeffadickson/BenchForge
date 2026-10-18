@@ -8,7 +8,8 @@ param(
     [ValidateSet('auto','x64','x86','arm64','arm')][string]$Architecture = 'auto',
     [string]$RuntimeIdentifier = '',
     [ValidateSet('Debug','Release')][string]$Configuration = 'Release',
-    [ValidateSet('checks','checks-only','requirements','scoreboard','neutrality','neutrality-strict','roslyn','preflight','docs','compare','identity')][string]$Command = 'checks',
+    [ValidateSet('checks','checks-only','requirements','scoreboard','neutrality','neutrality-strict','roslyn','preflight','docs','compare','identity','build','test','generate','plan')][string]$Command = 'checks',
+    [ValidateSet('build','test','generate')][string]$Task = 'build',
     [ValidateRange(1,3600)][int]$TimeoutSeconds = 300,
     [ValidateRange(1,3600)][int]$LockTimeoutSeconds = 300,
     [switch]$PlanOnly,
@@ -115,7 +116,7 @@ try {
         Write-CheckAtomic (Join-Path $Cache 'build-identity.json') (($plan | Select-Object *,@{Name='sdk';Expression={$sdk}}) | ConvertTo-Json)
         Write-CheckAtomic $fingerprintFile $fingerprint
     }
-    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' $dotnetPath @($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds") }
+    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' $dotnetPath @($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds",'--dotnet',$dotnetPath,'--configuration',$Configuration,'--task',$Task) }
 }
 finally {
     [System.IO.Directory]::CreateDirectory((Split-Path -Parent ([System.IO.Path]::GetFullPath($Timing)))) | Out-Null
