@@ -99,6 +99,7 @@ public sealed partial class StatefulMockEngine
         await _gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            ct.ThrowIfCancellationRequested();
             if (_mode == mode) return;
             _mode = mode;
             ++_revision;
@@ -117,6 +118,7 @@ public sealed partial class StatefulMockEngine
         await _gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            ct.ThrowIfCancellationRequested();
             if (_mode is null || !metadata.Modes.Contains(_mode))
                 throw new InvalidOperationException("Incompatible measurement mode.");
             var elapsed = ReadElapsed();
@@ -174,6 +176,7 @@ public sealed partial class StatefulMockEngine
         await _gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            ct.ThrowIfCancellationRequested();
             if (_mode is null || !metadata.Modes.Contains(_mode))
                 throw new InvalidOperationException("Incompatible measurement mode.");
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)

@@ -335,4 +335,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Add cancellation-aware asynchronous mock reset. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Observe cancellation before mock mode and measurement transactions. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
