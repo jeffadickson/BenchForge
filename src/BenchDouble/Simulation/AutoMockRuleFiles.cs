@@ -51,7 +51,7 @@ public static class AutoMockRuleFiles
         var builder = new AutoMockLoadRulesBuilder();
         foreach (var spec in document.Rules)
         {
-            if (spec is null || !Enum.TryParse<AutoMockLoadActionKind>(
+            if (spec is null || !Enum.GetNames<AutoMockLoadActionKind>().Any(name => string.Equals(name, spec.Action, StringComparison.OrdinalIgnoreCase)) || !Enum.TryParse<AutoMockLoadActionKind>(
                     spec.Action, true, out var action) || !Enum.IsDefined(action))
                 throw new ArgumentException("Invalid AutoMock action.", nameof(json));
             var condition = new AutoMockLoadCondition(

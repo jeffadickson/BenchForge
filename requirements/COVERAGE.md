@@ -149,3 +149,5 @@ Batch iteration 17/30 (2026-10-17), BD-SIM-001: Validate imported mock default t
 Batch iteration 18/30 (2026-10-17), BD-SIM-001: Reject duplicate AutoMock JSON keys. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 19/30 (2026-10-17), BD-SIM-001: Require explicit AutoMock action values. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 20/30 (2026-10-17), BD-SIM-001: Require symbolic AutoMock action names. Canonical statuses unchanged; runtime verification deferred to checkpoint 20 under the requested cadence. See docs/LOCAL-BATCH-30.md.

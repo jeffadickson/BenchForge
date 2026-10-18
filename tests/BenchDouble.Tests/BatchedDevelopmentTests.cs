@@ -187,5 +187,12 @@ public sealed class BatchedDevelopmentTests
         Assert.Throws<JsonException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"FixedCurrent\"}]}"));
     }
 
+    /// <summary>Rule documents use reviewed symbolic actions rather than numeric enum aliases.</summary>
+    [Fact] public void NumericRuleActionNamesAreRejected()
+    {
+        Assert.Throws<ArgumentException>(()=>AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"0\",\"value\":1}]}"));
+        Assert.Single(AutoMockRuleFiles.Parse("{\"version\":1,\"rules\":[{\"name\":\"r\",\"action\":\"fixedcurrent\",\"value\":1}]}"));
+    }
+
 // CASES
 }
