@@ -222,4 +222,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.Empty,1));
     }
+
+    /// <summary>Zero sequences cannot establish heartbeat ownership.</summary>
+    [Fact] public void ZeroSequence()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),0));
+    }
 }
