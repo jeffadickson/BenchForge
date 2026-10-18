@@ -30,4 +30,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Incompatible preparation leaves mock revision unchanged.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task WrongMode()
+    {
+        var e=Engine();await e.ConfigureModeAsync("r");var r=e.Snapshot().Revision;await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
