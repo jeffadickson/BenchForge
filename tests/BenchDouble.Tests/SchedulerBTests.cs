@@ -197,4 +197,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var a=new SimulationScheduler(c);var d=new SimulationScheduler(c);Assert.Equal(1,a.Schedule(T(0),"a").Id);Assert.Equal(1,d.Schedule(T(0),"d").Id);a.Clear();Assert.Equal(1,d.Count);
     }
+
+    /// <summary>Parallel scheduling assigns unique identifiers without lost events.</summary>
+    [Fact] public void ParallelSchedule()
+    {
+        var s=new SimulationScheduler(new Clock());var ids=new System.Collections.Concurrent.ConcurrentBag<long>();Parallel.For(0,128,i=>ids.Add(s.Schedule(T(0),"e"+i).Id));Assert.Equal(128,s.Count);Assert.Equal(128,ids.Distinct().Count());Assert.Equal(Enumerable.Range(1,128).Select(i=>(long)i),s.DrainDue().Select(e=>e.Id));
+    }
 }
