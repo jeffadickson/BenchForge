@@ -394,4 +394,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Nested expiry budgets are rejected. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Absent heartbeat settings retain finite defaults. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

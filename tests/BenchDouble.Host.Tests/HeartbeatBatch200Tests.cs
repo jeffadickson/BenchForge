@@ -54,4 +54,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:ExpireMilliseconds:value","40"))));
     }
+
+    /// <summary>Absent heartbeat settings retain finite defaults.</summary>
+    [Fact] public void DefaultConfiguration()
+    {
+        Assert.Equal(HostHeartbeatPolicy.Default,HostHeartbeatPolicy.FromConfiguration(Config()));
+    }
 }
