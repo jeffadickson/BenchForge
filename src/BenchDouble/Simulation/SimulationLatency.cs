@@ -48,6 +48,7 @@ public sealed class SimulationLatencyProfile
             // Stage validation.
         }
         if(copied.Select(s=>s.Phase).Distinct().Count()!=copied.Length)throw new ArgumentException("Duplicate latency phase.",nameof(stages));
+        if(copied.Sum(s=>s.Duration.Ticks+s.Jitter.Ticks)>TimeSpan.TicksPerDay)throw new ArgumentOutOfRangeException(nameof(stages),"Aggregate latency exceeds one day.");
         // Profile validation.
         Seed=seed;Stages=Array.AsReadOnly(copied.OrderBy(s=>s.Phase).ToArray());
     }
