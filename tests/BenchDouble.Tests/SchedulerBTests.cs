@@ -233,4 +233,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c,1);s.Schedule(T(0),"a");var reads=c.Reads;Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"b"));Assert.Equal(reads,c.Reads);
     }
+
+    /// <summary>Absolute deadlines before current time are rejected.</summary>
+    [Fact] public void PastDeadline()
+    {
+        var s=new SimulationScheduler(new Clock{Now=T(5)});Assert.Throws<ArgumentOutOfRangeException>(()=>s.ScheduleAt(T(4),"bad"));Assert.Equal(0,s.Count);
+    }
 }
