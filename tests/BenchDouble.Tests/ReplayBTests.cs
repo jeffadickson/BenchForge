@@ -181,4 +181,10 @@ public sealed class ReplayBTests
     {
         var s=S();var r=R(s);Assert.Equal(s,r.Peek());Assert.Equal(s,r.Peek());Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Full transcript snapshots reject caller mutation.</summary>
+    [Fact] public void SnapshotReadOnly()
+    {
+        var r=R(S());Assert.Throws<NotSupportedException>(()=>((IList<SimulationReplaySample>)r.Snapshot()).Clear());
+    }
 }
