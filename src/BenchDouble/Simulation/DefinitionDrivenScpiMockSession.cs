@@ -182,6 +182,17 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         finally { _gate.Release(); }
     }
 
+    /// <summary>Clear accepted command history without changing simulated readings.</summary>
+    /// <param name="cancellationToken">Cancellation before clearing history.</param>
+    /// <returns>Completion of the serialized history clear.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation was observed before mutation.</exception>
+    public async ValueTask ClearTranscriptAsync(CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try { cancellationToken.ThrowIfCancellationRequested(); Transcript.Clear(); }
+        finally { _gate.Release(); }
+    }
+
     private int ReadChannel(Match match)
     {
         var group = match.Groups["channel"];
