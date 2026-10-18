@@ -3,20 +3,41 @@
 .DEFAULT_GOAL := setup
 DOTNET ?= $(if $(wildcard .tools/dotnet/dotnet),$(CURDIR)/.tools/dotnet/dotnet,dotnet)
 PYTHON ?= python3
+PWSH ?= $(if $(filter Windows_NT,$(OS)),powershell,pwsh)
+CHECKS_ARCH ?= auto
+CHECKS_CONFIGURATION ?= Release
+CHECKS_RID ?=
+CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1 -Python "$(PYTHON)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
 
 # Windows local measurements: docs/CHECK-PORT-BENCHMARKS.md. Build native tools
 # once per source change; the normal checks invoke cached executables directly.
-CHECKS_NATIVE_PATH := .tools/checks/native/BenchForge.Checks$(if $(filter Windows_NT,$(OS)),.exe,)
+CHECKS_NATIVE_PATH := .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchForge.Checks$(if $(filter Windows_NT,$(OS)),.exe,)
 CHECKS_NATIVE := "$(CURDIR)/$(CHECKS_NATIVE_PATH)" --python "$(PYTHON)"
 CHECKS_SOURCES := $(wildcard tools/BenchForge.Checks/*.cs) tools/BenchForge.Checks/BenchForge.Checks.csproj tools/BenchForge.Checks/scoreboard.html scripts/python_ast_inventory.py
 ROSLYN_DLL := tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll
 ROSLYN_JOBS ?= 8
 
 $(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES)
-	$(DOTNET) publish tools/BenchForge.Checks -c Release -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native
+	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly, for example win-x64 or linux-arm64))
+	$(DOTNET) publish tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)
 
-$(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj
-	$(DOTNET) build tools/BenchDouble.DocumentationAudit -c Release
+$(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/RoslynAudit.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj
+	$(DOTNET) build tools/BenchDouble.DocumentationAudit -c Release --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+
+.PHONY: checks-native check-ports checks
+# Full check/report workflow: one managed build, content-validated cache, parallel checks.
+checks:
+	$(CHECK_HOST)
+
+.PHONY: checks-prepare checks-plan checks-only
+checks-prepare:
+	$(CHECK_HOST) -PrepareOnly
+
+checks-plan:
+	$(CHECK_HOST) -PlanOnly
+
+checks-only:
+	$(CHECK_HOST) -Command checks-only
 
 .PHONY: checks-native check-ports
 checks-native: $(CHECKS_NATIVE_PATH)
@@ -35,12 +56,12 @@ setup:
 setup-windows:
 	pwsh -File scripts/bootstrap.ps1
 
-requirements-check: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) requirements --jobs 8
+requirements-check:
+	$(CHECK_HOST) -Command requirements
 	$(PYTHON) -m unittest discover -s tests/requirements -v
 
-scoreboard: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) scoreboard --jobs 1
+scoreboard:
+	$(CHECK_HOST) -Command scoreboard
 
 setup-browser:
 	bash scripts/bootstrap.sh --browser
@@ -115,9 +136,9 @@ definer-check:
 
 # The Python reference is copied into the same DocFX site.
 .PHONY: docs docs-check
-docs-check: $(ROSLYN_DLL)
-	$(DOTNET) $(ROSLYN_DLL) . build/api-audit.json --jobs $(ROSLYN_JOBS)
-	$(PYTHON) scripts/check_api_docs.py
+docs-check:
+	$(CHECK_HOST) -Command roslyn
+	$(CHECK_HOST) -Command docs
 	$(PYTHON) -m unittest discover -s tests/documentation -v
 
 docs: check-generated docs-check
@@ -181,11 +202,11 @@ test-virtual-bench:
 
 # Full tracked-file source-neutrality audit and XML API documentation verification.
 .PHONY: source-audit source-audit-strict xdoc-check
-source-audit: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) neutrality --jobs 8 --output build/source-neutrality-audit.json
+source-audit:
+	$(CHECK_HOST) -Command neutrality
 
-source-audit-strict: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) neutrality --jobs 8 --strict --output build/source-neutrality-audit.json
+source-audit-strict:
+	$(CHECK_HOST) -Command neutrality-strict
 
 xdoc-check: docs-check
 	$(DOTNET) build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release -p:GenerateDocumentationFile=true
@@ -193,12 +214,12 @@ xdoc-check: docs-check
 # Run the measured native preflight; Python remains available without a build toolchain.
 # Roslyn remains the authoritative CI checker for complete C# syntax coverage.
 .PHONY: docs-preflight docs-preflight-tests
-docs-preflight: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) preflight --jobs 8 --output build/docs-preflight.json
+docs-preflight:
+	$(CHECK_HOST) -Command preflight
 
 docs-preflight-tests:
 	$(PYTHON) -m unittest discover -s tests/documentation -p 'test_docs_portable.py' -v
 
 .PHONY: docs-compare
-docs-compare: $(CHECKS_NATIVE_PATH)
-	$(CHECKS_NATIVE) compare --jobs 8 --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
+docs-compare:
+	$(CHECK_HOST) -Command compare

@@ -70,3 +70,7 @@ outside the interval. Candidates run sequentially in seeded interleaved order,
 with warmups, medians and all raw samples retained. Rebenchmark on other systems
 or substantially larger inventories. The application test suites are not needed
 for these ports.
+
+## Complete workflow supersedes per-command selection
+
+`scripts/checks.ps1` and `tools/BenchForge.CheckWorkflow` compile this same source together with the shared Roslyn auditor into one managed host. This avoids native compilation on a cold run and repeated C# process startup on cached runs. Use `make checks` for the complete workflow. Native publishing remains an explicit option for repeated individual commands; the original microbenchmarks do not include its compilation cost. See `docs/CHECK-WORKFLOW-BENCHMARKS.md`.

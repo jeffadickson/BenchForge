@@ -18,7 +18,25 @@ class RequirementGateTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory()
         cls.root = Path(cls.temp.name) / 'repo'
         try:
-            shutil.copytree(ROOT, cls.root, ignore=shutil.ignore_patterns('.git', '.tools', '__pycache__', 'bin', 'obj', 'build', '.verification'))
+            # This gate only reads tracker metadata, its checker module and the
+            # evidence paths named by the matrices. Copy those real files rather
+            # than the entire repository; missing evidence must remain missing.
+            cls.root.mkdir(parents=True)
+            shutil.copytree(ROOT / 'requirements', cls.root / 'requirements')
+            paths = {'scripts/check_requirements.py'}
+            for name, columns in (
+                ('traceability.csv', ('implementation_file', 'verification_file', 'verification_evidence')),
+                ('legacy-runner-audit.csv', ('source_evidence', 'test_evidence')),
+            ):
+                with (ROOT / 'requirements' / name).open(encoding='utf-8', newline='') as source:
+                    for row in csv.DictReader(source):
+                        paths.update(row.get(column, '').strip() for column in columns if row.get(column, '').strip())
+            for relative in sorted(paths):
+                source = ROOT / relative
+                target = cls.root / relative
+                if source.is_file() and not target.exists():
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, target)
             cls.tracker_files = {path: path.read_bytes() for path in (cls.root / 'requirements').iterdir() if path.is_file()}
         except BaseException:
             cls.temp.cleanup()

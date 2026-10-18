@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>WorkflowProgram</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <Compile Include="../BenchForge.Checks/*.cs" Link="Shared/%(Filename)%(Extension)" />
+    <Compile Include="../BenchDouble.DocumentationAudit/RoslynAudit.cs" Link="Shared/RoslynAudit.cs" />
+    <EmbeddedResource Include="../BenchForge.Checks/scoreboard.html" LogicalName="BenchForge.Checks.scoreboard.html" />
+    <Content Include="../../scripts/python_ast_inventory.py" Link="python_ast_inventory.py" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

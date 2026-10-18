@@ -299,3 +299,7 @@ planned. Run `make demo-capture` and read [save/retrieve examples](docs/LOCAL-CA
 ### Measured check/report tools
 
 The six repository check/report scripts have C# ports with bounded parallel scans. Normal Make/CI entrypoints use native C# for the five measured winners, retain Python for the documentation gate, and use eight-worker Roslyn. See [benchmarks and exact-output validation](docs/CHECK-PORT-BENCHMARKS.md) for measurements, native build prerequisites, cached tools, original-script fallbacks and remaining platform limits.
+
+### Complete check/report workflow
+
+Run `powershell -NoProfile -File scripts/checks.ps1` on Windows, `pwsh -NoProfile -File scripts/checks.ps1 -Python python3` on Unix, or `make checks`. This runs the seven checks/report generators and their 19 focused regressions with a validated managed-tool cache and parallel scheduling. Cold runs avoid native compilation; unchanged cached runs skip the build. Individual Python commands remain no-build fallbacks. See [complete-workflow timings](docs/CHECK-WORKFLOW-BENCHMARKS.md); the earlier per-command native benchmarks excluded builds and are historical, not total-workflow guidance.

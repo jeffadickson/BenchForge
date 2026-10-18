@@ -41,3 +41,5 @@ The optional `supplemental_verification` field contains semicolon-separated addi
 ## Measured checker implementation
 
 `make requirements-check` uses the measured native C# gate and retains the focused tracker regressions. `python scripts/check_requirements.py` remains an independent reference and no-build fallback. See [port parity and benchmarks](../docs/CHECK-PORT-BENCHMARKS.md) for selected commands and evidence; no requirement status changes follow from a speed comparison.
+
+`make checks` (or `scripts/checks.ps1`) is now the preferred complete requirements/documentation workflow. It uses one managed C# tooling build and a content-validated cache, runs all seven checks and 19 focused regressions, and regenerates every report on every run. The standalone Make targets also use the shared compiled C# cache. Architecture selection, cache validation and test cadence are described in [the local development ledger](../docs/LOCAL-BATCH-150.md). See [full-workflow measurements](../docs/CHECK-WORKFLOW-BENCHMARKS.md).
