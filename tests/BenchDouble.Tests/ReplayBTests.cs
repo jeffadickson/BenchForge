@@ -85,4 +85,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(S(-1)));
     }
+
+    /// <summary>Backwards transcript timestamps are rejected.</summary>
+    [Fact] public void BackwardsTime()
+    {
+        Assert.Throws<ArgumentException>(()=>R(S(10),S(9)));
+    }
 }
