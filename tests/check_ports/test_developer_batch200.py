@@ -144,3 +144,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_empty_filter(self):
         """Omit empty test filters."""
         self.assertNotIn('--filter',self.plan('test')[-1]['Arguments'])
+
+    def test_generation_execution(self):
+        """Execute exactly the catalog and two generation steps."""
+        self.invoke('--command','generate');self.assertEqual(3,len(self.events()));self.assertEqual(3,len(self.report()['stages']))
