@@ -360,4 +360,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Bulk fault clear preserves the sequence cursor. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Bulk sequence clear reports both removed capabilities. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

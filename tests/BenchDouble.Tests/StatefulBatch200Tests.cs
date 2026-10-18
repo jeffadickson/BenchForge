@@ -149,4 +149,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[7,8]); await e.MeasureAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); e.ClearAllFaults(); Assert.Equal(1,e.SequenceStatus("voltage")!.Position); Assert.Equal(8,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Bulk sequence clear reports both removed capabilities.</summary>
+    [Fact] public void ClearAllSequenceCount()
+    {
+        var e=Engine(); e.SetSequence("voltage",[3]); e.SetSequence("resistance",[4]); Assert.Equal(2,e.ClearAllSequences()); Assert.Empty(e.Snapshot().SequencePositions);
+    }
 }
