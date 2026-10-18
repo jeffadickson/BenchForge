@@ -245,4 +245,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock{Now=T(5)});s.ScheduleAt(T(5),"a");Assert.Single(s.DrainDue());
     }
+
+    /// <summary>Absolute deadlines are not interpreted as relative delays.</summary>
+    [Fact] public void AbsoluteFuture()
+    {
+        var c=new Clock{Now=T(5)};var s=new SimulationScheduler(c);s.ScheduleAt(T(10),"a");c.Now=T(10);Assert.Single(s.DrainDue());
+    }
 }

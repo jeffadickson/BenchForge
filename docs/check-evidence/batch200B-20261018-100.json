@@ -1,0 +1,44 @@
+{
+  "checkpoint": 100,
+  "tested_commit": "b807fe4a3c95d86f974c1af65da3ddf42ad1a112",
+  "worktree_has_pending_checkpoint_changes": true,
+  "platform": "Windows-11-10.0.26300-SP0",
+  "commands": [
+    {
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+        "-c",
+        "Release",
+        "--filter",
+        "FullyQualifiedName~SchedulerBTests|FullyQualifiedName~LatencyBTests",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false"
+      ],
+      "exit_code": 0,
+      "seconds": 77.20148689999769,
+      "log": "build\\batch200B\\100\\1.log"
+    },
+    {
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-File",
+        "build.ps1",
+        "-Command",
+        "checks"
+      ],
+      "exit_code": 0,
+      "seconds": 19.65622259999509,
+      "log": "build\\batch200B\\100\\2.log"
+    }
+  ],
+  "requirements": [
+    "TR-047",
+    "TR-049"
+  ],
+  "result": "passed"
+}
