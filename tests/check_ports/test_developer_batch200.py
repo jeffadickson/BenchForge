@@ -60,3 +60,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_bin_pruned(self):
         """Exclude projects under binary artifact trees."""
         self.project('src/App/bin/Hidden.csproj');self.assertFalse(any('Hidden.csproj' in a for s in self.plan() for a in s['Arguments']))
+
+    def test_obj_pruned(self):
+        """Exclude projects under intermediate artifact trees."""
+        self.project('src/App/obj/Hidden.csproj');self.assertFalse(any('Hidden.csproj' in a for s in self.plan() for a in s['Arguments']))
