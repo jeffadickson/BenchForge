@@ -174,4 +174,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetBehavior("voltage",_=>9); e.SetSequence("resistance",[4]); e.ClearAllSequences(); Assert.Equal(9,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Removing sequences restores explicit override fallback.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task SequenceClearFallback()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",8); e.SetSequence("voltage",[4]); e.ClearAllSequences(); Assert.Equal(8,await e.MeasureAsync("voltage"));
+    }
 }
