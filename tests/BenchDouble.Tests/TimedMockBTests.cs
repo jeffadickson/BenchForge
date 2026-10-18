@@ -23,4 +23,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");Assert.Equal(1,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Preparation requires an explicitly compatible operating mode.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task NoMode()
+    {
+        var e=Engine();await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(),0));Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
