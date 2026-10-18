@@ -195,3 +195,7 @@ Checkpoint 150 source: expanded diagnostic, composition, heartbeat and setup int
 Checkpoint 150 execution: 230 focused application tests and 19 tracker/documentation tests passed, alongside compiled checks and exact report parity at one/eight workers. Fifty-seven new application cases since checkpoint 100. See docs/check-evidence/batch350-150.json. Counts remain 228 requirements, 0 Verified; statuses unchanged.
 
 Checkpoint 175: implemented explicit stateful mock output sequences (TR-043, existing issue #40) and partial reproducibility work (TR-049, same issue). Cursor status, snapshots, cancellation/fault ordering, strict/hold-last exhaustion and signal-domain checks have new source tests; execution pending checkpoint 200. Full replay and deterministic scheduling remain open. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 200 source: sequence and signal-domain acceptance coverage with run-scoped integration. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 200 execution passed: 276 application tests, 19 tracker/documentation tests, compiled checks and exact report-byte parity at one/eight workers. New sequence feature remains partial under TR-043 and TR-049; broader timeout/latency, replay and instrument-specific models remain open. Counts remain 228 requirements, 0 Verified; statuses unchanged.

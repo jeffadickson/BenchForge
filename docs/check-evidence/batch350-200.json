@@ -1,0 +1,170 @@
+{
+  "checkpoint": 200,
+  "result": "passed",
+  "tested_base_commit": "77e82cb6c4b8cfa2acf4ed9d9386a4fc7f7525c7",
+  "tested_worktree": "modified feature/test source committed in checkpoint200; metadata-only audit-link correction followed application tests",
+  "application_tests": {
+    "core": {
+      "total": "157",
+      "executed": "157",
+      "passed": "157",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "host": {
+      "total": "71",
+      "executed": "71",
+      "passed": "71",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "experiments": {
+      "total": "48",
+      "executed": "48",
+      "passed": "48",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "test_classes": {
+    "core": {
+      "ApplicationBatch300Tests": 21,
+      "StatefulMockEngineTests": 9,
+      "ApplicationDiagnosticsTests": 20,
+      "DefinitionDrivenMockTests": 5,
+      "StatefulMockSequenceTests": 34,
+      "BatchedDevelopmentTests": 24,
+      "PowerSupplyDiTests": 2,
+      "SignalDomainTests": 7,
+      "AutoMockRuleFileTests": 5,
+      "LocalHardeningTests": 4,
+      "LoggingScpiSessionTests": 3,
+      "PowerSupplyBehaviorTests": 4,
+      "TypedMockMeasurementsTests": 6,
+      "ModeAwareMockInstrumentTests": 4,
+      "AutoMockLoadRulesTests": 6,
+      "SignalBehaviorTests": 3
+    },
+    "host": {
+      "Tests": 71
+    },
+    "experiments": {
+      "Tests": 48
+    }
+  },
+  "workflow": {
+    "milliseconds": 16071.4249,
+    "cpu_milliseconds": 10062.5,
+    "peak_working_set_bytes": 76861440,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 367.0957,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 140.4097,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 6256.5294,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 3878.2195,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 7016.3787,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 4394.8024,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 236.924,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 15919.2089,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 8580.345,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "445cfe73e7d50cbce91e5a55f06619c3aff25abebb05f2ea289e24d2c33f835e",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "3316c4caf75d48104c03af6218bc146b940b5cc534f69b93629c35af659593d6",
+      "documentation-audit.json": "67dc988dd0651cd989fc02f9b1b87603748c9316770b46aa98c18158a9f68464",
+      "docs-parity.json": "004da38860ce088ad951bb8a1510e5f9f2893b42cfc2f5aa57bf6d7bb1dd650a"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally"
+  },
+  "limitations": [
+    "Windows x64 execution",
+    "Focused related application suites only",
+    "GNU Make source-contract validation only",
+    "TR-043/TR-049 remain partial; no Verified promotion",
+    "Clock mode integration and reading freshness are subsequent work"
+  ]
+}

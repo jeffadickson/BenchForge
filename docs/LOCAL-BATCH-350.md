@@ -187,30 +187,64 @@ Checkpoint 150 passed: 113 focused core, 71 focused host and 46 experiment tests
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 151 | Introduce explicit mock sequence cursor status | Pending checkpoint 200 |
-| 152 | Install bounded finite scalar sequences | Pending checkpoint 200 |
-| 153 | Copy sequence inputs before state mutation | Pending checkpoint 200 |
-| 154 | Read sequences through the canonical mock transaction | Pending checkpoint 200 |
-| 155 | Fail explicitly on strict sequence exhaustion | Pending checkpoint 200 |
-| 156 | Hold the last value only when requested | Pending checkpoint 200 |
-| 157 | Advance cursors only after cancellation validation | Pending checkpoint 200 |
-| 158 | Advance state revision with successful cursor consumption | Pending checkpoint 200 |
-| 159 | Expose cached sequence status without clock reads | Pending checkpoint 200 |
-| 160 | Clear sequences and restore declared fallbacks | Pending checkpoint 200 |
-| 161 | Clear sequence state on reset | Pending checkpoint 200 |
-| 162 | Replace sequences with synchronous models | Pending checkpoint 200 |
-| 163 | Replace sequences with asynchronous models | Pending checkpoint 200 |
-| 164 | Capture independent read-only cursor positions in snapshots | Pending checkpoint 200 |
-| 165 | Expose sequence installation on imported mocks | Pending checkpoint 200 |
-| 166 | Expose sequence clearing on imported mocks | Pending checkpoint 200 |
-| 167 | Expose cursor status on imported mocks | Pending checkpoint 200 |
-| 168 | Serialize seeded noise draws for concurrent use | Pending checkpoint 200 |
-| 169 | Keep noise interpolation finite at opposite extreme bounds | Pending checkpoint 200 |
-| 170 | Validate sine configuration and logical time | Pending checkpoint 200 |
-| 171 | Bound sine phase and reject nonfinite output | Pending checkpoint 200 |
-| 172 | Copy composite signal membership at construction | Pending checkpoint 200 |
-| 173 | Reject null composite signal inputs | Pending checkpoint 200 |
-| 174 | Reject nonfinite component and composite output | Pending checkpoint 200 |
-| 175 | Document unfinished requirement feature and add initial regressions | Pending checkpoint 200 |
+| 151 | Introduce explicit mock sequence cursor status | Checkpoint 200 passed |
+| 152 | Install bounded finite scalar sequences | Checkpoint 200 passed |
+| 153 | Copy sequence inputs before state mutation | Checkpoint 200 passed |
+| 154 | Read sequences through the canonical mock transaction | Checkpoint 200 passed |
+| 155 | Fail explicitly on strict sequence exhaustion | Checkpoint 200 passed |
+| 156 | Hold the last value only when requested | Checkpoint 200 passed |
+| 157 | Advance cursors only after cancellation validation | Checkpoint 200 passed |
+| 158 | Advance state revision with successful cursor consumption | Checkpoint 200 passed |
+| 159 | Expose cached sequence status without clock reads | Checkpoint 200 passed |
+| 160 | Clear sequences and restore declared fallbacks | Checkpoint 200 passed |
+| 161 | Clear sequence state on reset | Checkpoint 200 passed |
+| 162 | Replace sequences with synchronous models | Checkpoint 200 passed |
+| 163 | Replace sequences with asynchronous models | Checkpoint 200 passed |
+| 164 | Capture independent read-only cursor positions in snapshots | Checkpoint 200 passed |
+| 165 | Expose sequence installation on imported mocks | Checkpoint 200 passed |
+| 166 | Expose sequence clearing on imported mocks | Checkpoint 200 passed |
+| 167 | Expose cursor status on imported mocks | Checkpoint 200 passed |
+| 168 | Serialize seeded noise draws for concurrent use | Checkpoint 200 passed |
+| 169 | Keep noise interpolation finite at opposite extreme bounds | Checkpoint 200 passed |
+| 170 | Validate sine configuration and logical time | Checkpoint 200 passed |
+| 171 | Bound sine phase and reject nonfinite output | Checkpoint 200 passed |
+| 172 | Copy composite signal membership at construction | Checkpoint 200 passed |
+| 173 | Reject null composite signal inputs | Checkpoint 200 passed |
+| 174 | Reject nonfinite component and composite output | Checkpoint 200 passed |
+| 175 | Document unfinished requirement feature and add initial regressions | Checkpoint 200 passed |
 
 This batch implements previously missing sequence output under TR-043, rather than adding another build-only increment. TR-049 gains copied cursor snapshots and serialized seeded draws. Initial feature tests and XML API contracts accompany source changes; broader feature regressions follow. Full transcript replay and calibrated model acceptance remain unfinished.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 176 | Regression: Preserve cursor across incompatible modes | Checkpoint 200 passed |
+| 177 | Regression: Preserve cursor and revision across pre-cancellation | Checkpoint 200 passed |
+| 178 | Regression: Preserve cursor when cancelled behind a measurement | Checkpoint 200 passed |
+| 179 | Regression: Preserve cursor across invalid clock recovery | Checkpoint 200 passed |
+| 180 | Regression: Inspect cached cursors without clock access | Checkpoint 200 passed |
+| 181 | Regression: Restore overrides after sequence removal | Checkpoint 200 passed |
+| 182 | Regression: Keep absent sequence removal idempotent | Checkpoint 200 passed |
+| 183 | Regression: Reset all capability sequences | Checkpoint 200 passed |
+| 184 | Regression: Replace sequences with synchronous models | Checkpoint 200 passed |
+| 185 | Regression: Replace sequences with async models | Checkpoint 200 passed |
+| 186 | Regression: Clear only the affected sequence through behavior removal | Checkpoint 200 passed |
+| 187 | Regression: Clear sequence through async behavior removal | Checkpoint 200 passed |
+| 188 | Regression: Restart cursors on explicit reinstallation | Checkpoint 200 passed |
+| 189 | Regression: Keep capability cursors independent | Checkpoint 200 passed |
+| 190 | Regression: Keep engine instance cursors independent | Checkpoint 200 passed |
+| 191 | Regression: Reject invalid replacements atomically | Checkpoint 200 passed |
+| 192 | Regression: Bound lazy sequence enumeration | Checkpoint 200 passed |
+| 193 | Regression: Preserve fault queue and cursor after cancellation | Checkpoint 200 passed |
+| 194 | Regression: Handle excess parallel readers without duplication | Checkpoint 200 passed |
+| 195 | Regression: Keep captured acquisitions independent of sequences | Checkpoint 200 passed |
+| 196 | Regression: Exercise facade and run-scoped integration | Checkpoint 200 passed |
+| 197 | Regression: Compare concurrent seeded samples with serial multiset | Checkpoint 200 passed |
+| 198 | Regression: Preserve seeded state after invalid-time rejection | Checkpoint 200 passed |
+| 199 | Regression: Exercise sine phase and periodicity boundaries | Checkpoint 200 passed |
+| 200 | Regression: Stop composite evaluation before later stateful components | Checkpoint 200 passed |
+
+Iteration 180 haiku: Numbers fall in line / Old loose ends become new paths / Clear signals move on.
+
+Extra acceptance cases cover maximum sequence length, enumeration failure, snapshot deconstruction and sequence/fault isolation across DI runs. They add coverage without inflating the iteration count.
+
+Checkpoint 200 passed: 157 focused core, 71 host and 48 experiment tests (276 application tests), plus 19 tracker/documentation tests and exact six-report parity at workers 1/8. The initial workflow detected a genuine canonical/legacy audit-link mismatch for TR-043. The original runner-audit row now points to the new sequence source/tests and explicitly retains scheduled timeout/latency and comprehensive state-model gaps. All tracker and workflow checks passed after repair; passing application suites were not rerun for that metadata-only correction.

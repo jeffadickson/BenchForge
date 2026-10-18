@@ -259,7 +259,8 @@ STATEMENT: DMM voltage/resistance mode changes determine subsequent measurement 
 UID: TR-043
 STATUS: Active
 TITLE: TR-043 P0
-STATEMENT: Mock outputs support constants, sequences, sine, seeded noise, state-dependent functions, injected faults and timeouts. Acceptance: Stateful and imported mocks expose copied finite sequences of one to 4096 canonical-unit readings, strict exhaustion or explicit hold-last mode, cached cursor status and explicit removal. Only successful mode-compatible scalar reads advance cursor and revision; faults, observed cancellation and invalid clocks do not consume values. Reset or model replacement clears affected sequences. Sine and composite models reject invalid or unrepresentable output.
+STATEMENT: Mock outputs support constants, sequences, sine, seeded noise, state-dependent functions, injected faults and timeouts. Acceptance: Stateful and imported mocks expose copied finite sequences of one to 4096 canonical-unit readings, strict exhaustion or explicit hold-last mode, cached cursor status and explicit removal. Only successful mode-compatible scalar reads advance cursor and revision; faults, observed cancellation and invalid clocks do not consume values. Reset or model replacement clears affected sequences. Sine and composite models reject invalid or unrepresentable output. Acceptance: Sequence regressions cover mode checks, cancellation before and while waiting, invalid clocks, fault precedence, reset and model replacement, independent capabilities and instances, bounded enumeration, atomic failed replacement, excess parallel readers, captured reads, facade use and exact maximum length.
+
 
 
 [REQUIREMENT]
@@ -296,7 +297,8 @@ STATEMENT: Strict EasyMock-style expected sequences, unordered regions, cardinal
 UID: TR-049
 STATUS: Active
 TITLE: TR-049 P1
-STATEMENT: Reproducible seeded randomness, virtual timestamps, state snapshots, deterministic scheduling and transcript replay. Acceptance: Mock snapshots capture detached read-only sequence positions with the state revision. Seeded noise draws serialize access to per-instance Random state, and interpolation remains finite across opposite finite double extremes. Composite membership is copied so later caller-array mutation does not rewire an active model. This is partial reproducibility support; full deterministic scheduling and transcript replay remain unfinished.
+STATEMENT: Reproducible seeded randomness, virtual timestamps, state snapshots, deterministic scheduling and transcript replay. Acceptance: Mock snapshots capture detached read-only sequence positions with the state revision. Seeded noise draws serialize access to per-instance Random state, and interpolation remains finite across opposite finite double extremes. Composite membership is copied so later caller-array mutation does not rewire an active model. This is partial reproducibility support; full deterministic scheduling and transcript replay remain unfinished. Acceptance: Regression evidence compares concurrent seeded samples with an exact serial multiset, verifies invalid-time calls preserve random state, retains snapshot deconstruction compatibility and proves sequence/fault isolation across DI runs.
+
 
 
 [REQUIREMENT]
