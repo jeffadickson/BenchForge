@@ -36,7 +36,7 @@ internal static class DeveloperTasks
             "generate" => Generate(),
             "build" => Generate().Concat(new[] { "src", "examples", "tools", "generated" }.SelectMany(Projects)
                 .Select(p => Dotnet("build", p, "--configuration", configuration))).ToArray(),
-            "test" => Generate().Concat(Projects("tests").Where(p => !p.EndsWith("BenchDouble.Browser.Tests.csproj", StringComparison.Ordinal))
+            "test" => Generate().Concat(Projects("tests").Where(p => !p.EndsWith("BenchDouble.Browser.Tests.csproj", StringComparison.OrdinalIgnoreCase))
                 .Select(p => Dotnet("test", p, "--configuration", configuration))).ToArray(),
             _ => throw new ArgumentException($"Unknown development task {task}")
         };

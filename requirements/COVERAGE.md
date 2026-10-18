@@ -279,4 +279,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Exclude symbolic project files and directory links. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Exclude browser test projects regardless of filename casing. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
