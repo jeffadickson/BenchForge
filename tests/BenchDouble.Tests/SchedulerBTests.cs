@@ -35,4 +35,10 @@ public sealed class SchedulerBTests
     {
         Assert.Equal(1,new SimulationScheduler(new Clock(),1).RemainingCapacity);Assert.Equal(4096,new SimulationScheduler(new Clock(),4096).RemainingCapacity);
     }
+
+    /// <summary>Blank event labels are rejected.</summary>
+    [Fact] public void BlankLabel()
+    {
+        var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0)," "));Assert.Equal(0,s.Count);
+    }
 }
