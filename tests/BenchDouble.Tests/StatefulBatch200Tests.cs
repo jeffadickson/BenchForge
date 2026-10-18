@@ -20,4 +20,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); Assert.Equal(0,e.FaultCount("voltage")); Assert.Empty(e.Snapshot().PendingFaultCounts);
     }
+
+    /// <summary>Queued faults appear in cached diagnostics.</summary>
+    [Fact] public void QueuedFaultCount()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage")); Assert.Equal(1,e.Snapshot().PendingFaultCounts["voltage"]);
+    }
 }
