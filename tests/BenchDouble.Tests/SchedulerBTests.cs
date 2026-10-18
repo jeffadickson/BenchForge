@@ -125,4 +125,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var a=s.Schedule(T(0),"a");Assert.Equal(1,s.Clear());Assert.True(s.Schedule(T(0),"b").Id>a.Id);
     }
+
+    /// <summary>Captured event snapshots survive later cancellation.</summary>
+    [Fact] public void DetachedSnapshot()
+    {
+        var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");var before=s.Snapshot();s.Cancel(e.Id);Assert.Single(before);Assert.Empty(s.Snapshot());
+    }
 }
