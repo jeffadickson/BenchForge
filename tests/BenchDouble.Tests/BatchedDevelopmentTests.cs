@@ -115,5 +115,14 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(0,ramp(new("voltage","voltage",TimeSpan.FromSeconds(1),0,null)));
     }
 
+    /// <summary>Capability mode metadata cannot alter a parsed definition after validation.</summary>
+    [Fact] public void ImportedModesCannotBeMutated()
+    {
+        var definition=ImportedInstrumentDefinition.Parse(Definition);
+        var modes=Assert.IsAssignableFrom<IList<string>>(definition.Capability("voltage").Modes);
+        Assert.Throws<NotSupportedException>(()=>modes[0]="other");
+        Assert.Equal("voltage",Assert.Single(definition.Capability("voltage").Modes));
+    }
+
 // CASES
 }
