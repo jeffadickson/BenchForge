@@ -219,4 +219,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Fail=true;Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Explicit clear removes one preparation and advances revision once.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ClearPresent()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;Assert.True(e.ClearPreparedMeasurement("voltage"));Assert.Equal(r+1,e.Snapshot().Revision);
+    }
 }
