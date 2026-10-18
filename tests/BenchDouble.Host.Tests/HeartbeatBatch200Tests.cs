@@ -66,4 +66,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Equal(Policy(),HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds","10"),("BenchHeartbeat:SuspectMilliseconds","20"),("BenchHeartbeat:ExpireMilliseconds","40"))));
     }
+
+    /// <summary>Unrelated application settings do not affect heartbeat policy.</summary>
+    [Fact] public void UnrelatedConfiguration()
+    {
+        Assert.Equal(HostHeartbeatPolicy.Default,HostHeartbeatPolicy.FromConfiguration(Config(("Other:Value","anything"))));
+    }
 }
