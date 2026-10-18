@@ -71,11 +71,17 @@ public sealed class ExperimentDefinitionBuilder
         return this;
     }
 
-    /// <summary>Register an injectable behavior, clock consumer, or virtual physical model.</summary>
+    /// <summary>Register one run-scoped injectable behavior, clock consumer, or virtual physical model.</summary>
+    /// <typeparam name="TInterface">Unique unkeyed dependency contract.</typeparam>
+    /// <typeparam name="TImplementation">Constructor-injected implementation owned by the run scope.</typeparam>
+    /// <returns>This mutable builder.</returns>
+    /// <exception cref="InvalidOperationException">The dependency already exists or the builder is frozen.</exception>
     public ExperimentDefinitionBuilder Behavior<TInterface, TImplementation>()
         where TInterface : class where TImplementation : class, TInterface
     {
         EnsureMutable();
+        if (_services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(TInterface)))
+            throw new InvalidOperationException($"Service '{typeof(TInterface).Name}' already registered.");
         _services.AddScoped<TInterface, TImplementation>();
         return this;
     }
@@ -144,13 +150,19 @@ public sealed class ExperimentDefinitionBuilder
         });
     }
 
-    /// <summary>Configure a run-scoped model using a composition-root factory.</summary>
+    /// <summary>Configure one run-scoped model using a composition-root factory.</summary>
+    /// <typeparam name="TService">Unique unkeyed model contract.</typeparam>
+    /// <param name="factory">Factory returning a nonnull model. DI owns returned disposable models; the factory owns failed allocations.</param>
+    /// <returns>This mutable builder.</returns>
+    /// <exception cref="InvalidOperationException">The dependency already exists, the builder is frozen, or the factory returns null during resolution.</exception>
     public ExperimentDefinitionBuilder Model<TService>(Func<IServiceProvider, TService> factory)
         where TService : class
     {
         EnsureMutable();
         ArgumentNullException.ThrowIfNull(factory);
-        _services.AddScoped(factory);
+        if (_services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(TService)))
+            throw new InvalidOperationException($"Service '{typeof(TService).Name}' already registered.");
+        _services.AddScoped(sp => factory(sp) ?? throw new InvalidOperationException($"Model factory for '{typeof(TService).Name}' returned null."));
         return this;
     }
 

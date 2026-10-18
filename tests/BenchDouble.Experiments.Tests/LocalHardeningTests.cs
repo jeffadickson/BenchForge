@@ -32,5 +32,16 @@ public sealed class LocalHardeningTests
         Assert.Contains("returned null", error.Message);
     }
 
+    /// <summary>Accidental duplicate dependencies cannot silently replace run clocks or shared models.</summary>
+    [Fact]
+    public void DuplicateModelsAndClockOverridesAreRejected()
+    {
+        var builder = new ExperimentDefinitionBuilder().Model<object>(_ => new object());
+        Assert.Throws<InvalidOperationException>(() => builder.Model<object>(_ => new object()));
+        Assert.Throws<InvalidOperationException>(() => builder.Model<ISimulationClock>(_ => new ManualSimulationClock()));
+        Assert.Throws<InvalidOperationException>(() => builder.Behavior<ISimulationClock, ManualSimulationClock>());
+        _ = builder.Build("still valid");
+    }
+
 // CASES
 }
