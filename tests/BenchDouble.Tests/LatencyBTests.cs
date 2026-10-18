@@ -24,4 +24,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentException>(()=>Profile(Enumerable.Repeat(Stage(),8).ToArray()));
     }
+
+    /// <summary>Null phase enumerations fail explicitly.</summary>
+    [Fact] public void NullSource()
+    {
+        Assert.Throws<ArgumentNullException>(()=>new SimulationLatencyProfile(0,null!));
+    }
 }
