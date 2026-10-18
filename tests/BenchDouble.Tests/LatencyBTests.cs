@@ -114,4 +114,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage(10,0,SimulationLatencyPhase.Display),Stage(10,0,SimulationLatencyPhase.Trigger));Assert.Equal(SimulationLatencyPhase.Trigger,p.Stages[0].Phase);
     }
+
+    /// <summary>Repeated seed and index return identical durations.</summary>
+    [Fact] public void SameIndex()
+    {
+        var p=Profile(Stage());Assert.Equal(p.Sample(9).Stages,p.Sample(9).Stages);
+    }
 }
