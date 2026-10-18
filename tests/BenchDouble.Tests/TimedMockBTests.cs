@@ -65,4 +65,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock{Now=TimeSpan.FromTicks(5)};var e=Engine(c);await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),2);Assert.Equal("v",p.Mode);Assert.Equal(5,p.StartedAt.Ticks);Assert.Equal(15,p.ReadyAt.Ticks);Assert.Equal(2,p.Latency.OperationIndex);
     }
+
+    /// <summary>Early reads leave preparation and readings intact.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task BeforeReady()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }
