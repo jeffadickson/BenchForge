@@ -100,4 +100,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(20),1));Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Early timed reads preserve the sequence cursor.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task SequenceBeforeReady()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");e.SetSequence("voltage",[7,8]);await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
+    }
 }
