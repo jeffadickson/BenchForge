@@ -105,5 +105,9 @@ public sealed class SimulationScheduler
     public int Clear(CancellationToken ct=default)
     {ct.ThrowIfCancellationRequested();lock(_gate){ct.ThrowIfCancellationRequested();var count=_pending.Count;_pending.Clear();_keys.Clear();return count;}}
 
+    /// <summary>Inspect the first pending event without reading the clock.</summary>
+    /// <returns>Immutable next event, or null when no events are queued.</returns>
+    public SimulationScheduledEvent? Peek(){lock(_gate)return _pending.Count==0?null:_pending.First().Value;}
+
     // Scheduler members.
 }
