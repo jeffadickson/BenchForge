@@ -225,3 +225,5 @@ New batch checkpoint 125 source: shared requested-runtime validation, Make cache
 New batch final checkpoint 150: 62 architecture/tool-routing tests, 19 checker regressions, compiled checks and exact report parity passed. Latest related application run at 100 passed 237 cases. Saved freshness policy implementation is now reflected in BD-HB-006; fleet/browser acceptance remains open. Counts unchanged: 228 requirements, 0 Verified.
 
 Make-free workflow: compiled C# application task planning and execution added under BD-CFG-007. Counts unchanged: 228 requirements, 0 Verified. No acceptance status promotion.
+
+Batch 200 current: Bound SCPI parameter names and reject control characters. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

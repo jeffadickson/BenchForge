@@ -48,6 +48,7 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         _parameters = items.Select(p =>
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Name);
+            if (p.Name.Length > 128 || p.Name.Any(char.IsControl)) throw new ArgumentException("Invalid parameter name.");
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Quantity);
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Unit);
             if (p.QueryTemplate is null && p.SetTemplate is null)
