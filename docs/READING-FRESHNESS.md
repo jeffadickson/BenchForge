@@ -13,7 +13,7 @@ The local IVI status request accepts an optional `readingFreshnessMilliseconds` 
 
 The setup page provides a tab-specific limit and displays owner contact, device state, cached-data age, last device success and last reading receipt independently. The displayed age is a snapshot at refresh. Refreshing status does not measure, reopen, renew or recover an instrument. A healthy heartbeat does not imply a healthy device; fresh data does not certify physical safety. Faults retain prior reading metadata.
 
-No automatic refresh loop or new background worker is created. Concurrent assessments share no mutable policy. Fleet dashboards and real-browser acceptance remain unfinished under BD-HB-006. Earlier transient-policy regressions passed checkpoint 300 of the previous batch; the saved-policy increment is pending checkpoint 100 of the new batch.
+No automatic refresh loop or new background worker is created. Concurrent assessments share no mutable policy. Fleet dashboards and real-browser acceptance remain unfinished under BD-HB-006. Earlier transient-policy regressions passed checkpoint 300 of the previous batch; the saved-policy increment passed checkpoint 100 of the new batch.
 
 ## Saved experiment policy
 

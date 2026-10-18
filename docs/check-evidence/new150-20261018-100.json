@@ -245,5 +245,16 @@
     "Windows x64 execution only",
     "No requirement promoted to Verified",
     "GNU Make execution unavailable unless separately recorded"
-  ]
+  ],
+  "page_checks": {
+    "passed": true,
+    "renderer_scenarios": 5,
+    "saved_policy_scenarios": 22,
+    "commands": [
+      "node --check src/BenchDouble.Host.Server/wwwroot/setup/setup.js",
+      "node tests/check_ports/reading_health.cjs",
+      "node tests/check_ports/saved_freshness.cjs"
+    ],
+    "scope": "Actual page functions with detached DOM/transport substitutes; no real browser or device dispatch."
+  }
 }

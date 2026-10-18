@@ -221,3 +221,5 @@ New batch checkpoint 75 source: saved role freshness policy, immutable activatio
 New batch 2026-10-18 checkpoint 100: 237 related application tests, 19 checker regressions, compiled checks and exact report parity passed. Counts unchanged: 228 requirements, 0 Verified.
 
 New batch checkpoint 125 source: shared requested-runtime validation, Make cached-target guards, execution preflight and exact parity tool selection. Verification pending 150. Counts unchanged: 228 requirements, 0 Verified.
+
+New batch final checkpoint 150: 62 architecture/tool-routing tests, 19 checker regressions, compiled checks and exact report parity passed. Latest related application run at 100 passed 237 cases. Saved freshness policy implementation is now reflected in BD-HB-006; fleet/browser acceptance remains open. Counts unchanged: 228 requirements, 0 Verified.

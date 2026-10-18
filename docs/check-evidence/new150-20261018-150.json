@@ -1,0 +1,289 @@
+{
+  "checkpoint": 150,
+  "result": "passed",
+  "tested_base_commit": "498638ddb02c5e3a939d0ef7ae058da919f39b50",
+  "tested_worktree": "Modified tool regression source committed at final checkpoint; findings/evidence added after execution.",
+  "platform": "win32",
+  "architecture_contracts": [
+    {
+      "case": "Supported runtime win-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-x86",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime win-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime linux-arm",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Supported runtime osx-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects win host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects linux host",
+      "result": "passed"
+    },
+    {
+      "case": "Auto selects osx host",
+      "result": "passed"
+    },
+    {
+      "case": "Cross-architecture build is not executable on caller",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported host architecture",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported platform runtime pair",
+      "result": "passed"
+    },
+    {
+      "case": "Configuration names are canonical",
+      "result": "passed"
+    },
+    {
+      "case": "Parent traversal cannot escape owned cache",
+      "result": "passed"
+    },
+    {
+      "case": "Absolute manifest path is rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Sibling prefix is not containment",
+      "result": "passed"
+    },
+    {
+      "case": "Empty manifest path is rejected",
+      "result": "passed"
+    }
+  ],
+  "runtime_request_contracts": [
+    {
+      "case": "Explicit supported runtime win-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime win-x86",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime win-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime linux-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime linux-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime linux-arm",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime osx-x64",
+      "result": "passed"
+    },
+    {
+      "case": "Explicit supported runtime osx-arm64",
+      "result": "passed"
+    },
+    {
+      "case": "Conflicting explicit architecture",
+      "result": "passed"
+    },
+    {
+      "case": "Cross OS request rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [WIN-x64]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [win-AMD64]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [win-x64\n]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [../win-x64]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [linux-x86]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [osx-arm]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [win-x64/Debug]",
+      "result": "passed"
+    },
+    {
+      "case": "Malformed runtime [ ]",
+      "result": "passed"
+    },
+    {
+      "case": "No runtime uses host automatic architecture",
+      "result": "passed"
+    },
+    {
+      "case": "Foreign architecture may be prepared",
+      "result": "passed"
+    },
+    {
+      "case": "Foreign architecture cannot execute",
+      "result": "passed"
+    },
+    {
+      "case": "Matching execution is eligible",
+      "result": "passed"
+    },
+    {
+      "case": "Configuration partitions remain separate",
+      "result": "passed"
+    },
+    {
+      "case": "Noncanonical configuration rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported host architecture rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Unsupported explicit architecture rejected",
+      "result": "passed"
+    },
+    {
+      "case": "Architecture without RID remains supported",
+      "result": "passed"
+    }
+  ],
+  "tool_routing_tests": {
+    "passed": 16,
+    "command": "python tests/check_ports/runtime_contract.py",
+    "output": "test_actual_compiled_host_identity_and_cache_reuse (__main__.RuntimeEntryTests.test_actual_compiled_host_identity_and_cache_reuse)\nMatching RID execution verifies the real .NET architecture using the existing cache. ... ok\ntest_conflict_rejected_before_cache_creation (__main__.RuntimeEntryTests.test_conflict_rejected_before_cache_creation)\nConflicting selectors fail without creating an artifact partition. ... ok\ntest_cross_os_rejected_before_cache_creation (__main__.RuntimeEntryTests.test_cross_os_rejected_before_cache_creation)\nA foreign OS cannot be mistaken for the current check host. ... ok\ntest_foreign_execution_rejected_before_build (__main__.RuntimeEntryTests.test_foreign_execution_rejected_before_build)\nAn execution request cannot build or run a foreign architecture implicitly. ... ok\ntest_foreign_plan_is_build_only (__main__.RuntimeEntryTests.test_foreign_plan_is_build_only)\nSame-OS foreign architecture planning never claims execution eligibility. ... ok\ntest_matching_explicit_plan_is_sdk_free (__main__.RuntimeEntryTests.test_matching_explicit_plan_is_sdk_free)\nAn explicit RID and matching architecture produce the host plan without a toolchain. ... ok\ntest_native_helper_distinguishes_prepare_and_execute (__main__.RuntimeEntryTests.test_native_helper_distinguishes_prepare_and_execute)\nThe pure native planner permits preparation and rejects foreign execution. ... ok\ntest_native_helper_requires_explicit_runtime (__main__.RuntimeEntryTests.test_native_helper_requires_explicit_runtime)\nOptional standalone builds require an explicit RID. ... ok\ntest_baseline_prepare_uses_selected_host (__main__.ToolSelectionTests.test_baseline_prepare_uses_selected_host)\nBaseline preparation invokes the selected .NET host without running benchmarks. ... ok\ntest_benchmark_honors_explicit_paths (__main__.ToolSelectionTests.test_benchmark_honors_explicit_paths)\nMicrobenchmark candidates use the explicitly selected DLL, native and Roslyn artifacts. ... ok\ntest_make_cached_targets_always_validate (__main__.ToolSelectionTests.test_make_cached_targets_always_validate)\nBoth optional file targets retain order-only runtime-plan prerequisites. ... ok\ntest_make_execution_precedes_recursive_builds (__main__.ToolSelectionTests.test_make_execution_precedes_recursive_builds)\nParity validates execution and process identity before optional builds. ... ok\ntest_make_forwards_optional_runtime_to_compiled_host (__main__.ToolSelectionTests.test_make_forwards_optional_runtime_to_compiled_host)\nNormal Make checks retain compiled routing and avoid empty RID arguments. ... ok\ntest_missing_explicit_tools_fail_before_parity (__main__.ToolSelectionTests.test_missing_explicit_tools_fail_before_parity)\nMissing selected tools cannot silently reduce verification scope. ... ok\ntest_verifier_honors_host_and_managed_dll (__main__.ToolSelectionTests.test_verifier_honors_host_and_managed_dll)\nThe selected host path remains one argument even when it contains spaces. ... ok\ntest_verifier_honors_native_selection (__main__.ToolSelectionTests.test_verifier_honors_native_selection)\nNative invocation uses the exact explicit executable path. ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 30.415s\n\nOK\n"
+  },
+  "workflow": {
+    "milliseconds": 9557.9608,
+    "cpu_milliseconds": 9843.75,
+    "peak_working_set_bytes": 82677760,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 235.3502,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 103.0264,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 2501.2992,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 4195.5386,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 4054.5598,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 1781.5767,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 278.4751,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 9467.9285,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 3844.1803,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "347d6daf6ce36ffcfeba2b972dfdd87590253a3d86ad34e6d84db2561656be67",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "a752fac783bb8262840678d4b2260d8029b6cd6f90d33bdd71e1d5e1a6a79f67",
+      "documentation-audit.json": "fbac03a888ca9141adcf8b2710714d2df16f15bc4531a09fce8796481333f7a2",
+      "docs-parity.json": "8435a1d5ae66dd5b38e602d94cf110786d27f83e54b83582f6ed414a242ffa9a"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally",
+    "standalone_producers": "docs and compare regenerated stale inputs; failed producer skipped consumer"
+  },
+  "application_evidence_from_checkpoint": 100,
+  "application_source_changed_since_100": false,
+  "limitations": [
+    "Windows x64 actual execution; other runtime plans are contracts only",
+    "GNU Make unavailable; source guards and underlying real entry points tested",
+    "No new application suite run claimed at 150; affected application source passed at 100",
+    "No native AOT toolchain or foreign binaries executed",
+    "No requirement promoted to Verified"
+  ],
+  "final_metadata_validation": {
+    "compiled_requirements": "passed",
+    "exact_report_parity": "passed"
+  }
+}
