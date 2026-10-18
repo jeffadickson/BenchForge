@@ -72,4 +72,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Equal(HostHeartbeatPolicy.Default,HostHeartbeatPolicy.FromConfiguration(Config(("Other:Value","anything"))));
     }
+
+    /// <summary>Noninteger heartbeat budgets prevent startup.</summary>
+    [Fact] public void MalformedConfiguration()
+    {
+        Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds","10.5"))));
+    }
 }
