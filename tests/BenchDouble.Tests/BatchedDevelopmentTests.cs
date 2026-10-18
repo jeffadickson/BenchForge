@@ -62,5 +62,15 @@ public sealed class BatchedDevelopmentTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",ct.Token));
     }
 
+    /// <summary>Consuming a queued fault is a visible state transition.</summary>
+    /// <returns>Completion after fault delivery changes the snapshot revision.</returns>
+    [Fact] public async Task FaultDeliveryAdvancesRevision()
+    {
+        var e=Engine();await e.ConfigureModeAsync("voltage");e.QueueFault("voltage",new IOException());
+        var before=e.Snapshot().Revision;
+        await Assert.ThrowsAsync<IOException>(async()=>await e.MeasureAsync("voltage"));
+        Assert.Equal(before+1,e.Snapshot().Revision);
+    }
+
 // CASES
 }

@@ -102,6 +102,7 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
+                ++_revision;
                 Emit(() => _logger.LogWarning("Mock {Instrument} fault on {Capability}; ErrorType={ErrorType}", _definition.DriverName, capability, error.GetType().Name));
                 throw error;
             }
@@ -155,6 +156,7 @@ public sealed class StatefulMockEngine
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
+                ++_revision;
                 Emit(() => _logger.LogWarning(
                     "Mock {Instrument} acquisition {AcquisitionId} fault on {Capability}; ErrorType={ErrorType}",
                     _definition.DriverName, acquisition.AcquisitionId, capability, error.GetType().Name));
