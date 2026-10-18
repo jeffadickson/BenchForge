@@ -114,4 +114,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");e.SetSequence("voltage",[7,8]);await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;c.Now=TimeSpan.FromTicks(10);Assert.Equal(7,await e.MeasureAsync("voltage"));Assert.Equal(1,e.SequenceStatus("voltage")!.Position);Assert.Equal(r+1,e.Snapshot().Revision);
     }
+
+    /// <summary>Readiness checks precede one-shot injected faults.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task EarlyFault()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");e.QueueFault("voltage",new TimeoutException());await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
