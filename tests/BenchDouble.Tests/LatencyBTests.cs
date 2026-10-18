@@ -228,4 +228,10 @@ public sealed class LatencyBTests
     {
         Assert.Equal(int.MinValue,new SimulationLatencyProfile(int.MinValue,[Stage()]).Sample(0).Seed);Assert.Equal(int.MaxValue,new SimulationLatencyProfile(int.MaxValue,[Stage()]).Sample(0).Seed);
     }
+
+    /// <summary>Input phase order does not affect indexed samples.</summary>
+    [Fact] public void ConfigurationOrder()
+    {
+        var a=Stage();var d=Stage(50,5,SimulationLatencyPhase.Display);Assert.Equal(Profile(a,d).Sample(9).Stages,Profile(d,a).Sample(9).Stages);
+    }
 }
