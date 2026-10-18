@@ -123,7 +123,7 @@ public sealed partial class HostResourceRegistry
     /// <param name="logger">Optional diagnostics; sink failures are isolated.</param>
     /// <param name="journal">Optional durable ownership journal; omission is for ephemeral tests and simulation.</param>
     /// <param name="heartbeatPolicy">Optional owner heartbeat enforcement; omission is for legacy/direct simulation callers.</param>
-    /// <param name="timeProvider">Monotonic host clock; defaults to real system time, independent of simulated instrument time.</param>
+    /// <param name="timeProvider">Monotonic host clock with positive timestamp frequency when heartbeat enforcement is enabled; defaults to system time, independent of simulation.</param>
     public HostResourceRegistry(ILogger<HostResourceRegistry>? logger = null, IHostOwnershipJournal? journal = null,
         HostHeartbeatPolicy? heartbeatPolicy = null, TimeProvider? timeProvider = null)
     {

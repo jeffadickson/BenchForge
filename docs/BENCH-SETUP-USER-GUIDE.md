@@ -216,3 +216,18 @@ For .NET clients, `BenchDouble.Host.Client.OwnerLeaseHeartbeat` accepts a curren
 Events 7480–7484 cover admission stop, shutdown start, worker outcomes, bounded decision and deadline uncertainty. Events 7462/7463 cover qualified DMM preparation start/completion; provider failure uses the existing sanitized lifecycle fault event. Events 7490/7491 cover suspect/expired owner transitions, 7492 restored pre-expiry health and 7493 the first accepted heartbeat. These events exclude lease capabilities, raw driver messages, command payloads and measurements; registry/lifecycle sink exceptions do not change control decisions.
 
 These features are locally tested foundations. They do not guarantee hardware safe state after process/power loss, implement independent hardware watchdogs, qualify Windows/vendor drivers, or complete authenticated remote control. See iteration reports D/E for evidence and remaining boundaries.
+
+### Heartbeat clock and configuration validation
+
+Only the three documented scalar `BenchHeartbeat` settings are accepted. Unknown
+keys and nested values fail startup. A heartbeat-enabled injected provider must
+have a positive timestamp frequency. Backwards movement relative to either the
+last accepted renewal or last owner observation permanently fences that retained
+owner; returning the clock to a later value does not restore the lease.
+
+Owner state and reported age come from one monotonic observation. Retained expired
+snapshots keep their last coherent observed age. Valid renewals use the same
+validated observation and report age zero. Observing health never renews ownership,
+queries a device or changes physical safety state. A failed clock read or generation
+overflow during grant preparation leaves no partial reservation. Explicit qualified
+recovery remains required after fencing.

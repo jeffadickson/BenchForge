@@ -75,7 +75,8 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
                 _values.Add((item.Name, channel), item.DefaultValue);
     }
 
-    /// <summary>Recorded accepted SCPI commands, excluding any unsupported input.</summary>
+    /// <summary>Legacy mutable command history; use GetTranscriptSnapshot for synchronized observation.</summary>
+    /// <remarks>External list mutations are not protected by the session transaction lock.</remarks>
     public List<string> Transcript { get; } = new();
 
     /// <summary>

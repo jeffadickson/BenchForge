@@ -258,4 +258,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Parallel.For(0,64,_=>{var h=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Equal(s.OwnerGeneration,h.OwnerGeneration);Assert.Equal(0,h.Sequence);Assert.Equal("Healthy",h.State);});
     }
+
+    /// <summary>Bulk observation counts retained expired owners without releasing them.</summary>
+    [Fact] public void ObserveFencedCount()
+    {
+        var c=new Clock();var r=Registry(c);_=r.Reserve("DMM1");_=r.Reserve("FGEN1");c.At(40);Assert.Equal(2,r.ObserveOwnerHeartbeats());Assert.Null(r.Reserve("DMM1"));Assert.Null(r.Reserve("FGEN1"));
+    }
 }

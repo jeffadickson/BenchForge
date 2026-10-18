@@ -206,3 +206,29 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_duplicate_option(self):
         """Reject duplicate command options."""
         self.invoke('--command','build','--command','test',expected=2);self.assertEqual([],self.events())
+
+    def directory_link(self,link,target):
+        """Create a private directory link; Windows junctions need no developer-mode privileges."""
+        if os.name=='nt':
+            result=subprocess.run(['cmd','/c','mklink','/J',str(link),str(target)],capture_output=True,text=True,timeout=30)
+            self.assertEqual(0,result.returncode,result.stdout+result.stderr)
+        else:
+            os.symlink(target,link,target_is_directory=True)
+
+    def test_linked_project_directory(self):
+        """Linked project directories cannot pull unrelated projects into a build."""
+        target=self.root/'outside';self.project('outside/Hidden.csproj')
+        self.directory_link(self.root/'src'/'linked',target)
+        self.assertEqual(4,len(self.plan()))
+
+    def test_linked_source_root(self):
+        """A linked source root is excluded before project enumeration."""
+        source=self.root/'src';target=self.root/'outside'
+        source.rename(target)
+        self.directory_link(source,target)
+        self.assertEqual(3,len(self.plan()))
+
+    def test_link_cycle(self):
+        """A directory link cycle never starts recursive project traversal."""
+        self.directory_link(self.root/'src'/'App'/'cycle',self.root/'src')
+        self.assertEqual(4,len(self.plan()))

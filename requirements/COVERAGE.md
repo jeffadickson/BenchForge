@@ -428,4 +428,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Parallel observers preserve generation and sequence. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker regressions passed. Counts unchanged: 228 requirements, 0 Verified.
