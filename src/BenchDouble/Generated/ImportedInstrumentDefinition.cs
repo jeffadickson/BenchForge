@@ -235,6 +235,10 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Remove configured scalar sequences while retaining overrides and other models.</summary>
+    /// <returns>Removed sequence count; zero leaves revision unchanged.</returns>
+    public int ClearAllSequences() => _engine.ClearAllSequences();
+
     /// <summary>Clear all simulated faults without changing mode or reading models.</summary>
     /// <returns>Total discarded faults; zero leaves revision unchanged.</returns>
     public int ClearAllFaults() => _engine.ClearAllFaults();

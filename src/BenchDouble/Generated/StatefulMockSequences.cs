@@ -71,6 +71,21 @@ public sealed partial class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Remove all scalar sequences without changing modes, overrides, other models or faults.</summary>
+    /// <returns>Number of removed sequences; zero leaves revision unchanged.</returns>
+    public int ClearAllSequences()
+    {
+        _gate.Wait();
+        try
+        {
+            var count = _sequences.Count;
+            _sequences.Clear();
+            if (count > 0) ++_revision;
+            return count;
+        }
+        finally { _gate.Release(); }
+    }
+
     private bool TrySequence(string capability, out double value, out Sequence? advancing)
     {
         value = 0; advancing = null;
