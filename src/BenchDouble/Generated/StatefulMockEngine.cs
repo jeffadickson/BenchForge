@@ -123,6 +123,7 @@ public sealed partial class StatefulMockEngine
                 throw new InvalidOperationException("Incompatible measurement mode.");
             var elapsed = ReadElapsed();
             ct.ThrowIfCancellationRequested();
+            EnsurePreparedReady(capability, elapsed);
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();

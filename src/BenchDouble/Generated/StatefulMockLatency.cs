@@ -37,5 +37,12 @@ public sealed partial class StatefulMockEngine
         finally{_gate.Release();}
     }
 
+    private void EnsurePreparedReady(string capability,TimeSpan elapsed)
+    {
+        if(!_prepared.TryGetValue(capability,out var prepared))return;
+        if(elapsed<prepared.StartedAt)throw new InvalidOperationException("Simulation clock precedes scalar preparation.");
+        if(elapsed<prepared.ReadyAt)throw new InvalidOperationException("Simulated scalar measurement is not ready.");
+    }
+
     // Latency members.
 }
