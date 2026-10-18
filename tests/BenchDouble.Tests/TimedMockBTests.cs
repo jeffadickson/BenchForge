@@ -93,4 +93,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(0),0);Assert.Equal(1,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Duplicate triggers do not replace an accepted operation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task Duplicate()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.PrepareMeasurementAsync("voltage",Profile(20),1));Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));Assert.Equal(r,e.Snapshot().Revision);
+    }
 }
