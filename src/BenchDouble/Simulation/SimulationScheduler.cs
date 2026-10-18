@@ -81,5 +81,10 @@ public sealed class SimulationScheduler
         }
     }
 
+    /// <summary>Inspect pending events without sampling time or consuming events.</summary>
+    /// <returns>Detached read-only events ordered by deadline and identifier.</returns>
+    public IReadOnlyList<SimulationScheduledEvent> Snapshot()
+    {lock(_gate)return Array.AsReadOnly(_pending.Values.ToArray());}
+
     // Scheduler members.
 }
