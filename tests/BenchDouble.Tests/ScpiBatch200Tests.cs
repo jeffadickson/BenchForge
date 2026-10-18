@@ -220,4 +220,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 11")); Assert.Equal(1,s.GetReadingsSnapshot()[0].Value);
     }
+
+    /// <summary>Malformed numeric writes preserve history.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task InvalidNumericWrite()
+    {
+        var s=Session(); await Assert.ThrowsAsync<FormatException>(async()=>await s.WriteAsync("V1 nope")); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }

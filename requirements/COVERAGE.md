@@ -267,4 +267,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Above-range writes preserve state. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Malformed numeric writes preserve history. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
