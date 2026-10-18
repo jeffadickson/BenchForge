@@ -96,3 +96,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_unicode_paths(self):
         """Preserve Unicode project filenames."""
         self.project('src/meter/測定.csproj');self.assertTrue(any('src/meter/測定.csproj' in s['Arguments'] for s in self.plan()))
+
+    def test_no_plan_children(self):
+        """Plan mode launches no task subprocesses."""
+        self.plan();self.assertEqual([],self.events())
