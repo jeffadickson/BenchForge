@@ -206,4 +206,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 NaN")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Below-range writes preserve state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task BelowMinimum()
+    {
+        var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 -1")); Assert.Equal(1,s.GetReadingsSnapshot()[0].Value);
+    }
 }
