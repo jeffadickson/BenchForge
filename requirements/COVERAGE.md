@@ -406,4 +406,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: The exact expiry deadline permanently fences ownership. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Time before the grant timestamp fences the retained owner. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
