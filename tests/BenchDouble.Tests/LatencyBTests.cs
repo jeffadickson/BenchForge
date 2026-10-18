@@ -48,4 +48,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentException>(()=>Profile(Stage(),Stage()));
     }
+
+    /// <summary>Negative base duration is rejected.</summary>
+    [Fact] public void NegativeDuration()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(-1,0)));
+    }
 }
