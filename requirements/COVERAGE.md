@@ -173,3 +173,5 @@ Batch iteration 29/30 (2026-10-17), BD-CFG-008: Validate discovery numeric addre
 
 
 Batch iteration 30/30 (2026-10-17), BD-EXP-003: Prevent AutoMock dependency replacement. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Check/report ports (2026-10-17): BD-REQ-003, BD-CFG-007 and BD-DOC-004 reuse issues #17, #60 and #61. C# candidates cover all six static check/report scripts and deterministic bounded parallel Roslyn scans. The original scripts remain independent parity oracles and measured candidates. See docs/CHECK-PORT-BENCHMARKS.md for focused parity, actual timings and selected defaults; application suites were intentionally not run. Requirement counts and statuses are unchanged (228 total, 0 Verified).

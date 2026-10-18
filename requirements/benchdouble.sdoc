@@ -707,7 +707,8 @@ STATEMENT: Every requirement shall have an explicit verification status and a tr
 UID: BD-REQ-003
 STATUS: Active
 TITLE: BD-REQ-003 P0
-STATEMENT: CI shall validate requirements syntax identifiers and traceability and fail for broken references.
+STATEMENT: CI shall validate requirements syntax identifiers and traceability and fail for broken references. Acceptance: The C# requirement gate shall preserve reference diagnostics, exit codes and audit checks, with deterministic worker ordering and measured end-to-end implementation selection.
+
 
 [REQUIREMENT]
 UID: BD-REQ-004
@@ -1320,7 +1321,8 @@ STATEMENT: Dependency setup shall discover all project references, install a com
 UID: BD-CFG-007
 STATUS: Active
 TITLE: BD-CFG-007 P1
-STATEMENT: A generated searchable requirements scoreboard and documented local/remote examples shall reflect canonical statuses and distinguish source, execution evidence and planned capabilities. Acceptance: Generate scoreboard from traceability and verify total/status counts, filtering markup, escaped values and links; review setup and routing examples.
+STATEMENT: A generated searchable requirements scoreboard and documented local/remote examples shall reflect canonical statuses and distinguish source, execution evidence and planned capabilities. Acceptance: Generate scoreboard from traceability and verify total/status counts, filtering markup, escaped values and links; review setup and routing examples. Acceptance: The C# scoreboard shall emit byte-identical escaped HTML, including empty and quoted Unicode inventories; default execution shall use the measured fastest equivalent implementation.
+
 
 [REQUIREMENT]
 UID: BD-DOC-003
@@ -1332,7 +1334,8 @@ STATEMENT: The project shall generate a browsable CSharp XML-comment API referen
 UID: BD-DOC-004
 STATUS: Active
 TITLE: BD-DOC-004 P1
-STATEMENT: All owned public CSharp APIs and Python modules/functions shall have accurate purpose, parameter, units, return, error, ownership and cancellation documentation as applicable. Acceptance: Audit every source area, resolve the tracked legacy gaps through semantic review and reject new undocumented APIs; signatures alone do not count as completed descriptions.
+STATEMENT: All owned public CSharp APIs and Python modules/functions shall have accurate purpose, parameter, units, return, error, ownership and cancellation documentation as applicable. Acceptance: Audit every source area, resolve the tracked legacy gaps through semantic review and reject new undocumented APIs; signatures alone do not count as completed descriptions. Acceptance: C# documentation tooling shall preserve reference report bytes, exit codes and diagnostic order at one and eight workers; Python source shall only be parsed, never executed; scanner selection shall be benchmarked.
+
 
 [REQUIREMENT]
 UID: BD-DOC-005

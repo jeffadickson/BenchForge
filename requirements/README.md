@@ -37,3 +37,7 @@ Playwright provide executable acceptance evidence. Stable IDs are not renumbered
 ## Supplemental local regressions
 
 The optional `supplemental_verification` field contains semicolon-separated additional regression source paths, preserving the primary acceptance links and GitHub work item. These are source links, not full verification evidence. The thirty-iteration batch deliberately defers runtime test execution to iterations 10, 20 and 30 at the user's request; see `docs/LOCAL-BATCH-30.md`. No requirement status is promoted by that cadence.
+
+## Measured checker implementation
+
+`make requirements-check` uses the measured native C# gate and retains the focused tracker regressions. `python scripts/check_requirements.py` remains an independent reference and no-build fallback. See [port parity and benchmarks](../docs/CHECK-PORT-BENCHMARKS.md) for selected commands and evidence; no requirement status changes follow from a speed comparison.

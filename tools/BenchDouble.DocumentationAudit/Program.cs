@@ -7,12 +7,20 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 // Syntax audit, not a semantic proof of documentation correctness. Include
 // implicit-public interface/enum members and exclude members of internal types.
 var root = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
-var rows = new List<object>();
-foreach (var area in new[] { "src", "tools", "examples", "tests" })
-foreach (var file in Directory.EnumerateFiles(Path.Combine(root, area), "*.cs", SearchOption.AllDirectories).Order())
+var jobsIndex = Array.IndexOf(args, "--jobs");
+var jobs = jobsIndex >= 0 ? Math.Clamp(int.Parse(args[jobsIndex + 1]), 1, 256) : Math.Min(Environment.ProcessorCount, 8);
+var files = new[] { "src", "tools", "examples", "tests" }.SelectMany(area =>
+    Directory.EnumerateFiles(Path.Combine(root, area), "*.cs", SearchOption.AllDirectories).Order())
+    .Where(file => !Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar).Any(x => x is "obj" or "bin")).ToArray();
+var batches = new List<object>[files.Length];
+var failures = new Exception?[files.Length];
+Parallel.For(0, files.Length, new ParallelOptions { MaxDegreeOfParallelism = jobs }, index =>
 {
+    try
+    {
+    var file = files[index];
+    var rows = new List<object>();
     var path = Path.GetRelativePath(root, file).Replace('\\', '/');
-    if (path.Split('/').Any(x => x is "obj" or "bin")) continue;
     var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file), new CSharpParseOptions(LanguageVersion.CSharp12));
     var errors = tree.GetDiagnostics().Where(x => x.Severity == DiagnosticSeverity.Error).ToArray();
     if (errors.Length > 0) throw new InvalidDataException($"Cannot audit {path}: {string.Join("; ", errors.Select(x => x.ToString()))}");
@@ -62,7 +70,14 @@ foreach (var file in Directory.EnumerateFiles(Path.Combine(root, area), "*.cs", 
         }
         rows.Add(new { path, symbol = owner + "." + signature, line = tree.GetLineSpan(member.Span).StartLinePosition.Line + 1, issues });
     }
-}
+    batches[index] = rows;
+    }
+    catch (Exception error) { failures[index] = error; }
+});
+// Parallel completion order must not choose which malformed file is reported first.
+foreach (var failure in failures)
+    if (failure is not null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failure).Throw();
+var rows = batches.SelectMany(batch => batch).ToList();
 var destination = Path.GetFullPath(args.Length > 1 ? args[1] : "build/api-audit.json");
 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
 File.WriteAllText(destination, JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true }));

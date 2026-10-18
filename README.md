@@ -295,3 +295,7 @@ coverage audit and remaining legacy gaps. New generated APIs are checked too.
 local-first artifact service for scope traces and screenshots, including metadata,
 checksums, crash recovery and export. A first local SQLite BLOB backend is implemented; remote object storage is still
 planned. Run `make demo-capture` and read [save/retrieve examples](docs/LOCAL-CAPTURE-STORAGE.md).
+
+### Measured check/report tools
+
+The six repository check/report scripts have C# ports with bounded parallel scans. Normal Make/CI entrypoints use native C# for the five measured winners, retain Python for the documentation gate, and use eight-worker Roslyn. See [benchmarks and exact-output validation](docs/CHECK-PORT-BENCHMARKS.md) for measurements, native build prerequisites, cached tools, original-script fallbacks and remaining platform limits.

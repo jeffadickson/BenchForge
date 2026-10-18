@@ -1,0 +1,526 @@
+{
+  "result": "passed",
+  "cases": [
+    {
+      "case": "requirements: valid baseline",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: missing full audit row",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: duplicate full audit row",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: missing acceptance",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: issue missing",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: issue newline",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: unknown status",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: missing source",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: duplicate trace",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: planned without issue",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: unknown legacy assessment",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: duplicate legacy",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: quoted multiline CSV",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: changed hash",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence None",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{bad'",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '[]'",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\":\"failed\"}'",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": 2, \"tested_commit\": \"aa",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: verified evidence '{\"result\": \"passed\", \"tested_commi",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "requirements: duplicate UID and missing full audit",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "docs: generated baseline never waived; source never executed",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "docs: nested Python definitions and resolution",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "preflight: BOM generic constructor record comments and Python AST",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "compare: ties missed extra and ratios",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "compare: no expected issues",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "scoreboard: quoted HTML and unicode",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "scoreboard: embedded CRLF",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "scoreboard: empty",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "neutrality: legal binary unicode filename and content",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "Roslyn repository report",
+      "jobs": [
+        1,
+        8
+      ],
+      "exact": true
+    },
+    {
+      "case": "Roslyn first malformed path and diagnostic",
+      "jobs": [
+        1,
+        8
+      ],
+      "exact_diagnostic": true,
+      "runtime_stack_excluded": true
+    },
+    {
+      "case": "repository requirements",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "repository scoreboard",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "repository neutrality",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "repository preflight",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "repository documentation gate",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    },
+    {
+      "case": "repository audit comparison",
+      "jobs": [
+        1,
+        8
+      ],
+      "runtimes": [
+        "managed",
+        "native"
+      ],
+      "exact": true
+    }
+  ]
+}

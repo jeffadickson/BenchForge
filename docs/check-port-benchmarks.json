@@ -1,0 +1,954 @@
+{
+  "platform": "Windows-11-10.0.26300-SP0",
+  "cpu": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+  "logical_processors": 12,
+  "source_sha256": {
+    "tools/BenchForge.Checks/Documentation.cs": "aec5f638bb0e023013f036c3d1bbdc6da8c69ca3febc283ba43c03a1be298ac5",
+    "tools/BenchForge.Checks/LexicalPatterns.cs": "2af4f957e806944f573c9e43f59490340d415b39667133946045fb50e3a3bef1",
+    "tools/BenchForge.Checks/Program.cs": "8a9f064e4447f688847f7b28835ca3005291497b3f35565f2ce59b16696f7027",
+    "tools/BenchForge.Checks/Reports.cs": "3c78e5581253e259d6060f2e0b45b5518db96b8269d106356cbc6a8e9926fe98",
+    "tools/BenchForge.Checks/Requirements.cs": "0b7422c32089fba7007d6b7bac0d22ef2b929ddce8fa4ea9a10d9be38e6b80ff",
+    "tools/BenchForge.Checks/BenchForge.Checks.csproj": "0a8bb02cd3ab714e3d1f362f8f7610cbd5524eb962e3814d246f7b60833b17b2",
+    "tools/BenchForge.Checks/scoreboard.html": "a991b1a6aa13b93730628d076537e9c5b569c4371c8db5e2a203b8f7b7db7d48",
+    "scripts/python_ast_inventory.py": "a6cd3650add6f095509f257918f610110fa986360deacf4907f405896a83b93a",
+    "tools/BenchDouble.DocumentationAudit/Program.cs": "c22bb5a8f6d365cb29a658d83592c28df1f9bd11b7b20635cbe3ba629c1b2011",
+    "scripts/check_requirements.py": "eff0023dadf224b4254f6ecbb516145f1ffc467919c1322a9e7b52d1d2a9b03c",
+    "scripts/requirements_scoreboard.py": "c45986268c2f25c3ca1a59fd4b66b600f5b97e75fbd8f0787b54672e9d062eb7",
+    "scripts/check_source_neutrality.py": "63877aa040a3915097c489a7323790f17422bbcd5136d1ddcec5c192663b0681",
+    "scripts/check_docs_portable.py": "1085a6bc27ded1dade8b550bcaabb2333b145856f4c743ed958b49d3bba18b74",
+    "scripts/check_api_docs.py": "8f7c1f9753c7367dce491cf544c02f9c5f2e17e546ee7d4a25825826f8535188",
+    "scripts/compare_doc_audits.py": "75aac89bfad86434921eb965d5c3ce95ab0102cba3d09cabcb9dfd9fa7924e1c"
+  },
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "dotnet": "10.0.402",
+  "commit_before_changes": "68113cc72de785e5329a3df2bcf3087d0059c294",
+  "samples_per_candidate": 9,
+  "warmups_per_candidate": 2,
+  "seed": 7301,
+  "timing": "Fresh-process wall time including startup, parsing, checking and report writes; output hashing excluded. Sequential interleaved candidates; no concurrent benchmarks. Warm file cache; not a cold-boot test.",
+  "limitations": "Local Windows measurement on this checkout; rebenchmark on other hardware/platforms. Python AST helper is included in C# documentation timings. Build/restore excluded from timings; Release DLL invocation used for C#.",
+  "results": [
+    {
+      "task": "requirements",
+      "winner": "native-8",
+      "speedup": 4.490570619070216,
+      "median_ms": {
+        "python": 323.6471,
+        "csharp-1": 299.6435,
+        "native-1": 73.4333,
+        "csharp-8": 304.2802,
+        "native-8": 72.0726
+      },
+      "min_ms": {
+        "python": 279.3482,
+        "csharp-1": 282.0749,
+        "native-1": 68.6386,
+        "csharp-8": 274.8578,
+        "native-8": 65.9172
+      },
+      "max_ms": {
+        "python": 398.8773,
+        "csharp-1": 345.3252,
+        "native-1": 84.0658,
+        "csharp-8": 385.5745,
+        "native-8": 105.651
+      },
+      "samples_ms": {
+        "python": [
+          310.2472,
+          323.6471,
+          398.8773,
+          356.9472,
+          279.3482,
+          358.7063,
+          321.3389,
+          298.4951,
+          366.6414
+        ],
+        "csharp-1": [
+          282.0749,
+          299.6435,
+          339.621,
+          296.9416,
+          303.8607,
+          344.6466,
+          345.3252,
+          298.2852,
+          292.8975
+        ],
+        "native-1": [
+          71.2555,
+          76.221,
+          81.6844,
+          71.5794,
+          73.2309,
+          73.4333,
+          84.0658,
+          68.6386,
+          82.3507
+        ],
+        "csharp-8": [
+          300.6778,
+          292.4156,
+          330.4865,
+          304.2802,
+          280.0474,
+          317.971,
+          274.8578,
+          385.5745,
+          313.72
+        ],
+        "native-8": [
+          100.1448,
+          66.748,
+          93.3708,
+          65.9172,
+          74.8998,
+          68.4582,
+          69.4002,
+          105.651,
+          72.0726
+        ]
+      },
+      "identical_output_sha256": "20bd4d61be1d95f3bcc131c3a2df98f19973a27077c37c24acc37e211f18383c",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\check_requirements.py"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "requirements",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "requirements",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "requirements",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "requirements",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ]
+      }
+    },
+    {
+      "task": "scoreboard",
+      "winner": "native-1",
+      "speedup": 4.479831303616608,
+      "median_ms": {
+        "python": 242.9305,
+        "csharp-1": 237.3071,
+        "native-1": 54.2276,
+        "csharp-8": 239.7261,
+        "native-8": 62.3187
+      },
+      "min_ms": {
+        "python": 213.4157,
+        "csharp-1": 199.2506,
+        "native-1": 47.4888,
+        "csharp-8": 211.0994,
+        "native-8": 54.8475
+      },
+      "max_ms": {
+        "python": 312.5308,
+        "csharp-1": 247.9715,
+        "native-1": 73.8395,
+        "csharp-8": 298.2106,
+        "native-8": 76.9914
+      },
+      "samples_ms": {
+        "python": [
+          280.3421,
+          312.5308,
+          223.9554,
+          213.4157,
+          275.8544,
+          242.9305,
+          220.6451,
+          271.3296,
+          240.3623
+        ],
+        "csharp-1": [
+          237.3071,
+          222.649,
+          199.2506,
+          203.9648,
+          245.7732,
+          247.9715,
+          246.0796,
+          229.4186,
+          239.7815
+        ],
+        "native-1": [
+          53.943,
+          65.6909,
+          57.4228,
+          73.8395,
+          65.5661,
+          54.2276,
+          53.7133,
+          51.2306,
+          47.4888
+        ],
+        "csharp-8": [
+          298.2106,
+          287.0313,
+          211.0994,
+          239.7261,
+          221.9892,
+          261.0101,
+          223.5206,
+          222.5491,
+          261.7198
+        ],
+        "native-8": [
+          54.8475,
+          76.9914,
+          62.3187,
+          56.3857,
+          70.4136,
+          60.7827,
+          59.4877,
+          67.588,
+          63.4472
+        ]
+      },
+      "identical_output_sha256": "985efc31dbb032db7fe55b38863eabbf2d39b83243d471f408152631b59859b1",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\requirements_scoreboard.py"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "scoreboard",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "scoreboard",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "scoreboard",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "scoreboard",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ]
+      }
+    },
+    {
+      "task": "neutrality",
+      "winner": "native-8",
+      "speedup": 1.989041106119106,
+      "median_ms": {
+        "python": 692.5865,
+        "csharp-1": 994.6613,
+        "native-1": 417.6122,
+        "csharp-8": 749.9494,
+        "native-8": 348.2012
+      },
+      "min_ms": {
+        "python": 573.3777,
+        "csharp-1": 874.7392,
+        "native-1": 394.038,
+        "csharp-8": 632.3878,
+        "native-8": 273.7304
+      },
+      "max_ms": {
+        "python": 904.2748,
+        "csharp-1": 2785.2625,
+        "native-1": 716.0007,
+        "csharp-8": 1034.01,
+        "native-8": 492.7696
+      },
+      "samples_ms": {
+        "python": [
+          904.2748,
+          839.1029,
+          589.7413,
+          746.6916,
+          573.3777,
+          701.5983,
+          578.3049,
+          692.5865,
+          649.9718
+        ],
+        "csharp-1": [
+          2785.2625,
+          1205.9954,
+          915.2957,
+          941.0785,
+          1001.9978,
+          902.8378,
+          874.7392,
+          994.6613,
+          1142.9105
+        ],
+        "native-1": [
+          716.0007,
+          505.0872,
+          394.038,
+          406.7339,
+          417.6122,
+          415.261,
+          505.9136,
+          484.8196,
+          412.6924
+        ],
+        "csharp-8": [
+          1034.01,
+          749.9494,
+          712.4083,
+          1026.5133,
+          699.5992,
+          651.5479,
+          787.4189,
+          876.6933,
+          632.3878
+        ],
+        "native-8": [
+          492.7696,
+          442.1253,
+          359.6365,
+          329.962,
+          353.6644,
+          343.0909,
+          273.7304,
+          348.2012,
+          316.7512
+        ]
+      },
+      "identical_output_sha256": "b046dd55102cbb16e5d03c18209369ffecc9688f302dc2b7e97cbf2e91fecfbb",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\check_source_neutrality.py",
+          "--output",
+          "build/source-neutrality-audit.json"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "neutrality",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/source-neutrality-audit.json"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "neutrality",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/source-neutrality-audit.json"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "neutrality",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/source-neutrality-audit.json"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "neutrality",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/source-neutrality-audit.json"
+        ]
+      }
+    },
+    {
+      "task": "preflight",
+      "winner": "native-8",
+      "speedup": 2.078200419592049,
+      "median_ms": {
+        "python": 1412.0738,
+        "csharp-1": 960.9174,
+        "native-1": 721.534,
+        "csharp-8": 1012.7957,
+        "native-8": 679.4695
+      },
+      "min_ms": {
+        "python": 1257.8301,
+        "csharp-1": 917.5799,
+        "native-1": 656.5916,
+        "csharp-8": 889.4106,
+        "native-8": 596.1638
+      },
+      "max_ms": {
+        "python": 1732.5526,
+        "csharp-1": 1117.2164,
+        "native-1": 854.4331,
+        "csharp-8": 1463.3469,
+        "native-8": 909.1951
+      },
+      "samples_ms": {
+        "python": [
+          1378.1251,
+          1732.5526,
+          1564.1585,
+          1257.8301,
+          1433.7807,
+          1412.0738,
+          1325.1964,
+          1323.249,
+          1629.9256
+        ],
+        "csharp-1": [
+          1009.3725,
+          942.7749,
+          960.9174,
+          1002.5701,
+          1117.2164,
+          932.7097,
+          955.5459,
+          917.5799,
+          1032.5946
+        ],
+        "native-1": [
+          804.941,
+          743.3082,
+          656.5916,
+          741.6859,
+          721.534,
+          715.3826,
+          854.4331,
+          694.9631,
+          696.6796
+        ],
+        "csharp-8": [
+          1012.7957,
+          966.9166,
+          1003.727,
+          1463.3469,
+          1432.0321,
+          889.4106,
+          1009.792,
+          1137.4653,
+          1134.208
+        ],
+        "native-8": [
+          909.1951,
+          745.9233,
+          646.0033,
+          679.4695,
+          642.7361,
+          707.0365,
+          635.0024,
+          596.1638,
+          748.6915
+        ]
+      },
+      "identical_output_sha256": "e3bbc5cd8783b51eb36c0f9a85ae20461edde87eeeba413d77cc151c874cebfe",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\check_docs_portable.py",
+          "--output",
+          "build/docs-preflight.json"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "preflight",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/docs-preflight.json"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "preflight",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/docs-preflight.json"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "preflight",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/docs-preflight.json"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "preflight",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--output",
+          "build/docs-preflight.json"
+        ]
+      }
+    },
+    {
+      "task": "docs",
+      "winner": "python",
+      "speedup": 1.0,
+      "median_ms": {
+        "python": 671.2689,
+        "csharp-1": 1069.8473,
+        "native-1": 840.5332,
+        "csharp-8": 1081.7012,
+        "native-8": 679.643
+      },
+      "min_ms": {
+        "python": 541.2056,
+        "csharp-1": 875.8463,
+        "native-1": 589.2082,
+        "csharp-8": 908.5256,
+        "native-8": 610.8492
+      },
+      "max_ms": {
+        "python": 812.7216,
+        "csharp-1": 2317.1511,
+        "native-1": 1238.8671,
+        "csharp-8": 1227.612,
+        "native-8": 1093.1101
+      },
+      "samples_ms": {
+        "python": [
+          586.5538,
+          601.0722,
+          700.8522,
+          782.974,
+          671.2689,
+          812.7216,
+          800.8455,
+          589.8944,
+          541.2056
+        ],
+        "csharp-1": [
+          919.5761,
+          875.8463,
+          1069.8473,
+          1272.0962,
+          1144.5638,
+          992.1303,
+          2317.1511,
+          1127.1232,
+          925.5703
+        ],
+        "native-1": [
+          1238.8671,
+          644.1479,
+          840.5332,
+          733.1992,
+          953.902,
+          1201.6063,
+          884.9205,
+          762.6172,
+          589.2082
+        ],
+        "csharp-8": [
+          908.5256,
+          967.711,
+          1054.0786,
+          1111.6872,
+          1227.612,
+          1012.0646,
+          1156.665,
+          1081.7012,
+          1098.1218
+        ],
+        "native-8": [
+          759.8369,
+          614.3421,
+          638.2266,
+          1062.4729,
+          645.978,
+          679.643,
+          1093.1101,
+          821.9978,
+          610.8492
+        ]
+      },
+      "identical_output_sha256": "b56067d16f9c9188260df8826a2d132d0161276015f004d09f5fb01120959235",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\check_api_docs.py"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "docs",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "docs",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "docs",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "docs",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+        ]
+      }
+    },
+    {
+      "task": "compare",
+      "winner": "native-8",
+      "speedup": 3.4885025678448542,
+      "median_ms": {
+        "python": 355.664,
+        "csharp-1": 362.6529,
+        "native-1": 103.1933,
+        "csharp-8": 392.0509,
+        "native-8": 101.9532
+      },
+      "min_ms": {
+        "python": 300.284,
+        "csharp-1": 291.6138,
+        "native-1": 77.5967,
+        "csharp-8": 315.3612,
+        "native-8": 73.5757
+      },
+      "max_ms": {
+        "python": 607.1359,
+        "csharp-1": 752.9057,
+        "native-1": 193.9943,
+        "csharp-8": 761.6311,
+        "native-8": 135.88
+      },
+      "samples_ms": {
+        "python": [
+          607.1359,
+          392.4808,
+          336.3646,
+          445.3033,
+          300.284,
+          315.3172,
+          302.0963,
+          355.664,
+          425.1404
+        ],
+        "csharp-1": [
+          506.1533,
+          752.9057,
+          330.2894,
+          693.3988,
+          354.7138,
+          291.6138,
+          362.6529,
+          416.6772,
+          358.3879
+        ],
+        "native-1": [
+          132.2334,
+          127.7508,
+          193.9943,
+          134.3615,
+          80.4262,
+          86.9308,
+          77.5967,
+          103.1933,
+          98.428
+        ],
+        "csharp-8": [
+          430.5973,
+          648.447,
+          446.7314,
+          761.6311,
+          322.8328,
+          315.3612,
+          371.434,
+          327.304,
+          392.0509
+        ],
+        "native-8": [
+          97.2133,
+          120.9139,
+          135.88,
+          131.2659,
+          83.5907,
+          73.5757,
+          89.6328,
+          112.8936,
+          101.9532
+        ]
+      },
+      "identical_output_sha256": "35b2a33498cecb99b0c2914a21d16c20f69984f3751c81b38f2482d4aef04d8d",
+      "commands": {
+        "python": [
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\scripts\\compare_doc_audits.py",
+          "--roslyn",
+          "build/api-audit.json",
+          "--portable",
+          "build/docs-preflight.json",
+          "--output",
+          "build/docs-parity.json"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "compare",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--roslyn",
+          "build/api-audit.json",
+          "--portable",
+          "build/docs-preflight.json",
+          "--output",
+          "build/docs-parity.json"
+        ],
+        "native-1": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "compare",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "1",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--roslyn",
+          "build/api-audit.json",
+          "--portable",
+          "build/docs-preflight.json",
+          "--output",
+          "build/docs-parity.json"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchForge.Checks\\bin\\Release\\net10.0\\BenchForge.Checks.dll",
+          "compare",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--roslyn",
+          "build/api-audit.json",
+          "--portable",
+          "build/docs-preflight.json",
+          "--output",
+          "build/docs-parity.json"
+        ],
+        "native-8": [
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\native\\BenchForge.Checks.exe",
+          "compare",
+          "--root",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "--jobs",
+          "8",
+          "--python",
+          "C:\\Users\\jeffd\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "--roslyn",
+          "build/api-audit.json",
+          "--portable",
+          "build/docs-preflight.json",
+          "--output",
+          "build/docs-parity.json"
+        ]
+      }
+    },
+    {
+      "task": "roslyn",
+      "winner": "csharp-8",
+      "speedup": 1.7014375501198051,
+      "median_ms": {
+        "csharp-original": 2292.511,
+        "csharp-1": 2248.6182,
+        "csharp-8": 1347.3965
+      },
+      "min_ms": {
+        "csharp-original": 1932.9796,
+        "csharp-1": 2123.2886,
+        "csharp-8": 1262.1542
+      },
+      "max_ms": {
+        "csharp-original": 3069.966,
+        "csharp-1": 4344.039,
+        "csharp-8": 2510.1861
+      },
+      "samples_ms": {
+        "csharp-original": [
+          3069.966,
+          2626.3263,
+          2105.9271,
+          2311.9771,
+          2860.4096,
+          2292.511,
+          1995.3165,
+          1932.9796,
+          2022.2558
+        ],
+        "csharp-1": [
+          2422.0475,
+          2720.7555,
+          2177.4936,
+          2248.6182,
+          4344.039,
+          2200.0991,
+          2123.2886,
+          2210.4498,
+          2286.4404
+        ],
+        "csharp-8": [
+          1811.2757,
+          1347.3965,
+          1697.8951,
+          1262.1542,
+          2510.1861,
+          1328.3182,
+          1286.1081,
+          1274.2865,
+          1663.7378
+        ]
+      },
+      "identical_output_sha256": "eb3fe47b9ae8a90a5d46369fd4b2788c5e5b7a23b302036283bc409cbf5d26cf",
+      "commands": {
+        "csharp-original": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports\\roslyn-baseline\\bin\\Release\\net10.0\\BenchDouble.DocumentationAudit.dll",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\api-audit.json"
+        ],
+        "csharp-1": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchDouble.DocumentationAudit\\bin\\Release\\net10.0\\BenchDouble.DocumentationAudit.dll",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\api-audit.json",
+          "--jobs",
+          "1"
+        ],
+        "csharp-8": [
+          "dotnet",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\tools\\BenchDouble.DocumentationAudit\\bin\\Release\\net10.0\\BenchDouble.DocumentationAudit.dll",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge",
+          "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\api-audit.json",
+          "--jobs",
+          "8"
+        ]
+      }
+    }
+  ]
+}

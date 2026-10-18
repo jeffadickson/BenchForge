@@ -111,7 +111,7 @@ BD-SIM-005,P1,SourceCommittedUnverified,examples/BenchDouble.ThermalCycleDemo/Pr
 BD-SIM-006,P1,SourceCommittedUnverified,examples/ThermalCycleMonitor/index.html,tests/BenchDouble.Tests/ThermalCycleTests.cs,https://github.com/jeffadickson/BenchDouble/issues/24,,
 BD-REQ-001,P0,SourceCommittedUnverified,requirements/benchdouble.sdoc,,https://github.com/jeffadickson/BenchDouble/issues/31,,
 BD-REQ-002,P0,SourceCommittedUnverified,requirements/traceability.csv,,https://github.com/jeffadickson/BenchDouble/issues/17,,
-BD-REQ-003,P0,SourceCommittedUnverified,scripts/check_requirements.py,,https://github.com/jeffadickson/BenchDouble/issues/17,,
+BD-REQ-003,P0,SourceCommittedUnverified,tools/BenchForge.Checks/Program.cs,tests/check_ports/verify.py,https://github.com/jeffadickson/BenchDouble/issues/17,,tests/check_ports/benchmark.py
 BD-REQ-004,P1,SourceCommittedUnverified,requirements/COVERAGE.md,,https://github.com/jeffadickson/BenchDouble/issues/17,,
 BD-REQ-005,P1,SourceCommittedUnverified,tests/BenchDouble.Acceptance.Tests/Features/UnattendedOperations.feature,tests/BenchDouble.Acceptance.Tests/Steps/UnattendedOperationsSteps.cs,https://github.com/jeffadickson/BenchDouble/issues/31,,
 BD-BUILD-001,P0,SourceCommittedUnverified,.github/workflows/test.yml,,https://github.com/jeffadickson/BenchDouble/issues/28,,
@@ -210,9 +210,9 @@ BD-CFG-003,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHo
 BD-CFG-004,P0,PartialSourceUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,
 BD-CFG-005,P0,SourceCommittedUnverified,src/BenchDouble.Host.Client/InstrumentHostDirectory.cs,tests/BenchDouble.Host.Tests/InstrumentHostDirectoryTests.cs,https://github.com/jeffadickson/BenchDouble/issues/59,,
 BD-CFG-006,P1,PartialSourceUnverified,scripts/bootstrap.sh,,https://github.com/jeffadickson/BenchDouble/issues/60,,
-BD-CFG-007,P1,SourceCommittedUnverified,scripts/requirements_scoreboard.py,tests/requirements/test_scoreboard.py,https://github.com/jeffadickson/BenchDouble/issues/60,,
+BD-CFG-007,P1,SourceCommittedUnverified,tools/BenchForge.Checks/Program.cs,tests/check_ports/verify.py,https://github.com/jeffadickson/BenchDouble/issues/60,,tests/check_ports/benchmark.py
 BD-DOC-003,P1,PartialSourceUnverified,docfx.json,tests/documentation/test_docs.py,https://github.com/jeffadickson/BenchDouble/issues/61,,
-BD-DOC-004,P1,PartialSourceUnverified,scripts/check_api_docs.py,tests/documentation/test_docs.py,https://github.com/jeffadickson/BenchDouble/issues/61,,
+BD-DOC-004,P1,PartialSourceUnverified,tools/BenchForge.Checks/Program.cs,tests/check_ports/verify.py,https://github.com/jeffadickson/BenchDouble/issues/61,,tests/check_ports/benchmark.py
 BD-DOC-005,P1,SourceCommittedUnverified,tools/BenchDouble.DriverGen/Program.cs,tests/documentation/test_docs.py,https://github.com/jeffadickson/BenchDouble/issues/61,,
 BD-ART-001,P1,PartialSourceUnverified,src/BenchDouble.Artifacts.Sqlite/SqliteArtifactStore.cs,tests/BenchDouble.Artifacts.Tests/ArtifactStoreTests.cs,https://github.com/jeffadickson/BenchDouble/issues/62,,
 BD-ART-002,P0,PartialSourceUnverified,src/BenchDouble.Artifacts.Sqlite/SqliteArtifactStore.cs,tests/BenchDouble.Artifacts.Tests/ArtifactStoreTests.cs,https://github.com/jeffadickson/BenchDouble/issues/62,,
