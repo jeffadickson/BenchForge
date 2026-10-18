@@ -39,6 +39,7 @@ public sealed class SimulationReplay
             if(item.Elapsed<previous)throw new ArgumentException("Transcript time must be nonnegative and ordered.",nameof(samples));
             previous=item.Elapsed;
         }
+        if(_samples.Any(item=>!double.IsFinite(item.Value)))throw new ArgumentException("Transcript values must be finite.",nameof(samples));
         // Validate plan.
     }
     private static void ValidateLabel(string label,string parameter,int maximum)
