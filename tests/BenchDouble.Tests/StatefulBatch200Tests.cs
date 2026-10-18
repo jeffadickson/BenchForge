@@ -194,4 +194,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",9); e.SetSequence("voltage",[4]); e.SetBehavior("resistance",_=>3); e.QueueFault("voltage",new TimeoutException()); await e.ResetAsync(); var s=e.Snapshot(); Assert.Null(s.Mode); Assert.Empty(s.Overrides); Assert.Empty(s.SequencePositions); Assert.Empty(s.PendingFaultCounts); Assert.Empty(s.BehaviorKinds);
     }
+
+    /// <summary>Cancelled async reset preserves the entire prior state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task CancelledAsyncReset()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",8); e.QueueFault("voltage",new TimeoutException()); var r=e.Snapshot().Revision; using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.ResetAsync(c.Token)); Assert.Equal(r,e.Snapshot().Revision); Assert.Equal(8,e.Snapshot().Overrides["voltage"]); Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
