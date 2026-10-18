@@ -362,20 +362,26 @@ public sealed partial class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    private void ResetUnderGate()
+    {
+        _mode = null;
+        _overrides.Clear();
+        _models.Clear();
+        _asyncModels.Clear();
+        _sequences.Clear();
+        _faults.Clear();
+        ++_revision;
+        Emit(() => _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision));
+    }
+
+
     /// <summary>Reset the mode, overrides, behaviors and pending faults.</summary>
     public void Reset()
     {
         _gate.Wait();
         try
         {
-            _mode = null;
-            _overrides.Clear();
-            _models.Clear();
-            _asyncModels.Clear();
-            _sequences.Clear();
-            _faults.Clear();
-            ++_revision;
-            Emit(() => _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision));
+            ResetUnderGate();
         }
         finally { _gate.Release(); }
     }
