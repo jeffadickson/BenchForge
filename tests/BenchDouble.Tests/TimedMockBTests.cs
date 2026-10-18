@@ -267,4 +267,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);var before=e.Snapshot();e.ClearPreparedMeasurement("voltage");Assert.Single(before.PreparedMeasurements);Assert.Empty(e.Snapshot().PreparedMeasurements);
     }
+
+    /// <summary>Preparation snapshot maps reject caller mutation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ReadOnlySnapshot()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Throws<NotSupportedException>(()=>((IDictionary<string,PreparedMockMeasurement>)e.Snapshot().PreparedMeasurements).Clear());
+    }
 }
