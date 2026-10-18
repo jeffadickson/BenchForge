@@ -36,4 +36,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervallMilliseconds","10"))));
     }
+
+    /// <summary>Nested renewal interval settings are rejected.</summary>
+    [Fact] public void NestedInterval()
+    {
+        Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds:value","10"))));
+    }
 }
