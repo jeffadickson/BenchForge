@@ -139,4 +139,10 @@ public sealed class ReplayBTests
     {
         var r=R(S(10));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(9)));Assert.Equal(0,r.Status().Position);
     }
+
+    /// <summary>Late logical timestamps do not silently reschedule replay.</summary>
+    [Fact] public void LateRead()
+    {
+        var r=R(S(10));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(11)));Assert.Equal(0,r.Status().Position);
+    }
 }
