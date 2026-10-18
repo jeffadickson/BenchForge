@@ -101,4 +101,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var a=s.Schedule(T(0),"a");s.Schedule(T(0),"b");Assert.True(s.Cancel(a.Id));Assert.Equal("b",Assert.Single(s.DrainDue()).Label);
     }
+
+    /// <summary>Absent event cancellation leaves other events intact.</summary>
+    [Fact] public void CancelAbsent()
+    {
+        var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");Assert.False(s.Cancel(999));Assert.Equal(1,s.Count);
+    }
 }
