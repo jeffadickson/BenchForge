@@ -215,4 +215,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); var r=e.Snapshot().Revision; await Task.WhenAll(Enumerable.Range(0,64).Select(_=>e.ResetAsync().AsTask())); Assert.Equal(r+64,e.Snapshot().Revision);
     }
+
+    /// <summary>Cancellation during clock sampling does not consume faults.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ClockCancellationPreservesFault()
+    {
+        using var c=new CancellationTokenSource(); var e=Engine(new CallbackClock(()=>{c.Cancel();return TimeSpan.Zero;})); await e.ConfigureModeAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token)); Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
