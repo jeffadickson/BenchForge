@@ -107,4 +107,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");e.SetSequence("voltage",[7,8]);await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
     }
+
+    /// <summary>Successful timed reads advance sequence and preparation atomically.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task SequenceSuccess()
+    {
+        var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");e.SetSequence("voltage",[7,8]);await e.PrepareMeasurementAsync("voltage",Profile(),0);var r=e.Snapshot().Revision;c.Now=TimeSpan.FromTicks(10);Assert.Equal(7,await e.MeasureAsync("voltage"));Assert.Equal(1,e.SequenceStatus("voltage")!.Position);Assert.Equal(r+1,e.Snapshot().Revision);
+    }
 }

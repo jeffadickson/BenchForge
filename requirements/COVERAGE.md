@@ -553,4 +553,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Early timed reads preserve the sequence cursor. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Successful timed reads advance sequence and preparation atomically. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
