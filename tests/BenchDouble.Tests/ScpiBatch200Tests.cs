@@ -150,4 +150,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(1,[Parameter(name:"a",query:"A?",setter:"A {value}",initial:2),Parameter(name:"b",query:"B?",setter:"B {value}",initial:3)]); await s.WriteAsync("A 9"); await s.WriteAsync("B 8"); await s.ResetAsync(); Assert.Equal(new[]{2d,3d},s.GetReadingsSnapshot().Select(r=>r.Value));
     }
+
+    /// <summary>Cancelled reset preserves values and transcript.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ResetCancellation()
+    {
+        var s=Session(); await s.WriteAsync("V1 6"); using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await s.ResetAsync(c.Token)); Assert.Equal(6,s.GetReadingsSnapshot()[0].Value); Assert.Single(s.GetTranscriptSnapshot());
+    }
 }
