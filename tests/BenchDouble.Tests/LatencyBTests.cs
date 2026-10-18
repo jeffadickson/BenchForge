@@ -78,4 +78,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(10,11)));
     }
+
+    /// <summary>The upper phase bound cannot exceed one day.</summary>
+    [Fact] public void UpperBeyondDay()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile(Stage(TimeSpan.TicksPerDay,1)));
+    }
 }
