@@ -30,4 +30,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentNullException>(()=>HostHeartbeatPolicy.FromConfiguration(null!));
     }
+
+    /// <summary>Misspelled heartbeat settings cannot silently select defaults.</summary>
+    [Fact] public void UnknownConfiguration()
+    {
+        Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervallMilliseconds","10"))));
+    }
 }
