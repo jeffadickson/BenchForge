@@ -62,4 +62,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(1,[Parameter(unit:new string('v',80))]); Assert.Equal(80,s.GetReadingsSnapshot()[0].Unit.Length);
     }
+
+    /// <summary>Reject literal and channel-template query ambiguity.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task OverlappingQueries()
+    {
+        var s=new DefinitionDrivenScpiMockSession(2,[Parameter(setter:null),Parameter(name:"other",query:"V1?",setter:null)]); await Assert.ThrowsAsync<InvalidOperationException>(async()=>await s.QueryAsync("V1?")); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
