@@ -192,4 +192,10 @@ public sealed class LatencyBTests
     {
         var s=Profile(Stage()).Sample(0);Assert.Equal(s.Total,s.DurationOf(SimulationLatencyPhase.Integration));
     }
+
+    /// <summary>Unknown phase lookups fail explicitly.</summary>
+    [Fact] public void InvalidLookup()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Profile().Sample(0).DurationOf((SimulationLatencyPhase)(-1)));
+    }
 }
