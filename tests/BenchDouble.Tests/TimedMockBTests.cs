@@ -156,4 +156,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");using var c=new CancellationTokenSource();e.SetBehavior("voltage",_=>{c.Cancel();return 7;});await e.PrepareMeasurementAsync("voltage",Profile(0),0);await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Nonfinite model output does not consume ready preparation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task NonfiniteOutput()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");e.SetBehavior("voltage",_=>double.NaN);await e.PrepareMeasurementAsync("voltage",Profile(0),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }

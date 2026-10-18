@@ -560,4 +560,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Callback cancellation preserves ready preparation and sequence state. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Nonfinite model output does not consume ready preparation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
