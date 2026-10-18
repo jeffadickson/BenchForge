@@ -112,5 +112,16 @@ public sealed class SimulationScheduler
     /// <summary>Remaining queue slots captured under the same gate as event mutations.</summary>
     public int RemainingCapacity{get{lock(_gate)return _capacity-_pending.Count;}}
 
+    /// <summary>Schedule an absolute logical deadline at or after the current run time.</summary>
+    /// <param name="dueAt">Nonnegative absolute logical deadline.</param>
+    /// <param name="label">Nonblank bounded event label.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>Immutable event accepted by this scheduler.</returns>
+    /// <exception cref="ArgumentException">Deadline or label is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Queue is full or clock is invalid.</exception>
+    /// <exception cref="OverflowException">Event identifiers are exhausted.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public SimulationScheduledEvent ScheduleAt(TimeSpan dueAt,string label,CancellationToken ct=default)=>ScheduleCore(dueAt,label,true,ct);
+
     // Scheduler members.
 }
