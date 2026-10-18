@@ -121,4 +121,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");e.QueueFault("voltage",new TimeoutException());await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Injected faults at readiness preserve the accepted preparation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ReadyFault()
+    {
+        var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");e.QueueFault("voltage",new TimeoutException());await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(10);await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));Assert.Equal(1,await e.MeasureAsync("voltage"));
+    }
 }
