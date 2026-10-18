@@ -213,4 +213,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 -1")); Assert.Equal(1,s.GetReadingsSnapshot()[0].Value);
     }
+
+    /// <summary>Above-range writes preserve state.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task AboveMaximum()
+    {
+        var s=Session(); await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async()=>await s.WriteAsync("V1 11")); Assert.Equal(1,s.GetReadingsSnapshot()[0].Value);
+    }
 }
