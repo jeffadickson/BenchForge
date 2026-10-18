@@ -369,4 +369,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Async reset shares the synchronous revision contract. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Concurrent resets serialize without lost revisions. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

@@ -208,4 +208,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); var r=e.Snapshot().Revision; await e.ResetAsync(); Assert.Equal(r+1,e.Snapshot().Revision); e.Reset(); Assert.Equal(r+2,e.Snapshot().Revision);
     }
+
+    /// <summary>Concurrent resets serialize without lost revisions.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ParallelAsyncReset()
+    {
+        var e=Engine(); var r=e.Snapshot().Revision; await Task.WhenAll(Enumerable.Range(0,64).Select(_=>e.ResetAsync().AsTask())); Assert.Equal(r+64,e.Snapshot().Revision);
+    }
 }
