@@ -248,4 +248,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await Task.WhenAll(Enumerable.Range(0,64).Select(i=>Task.Run(async()=>{await s.WriteAsync($"V{1+i%2} {2+i%2}"); Assert.Equal(2,s.GetReadingsSnapshot().Count); Assert.All(s.GetReadingsSnapshot(),r=>Assert.InRange(r.Value,1,3));}))); Assert.Equal(64,s.GetTranscriptSnapshot().Count);
     }
+
+    /// <summary>Parallel resets and writes never lose declared keys.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ConcurrentResets()
+    {
+        var s=Session(); await Task.WhenAll(Enumerable.Range(0,64).Select(i=>Task.Run(async()=>{if(i%2==0)await s.ResetAsync();else await s.WriteAsync("V1 3");}))); Assert.Equal(2,s.GetReadingsSnapshot().Count); Assert.Contains(s.GetReadingsSnapshot()[0].Value,new[]{1d,3d});
+    }
 }

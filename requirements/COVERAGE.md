@@ -271,4 +271,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Concurrent writes and snapshots remain coherent. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Parallel resets and writes never lose declared keys. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
