@@ -70,5 +70,26 @@ public sealed class LocalHardeningTests
         Assert.Contains(sink.Messages, message => message.Contains("InvalidOperationException"));
     }
 
+    private sealed class InvalidLoad(double amps) : ILoadBehavior
+    {
+        public ElectricCurrent CurrentAt(ElectricPotential voltage, TimeSpan elapsed) => ElectricCurrent.FromAmperes(amps);
+    }
+
+    /// <summary>Unmatched baselines obey the same finite nonnegative current contract as rules.</summary>
+    [Fact]
+    public void AutoMockRejectsInvalidBaselines()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new AutoMockLoadCondition(MaximumVoltage: ElectricPotential.FromVolts(-1)).Validate());
+        var negative = new RuleBasedLoadBehavior(new InvalidLoad(-1), []);
+        Assert.Throws<InvalidOperationException>(() => negative.EvaluateAt(ElectricPotential.FromVolts(1), TimeSpan.Zero));
+        // UnitsNet rejects nonfinite values while the baseline constructs its
+        // quantity; the decorator must preserve that original validation error.
+        foreach (var amps in new[] { double.NaN, double.PositiveInfinity, double.NegativeInfinity })
+        {
+            var behavior = new RuleBasedLoadBehavior(new InvalidLoad(amps), []);
+            Assert.Throws<ArgumentException>(() => behavior.EvaluateAt(ElectricPotential.FromVolts(1), TimeSpan.Zero));
+        }
+    }
+
 // CASES
 }

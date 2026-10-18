@@ -107,3 +107,7 @@ Local iteration 16 (2026-10-17), BD-EXP-001: Freeze experiment role metadata def
 Local iteration 17 (2026-10-17), BD-EXP-003: Reject null instrument factories at composition. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 18 (2026-10-17), BD-EXP-003: Reject ambiguous experiment dependency registrations. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 19 (2026-10-17), BD-SIM-001: Validate AutoMock fallback currents and voltage bounds. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 19 (2026-10-17), BD-SIM-001: Validate AutoMock fallback currents and voltage bounds. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

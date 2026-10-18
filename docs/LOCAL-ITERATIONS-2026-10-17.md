@@ -22,3 +22,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 16 | Freeze experiment role metadata defensively | BD-EXP-001 | BenchDouble.Experiments.Tests | Passed |
 | 17 | Reject null instrument factories at composition | BD-EXP-003 | BenchDouble.Experiments.Tests | Passed |
 | 18 | Reject ambiguous experiment dependency registrations | BD-EXP-003 | BenchDouble.Experiments.Tests | Passed |
+| 19 | Validate AutoMock fallback currents and voltage bounds | BD-SIM-001 | BenchDouble.Tests | Passed |

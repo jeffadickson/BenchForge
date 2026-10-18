@@ -20,7 +20,7 @@ public sealed record AutoMockLoadCondition(
             throw new ArgumentOutOfRangeException(nameof(Until));
         if (MinimumVoltage is { } low && (!double.IsFinite(low.Volts) || low.Volts < 0))
             throw new ArgumentOutOfRangeException(nameof(MinimumVoltage));
-        if (MaximumVoltage is { } high && (!double.IsFinite(high.Volts) ||
+        if (MaximumVoltage is { } high && (!double.IsFinite(high.Volts) || high.Volts < 0 ||
             (MinimumVoltage is { } minimum && high.Volts < minimum.Volts)))
             throw new ArgumentOutOfRangeException(nameof(MaximumVoltage));
     }
@@ -150,7 +150,9 @@ public sealed class RuleBasedLoadBehavior : ILoadBehavior
             return new AutoMockEvaluation(ElectricCurrent.FromAmperes(amps),
                 rule.Name, elapsed);
         }
-        return new AutoMockEvaluation(_baseline.CurrentAt(voltage, elapsed),
-            null, elapsed);
+        var baseline = _baseline.CurrentAt(voltage, elapsed);
+        if (!double.IsFinite(baseline.Amperes) || baseline.Amperes < 0)
+            throw new InvalidOperationException("Baseline produced an invalid current.");
+        return new AutoMockEvaluation(baseline, null, elapsed);
     }
 }
