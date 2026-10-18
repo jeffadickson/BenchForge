@@ -20,4 +20,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(name:new string('v',129))]));
     }
+
+    /// <summary>Accept the parameter name length boundary.</summary>
+    [Fact] public void MaxName()
+    {
+        var s=new DefinitionDrivenScpiMockSession(1,[Parameter(name:new string('v',128))]); Assert.Equal(128,s.GetReadingsSnapshot()[0].Parameter.Length);
+    }
 }
