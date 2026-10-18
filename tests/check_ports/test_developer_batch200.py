@@ -172,3 +172,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_test_failure(self):
         """Stop later test projects after a failure."""
         self.project('tests/Z/Z.csproj');(self.root/'fail-test').write_text('26');self.invoke('--command','test',expected=26);self.assertEqual(4,len(self.events()));self.assertEqual(26,self.report()['stages'][-1]['ExitCode'])
+
+    def test_duration_report(self):
+        """Record nonnegative stage durations on success."""
+        self.invoke('--command','generate');self.assertTrue(all(s['Milliseconds']>=0 for s in self.report()['stages']))

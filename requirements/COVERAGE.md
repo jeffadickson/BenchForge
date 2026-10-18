@@ -318,4 +318,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Stop later test projects after a failure. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Record nonnegative stage durations on success. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
