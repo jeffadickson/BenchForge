@@ -221,4 +221,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);s.Schedule(T(0),"a");var reads=c.Reads;_=s.Snapshot();Assert.Equal(reads,c.Reads);
     }
+
+    /// <summary>Cancelled draining preserves all pending events.</summary>
+    [Fact] public void CancelledDrain()
+    {
+        var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>s.DrainDue(c.Token));Assert.Equal(1,s.Count);
+    }
 }
