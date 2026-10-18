@@ -496,4 +496,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Control characters cannot enter event labels. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Oversized event labels are rejected. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

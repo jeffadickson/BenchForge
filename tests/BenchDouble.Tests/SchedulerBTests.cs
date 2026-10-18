@@ -47,4 +47,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0),"x\n"));
     }
+
+    /// <summary>Oversized event labels are rejected.</summary>
+    [Fact] public void LongLabel()
+    {
+        var s=new SimulationScheduler(new Clock());Assert.Throws<ArgumentException>(()=>s.Schedule(T(0),new string('x',129)));
+    }
 }
