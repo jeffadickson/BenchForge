@@ -377,6 +377,7 @@ public sealed partial class StatefulMockEngine
         _models.Clear();
         _asyncModels.Clear();
         _sequences.Clear();
+        _prepared.Clear();
         _faults.Clear();
         ++_revision;
         Emit(() => _logger.LogInformation("Mock {Instrument} reset revision {Revision}", _definition.DriverName, _revision));
