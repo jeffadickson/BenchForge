@@ -43,4 +43,10 @@ public sealed class ReplayBTests
     {
         var reads=0;IEnumerable<SimulationReplaySample> Endless(){while(true){++reads;yield return S();}}Assert.Throws<ArgumentException>(()=>new SimulationReplay(Endless()));Assert.Equal(4097,reads);
     }
+
+    /// <summary>Blank transcript modes cannot enter replay.</summary>
+    [Fact] public void BlankMode()
+    {
+        Assert.Throws<ArgumentException>(()=>R(S() with{Mode=" "}));
+    }
 }
