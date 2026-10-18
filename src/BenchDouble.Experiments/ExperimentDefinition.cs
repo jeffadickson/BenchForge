@@ -49,6 +49,12 @@ public sealed class ExperimentDefinitionBuilder
     /// factory. This supports injecting a role-specific behavior without exposing
     /// IServiceProvider to the instrument implementation itself.
     /// </summary>
+    /// <typeparam name="TInterface">Instrument contract registered for the role.</typeparam>
+    /// <param name="role">Unique, nonblank run role.</param>
+    /// <param name="factory">Run-scoped factory; it must return a nonnull instrument. DI owns returned disposable instances.</param>
+    /// <param name="hostId">Logical simulation host identity.</param>
+    /// <returns>This mutable builder.</returns>
+    /// <exception cref="InvalidOperationException">The role is duplicated, the builder is frozen, or the factory returns null during run resolution.</exception>
     public ExperimentDefinitionBuilder Simulated<TInterface>(
         string role, Func<IServiceProvider, TInterface> factory,
         string hostId = "simulation-worker")
@@ -61,7 +67,7 @@ public sealed class ExperimentDefinitionBuilder
         if (_instruments.Any(i => string.Equals(i.Role, role, StringComparison.Ordinal)))
             throw new InvalidOperationException($"Duplicate instrument role '{role}'.");
         _instruments.Add(new ExperimentInstrument(role, typeof(TInterface), hostId, "Simulated"));
-        _services.AddKeyedScoped<TInterface>(role, (sp, _) => factory(sp));
+        _services.AddKeyedScoped<TInterface>(role, (sp, _) => factory(sp) ?? throw new InvalidOperationException($"Instrument factory for role '{role}' returned null."));
         return this;
     }
 

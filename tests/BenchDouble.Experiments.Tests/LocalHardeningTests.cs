@@ -21,5 +21,16 @@ public sealed class LocalHardeningTests
         Assert.Throws<NotSupportedException>(() => ((IList<ExperimentInstrument>)run.RegisteredInstruments).Clear());
     }
 
+    /// <summary>Null factories fail at the composition boundary instead of creating an unusable role.</summary>
+    /// <returns>Completion after eager startup refuses the invalid instrument.</returns>
+    [Fact]
+    public async Task NullInstrumentFactoriesFailClearly()
+    {
+        var definition = new ExperimentDefinitionBuilder().Simulated<object>("meter", _ => null!).Build("invalid");
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(async () => await definition.StartSimulatedAsync());
+        Assert.Contains("meter", error.Message);
+        Assert.Contains("returned null", error.Message);
+    }
+
 // CASES
 }

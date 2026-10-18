@@ -755,7 +755,8 @@ STATEMENT: Each experiment run shall create and dispose isolated DI scope, simul
 UID: BD-EXP-003
 STATUS: Active
 TITLE: BD-EXP-003 P1
-STATEMENT: Experiment mock behaviors shall receive typed dependencies through constructor injection including keyed instrument roles.
+STATEMENT: Experiment mock behaviors shall receive typed dependencies through constructor injection including keyed instrument roles. Acceptance: Eager startup shall reject a null-returning instrument factory with a role-specific error and perform normal failed-start cleanup.
+
 
 [REQUIREMENT]
 UID: BD-EXP-004

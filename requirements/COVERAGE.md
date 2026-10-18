@@ -103,3 +103,5 @@ Local iteration 14 (2026-10-17), BD-CFG-008: Reject incomplete VISA endpoint des
 Local iteration 15 (2026-10-17), BD-CFG-008: Bound every VISA discovery catalog. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 16 (2026-10-17), BD-EXP-001: Freeze experiment role metadata defensively. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 17 (2026-10-17), BD-EXP-003: Reject null instrument factories at composition. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
