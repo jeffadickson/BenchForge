@@ -52,6 +52,7 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Quantity);
             if (p.Quantity.Length > 128 || p.Quantity.Any(char.IsControl)) throw new ArgumentException("Invalid quantity identity.");
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Unit);
+            if (p.Unit.Length > 80 || p.Unit.Any(char.IsControl)) throw new ArgumentException("Invalid unit identity.");
             if (p.QueryTemplate is null && p.SetTemplate is null)
                 throw new ArgumentException($"No commands defined for {p.Name}.");
             if ((p.Minimum is { } min && !double.IsFinite(min)) ||

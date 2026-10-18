@@ -227,4 +227,5 @@ New batch final checkpoint 150: 62 architecture/tool-routing tests, 19 checker r
 Make-free workflow: compiled C# application task planning and execution added under BD-CFG-007. Counts unchanged: 228 requirements, 0 Verified. No acceptance status promotion.
 
 
-Batch 200 current: Bound SCPI quantity identities. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Bound SCPI unit identities. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
