@@ -119,4 +119,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());var e=s.Schedule(T(0),"a");using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>s.Cancel(e.Id,c.Token));Assert.Equal(1,s.Count);
     }
+
+    /// <summary>Queue clear never reuses acceptance identifiers.</summary>
+    [Fact] public void ClearIdentifiers()
+    {
+        var s=new SimulationScheduler(new Clock());var a=s.Schedule(T(0),"a");Assert.Equal(1,s.Clear());Assert.True(s.Schedule(T(0),"b").Id>a.Id);
+    }
 }
