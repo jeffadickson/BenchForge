@@ -140,3 +140,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_filter_not_build(self):
         """Do not apply test filters to builds."""
         steps=self.plan('build','--test-filter','Name=x');self.assertFalse(any('--filter' in s['Arguments'] for s in steps))
+
+    def test_empty_filter(self):
+        """Omit empty test filters."""
+        self.assertNotIn('--filter',self.plan('test')[-1]['Arguments'])
