@@ -168,4 +168,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());var expected=Enumerable.Range(0,128).Select(i=>p.Sample(i).Total).ToArray();var actual=new TimeSpan[128];Parallel.For(0,128,i=>actual[i]=p.Sample(i).Total);Assert.Equal(expected,actual);
     }
+
+    /// <summary>Sample phase collections reject caller mutation.</summary>
+    [Fact] public void ReadOnlySample()
+    {
+        var s=Profile(Stage()).Sample(0);Assert.Throws<NotSupportedException>(()=>((IList<SampledLatencyStage>)s.Stages).Clear());
+    }
 }
