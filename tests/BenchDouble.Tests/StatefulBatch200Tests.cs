@@ -201,4 +201,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",8); e.QueueFault("voltage",new TimeoutException()); var r=e.Snapshot().Revision; using var c=new CancellationTokenSource(); c.Cancel(); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.ResetAsync(c.Token)); Assert.Equal(r,e.Snapshot().Revision); Assert.Equal(8,e.Snapshot().Overrides["voltage"]); Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Async reset shares the synchronous revision contract.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task AsyncResetRevision()
+    {
+        var e=Engine(); var r=e.Snapshot().Revision; await e.ResetAsync(); Assert.Equal(r+1,e.Snapshot().Revision); e.Reset(); Assert.Equal(r+2,e.Snapshot().Revision);
+    }
 }
