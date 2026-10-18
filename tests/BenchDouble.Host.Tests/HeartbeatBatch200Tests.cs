@@ -78,4 +78,10 @@ public sealed class HeartbeatBatch200Tests
     {
         Assert.Throws<ArgumentException>(()=>HostHeartbeatPolicy.FromConfiguration(Config(("BenchHeartbeat:IntervalMilliseconds","10.5"))));
     }
+
+    /// <summary>Heartbeat clocks require positive timestamp frequency.</summary>
+    [Fact] public void ZeroFrequency()
+    {
+        var c=new Clock{Frequency=0}; Assert.Throws<ArgumentOutOfRangeException>(()=>Registry(c));
+    }
 }
