@@ -17,4 +17,10 @@ public sealed class SchedulerBTests
     {
         Assert.Throws<ArgumentNullException>(()=>new SimulationScheduler(null!));
     }
+
+    /// <summary>Zero queue capacity is rejected.</summary>
+    [Fact] public void ZeroCapacity()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new SimulationScheduler(new Clock(),0));
+    }
 }
