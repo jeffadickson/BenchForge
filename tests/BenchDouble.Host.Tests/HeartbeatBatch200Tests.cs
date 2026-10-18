@@ -246,4 +246,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);c.Fail=true;Assert.Throws<IOException>(()=>r.Reserve("DMM1"));c.Fail=false;Assert.NotNull(r.Reserve("DMM1"));
     }
+
+    /// <summary>Generation overflow cannot leave partial reservations.</summary>
+    [Fact] public void GenerationGrantFailure()
+    {
+        var c=new Clock();var r=Registry(c);var field=typeof(HostResourceRegistry).GetField("_ownerGeneration",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;field.SetValue(r,long.MaxValue);Assert.Throws<OverflowException>(()=>r.Reserve("DMM1"));field.SetValue(r,0L);Assert.NotNull(r.Reserve("DMM1"));
+    }
 }

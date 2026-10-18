@@ -426,4 +426,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Clock failure before a grant leaves the resource available. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Generation overflow cannot leave partial reservations. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
