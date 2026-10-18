@@ -167,4 +167,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetSequence("voltage",[3]); e.SetSequence("resistance",[4]); var r=e.Snapshot().Revision; e.ClearAllSequences(); Assert.Equal(r+1,e.Snapshot().Revision);
     }
+
+    /// <summary>Bulk sequence clear preserves independent callbacks.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task SequenceClearOtherModel()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetBehavior("voltage",_=>9); e.SetSequence("resistance",[4]); e.ClearAllSequences(); Assert.Equal(9,await e.MeasureAsync("voltage"));
+    }
 }
