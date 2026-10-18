@@ -142,4 +142,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",7); e.QueueFault("voltage",new TimeoutException()); e.ClearAllFaults(); Assert.Equal("voltage",e.Snapshot().Mode); Assert.Equal(7,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Bulk fault clear preserves the sequence cursor.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task FaultClearPreservesSequence()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[7,8]); await e.MeasureAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); e.ClearAllFaults(); Assert.Equal(1,e.SequenceStatus("voltage")!.Position); Assert.Equal(8,await e.MeasureAsync("voltage"));
+    }
 }
