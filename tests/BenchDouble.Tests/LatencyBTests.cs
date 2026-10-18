@@ -180,4 +180,10 @@ public sealed class LatencyBTests
     {
         var s=Profile(Stage(),Stage(80,20,SimulationLatencyPhase.Display)).Sample(3);Assert.Equal(s.Stages.Sum(v=>v.Duration.Ticks),s.Total.Ticks);
     }
+
+    /// <summary>Unconfigured phases report zero without sampling.</summary>
+    [Fact] public void AbsentPhase()
+    {
+        Assert.Equal(TimeSpan.Zero,Profile(Stage()).Sample(0).DurationOf(SimulationLatencyPhase.Display));
+    }
 }
