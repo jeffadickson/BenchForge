@@ -187,4 +187,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetSequence("voltage",[4]); e.QueueFault("voltage",new TimeoutException()); e.ClearAllSequences(); Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Async reset clears mode overrides models sequences and faults.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task AsyncResetClearsEverything()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",9); e.SetSequence("voltage",[4]); e.SetBehavior("resistance",_=>3); e.QueueFault("voltage",new TimeoutException()); await e.ResetAsync(); var s=e.Snapshot(); Assert.Null(s.Mode); Assert.Empty(s.Overrides); Assert.Empty(s.SequencePositions); Assert.Empty(s.PendingFaultCounts); Assert.Empty(s.BehaviorKinds);
+    }
 }
