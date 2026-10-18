@@ -155,4 +155,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock(),2);var a=s.Schedule(T(0),"a");Assert.Equal(1,s.RemainingCapacity);s.Cancel(a.Id);Assert.Equal(2,s.RemainingCapacity);
     }
+
+    /// <summary>Clock rollback rejects scheduling without consuming identifiers.</summary>
+    [Fact] public void BackwardsSchedule()
+    {
+        var c=new Clock{Now=T(10)};var s=new SimulationScheduler(c);s.Schedule(T(0),"a");c.Now=T(9);Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"bad"));c.Now=T(10);Assert.Equal(2,s.Schedule(T(0),"b").Id);
+    }
 }
