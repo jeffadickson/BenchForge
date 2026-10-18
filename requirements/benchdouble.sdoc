@@ -290,7 +290,7 @@ STATEMENT: Physical safety delays, lease expiry, authentication and real hardwar
 UID: TR-047
 STATUS: Active
 TITLE: TR-047 P1
-STATEMENT: Model initialization/warmup, settling, integration, trigger/acquisition, processing latency, jitter and optional display pacing separately.
+STATEMENT: Model initialization/warmup, settling, integration, trigger/acquisition, processing latency, jitter and optional display pacing separately. Acceptance: A simulation-only latency profile separates initialization, settling, integration, trigger, acquisition, processing and display durations. Copied unique phase definitions enforce nonnegative durations and bounded symmetric jitter with an aggregate maximum of one logical day. Counter-based seeded integer-tick samples are reproducible by operation index independent of call or thread order. Samples are detached, expose phase and total durations, and reject invalid indices, negative start times and deadline overflow without creating workers or consulting physical clocks. Full instrument pacing and qualification remain open.
 
 [REQUIREMENT]
 UID: TR-048
