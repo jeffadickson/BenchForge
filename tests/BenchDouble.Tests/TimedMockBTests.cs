@@ -232,4 +232,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();var r=e.Snapshot().Revision;Assert.False(e.ClearPreparedMeasurement("voltage"));Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Cancelled preparation clear preserves its operation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ClearCancelled()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>e.ClearPreparedMeasurement("voltage",c.Token));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
+    }
 }
