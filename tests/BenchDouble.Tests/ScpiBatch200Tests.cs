@@ -50,4 +50,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(unit:"V\0")]));
     }
+
+    /// <summary>Reject oversized unit identities.</summary>
+    [Fact] public void LongUnit()
+    {
+        Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(unit:new string('v',81))]));
+    }
 }
