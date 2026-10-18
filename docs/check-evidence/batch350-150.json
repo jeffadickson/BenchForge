@@ -1,0 +1,145 @@
+{
+  "checkpoint": 150,
+  "result": "passed",
+  "tested_base_commit": "334d94f7dd1e701d4a2a9da880f7adbd0e138bfd",
+  "tested_worktree": "modified; matching application source committed at checkpoint150",
+  "application_tests": {
+    "core": {
+      "total": "113",
+      "executed": "113",
+      "passed": "113",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "host": {
+      "total": "71",
+      "executed": "71",
+      "passed": "71",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "experiments": {
+      "total": "46",
+      "executed": "46",
+      "passed": "46",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "new_application_cases_since_checkpoint100": 57,
+  "workflow": {
+    "milliseconds": 52589.1136,
+    "cpu_milliseconds": 11015.625,
+    "peak_working_set_bytes": 82653184,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 2226.6213,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 140.275,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 23734.3902,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 4478.8838,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 29281.6674,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 20160.9219,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 3449.2817,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 52202.0224,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 30566.8407,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "29fe42815245af089d899ce866bb09674c488df0846df7b22ddb3d346b84f684",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "2be0ef6ae7fbca1cf2f1d1a463bee7c193c6f7b894a0fbf20445c18711e3990e",
+      "documentation-audit.json": "0097d42f7acbb660073f4be85e67643ff7758d3701c284876cfe888162becf3e",
+      "docs-parity.json": "3295b29f790dbfe19effcc3e6760151e56e554c7ff210cd978be2ed02d0055ad"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally"
+  },
+  "limitations": [
+    "Windows x64 execution",
+    "Focused related application suites, not the entire repository",
+    "GNU Make source-contract validation only",
+    "No requirement promoted to Verified",
+    "No controlled final cold/cached workflow speedup measurement"
+  ]
+}

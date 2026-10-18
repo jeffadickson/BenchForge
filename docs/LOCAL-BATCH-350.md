@@ -123,32 +123,64 @@ Checkpoint 100 passed: 74 focused core tests, 48 focused host tests, 19 tracker/
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 101 | Validate typed readings in canonical base units | Pending checkpoint 150 |
-| 102 | Honor cancellation after typed meter callbacks | Pending checkpoint 150 |
-| 103 | Reject missing typed meter dependencies | Pending checkpoint 150 |
-| 104 | Reject missing supply behavior | Pending checkpoint 150 |
-| 105 | Reject missing supply clock | Pending checkpoint 150 |
-| 106 | Honor cancellation after supply callbacks | Pending checkpoint 150 |
-| 107 | Reject negative supply timestamps | Pending checkpoint 150 |
-| 108 | Reject negative mode-aware timestamps before callbacks | Pending checkpoint 150 |
-| 109 | Reject negative stateful timestamps before consuming faults | Pending checkpoint 150 |
-| 110 | Expose SCPI sink failure count | Pending checkpoint 150 |
-| 111 | Expose SCPI redactor failure count | Pending checkpoint 150 |
-| 112 | Bound logged payloads without splitting surrogate pairs | Pending checkpoint 150 |
-| 113 | Reject controls in diagnostic instrument names | Pending checkpoint 150 |
-| 114 | Bound diagnostic instrument name length | Pending checkpoint 150 |
-| 115 | Add stable SCPI event IDs | Pending checkpoint 150 |
-| 116 | Count scope heartbeat observer failures | Pending checkpoint 150 |
-| 117 | Count owner heartbeat observer failures | Pending checkpoint 150 |
-| 118 | Expose stopped scope renewal state | Pending checkpoint 150 |
-| 119 | Treat gone owner lease as terminal loss | Pending checkpoint 150 |
-| 120 | Treat gone scope lease as terminal loss | Pending checkpoint 150 |
-| 121 | Reject reentrant composition during rule callbacks | Pending checkpoint 150 |
-| 122 | Diagnose null AutoMock baseline factories | Pending checkpoint 150 |
-| 123 | Validate experiment role host and definition names | Pending checkpoint 150 |
-| 124 | Bound setup JSON size and depth for import and persistence | Pending checkpoint 150 |
-| 125 | Isolate IVI catalog logging failures | Pending checkpoint 150 |
+| 101 | Validate typed readings in canonical base units | Checkpoint 150 passed |
+| 102 | Honor cancellation after typed meter callbacks | Checkpoint 150 passed |
+| 103 | Reject missing typed meter dependencies | Checkpoint 150 passed |
+| 104 | Reject missing supply behavior | Checkpoint 150 passed |
+| 105 | Reject missing supply clock | Checkpoint 150 passed |
+| 106 | Honor cancellation after supply callbacks | Checkpoint 150 passed |
+| 107 | Reject negative supply timestamps | Checkpoint 150 passed |
+| 108 | Reject negative mode-aware timestamps before callbacks | Checkpoint 150 passed |
+| 109 | Reject negative stateful timestamps before consuming faults | Checkpoint 150 passed |
+| 110 | Expose SCPI sink failure count | Checkpoint 150 passed |
+| 111 | Expose SCPI redactor failure count | Checkpoint 150 passed |
+| 112 | Bound logged payloads without splitting surrogate pairs | Checkpoint 150 passed |
+| 113 | Reject controls in diagnostic instrument names | Checkpoint 150 passed |
+| 114 | Bound diagnostic instrument name length | Checkpoint 150 passed |
+| 115 | Add stable SCPI event IDs | Checkpoint 150 passed |
+| 116 | Count scope heartbeat observer failures | Checkpoint 150 passed |
+| 117 | Count owner heartbeat observer failures | Checkpoint 150 passed |
+| 118 | Expose stopped scope renewal state | Checkpoint 150 passed |
+| 119 | Treat gone owner lease as terminal loss | Checkpoint 150 passed |
+| 120 | Treat gone scope lease as terminal loss | Checkpoint 150 passed |
+| 121 | Reject reentrant composition during rule callbacks | Checkpoint 150 passed |
+| 122 | Diagnose null AutoMock baseline factories | Checkpoint 150 passed |
+| 123 | Validate experiment role host and definition names | Checkpoint 150 passed |
+| 124 | Bound setup JSON size and depth for import and persistence | Checkpoint 150 passed |
+| 125 | Isolate IVI catalog logging failures | Checkpoint 150 passed |
 
 Iteration 120 haiku: Quiet circuits wait / Threads weave signals through the night / New readings take shape.
 
 The user requested more tests during this batch. ApplicationDiagnosticsTests adds recovery, error identity, Unicode truncation, privacy, invalid clocks and callback cancellation cases alongside production changes; further application integration coverage follows before checkpoint 150.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 126 | Regression: Prevent a rule callback freezing its outer definition | Checkpoint 150 passed |
+| 127 | Regression: Cover reentrant service registration paths | Checkpoint 150 passed |
+| 128 | Regression: Recover unkeyed composition after callback failure | Checkpoint 150 passed |
+| 129 | Regression: Recover keyed composition and hash after callback failure | Checkpoint 150 passed |
+| 130 | Regression: Clean earlier roles after null unkeyed baseline | Checkpoint 150 passed |
+| 131 | Regression: Clean earlier roles after null keyed baseline | Checkpoint 150 passed |
+| 132 | Regression: Reject invalid names without mutating composition | Checkpoint 150 passed |
+| 133 | Regression: Exercise exact composition name boundaries | Checkpoint 150 passed |
+| 134 | Regression: Verify injected model and clock sharing within a run | Checkpoint 150 passed |
+| 135 | Regression: Verify sixteen parallel runs remain independent | Checkpoint 150 passed |
+| 136 | Regression: Fail fast on null models and clean earlier roles | Checkpoint 150 passed |
+| 137 | Regression: Clean injected model after baseline-factory cancellation | Checkpoint 150 passed |
+| 138 | Regression: Stop scope renewal after Gone | Checkpoint 150 passed |
+| 139 | Regression: Keep owner Gone status terminal across direct renewals | Checkpoint 150 passed |
+| 140 | Regression: Count scope observer failures without suppressing observers | Checkpoint 150 passed |
+| 141 | Regression: Count owner observer failures without changing health | Checkpoint 150 passed |
+| 142 | Regression: Expose stopped state across repeated scope disposal | Checkpoint 150 passed |
+| 143 | Regression: Exercise size guards on all setup parser boundaries | Checkpoint 150 passed |
+| 144 | Regression: Exercise deep setup JSON rejection | Checkpoint 150 passed |
+| 145 | Regression: Recover saved setup after oversized-file rejection | Checkpoint 150 passed |
+| 146 | Regression: Preserve prior revision after oversized valid save | Checkpoint 150 passed |
+| 147 | Regression: Preserve successful IVI inspection under sink failure | Checkpoint 150 passed |
+| 148 | Regression: Preserve exact IVI reader exception under sink failure | Checkpoint 150 passed |
+| 149 | Regression: Preserve IVI draft rejection under sink failure | Checkpoint 150 passed |
+| 150 | Regression: Cancel admitted owner renewal without releasing ownership or disposing caller transport | Checkpoint 150 passed |
+
+Iteration 150 haiku: Small signals return / Patient threads untangle faults / Dawn lights up the bench.
+
+Checkpoint 150 passed: 113 focused core, 71 focused host and 46 experiment tests, plus 19 tracker/documentation tests and six report-byte parity comparisons at workers 1/8. Fifty-seven application cases were added since checkpoint 100. Three depth cases initially required an exact JsonException; the parser correctly returned its JsonReaderException subtype, so assertions were corrected and the host run passed. A launcher update raced with its retry and unnecessarily reran the already-passing core suite; unique counts above do not double-count that run. One automatic approval review timed out before launch; its permitted retry succeeded. Existing generated-nullability, XML-documentation, unused-field and analyzer warnings remain tracked. No remote push yet.
