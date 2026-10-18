@@ -274,4 +274,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Throws<NotSupportedException>(()=>((IDictionary<string,PreparedMockMeasurement>)e.Snapshot().PreparedMeasurements).Clear());
     }
+
+    /// <summary>Parallel duplicate triggers admit exactly one preparation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ParallelTriggers()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");var accepted=0;await Task.WhenAll(Enumerable.Range(0,32).Select(i=>Task.Run(async()=>{try{await e.PrepareMeasurementAsync("voltage",Profile(),i);Interlocked.Increment(ref accepted);}catch(InvalidOperationException){}})));Assert.Equal(1,accepted);Assert.Single(e.Snapshot().PreparedMeasurements);
+    }
 }
