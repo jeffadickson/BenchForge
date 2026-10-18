@@ -32,4 +32,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.QueueFault("voltage",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage")); Assert.Equal(2,e.FaultCount("resistance"));
     }
+
+    /// <summary>Fault-count inspection never samples virtual time.</summary>
+    [Fact] public void FaultCountNoClock()
+    {
+        var e=Engine(new CallbackClock(()=>throw new InvalidOperationException())); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
