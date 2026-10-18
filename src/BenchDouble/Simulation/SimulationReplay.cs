@@ -90,5 +90,12 @@ public sealed class SimulationReplay
     /// <returns>New local replay with a copied immutable plan.</returns>
     public SimulationReplay Fork()=>new(_samples);
 
+    /// <summary>Inspect the full immutable plan independently of current position.</summary>
+    /// <returns>Detached read-only samples in recording order.</returns>
+    public IReadOnlyList<SimulationReplaySample> Snapshot()=>Array.AsReadOnly(_samples.ToArray());
+    /// <summary>Inspect the unconsumed tail under the cursor gate.</summary>
+    /// <returns>Detached read-only remaining samples in recording order.</returns>
+    public IReadOnlyList<SimulationReplaySample> RemainingSamples(){lock(_gate)return Array.AsReadOnly(_samples.Skip(_position).ToArray());}
+
     // Replay members.
 }
