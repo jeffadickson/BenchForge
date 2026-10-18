@@ -375,6 +375,17 @@ public sealed partial class StatefulMockEngine
     }
 
 
+    /// <summary>Reset simulated state asynchronously under the canonical transaction gate.</summary>
+    /// <param name="ct">Cancellation before resetting state; no physical I/O is performed.</param>
+    /// <returns>Completion after mode, readings, models and faults have been reset.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public async ValueTask ResetAsync(CancellationToken ct = default)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try { ct.ThrowIfCancellationRequested(); ResetUnderGate(); }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Reset the mode, overrides, behaviors and pending faults.</summary>
     public void Reset()
     {

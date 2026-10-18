@@ -235,6 +235,12 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Reset canonical simulation state asynchronously without physical I/O.</summary>
+    /// <param name="ct">Cancellation before resetting state.</param>
+    /// <returns>Completion of the canonical engine reset.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public ValueTask ResetAsync(CancellationToken ct = default) => _engine.ResetAsync(ct);
+
     /// <summary>Remove configured scalar sequences while retaining overrides and other models.</summary>
     /// <returns>Removed sequence count; zero leaves revision unchanged.</returns>
     public int ClearAllSequences() => _engine.ClearAllSequences();
