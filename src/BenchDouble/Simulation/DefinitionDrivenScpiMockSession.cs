@@ -50,6 +50,7 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Name);
             if (p.Name.Length > 128 || p.Name.Any(char.IsControl)) throw new ArgumentException("Invalid parameter name.");
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Quantity);
+            if (p.Quantity.Length > 128 || p.Quantity.Any(char.IsControl)) throw new ArgumentException("Invalid quantity identity.");
             ArgumentException.ThrowIfNullOrWhiteSpace(p.Unit);
             if (p.QueryTemplate is null && p.SetTemplate is null)
                 throw new ArgumentException($"No commands defined for {p.Name}.");
