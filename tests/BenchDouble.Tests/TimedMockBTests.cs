@@ -246,4 +246,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");e.SetReading("voltage",8);e.SetSequence("voltage",[7]);e.QueueFault("voltage",new IOException());await e.PrepareMeasurementAsync("voltage",Profile(),0);e.ClearPreparedMeasurement("voltage");Assert.Equal(8,e.Snapshot().Overrides["voltage"]);Assert.Equal(0,e.SequenceStatus("voltage")!.Position);Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Scalar capabilities retain independent logical deadlines.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task IndependentCapabilities()
+    {
+        var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(10),0);await e.PrepareMeasurementAsync("current",Profile(20),0);c.Now=TimeSpan.FromTicks(10);Assert.Equal(1,await e.MeasureAsync("voltage"));await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("current"));
+    }
 }
