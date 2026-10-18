@@ -123,4 +123,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.QueueFault("voltage",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); Assert.Equal(2,e.ClearAllFaults()); Assert.Empty(e.Snapshot().PendingFaultCounts);
     }
+
+    /// <summary>Bulk fault clear changes revision once.</summary>
+    [Fact] public void ClearAllFaultRevision()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); e.QueueFault("resistance",new TimeoutException()); var revision=e.Snapshot().Revision; e.ClearAllFaults(); Assert.Equal(revision+1,e.Snapshot().Revision);
+    }
 }
