@@ -152,6 +152,16 @@ public class DefinitionDrivenScpiMockSession : IAsyncScpiSession
         finally { _gate.Release(); }
     }
 
+    /// <summary>Capture all canonical-unit simulated readings under the transaction lock.</summary>
+    /// <returns>Read-only detached readings ordered by parameter then channel.</returns>
+    public IReadOnlyList<MockScpiReading> GetReadingsSnapshot()
+    {
+        _gate.Wait();
+        try { return Array.AsReadOnly(_parameters.SelectMany(p => Enumerable.Range(1, _channelCount)
+            .Select(c => new MockScpiReading(p.Spec.Name, c, p.Spec.Quantity, p.Spec.Unit, _values[(p.Spec.Name, c)]))).ToArray()); }
+        finally { _gate.Release(); }
+    }
+
     private int ReadChannel(Match match)
     {
         var group = match.Groups["channel"];
