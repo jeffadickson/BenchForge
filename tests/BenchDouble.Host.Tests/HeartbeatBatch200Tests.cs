@@ -198,4 +198,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;var peer=Guid.NewGuid();_=r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,peer,1);c.At(10);Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,peer,1));Assert.Equal(10,r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.AgeMilliseconds);
     }
+
+    /// <summary>Stale host epochs cannot renew a current owner.</summary>
+    [Fact] public void StaleEpoch()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Throws<UnauthorizedAccessException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,Guid.NewGuid(),s.OwnerGeneration,Guid.NewGuid(),1));Assert.Equal(0,r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.Sequence);
+    }
 }
