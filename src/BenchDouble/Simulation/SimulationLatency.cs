@@ -96,5 +96,14 @@ public sealed class SimulationLatencySample
     public IReadOnlyList<SampledLatencyStage> Stages { get; }
     /// <summary>Exact total logical duration, from zero through one day.</summary>
     public TimeSpan Total { get; }
+    /// <summary>Inspect one sampled phase; absent phases have zero duration.</summary>
+    /// <param name="phase">Declared phase identity.</param>
+    /// <returns>Previously sampled logical phase duration.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The phase is unknown.</exception>
+    public TimeSpan DurationOf(SimulationLatencyPhase phase)
+    {
+        if(!Enum.IsDefined(phase))throw new ArgumentOutOfRangeException(nameof(phase));
+        return Stages.FirstOrDefault(s=>s.Phase==phase)?.Duration??TimeSpan.Zero;
+    }
     // Sample members.
 }
