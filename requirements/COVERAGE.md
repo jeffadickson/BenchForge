@@ -256,4 +256,5 @@ Make-free workflow: compiled C# application task planning and execution added un
 
 
 
-Batch 200 current: Reset uses declared defaults rather than zero. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Reset restores independent parameter defaults. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

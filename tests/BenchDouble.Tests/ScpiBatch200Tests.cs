@@ -143,4 +143,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(1,[Parameter(initial:7)]); await s.WriteAsync("V1 2"); await s.ResetAsync(); Assert.Equal("7",await s.QueryAsync("V1?"));
     }
+
+    /// <summary>Reset restores independent parameter defaults.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ResetMultipleParameters()
+    {
+        var s=new DefinitionDrivenScpiMockSession(1,[Parameter(name:"a",query:"A?",setter:"A {value}",initial:2),Parameter(name:"b",query:"B?",setter:"B {value}",initial:3)]); await s.WriteAsync("A 9"); await s.WriteAsync("B 8"); await s.ResetAsync(); Assert.Equal(new[]{2d,3d},s.GetReadingsSnapshot().Select(r=>r.Value));
+    }
 }
