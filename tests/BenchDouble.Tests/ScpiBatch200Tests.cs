@@ -192,4 +192,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.ResetAsync(); await s.ResetAsync(); Assert.Empty(s.GetTranscriptSnapshot()); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value));
     }
+
+    /// <summary>Reset does not affect another mock session.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task IndependentSessions()
+    {
+        var a=Session(); var b=Session(); await a.WriteAsync("V1 2"); await b.WriteAsync("V1 3"); await a.ResetAsync(); Assert.Equal(3,b.GetReadingsSnapshot()[0].Value); Assert.Single(b.GetTranscriptSnapshot());
+    }
 }
