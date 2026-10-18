@@ -53,37 +53,38 @@ internal static class DeveloperTasks
         Console.CancelKeyPress += handler;
         try
         {
-        foreach (var step in steps)
-        {
-            var watch = Stopwatch.StartNew();
-            Console.WriteLine($"Running {step.Executable} {JsonSerializer.Serialize(step.Arguments)}");
-            var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
-            foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
-            Process process;
-            try { process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task"); }
-            catch (Exception error)
+            foreach (var step in steps)
             {
-                Console.Error.WriteLine("Could not start development task: " + error.Message);
-                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, 2));
-                return 2;
+                if (interrupted.IsCancellationRequested) return 130;
+                var watch = Stopwatch.StartNew();
+                Console.WriteLine($"Running {step.Executable} {JsonSerializer.Serialize(step.Arguments)}");
+                var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
+                foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
+                Process process;
+                try { process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task"); }
+                catch (Exception error)
+                {
+                    Console.Error.WriteLine("Could not start development task: " + error.Message);
+                    results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, 2));
+                    return 2;
+                }
+                using var ownedProcess = process;
+                using var deadline = CancellationTokenSource.CreateLinkedTokenSource(interrupted.Token);
+                deadline.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
+                try { await process.WaitForExitAsync(deadline.Token); }
+                catch (OperationCanceledException)
+                {
+                    if (!process.HasExited) process.Kill(entireProcessTree: true);
+                    await process.WaitForExitAsync();
+                    var code = interrupted.IsCancellationRequested ? 130 : 124;
+                    Console.Error.WriteLine(code == 130 ? "Development task interrupted." : $"Development task timed out after {timeoutSeconds} seconds.");
+                    results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, code));
+                    return code;
+                }
+                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, process.ExitCode));
+                if (process.ExitCode != 0) return process.ExitCode;
             }
-            using var ownedProcess = process;
-            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(interrupted.Token);
-            deadline.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
-            try { await process.WaitForExitAsync(deadline.Token); }
-            catch (OperationCanceledException)
-            {
-                if (!process.HasExited) process.Kill(entireProcessTree: true);
-                await process.WaitForExitAsync();
-                var code = interrupted.IsCancellationRequested ? 130 : 124;
-                Console.Error.WriteLine(code == 130 ? "Development task interrupted." : $"Development task timed out after {timeoutSeconds} seconds.");
-                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, code));
-                return code;
-            }
-            results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, process.ExitCode));
-            if (process.ExitCode != 0) return process.ExitCode;
-        }
-        return 0;
+            return 0;
         }
         finally
         {

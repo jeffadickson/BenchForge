@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from workflow_recorder import recording_host
 
 ROOT = Path(__file__).resolve().parents[2]
 SHELL = 'powershell' if os.name == 'nt' else 'pwsh'
@@ -16,6 +17,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def setUpClass(cls):
         """Locate the already-built host using the architecture-only bootstrap."""
         result = subprocess.run([SHELL,'-NoProfile','-File',str(ROOT/'build.ps1'),'-PlanOnly'],capture_output=True,text=True,check=True,timeout=60)
+        cls.recorder=recording_host()
         cls.dll=ROOT/'.tools/check-workflow'/json.loads(result.stdout.lstrip('\ufeff'))['cache_segment']/'bin/BenchForge.CheckWorkflow.dll'
     def setUp(self):
         """Create a private project tree and recording subprocesses for each case."""
@@ -23,7 +25,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
         self.root=Path(self.temp.name)
         self.project('src/App/App.csproj'); self.project('tests/Core/Core.csproj')
         recorder="import sys,json,pathlib,time\np=pathlib.Path('events.jsonl')\nwith p.open('a') as f:f.write(json.dumps(sys.argv)+'\\n')\nif pathlib.Path('sleep').exists():time.sleep(30)\nstage=pathlib.Path(sys.argv[0]).name\nsys.exit(int(pathlib.Path('fail-'+stage).read_text()) if pathlib.Path('fail-'+stage).exists() else 0)\n"
-        for name in ['run','build','test','scripts/check_instrument_catalog.py']:
+        for name in ['scripts/check_instrument_catalog.py']:
             path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(recorder)
     def tearDown(self):
         """Remove only the disposable tree owned by this test."""
@@ -33,7 +35,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
         path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True);path.touch();return path
     def invoke(self,*args,expected=0):
         """Run the actual compiled command and preserve all diagnostic output."""
-        result=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',sys.executable,'--timeout-seconds','5',*args],capture_output=True,text=True,timeout=60)
+        result=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',self.recorder,'--timeout-seconds','5',*args],capture_output=True,text=True,timeout=60)
         self.assertEqual(expected,result.returncode,result.stdout+result.stderr);return result
     def plan(self,task='build',*args):
         """Read a task plan without executing its child programs."""
@@ -95,7 +97,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_unicode_paths(self):
         """Preserve Unicode project filenames."""
-        self.project('src/meter/測定.csproj');self.assertTrue(any('src/meter/測定.csproj' in s['Arguments'] for s in self.plan()))
+        self.project('src/meter/æ¸¬å®š.csproj');self.assertTrue(any('src/meter/æ¸¬å®š.csproj' in s['Arguments'] for s in self.plan()))
 
     def test_no_plan_children(self):
         """Plan mode launches no task subprocesses."""
@@ -179,7 +181,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_executable_report(self):
         """Record selected executable identities."""
-        self.invoke('--command','generate');self.assertTrue(all(s['Executable']==sys.executable for s in self.report()['stages']))
+        self.invoke('--command','generate');stages=self.report()['stages'];self.assertEqual(sys.executable,stages[0]['Executable']);self.assertTrue(all(s['Executable']==self.recorder for s in stages[1:]))
 
     def test_arguments_report(self):
         """Record exact generator arguments."""
@@ -187,7 +189,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_timeout(self):
         """Terminate timed-out children before dependent work."""
-        (self.root/'sleep').touch();host=['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',sys.executable,'--command','build','--timeout-seconds','1'];r=subprocess.run(host,capture_output=True,text=True,timeout=30);self.assertEqual(124,r.returncode,r.stderr);self.assertEqual(1,len(self.events()));self.assertEqual(124,self.report()['stages'][0]['ExitCode'])
+        (self.root/'sleep').touch();host=['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',self.recorder,'--command','build','--timeout-seconds','1'];r=subprocess.run(host,capture_output=True,text=True,timeout=30);self.assertEqual(124,r.returncode,r.stderr);self.assertEqual(1,len(self.events()));self.assertEqual(124,self.report()['stages'][0]['ExitCode'])
 
     def test_missing_python(self):
         """Record missing catalog executable without invoking dotnet tasks."""
@@ -200,3 +202,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_unknown_option(self):
         """Reject unsupported workflow options."""
         self.invoke('--command','build','--unknown','x',expected=2);self.assertEqual([],self.events())
+
+    def test_duplicate_option(self):
+        """Reject duplicate command options."""
+        self.invoke('--command','build','--command','test',expected=2);self.assertEqual([],self.events())

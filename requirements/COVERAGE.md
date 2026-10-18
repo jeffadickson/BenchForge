@@ -325,4 +325,6 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Reject unsupported workflow options. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+
+Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and checker regressions passed. Counts unchanged: 228 requirements, 0 Verified.

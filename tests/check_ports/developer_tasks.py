@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from workflow_recorder import recording_host
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,6 +17,7 @@ def main():
                           capture_output=True, text=True, check=True, timeout=60)
     segment = json.loads(plan.stdout.lstrip('\ufeff'))['cache_segment']
     dll = ROOT / '.tools/check-workflow' / segment / 'bin/BenchForge.CheckWorkflow.dll'
+    recorder_exe=recording_host()
     with tempfile.TemporaryDirectory(prefix='developer tasks ', dir=ROOT / 'build') as directory:
         fixture = Path(directory)
         projects = ['src/App/App.csproj', 'examples/Demo/Demo.csproj',
@@ -27,12 +29,12 @@ def main():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.touch()
         recorder = "import sys,json,pathlib\np=pathlib.Path('events.jsonl')\nwith p.open('a') as f:f.write(json.dumps(sys.argv)+'\\n')\nsys.exit(int(pathlib.Path('exit-code').read_text()) if pathlib.Path('exit-code').exists() else 0)\n"
-        for name in ['run', 'build', 'test', 'scripts/check_instrument_catalog.py']:
+        for name in ['scripts/check_instrument_catalog.py']:
             path = fixture / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(recorder)
         host = ['dotnet', str(dll), '--root', str(fixture), '--python', sys.executable,
-                '--dotnet', sys.executable, '--configuration', 'Debug']
+                '--dotnet', recorder_exe, '--configuration', 'Debug']
 
         def invoke(*args, expected=0):
             """Run the compiled host and require the original child exit status."""
@@ -43,7 +45,7 @@ def main():
         for task, count in [('build', 7), ('test', 4), ('generate', 3)]:
             steps = json.loads(invoke('--command', 'plan', '--task', task).stdout)
             assert len(steps) == count, steps
-            assert all(s['Executable'] == sys.executable for s in steps)
+            assert steps[0]['Executable']==sys.executable and all(s['Executable']==recorder_exe for s in steps[1:])
             assert not any('Hidden.csproj' in a or 'Browser.Tests.csproj' in a for s in steps for a in s['Arguments'])
             assert not (fixture / 'events.jsonl').exists()
         invoke('--command', 'build')

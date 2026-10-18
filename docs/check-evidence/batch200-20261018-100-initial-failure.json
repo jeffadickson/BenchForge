@@ -1,0 +1,34 @@
+{
+  "checkpoint": 100,
+  "tested_commit": "19a094789f37a5e3568e627456b44464e9273e96",
+  "worktree_has_pending_checkpoint_changes": true,
+  "platform": "Windows-11-10.0.26300-SP0",
+  "commands": [
+    {
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-File",
+        "build.ps1",
+        "-Command",
+        "identity"
+      ],
+      "exit_code": 0,
+      "seconds": 213.5410683999944,
+      "log": "build\\batch200\\100\\1.log"
+    },
+    {
+      "command": [
+        "python",
+        "tests/check_ports/developer_tasks.py"
+      ],
+      "exit_code": 1,
+      "seconds": 59.38459899999725,
+      "log": "build\\batch200\\100\\2.log"
+    }
+  ],
+  "requirements": [
+    "BD-CFG-007"
+  ],
+  "result": "failed"
+}

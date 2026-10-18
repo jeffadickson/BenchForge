@@ -55,3 +55,21 @@ matched the independent references byte for byte at jobs=1 and jobs=8; stale
 documentation inputs were regenerated and failed producers prevented consumers.
 GNU Make execution itself was unavailable locally; its routing was checked as a
 source contract. `git diff --check` passed. Validation was performed locally before committing.
+
+## Bounded execution and focused tests
+
+Use `./build.ps1 -Command test -TestFilter 'FullyQualifiedName~Mock'` to select
+application test cases. The filter remains one argument; it is never interpreted
+by a shell or applied to generation/build commands. `-TimeoutSeconds 900` sets a
+per-child deadline (default 300 seconds). Timeout stops dependent work, terminates
+the child process tree and returns 124 from the compiled host. Console interruption
+requests child cancellation; its handler also prevents starting another task.
+The bootstrap treats any nonzero host exit as failure.
+
+Real execution writes `build/developer-workflow.json`, containing the command,
+executables, argument arrays, stage durations and exit codes, including launch
+failures. Plan mode leaves this report untouched. Project discovery prunes bin/obj
+folders case-insensitively and skips symbolic links; absent optional trees are
+allowed. Browser projects stay outside ordinary test runs regardless of filename
+casing. Application projects remain sequential; independent check stages still
+run concurrently.
