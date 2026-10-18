@@ -72,7 +72,7 @@ internal static class WorkflowProgram
         Directory.SetCurrentDirectory(Program.Root);
         if (command is "build" or "test" or "generate" or "plan")
             return await DeveloperTasks.Run(command == "plan" ? Value("--task", "build") : command,
-                Value("--dotnet", "dotnet"), Value("--configuration", "Release"), command == "plan");
+                Value("--dotnet", "dotnet"), Value("--configuration", "Release"), command == "plan", timeout);
         if (command is not ("checks" or "checks-only")) return command switch
         {
             "requirements" => Requirements.Run(),

@@ -42,7 +42,7 @@ internal static class DeveloperTasks
         };
     }
 
-    internal static async Task<int> Run(string task, string dotnet, string configuration, bool planOnly)
+    internal static async Task<int> Run(string task, string dotnet, string configuration, bool planOnly, int timeoutSeconds)
     {
         var steps = Plan(task, dotnet, configuration);
         if (planOnly) { Console.WriteLine(JsonSerializer.Serialize(steps)); return 0; }
@@ -52,7 +52,15 @@ internal static class DeveloperTasks
             var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
             foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
             using var process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task");
-            await process.WaitForExitAsync();
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+            try { await process.WaitForExitAsync(deadline.Token); }
+            catch (OperationCanceledException)
+            {
+                if (!process.HasExited) process.Kill(entireProcessTree: true);
+                await process.WaitForExitAsync();
+                Console.Error.WriteLine($"Development task timed out after {timeoutSeconds} seconds.");
+                return 124;
+            }
             if (process.ExitCode != 0) return process.ExitCode;
         }
         return 0;
