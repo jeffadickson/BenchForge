@@ -199,4 +199,10 @@ public sealed class ReplayBTests
     {
         var r=R(S(0,1),S(1,2));var old=r.RemainingSamples();r.ReadNext("v","voltage",T(0));Assert.Equal(2,old.Count);Assert.Equal(2,Assert.Single(r.RemainingSamples()).Value);
     }
+
+    /// <summary>Full transcript snapshots include already consumed entries.</summary>
+    [Fact] public void SnapshotFull()
+    {
+        var r=R(S());r.ReadNext("v","voltage",T(0));Assert.Single(r.Snapshot());Assert.Empty(r.RemainingSamples());
+    }
 }

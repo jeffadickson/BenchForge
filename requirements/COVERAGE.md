@@ -622,4 +622,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Captured remaining samples survive later cursor changes. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Full transcript snapshots include already consumed entries. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
