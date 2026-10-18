@@ -115,4 +115,10 @@ public sealed class ReplayBTests
     {
         var samples=new[]{S(0,1)};var r=new SimulationReplay(samples);samples[0]=S(0,99);Assert.Equal(1,r.ReadNext("v","voltage",T(0)).Value);
     }
+
+    /// <summary>A matching read returns the complete canonical sample.</summary>
+    [Fact] public void ExactRead()
+    {
+        var s=S(7,8);var r=R(s);Assert.Equal(s,r.ReadNext("v","voltage",T(7)));Assert.Equal(new SimulationReplayStatus(1,1,0),r.Status());
+    }
 }
