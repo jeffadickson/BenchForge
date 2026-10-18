@@ -97,3 +97,5 @@ Local iteration 12 (2026-10-17), BD-CFG-002: Isolate routing logs and stabilize 
 Local iteration 13 (2026-10-17), BD-CFG-008: Validate DNS labels before VISA enumeration. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 13 (2026-10-17), BD-CFG-008: Validate discovery hostnames and isolate deadline-sensitive tests. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 14 (2026-10-17), BD-CFG-008: Reject incomplete VISA endpoint descriptors. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

@@ -62,10 +62,10 @@ public sealed class NativeVisaDiscoveryProvider : ISetupDiscoveryProvider
                     else if (parts.Length != 2 || parts[1] != "INTFC")
                         diagnostics.Add("Unsupported GPIB resource shape; use a provider supporting secondary addresses: " + resource);
                 }
-                else if (_scope == "USB" && resource.StartsWith("USB", StringComparison.Ordinal) && resource.EndsWith("::INSTR", StringComparison.Ordinal))
+                else if (_scope == "USB" && Regex.IsMatch(parts[0], @"\AUSB[0-9]+\z") && parts.Length is 5 or 6 && parts[^1] == "INSTR" && parts.Skip(1).All(p => !string.IsNullOrWhiteSpace(p)))
                     endpoints.Add(new("visa", "USB", resource, null, null,
                         parts.Length >= 5 ? new SetupIdentity(Serial: parts[3]) : null));
-                else if (_scope == "Ethernet" && parts.Length >= 3 && parts[0].StartsWith("TCPIP", StringComparison.Ordinal) && string.Equals(parts[1], _host, StringComparison.OrdinalIgnoreCase))
+                else if (_scope == "Ethernet" && parts.Length == 4 && parts[^1] == "INSTR" && !string.IsNullOrWhiteSpace(parts[2]) && Regex.IsMatch(parts[0], @"\ATCPIP[0-9]+\z") && string.Equals(parts[1], _host, StringComparison.OrdinalIgnoreCase))
                     endpoints.Add(new("visa", "Ethernet", resource, null, null, null));
             }
             if (endpoints.Count == 0) diagnostics.Add("No matching instrument resources reported. Check cabling, power and the vendor VISA configuration utility; missing devices are not proof of an empty bus.");

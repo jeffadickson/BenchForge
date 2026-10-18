@@ -153,5 +153,16 @@ public sealed class LocalHardeningTests
         _ = new NativeVisaDiscoveryProvider("Ethernet", "scope.lab.");
     }
 
+    /// <summary>Transport-like prefixes and incomplete descriptors do not become endpoints.</summary>
+    /// <returns>Completion after both catalogs are translated.</returns>
+    [Fact]
+    public async Task DiscoveryRejectsMalformedResourceShapes()
+    {
+        var usb = new NativeVisaDiscoveryProvider("USB", enumerate: (_, _) => ["USBFAKE::x::y::serial::INSTR", "USB0::INSTR", "USB0::x::y::::INSTR", "USB0::x::y::serial::INSTR"]);
+        Assert.Single((await usb.DiscoverAsync()).Endpoints);
+        var lan = new NativeVisaDiscoveryProvider("Ethernet", "scope.lab", (_, _) => ["TCPIPBAD::scope.lab::inst0::INSTR", "TCPIP0::scope.lab::inst0", "TCPIP0::scope.lab::inst0::SOCKET", "TCPIP0::scope.lab::inst0::INSTR"]);
+        Assert.Single((await lan.DiscoverAsync()).Endpoints);
+    }
+
 // CASES
 }
