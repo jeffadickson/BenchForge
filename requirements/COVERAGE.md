@@ -316,4 +316,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Stop before preview generation after generator failure. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Preserve the first failing build exit code. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

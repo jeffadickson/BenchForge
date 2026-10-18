@@ -164,3 +164,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_generator_failure(self):
         """Stop before preview generation after generator failure."""
         (self.root/'fail-run').write_text('24');self.invoke('--command','build',expected=24);self.assertEqual(2,len(self.events()));self.assertEqual(24,self.report()['stages'][-1]['ExitCode'])
+
+    def test_build_failure(self):
+        """Preserve the first failing build exit code."""
+        self.project('src/Z/Z.csproj');(self.root/'fail-build').write_text('25');self.invoke('--command','build',expected=25);self.assertEqual(4,len(self.events()));self.assertEqual(25,self.report()['stages'][-1]['ExitCode'])
