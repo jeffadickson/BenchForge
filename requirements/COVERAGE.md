@@ -161,3 +161,5 @@ Batch iteration 23/30 (2026-10-17), BD-SIM-001: Align rule fingerprint validatio
 Batch iteration 24/30 (2026-10-17), BD-SIM-001: Canonicalize signed zeros in rule provenance. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
 
 Batch iteration 25/30 (2026-10-17), BD-HB-002: Separate owner renewal scheduling from HTTP timeouts. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.
+
+Batch iteration 26/30 (2026-10-17), BD-HB-002: Validate initial owner-health ages and expiry budgets. Canonical statuses unchanged; runtime verification deferred to checkpoint 30 under the requested cadence. See docs/LOCAL-BATCH-30.md.

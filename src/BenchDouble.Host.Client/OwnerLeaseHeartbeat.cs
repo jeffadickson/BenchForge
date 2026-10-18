@@ -37,6 +37,8 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
         ArgumentNullException.ThrowIfNull(client); ArgumentNullException.ThrowIfNull(snapshot);
         if (string.IsNullOrWhiteSpace(resourceId) || resourceId.Length > 80 || resourceId.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not ('_' or '-' or '.')) ||
             leaseId == Guid.Empty || snapshot.HostEpoch == Guid.Empty || snapshot.OwnerGeneration <= 0 || snapshot.Sequence < 0 || snapshot.Sequence == long.MaxValue ||
+            !double.IsFinite(snapshot.AgeMilliseconds) || snapshot.AgeMilliseconds < 0 ||
+            !double.IsFinite(snapshot.ExpireMilliseconds) || snapshot.ExpireMilliseconds > 3600000 || snapshot.ExpireMilliseconds < snapshot.IntervalMilliseconds * 4 || snapshot.AgeMilliseconds >= snapshot.ExpireMilliseconds || snapshot.LossPolicy != "FenceAndRetain" ||
             !double.IsFinite(snapshot.IntervalMilliseconds) || snapshot.IntervalMilliseconds is < 10 or > 60000 || snapshot.State is not ("Healthy" or "Suspect") || snapshot.Sequence > 0 && snapshot.PeerEpoch == Guid.Empty)
             throw new ArgumentException("Invalid or expired heartbeat setup.");
         _client = client; _resource = resourceId; _lease = leaseId; _initial = snapshot;

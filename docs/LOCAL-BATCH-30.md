@@ -29,3 +29,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 23 | Align rule fingerprint validation with execution | BD-SIM-001 | Pending checkpoint 30 |
 | 24 | Canonicalize signed zeros in rule provenance | BD-SIM-001 | Pending checkpoint 30 |
 | 25 | Separate owner renewal scheduling from HTTP timeouts | BD-HB-002 | Pending checkpoint 30 |
+| 26 | Validate initial owner-health ages and expiry budgets | BD-HB-002 | Pending checkpoint 30 |

@@ -44,5 +44,13 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal("Healthy",await heartbeat.RenewAsync());
     }
 
+    /// <summary>Malformed, expired or unsupported initial health snapshots cannot start renewal.</summary>
+    [Fact] public void InitialOwnerBudgetsAreValidated()
+    {
+        using var client=new HttpClient();var initial=Snapshot();
+        foreach(var invalid in new[]{initial with{AgeMilliseconds=-1},initial with{AgeMilliseconds=double.NaN},initial with{ExpireMilliseconds=double.PositiveInfinity},initial with{AgeMilliseconds=30000},initial with{ExpireMilliseconds=20},initial with{LossPolicy="Release"}})
+            Assert.Throws<ArgumentException>(()=>new OwnerLeaseHeartbeat(client,"meter",Guid.NewGuid(),invalid));
+    }
+
 // CASES
 }
