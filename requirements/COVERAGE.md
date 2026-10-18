@@ -416,4 +416,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Expiry cannot be reversed by a correctly identified renewal. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Renewal cannot conceal a clock rollback. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

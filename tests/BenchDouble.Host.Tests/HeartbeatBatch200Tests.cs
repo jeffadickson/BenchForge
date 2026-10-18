@@ -186,4 +186,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;c.At(40);Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),1));Assert.Null(r.Reserve("DMM1"));
     }
+
+    /// <summary>Renewal cannot conceal a clock rollback.</summary>
+    [Fact] public void RollbackRenewal()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;c.At(10);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);c.At(5);Assert.Throws<InvalidOperationException>(()=>r.RenewOwnerHeartbeat("DMM1",g.LeaseId,s.HostEpoch,s.OwnerGeneration,Guid.NewGuid(),1));
+    }
 }
