@@ -103,7 +103,7 @@ BD-TS-003,P0,SourceCommittedUnverified,src/BenchDouble.TimeSeries.Sqlite/SqliteT
 BD-TS-004,P1,SourceCommittedUnverified,src/BenchDouble.TimeSeries.Sqlite/SqliteTimeSeriesStore.cs,tests/BenchDouble.TimeSeries.Sqlite.Tests/SqliteRecorderTests.cs,https://github.com/jeffadickson/BenchDouble/issues/26,,
 BD-TS-005,P1,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/26,,
 BD-TS-006,P1,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/21,,
-BD-SIM-001,P0,SourceCommittedUnverified,src/BenchDouble/Generated/StatefulMockEngine.cs,tests/BenchDouble.Tests/StatefulMockEngineTests.cs,https://github.com/jeffadickson/BenchDouble/issues/22,,tests/BenchDouble.Tests/LocalHardeningTests.cs
+BD-SIM-001,P0,SourceCommittedUnverified,src/BenchDouble/Generated/StatefulMockEngine.cs,tests/BenchDouble.Tests/StatefulMockEngineTests.cs,https://github.com/jeffadickson/BenchDouble/issues/22,,tests/BenchDouble.Tests/BatchedDevelopmentTests.cs;tests/BenchDouble.Tests/LocalHardeningTests.cs
 BD-SIM-002,P1,SourceCommittedUnverified,src/BenchDouble/Simulation/ThermalSignals.cs,tests/BenchDouble.Tests/ThermalSignalsTests.cs,https://github.com/jeffadickson/BenchDouble/issues/25,,
 BD-SIM-003,P1,SourceCommittedUnverified,src/BenchDouble/Simulation/VirtualBenchGraph.cs,tests/BenchDouble.Tests/VirtualBenchGraphTests.cs,https://github.com/jeffadickson/BenchDouble/issues/25,,
 BD-SIM-004,P1,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/22,,

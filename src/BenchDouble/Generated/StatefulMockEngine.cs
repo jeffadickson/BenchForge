@@ -111,6 +111,7 @@ public sealed class StatefulMockEngine
                 ? await asyncModel(context, ct).ConfigureAwait(false)
                 : _models.TryGetValue(capability, out var model) ? model(context)
                 : fallback ?? throw new InvalidOperationException("No configured mock reading.");
+            ct.ThrowIfCancellationRequested();
             if (!double.IsFinite(result)) throw new InvalidOperationException("Nonfinite mock reading.");
             return result;
         }

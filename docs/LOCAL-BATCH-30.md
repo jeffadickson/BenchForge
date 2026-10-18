@@ -6,3 +6,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 |---|---|---|---|
 | 1 | Isolate stateful mock diagnostic sinks | TR-076 | Pending checkpoint 10 |
 | 2 | Redact stateful mock fault payloads | TR-076 | Pending checkpoint 10 |
+| 3 | Honor cancellation after asynchronous mock models | BD-SIM-001 | Pending checkpoint 10 |

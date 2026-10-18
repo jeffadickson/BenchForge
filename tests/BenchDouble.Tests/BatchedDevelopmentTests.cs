@@ -53,5 +53,14 @@ public sealed class BatchedDevelopmentTests
         Assert.All(sink.Errors,Assert.Null);Assert.All(sink.Messages,m=>Assert.DoesNotContain("SECRET",m));
     }
 
+    /// <summary>Cancellation during a cooperative model cannot return a successful scalar afterward.</summary>
+    /// <returns>Completion after the cancelled model exits.</returns>
+    [Fact] public async Task CancelledModelCannotReturnSuccess()
+    {
+        var e=Engine();await e.ConfigureModeAsync("voltage");using var ct=new CancellationTokenSource();
+        e.SetAsyncBehavior("voltage",(_,_)=>{ct.Cancel();return ValueTask.FromResult(1d);});
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",ct.Token));
+    }
+
 // CASES
 }
