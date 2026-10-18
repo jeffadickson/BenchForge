@@ -86,4 +86,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(99);Assert.Equal(1,await e.MeasureAsync("voltage"));Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Zero-duration preparations are immediately ready.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task Instant()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(0),0);Assert.Equal(1,await e.MeasureAsync("voltage"));
+    }
 }
