@@ -109,5 +109,8 @@ public sealed class SimulationScheduler
     /// <returns>Immutable next event, or null when no events are queued.</returns>
     public SimulationScheduledEvent? Peek(){lock(_gate)return _pending.Count==0?null:_pending.First().Value;}
 
+    /// <summary>Remaining queue slots captured under the same gate as event mutations.</summary>
+    public int RemainingCapacity{get{lock(_gate)return _capacity-_pending.Count;}}
+
     // Scheduler members.
 }
