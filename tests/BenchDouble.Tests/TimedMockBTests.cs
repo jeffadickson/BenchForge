@@ -260,4 +260,11 @@ public sealed class TimedMockBTests
     {
         var c=new Clock();var a=Engine(c);var d=Engine(c);await a.ConfigureModeAsync("v");await d.ConfigureModeAsync("v");await a.PrepareMeasurementAsync("voltage",Profile(),0);Assert.Null(d.PreparedMeasurementStatus("voltage"));Assert.Equal(1,await d.MeasureAsync("voltage"));
     }
+
+    /// <summary>Captured preparation maps survive later clears.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task DetachedSnapshot()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);var before=e.Snapshot();e.ClearPreparedMeasurement("voltage");Assert.Single(before.PreparedMeasurements);Assert.Empty(e.Snapshot().PreparedMeasurements);
+    }
 }
