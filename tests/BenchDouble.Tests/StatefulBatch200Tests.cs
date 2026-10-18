@@ -222,4 +222,11 @@ public sealed class StatefulBatch200Tests
     {
         using var c=new CancellationTokenSource(); var e=Engine(new CallbackClock(()=>{c.Cancel();return TimeSpan.Zero;})); await e.ConfigureModeAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token)); Assert.Equal(1,e.FaultCount("voltage"));
     }
+
+    /// <summary>Cancellation during clock sampling does not consume sequence values.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ClockCancellationPreservesSequence()
+    {
+        using var c=new CancellationTokenSource(); var e=Engine(new CallbackClock(()=>{c.Cancel();return TimeSpan.Zero;})); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[3,4]); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token)); Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
+    }
 }

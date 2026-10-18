@@ -371,4 +371,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Cancellation during clock sampling does not consume faults. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Cancellation during clock sampling does not consume sequence values. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
