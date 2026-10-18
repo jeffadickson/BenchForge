@@ -68,3 +68,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_mixed_bin(self):
         """Exclude mixed-case binary artifact folders."""
         self.project('src/App/BiN/Hidden.csproj');self.assertEqual(4,len(self.plan()))
+
+    def test_mixed_obj(self):
+        """Exclude mixed-case intermediate artifact folders."""
+        self.project('src/App/ObJ/Hidden.csproj');self.assertEqual(4,len(self.plan()))

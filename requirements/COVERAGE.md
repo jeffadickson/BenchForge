@@ -292,4 +292,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Exclude mixed-case binary artifact folders. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Exclude mixed-case intermediate artifact folders. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
