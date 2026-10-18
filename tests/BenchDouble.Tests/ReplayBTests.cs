@@ -97,4 +97,10 @@ public sealed class ReplayBTests
     {
         var r=R(S(0,1),S(0,2));Assert.Equal(1,r.ReadNext("v","voltage",T(0)).Value);Assert.Equal(2,r.ReadNext("v","voltage",T(0)).Value);
     }
+
+    /// <summary>Every nonfinite replay scalar value is rejected.</summary>
+    [Fact] public void Nonfinite()
+    {
+        foreach(var v in new[]{double.NaN,double.PositiveInfinity,double.NegativeInfinity})Assert.Throws<ArgumentException>(()=>R(S(0,v)));
+    }
 }
