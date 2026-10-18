@@ -49,4 +49,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(S() with{Mode=" "}));
     }
+
+    /// <summary>Null transcript capability labels are rejected.</summary>
+    [Fact] public void NullCapability()
+    {
+        Assert.Throws<ArgumentNullException>(()=>R(S() with{Capability=null!}));
+    }
 }
