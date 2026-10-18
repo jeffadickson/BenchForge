@@ -216,4 +216,10 @@ public sealed class LatencyBTests
     {
         Assert.Throws<OverflowException>(()=>Profile(Stage(1,0)).Sample(0).ReadyAt(TimeSpan.MaxValue));
     }
+
+    /// <summary>Worst-case duration sums all configured phase bounds.</summary>
+    [Fact] public void MaximumBound()
+    {
+        Assert.Equal(210,Profile(Stage(),Stage(80,20,SimulationLatencyPhase.Display)).MaximumDuration.Ticks);
+    }
 }
