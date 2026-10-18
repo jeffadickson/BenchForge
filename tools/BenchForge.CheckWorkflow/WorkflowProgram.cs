@@ -40,7 +40,7 @@ internal static class WorkflowProgram
 
     private static async Task<int> Run(string[] args)
     {
-        var keys = new HashSet<string> { "--root", "--python", "--jobs", "--timing", "--command", "--expected-architecture", "--timeout-seconds", "--dotnet", "--configuration", "--task" };
+        var keys = new HashSet<string> { "--root", "--python", "--jobs", "--timing", "--command", "--expected-architecture", "--timeout-seconds", "--dotnet", "--configuration", "--task", "--test-filter" };
         var seen = new HashSet<string>();
         for (int index = 0; index < args.Length; index += 2)
         {
@@ -72,7 +72,7 @@ internal static class WorkflowProgram
         Directory.SetCurrentDirectory(Program.Root);
         if (command is "build" or "test" or "generate" or "plan")
             return await DeveloperTasks.Run(command == "plan" ? Value("--task", "build") : command,
-                Value("--dotnet", "dotnet"), Value("--configuration", "Release"), command == "plan", timeout);
+                Value("--dotnet", "dotnet"), Value("--configuration", "Release"), command == "plan", timeout, Value("--test-filter", ""));
         if (command is not ("checks" or "checks-only")) return command switch
         {
             "requirements" => Requirements.Run(),

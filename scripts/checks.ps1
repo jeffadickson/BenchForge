@@ -1,6 +1,7 @@
 param(
     [string]$Root = (Split-Path -Parent $PSScriptRoot),
     [string]$Cache = '',
+    [string]$TestFilter = '',
     [string]$Timing = '',
     [string]$Python = 'python',
     [string]$Dotnet = 'dotnet',
@@ -116,7 +117,7 @@ try {
         Write-CheckAtomic (Join-Path $Cache 'build-identity.json') (($plan | Select-Object *,@{Name='sdk';Expression={$sdk}}) | ConvertTo-Json)
         Write-CheckAtomic $fingerprintFile $fingerprint
     }
-    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' $dotnetPath @($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds",'--dotnet',$dotnetPath,'--configuration',$Configuration,'--task',$Task) }
+    if (!$PrepareOnly) { Invoke-WorkflowStep 'checks-and-focused-regressions' $dotnetPath (@($dll,'--root',$Root,'--python',$Python,'--jobs',"$Jobs",'--timing',($Timing+'.checks.json'),'--command',$Command,'--expected-architecture',$plan.architecture,'--timeout-seconds',"$TimeoutSeconds",'--dotnet',$dotnetPath,'--configuration',$Configuration,'--task',$Task) + @(if ($TestFilter) { @('--test-filter',$TestFilter) } else { @() })) }
 }
 finally {
     [System.IO.Directory]::CreateDirectory((Split-Path -Parent ([System.IO.Path]::GetFullPath($Timing)))) | Out-Null

@@ -1,6 +1,7 @@
 # Primary developer entry point. The existing bootstrap validates and caches the C# host.
 param(
     [string]$Command = 'checks',
+    [string]$TestFilter = '',
     [string]$Dotnet = 'dotnet',
     [string]$Python = $(if ($env:OS -eq 'Windows_NT') { 'python' } else { 'python3' }),
     [ValidateSet('Debug','Release')][string]$Configuration = 'Release',

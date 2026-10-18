@@ -7,7 +7,7 @@ internal static class DeveloperTasks
     internal sealed record Step(string Executable, string[] Arguments);
     private sealed record Stage(string Executable, string[] Arguments, double Milliseconds, int ExitCode);
 
-    internal static Step[] Plan(string task, string dotnet, string configuration)
+    internal static Step[] Plan(string task, string dotnet, string configuration, string? testFilter = null)
     {
         if (configuration is not ("Debug" or "Release")) throw new ArgumentException("Invalid configuration");
         Step Dotnet(params string[] args) => new(dotnet, args);
@@ -38,14 +38,14 @@ internal static class DeveloperTasks
             "build" => Generate().Concat(new[] { "src", "examples", "tools", "generated" }.SelectMany(Projects)
                 .Select(p => Dotnet("build", p, "--configuration", configuration))).ToArray(),
             "test" => Generate().Concat(Projects("tests").Where(p => !p.EndsWith("BenchDouble.Browser.Tests.csproj", StringComparison.OrdinalIgnoreCase))
-                .Select(p => Dotnet("test", p, "--configuration", configuration))).ToArray(),
+                .Select(p => Dotnet(new[] { "test", p, "--configuration", configuration }.Concat(string.IsNullOrWhiteSpace(testFilter) ? [] : new[] { "--filter", testFilter }).ToArray()))).ToArray(),
             _ => throw new ArgumentException($"Unknown development task {task}")
         };
     }
 
-    internal static async Task<int> Run(string task, string dotnet, string configuration, bool planOnly, int timeoutSeconds)
+    internal static async Task<int> Run(string task, string dotnet, string configuration, bool planOnly, int timeoutSeconds, string? testFilter = null)
     {
-        var steps = Plan(task, dotnet, configuration);
+        var steps = Plan(task, dotnet, configuration, testFilter);
         if (planOnly) { Console.WriteLine(JsonSerializer.Serialize(steps)); return 0; }
         var results = new List<Stage>();
         using var interrupted = new CancellationTokenSource();
