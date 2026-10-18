@@ -32,4 +32,10 @@ public sealed class ScpiBatch200Tests
     {
         Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:"V\t")]));
     }
+
+    /// <summary>Reject oversized quantity identities.</summary>
+    [Fact] public void LongQuantity()
+    {
+        Assert.Throws<ArgumentException>(() => new DefinitionDrivenScpiMockSession(1,[Parameter(quantity:new string('v',129))]));
+    }
 }
