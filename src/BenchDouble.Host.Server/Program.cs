@@ -190,6 +190,7 @@ public sealed partial class HostResourceRegistry
         {
             if (_draining) return null;
             if ((!_devices.ContainsKey(resourceId) && !_managedDescriptors.ContainsKey(resourceId)) || _reservations.ContainsKey(resourceId) || _startupQuarantine.Contains(resourceId)) return null;
+            var heartbeatTimestamp = _heartbeatPolicy is null ? (long?)null : Clock.GetTimestamp();
             if (_journal is not null && _managedDescriptors.ContainsKey(resourceId))
             {
                 // A renamed or missing registration cannot prove that its routes are disjoint.
@@ -210,7 +211,7 @@ public sealed partial class HostResourceRegistry
             _reservations[resourceId] = lease;
             _byLease[lease] = resourceId;
             _leaseGates[lease] = new SemaphoreSlim(1, 1);
-            if (_heartbeatPolicy is not null) _ownerHealth.Add(lease, new(resourceId, checked(++_ownerGeneration), Clock.GetTimestamp()));
+            if (_heartbeatPolicy is not null) _ownerHealth.Add(lease, new(resourceId, checked(++_ownerGeneration), heartbeatTimestamp!.Value));
             Record(resourceId, "Reserved", "Exclusive local demonstration lease acquired");
             return new ReservationGrant(resourceId, lease);
         }
