@@ -162,4 +162,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.At(5);var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;c.At(10);_=r.InspectOwnerHeartbeat("DMM1",g.LeaseId);Assert.Equal(5,s.AgeMilliseconds);
     }
+
+    /// <summary>UTC jumps forward do not affect monotonic heartbeat age.</summary>
+    [Fact] public void WallClockForward()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.Utc=c.Utc.AddYears(10);Assert.Equal(0,r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.AgeMilliseconds);
+    }
 }

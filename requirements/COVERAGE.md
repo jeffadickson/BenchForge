@@ -412,4 +412,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Later observations cannot change a prior snapshot age. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: UTC jumps forward do not affect monotonic heartbeat age. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
