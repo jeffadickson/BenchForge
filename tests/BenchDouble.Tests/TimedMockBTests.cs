@@ -191,4 +191,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);await e.ConfigureModeAsync("r");Assert.Null(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>Reapplying the same mode preserves outstanding preparation.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task IdempotentMode()
+    {
+        var e=Engine();await e.ConfigureModeAsync("v");var p=await e.PrepareMeasurementAsync("voltage",Profile(),0);await e.ConfigureModeAsync("v");Assert.Equal(p,e.PreparedMeasurementStatus("voltage"));
+    }
 }
