@@ -75,4 +75,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetBehavior("voltage",_=>throw new InvalidOperationException()); Assert.Equal("Synchronous",e.Snapshot().BehaviorKinds["voltage"]);
     }
+
+    /// <summary>Async callbacks are identified without execution.</summary>
+    [Fact] public void AsynchronousKind()
+    {
+        var e=Engine(); e.SetAsyncBehavior("voltage",(_,_)=>throw new InvalidOperationException()); Assert.Equal("Asynchronous",e.Snapshot().BehaviorKinds["voltage"]);
+    }
 }
