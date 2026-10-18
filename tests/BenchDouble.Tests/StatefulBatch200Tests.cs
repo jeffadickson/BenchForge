@@ -50,4 +50,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.QueueFault("voltage",new TimeoutException()); var before=e.Snapshot(); e.ClearFaults("voltage"); Assert.Equal(1,before.PendingFaultCounts["voltage"]); Assert.Empty(e.Snapshot().PendingFaultCounts);
     }
+
+    /// <summary>Snapshot fault maps reject external mutation.</summary>
+    [Fact] public void ReadOnlyFaultCounts()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException()); var map=Assert.IsAssignableFrom<IDictionary<string,int>>(e.Snapshot().PendingFaultCounts); Assert.Throws<NotSupportedException>(()=>map.Clear());
+    }
 }
