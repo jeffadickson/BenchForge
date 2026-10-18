@@ -241,4 +241,11 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); var r=e.Snapshot().Revision; Assert.Equal(0,e.ClearAllBehaviors()); Assert.Equal(r,e.Snapshot().Revision);
     }
+
+    /// <summary>Bulk behavior clear retains scalar overrides.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task BehaviorClearPreservesOverride()
+    {
+        var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",9); e.SetBehavior("voltage",_=>3); e.ClearAllBehaviors(); Assert.Equal(9,await e.MeasureAsync("voltage"));
+    }
 }
