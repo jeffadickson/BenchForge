@@ -152,3 +152,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_build_execution(self):
         """Build source projects only after generation."""
         self.invoke('--command','build');self.assertEqual(['check_instrument_catalog.py','run','run','build'],[Path(e[0]).name for e in self.events()])
+
+    def test_test_execution(self):
+        """Run test projects only after generation."""
+        self.invoke('--command','test');self.assertEqual('test',self.events()[-1][0]);self.assertEqual('test',self.report()['task'])
