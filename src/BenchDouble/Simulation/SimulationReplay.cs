@@ -86,5 +86,9 @@ public sealed class SimulationReplay
     public void Reset(CancellationToken ct=default)
     {ct.ThrowIfCancellationRequested();lock(_gate){ct.ThrowIfCancellationRequested();_position=0;}}
 
+    /// <summary>Create an independent cursor starting at zero, regardless of this cursor's position.</summary>
+    /// <returns>New local replay with a copied immutable plan.</returns>
+    public SimulationReplay Fork()=>new(_samples);
+
     // Replay members.
 }

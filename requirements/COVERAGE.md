@@ -588,4 +588,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Explicitly reset local replay without mutating transcript samples. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Fork an independent replay run at the start of the same plan. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
