@@ -129,4 +129,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(2,[Parameter(name:"z",query:"Z?",setter:null),Parameter(name:"a",query:"A?",setter:null)]); Assert.Equal(new[]{"z1","z2","a1","a2"},s.GetReadingsSnapshot().Select(r=>r.Parameter+r.Channel));
     }
+
+    /// <summary>Reset restores every channel default.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ResetAllChannels()
+    {
+        var s=Session(); await s.WriteAsync("V1 3"); await s.WriteAsync("V2 4"); await s.ResetAsync(); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
