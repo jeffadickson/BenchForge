@@ -75,3 +75,5 @@ Local iteration 04 (2026-10-17), BD-HB-003: Stop scope renewal on terminal host 
 Local iteration 05 (2026-10-17), BD-HB-002: Isolate every scope heartbeat observer. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 06 (2026-10-17), BD-HB-002: Bound each scope heartbeat HTTP renewal. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 07 (2026-10-17), TR-076: Isolate SCPI logging sink failures. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

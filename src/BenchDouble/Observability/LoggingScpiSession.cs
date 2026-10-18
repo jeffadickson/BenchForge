@@ -49,29 +49,34 @@ public sealed class LoggingScpiSession : IScpiSession
     private T Execute<T>(string operation, string command, Func<T> action)
     {
         var started = Stopwatch.GetTimestamp();
-        _logger.LogDebug("Instrument {Instrument} {Operation} started; Command={Command}",
-            _options.InstrumentName, operation, Display(command, _options.LogCommandPayload));
+        TryLog(() => _logger.LogDebug("Instrument {Instrument} {Operation} started; Command={Command}",
+            _options.InstrumentName, operation, Display(command, _options.LogCommandPayload)));
         try
         {
             var result = action();
             var elapsed = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
             if (operation == "Query" && result is string response)
-                _logger.LogDebug("Instrument {Instrument} {Operation} completed; ElapsedMs={ElapsedMs}; Response={Response}",
-                    _options.InstrumentName, operation, elapsed, Display(response, _options.LogResponsePayload));
+                TryLog(() => _logger.LogDebug("Instrument {Instrument} {Operation} completed; ElapsedMs={ElapsedMs}; Response={Response}",
+                    _options.InstrumentName, operation, elapsed, Display(response, _options.LogResponsePayload)));
             else
-                _logger.LogDebug("Instrument {Instrument} {Operation} completed; ElapsedMs={ElapsedMs}",
-                    _options.InstrumentName, operation, elapsed);
+                TryLog(() => _logger.LogDebug("Instrument {Instrument} {Operation} completed; ElapsedMs={ElapsedMs}",
+                    _options.InstrumentName, operation, elapsed));
             return result;
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception,
+            TryLog(() => _logger.LogError(exception,
                 "Instrument {Instrument} {Operation} failed; ElapsedMs={ElapsedMs}; Command={Command}",
                 _options.InstrumentName, operation,
                 Stopwatch.GetElapsedTime(started).TotalMilliseconds,
-                Display(command, _options.LogCommandPayload));
+                Display(command, _options.LogCommandPayload)));
             throw;
         }
+    }
+
+    private static void TryLog(Action emit)
+    {
+        try { emit(); } catch { /* Diagnostic sinks cannot alter instrument I/O. */ }
     }
 
     private string Display(string content, bool permitted) =>
