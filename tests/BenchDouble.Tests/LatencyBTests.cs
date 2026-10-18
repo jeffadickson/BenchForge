@@ -34,7 +34,7 @@ public sealed class LatencyBTests
     /// <summary>Null phase entries are rejected.</summary>
     [Fact] public void NullStage()
     {
-        Assert.Throws<ArgumentNullException>(()=>Profile(null!));
+        Assert.Throws<ArgumentNullException>(()=>Profile(new SimulationLatencyStage[]{null!}));
     }
 
     /// <summary>Unknown phase identifiers are rejected.</summary>
@@ -124,7 +124,7 @@ public sealed class LatencyBTests
     /// <summary>Different seeds change a nonzero jitter sequence.</summary>
     [Fact] public void SeedVariation()
     {
-        var a=new SimulationLatencyProfile(1,[Stage()]);var b=new SimulationLatencyProfile(2,[Stage()]);Assert.NotEqual(Enumerable.Range(0,32).Select(i=>a.Sample(i).Total.Ticks),Enumerable.Range(0,32).Select(i=>b.Sample(i).Total.Ticks));
+        var a=new SimulationLatencyProfile(1,[Stage()]);var b=new SimulationLatencyProfile(2,[Stage()]);Assert.False(Enumerable.Range(0,32).Select(i=>a.Sample(i).Total.Ticks).SequenceEqual(Enumerable.Range(0,32).Select(i=>b.Sample(i).Total.Ticks)));
     }
 
     /// <summary>Different operation indices vary nonzero jitter.</summary>
@@ -239,5 +239,11 @@ public sealed class LatencyBTests
     [Fact] public void NoRandomCursor()
     {
         var p=Profile(Stage());var s=p.Sample(5).Total;_=p.Sample(1);_=p.Sample(100);Assert.Equal(s,p.Sample(5).Total);
+    }
+
+    /// <summary>Oversized phase sources are not enumerated indefinitely.</summary>
+    [Fact] public void BoundedEnumeration()
+    {
+        IEnumerable<SimulationLatencyStage> Values(){for(var i=0;i<8;i++)yield return Stage();throw new InvalidOperationException("over-enumerated");}Assert.Throws<ArgumentException>(()=>new SimulationLatencyProfile(0,Values()));
     }
 }

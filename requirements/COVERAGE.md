@@ -479,4 +479,4 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Out-of-order sampling does not mutate a random cursor. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+Batch 200B current: checkpoint 50 passed (47 targeted tests plus 19 checker regressions). 228 requirements, 0 Verified; 145 source-linked unverified. Full requirement acceptance remains open.
