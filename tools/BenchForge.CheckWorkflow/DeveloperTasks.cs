@@ -59,7 +59,15 @@ internal static class DeveloperTasks
             Console.WriteLine($"Running {step.Executable} {string.Join(' ', step.Arguments)}");
             var info = new ProcessStartInfo(step.Executable) { WorkingDirectory = Program.Root, UseShellExecute = false };
             foreach (var argument in step.Arguments) info.ArgumentList.Add(argument);
-            using var process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task");
+            Process process;
+            try { process = Process.Start(info) ?? throw new InvalidOperationException("Could not start development task"); }
+            catch (Exception error)
+            {
+                Console.Error.WriteLine("Could not start development task: " + error.Message);
+                results.Add(new(step.Executable, step.Arguments, watch.Elapsed.TotalMilliseconds, 2));
+                return 2;
+            }
+            using var ownedProcess = process;
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(interrupted.Token);
             deadline.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
             try { await process.WaitForExitAsync(deadline.Token); }

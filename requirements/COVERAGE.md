@@ -284,4 +284,5 @@ Batch 200 checkpoint 50: 110 focused application cases plus seven compiled check
 
 
 
-Batch 200 current: Forward focused test filters as one argument without shell interpretation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Record launch failures and stop before dependent tasks. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
