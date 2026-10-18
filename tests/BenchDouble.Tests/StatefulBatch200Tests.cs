@@ -105,4 +105,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetBehavior("voltage",_=>3); var s=e.Snapshot(); e.SetSequence("voltage",[4]); Assert.Equal("Synchronous",s.BehaviorKinds["voltage"]);
     }
+
+    /// <summary>Model-kind maps reject caller writes.</summary>
+    [Fact] public void ReadOnlyModelKinds()
+    {
+        var e=Engine(); e.SetSequence("voltage",[3]); var map=Assert.IsAssignableFrom<IDictionary<string,string>>(e.Snapshot().BehaviorKinds); Assert.Throws<NotSupportedException>(()=>map["voltage"]="bad");
+    }
 }
