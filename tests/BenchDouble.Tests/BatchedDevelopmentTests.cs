@@ -83,5 +83,13 @@ public sealed class BatchedDevelopmentTests
         Assert.Equal(3,await e.MeasureAsync("voltage"));
     }
 
+    /// <summary>Removing nonexistent models is an idempotent configuration operation.</summary>
+    [Fact] public void RemovingAbsentModelsDoesNotRevise()
+    {
+        var e=Engine();var revision=e.Snapshot().Revision;
+        e.SetBehavior("voltage",null);e.SetAsyncBehavior("voltage",null);
+        Assert.Equal(revision,e.Snapshot().Revision);
+    }
+
 // CASES
 }

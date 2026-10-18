@@ -224,6 +224,7 @@ public sealed class StatefulMockEngine
         _gate.Wait();
         try
         {
+            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
             _asyncModels.Remove(capability);
             if (behavior is null) _models.Remove(capability);
             else _models[capability] = behavior;
@@ -243,6 +244,7 @@ public sealed class StatefulMockEngine
         _gate.Wait();
         try
         {
+            if (behavior is null && !_models.ContainsKey(capability) && !_asyncModels.ContainsKey(capability)) return;
             _models.Remove(capability);
             if (behavior is null) _asyncModels.Remove(capability);
             else _asyncModels[capability] = behavior;

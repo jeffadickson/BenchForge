@@ -9,3 +9,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 3 | Honor cancellation after asynchronous mock models | BD-SIM-001 | Pending checkpoint 10 |
 | 4 | Track consumed mock faults in state revisions | BD-SIM-001 | Pending checkpoint 10 |
 | 5 | Add explicit queued mock fault clearing | BD-SIM-001 | Pending checkpoint 10 |
+| 6 | Keep absent model removal idempotent | BD-SIM-001 | Pending checkpoint 10 |
