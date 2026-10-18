@@ -131,5 +131,11 @@ public sealed class BatchedDevelopmentTests
             Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(replacement));
     }
 
+    /// <summary>Oversized definitions fail before parsing or materializing metadata.</summary>
+    [Fact] public void ImportedDefinitionIsBounded()
+    {
+        Assert.Throws<InvalidDataException>(()=>ImportedInstrumentDefinition.Parse(new string(' ',1024*1024+1)));
+    }
+
 // CASES
 }

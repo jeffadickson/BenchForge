@@ -19,12 +19,14 @@ public sealed class ImportedInstrumentDefinition
     private ImportedInstrumentDefinition(string name) => DriverName = name;
 
     /// <summary>Parse schema v2 with strict supported-subset validation and no code execution.</summary>
-    /// <param name="json">Instrument definition encoded as schema-v2 JSON.</param>
+    /// <param name="json">Schema-v2 JSON, at most 1 Mi characters and 32 nesting levels.</param>
     /// <returns>A validated simulation-only definition.</returns>
     /// <exception cref="InvalidDataException">The definition contains unsupported or invalid capabilities.</exception>
     public static ImportedInstrumentDefinition Parse(string json)
     {
-        using var doc = JsonDocument.Parse(json);
+        ArgumentNullException.ThrowIfNull(json);
+        if (json.Length > 1024 * 1024) throw new InvalidDataException("Instrument definition exceeds one million characters.");
+        using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 32 });
         var root = doc.RootElement;
         if (root.GetProperty("schemaVersion").GetInt32() != 2) throw new InvalidDataException("Expected schema v2.");
         var identity = root.GetProperty("identity");

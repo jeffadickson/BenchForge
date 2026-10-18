@@ -15,3 +15,4 @@ Tests run only at iterations 10, 20 and 30, as requested. Each checkpoint runs t
 | 9 | Prevent overflow in finite virtual ramps | BD-SIM-001 | Pending checkpoint 10 |
 | 10 | Freeze imported capability mode metadata | BD-SIM-001 | Checkpoint passed |
 | 11 | Require complete imported identifiers | BD-SIM-001 | Pending checkpoint 20 |
+| 12 | Bound imported definition size and depth | BD-SIM-001 | Pending checkpoint 20 |
