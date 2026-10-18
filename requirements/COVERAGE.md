@@ -201,3 +201,5 @@ Checkpoint 200 source: sequence and signal-domain acceptance coverage with run-s
 Checkpoint 200 execution passed: 276 application tests, 19 tracker/documentation tests, compiled checks and exact report-byte parity at one/eight workers. New sequence feature remains partial under TR-043 and TR-049; broader timeout/latency, replay and instrument-specific models remain open. Counts remain 228 requirements, 0 Verified; statuses unchanged.
 
 Checkpoint 225: TR-045 clock-mode foundation with BD-EXP-002 canonical run-clock integration; TR-046 physical deadline separation documented. Automatic runner pacing and UI controls remain open. Initial core/composition sources added; runtime tests pending checkpoint 250. Counts remain 228 requirements, 0 Verified; statuses unchanged.
+
+Checkpoint 250: 323 focused application tests, 19 checker regressions, compiled checks and report parity passed. Counts remain 228 requirements, 0 Verified; statuses unchanged.

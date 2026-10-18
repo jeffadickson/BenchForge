@@ -251,32 +251,64 @@ Checkpoint 200 passed: 157 focused core, 71 host and 48 experiment tests (276 ap
 
 | Iteration | Change | Execution status |
 |---|---|---|
-| 201 | Introduce explicit simulation clock advancement modes | Pending checkpoint 250 |
-| 202 | Inject a monotonic time provider | Pending checkpoint 250 |
-| 203 | Synchronize logical elapsed-time reads | Pending checkpoint 250 |
-| 204 | Support explicit manual advancement | Pending checkpoint 250 |
-| 205 | Start running clocks idempotently | Pending checkpoint 250 |
-| 206 | Pause without losing elapsed time | Pending checkpoint 250 |
-| 207 | Select manual control after automatic advancement | Pending checkpoint 250 |
-| 208 | Validate speed domain | Pending checkpoint 250 |
-| 209 | Change speed without retroactive time jumps | Pending checkpoint 250 |
-| 210 | Retain fractional scaled ticks | Pending checkpoint 250 |
-| 211 | Reject time overflow before state mutation | Pending checkpoint 250 |
-| 212 | Reject backwards monotonic providers | Pending checkpoint 250 |
-| 213 | Expose coherent clock status | Pending checkpoint 250 |
-| 214 | Avoid background timers and workers | Pending checkpoint 250 |
-| 215 | Select one canonical clock through experiment composition | Pending checkpoint 250 |
-| 216 | Reject repeated clock selection | Pending checkpoint 250 |
-| 217 | Remove hidden manual registration on custom selection | Pending checkpoint 250 |
-| 218 | Diagnose null clock factories before role startup | Pending checkpoint 250 |
-| 219 | Create fresh adjustable clocks per run | Pending checkpoint 250 |
-| 220 | Expose guarded canonical SimulationTime | Pending checkpoint 250 |
-| 221 | Preserve legacy manual Clock compatibility | Pending checkpoint 250 |
-| 222 | Document real-time deadline separation and pacing gaps | Pending checkpoint 250 |
-| 223 | Add deterministic core clock acceptance sources | Pending checkpoint 250 |
-| 224 | Add run-scoped clock composition and cleanup sources | Pending checkpoint 250 |
-| 225 | Update unfinished requirement traceability and usage documentation | Pending checkpoint 250 |
+| 201 | Introduce explicit simulation clock advancement modes | Checkpoint 250 passed |
+| 202 | Inject a monotonic time provider | Checkpoint 250 passed |
+| 203 | Synchronize logical elapsed-time reads | Checkpoint 250 passed |
+| 204 | Support explicit manual advancement | Checkpoint 250 passed |
+| 205 | Start running clocks idempotently | Checkpoint 250 passed |
+| 206 | Pause without losing elapsed time | Checkpoint 250 passed |
+| 207 | Select manual control after automatic advancement | Checkpoint 250 passed |
+| 208 | Validate speed domain | Checkpoint 250 passed |
+| 209 | Change speed without retroactive time jumps | Checkpoint 250 passed |
+| 210 | Retain fractional scaled ticks | Checkpoint 250 passed |
+| 211 | Reject time overflow before state mutation | Checkpoint 250 passed |
+| 212 | Reject backwards monotonic providers | Checkpoint 250 passed |
+| 213 | Expose coherent clock status | Checkpoint 250 passed |
+| 214 | Avoid background timers and workers | Checkpoint 250 passed |
+| 215 | Select one canonical clock through experiment composition | Checkpoint 250 passed |
+| 216 | Reject repeated clock selection | Checkpoint 250 passed |
+| 217 | Remove hidden manual registration on custom selection | Checkpoint 250 passed |
+| 218 | Diagnose null clock factories before role startup | Checkpoint 250 passed |
+| 219 | Create fresh adjustable clocks per run | Checkpoint 250 passed |
+| 220 | Expose guarded canonical SimulationTime | Checkpoint 250 passed |
+| 221 | Preserve legacy manual Clock compatibility | Checkpoint 250 passed |
+| 222 | Document real-time deadline separation and pacing gaps | Checkpoint 250 passed |
+| 223 | Add deterministic core clock acceptance sources | Checkpoint 250 passed |
+| 224 | Add run-scoped clock composition and cleanup sources | Checkpoint 250 passed |
+| 225 | Update unfinished requirement traceability and usage documentation | Checkpoint 250 passed |
 
 Iteration 210 haiku: One clock marks the run / New frames hold the drifting light / Quiet checks agree.
 
 TR-045 clock-mode foundation is now implemented in the simulation library and experiment composition. Existing step-runner automatic pacing and UI clock controls remain unfinished, documented in docs/SIMULATION-CLOCKS.md.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 226 | Reject invalid initial rates before sampling | Checkpoint 250 passed |
+| 227 | Preserve state after rejected rate changes | Checkpoint 250 passed |
+| 228 | Reject negative increments atomically | Checkpoint 250 passed |
+| 229 | Reject manual advancement while running | Checkpoint 250 passed |
+| 230 | Retain original epoch on repeated start | Checkpoint 250 passed |
+| 231 | Exclude paused durations on resume | Checkpoint 250 passed |
+| 232 | Freeze automatic time on manual selection | Checkpoint 250 passed |
+| 233 | Exercise inclusive speed boundaries and modes | Checkpoint 250 passed |
+| 234 | Avoid timestamp sampling for stopped rate changes | Checkpoint 250 passed |
+| 235 | Recover from backwards provider observations | Checkpoint 250 passed |
+| 236 | Keep manual overflow atomic | Checkpoint 250 passed |
+| 237 | Keep scaled rate-change overflow atomic | Checkpoint 250 passed |
+| 238 | Serialize parallel manual increments | Checkpoint 250 passed |
+| 239 | Exercise concurrent clock controls and observations | Checkpoint 250 passed |
+| 240 | Ignore UTC jumps | Checkpoint 250 passed |
+| 241 | Detach immutable status snapshots | Checkpoint 250 passed |
+| 242 | Preserve equal logical time across rates | Checkpoint 250 passed |
+| 243 | Avoid timestamp queries for stopped reads | Checkpoint 250 passed |
+| 244 | Keep backwards rate changes atomic | Checkpoint 250 passed |
+| 245 | Reject nonpositive provider frequency | Checkpoint 250 passed |
+| 246 | Reject duplicate policies without invoking factories | Checkpoint 250 passed |
+| 247 | Reject hidden manual clock reintroduction | Checkpoint 250 passed |
+| 248 | Guard disposed session clock access | Checkpoint 250 passed |
+| 249 | Resolve one canonical clock before roles | Checkpoint 250 passed |
+| 250 | Cover reentrant selection, lazy cleanup and owned clock disposal | Checkpoint 250 passed |
+
+Iteration 240 haiku: Paused hands hold the light / Threads meet at a single clock / Time resumes its path.
+
+Checkpoint 250: 323 related application tests passed (core 193, host 71, experiments 59), plus 19 requirement/documentation regressions, seven compiled checks and exact six-report byte parity at workers 1/8. Windows x64; GNU Make unavailable, source contracts only. No requirement status promoted.

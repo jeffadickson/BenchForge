@@ -1,0 +1,274 @@
+{
+  "checkpoint": 250,
+  "result": "passed",
+  "tested_base_commit": "df137c3f21db08f5a6393fb2911db206c1efe3f2",
+  "tested_worktree": "modified feature and test sources committed at this checkpoint; execution evidence and ledger added after the run",
+  "platform": "win32",
+  "application_tests": {
+    "core": {
+      "total": "193",
+      "executed": "193",
+      "passed": "193",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "host": {
+      "total": "71",
+      "executed": "71",
+      "passed": "71",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "experiments": {
+      "total": "59",
+      "executed": "59",
+      "passed": "59",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "test_classes": {
+    "core": {
+      "BatchedDevelopmentTests": 24,
+      "LocalHardeningTests": 4,
+      "StatefulMockSequenceTests": 34,
+      "ApplicationDiagnosticsTests": 20,
+      "ApplicationBatch300Tests": 21,
+      "AdjustableSimulationClockTests": 36,
+      "AutoMockLoadRulesTests": 6,
+      "AutoMockRuleFileTests": 5,
+      "PowerSupplyBehaviorTests": 4,
+      "TypedMockMeasurementsTests": 6,
+      "SignalBehaviorTests": 3,
+      "SignalDomainTests": 7,
+      "StatefulMockEngineTests": 9,
+      "DefinitionDrivenMockTests": 5,
+      "ModeAwareMockInstrumentTests": 4,
+      "LoggingScpiSessionTests": 3,
+      "PowerSupplyDiTests": 2
+    },
+    "host": {
+      "BatchedDevelopmentTests": 5,
+      "ScopeLeaseHeartbeatTests": 5,
+      "ApplicationHeartbeatDiagnosticsTests": 19,
+      "BenchSetupTests": 18,
+      "LocalHardeningTests": 11,
+      "VisaSetupDiscoveryTests": 5,
+      "ApplicationBatch300Tests": 4,
+      "IviSetupBindingTests": 4
+    },
+    "experiments": {
+      "StatefulMockCompositionTests": 2,
+      "SimulationClockCompositionTests": 11,
+      "VirtualInstrumentIntegrationTests": 5,
+      "ExperimentCompositionTests": 9,
+      "SequenceCompositionTests": 2,
+      "ApplicationCompositionTests": 18,
+      "LocalHardeningTests": 3,
+      "ExperimentStartupTests": 5,
+      "VirtualSmuCompositionTests": 1,
+      "BatchedDevelopmentTests": 1,
+      "ExperimentDisposalTests": 2
+    }
+  },
+  "application_runs": [
+    {
+      "suite": "core",
+      "exit_code": 0,
+      "seconds": 104.59643020000658,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Tests/BenchDouble.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~AdjustableSimulationClockTests|FullyQualifiedName~StatefulMockSequenceTests|FullyQualifiedName~SignalDomainTests|FullyQualifiedName~SignalBehaviorTests|FullyQualifiedName~ApplicationBatch300Tests|FullyQualifiedName~ApplicationDiagnosticsTests|FullyQualifiedName~DefinitionDrivenMockTests|FullyQualifiedName~StatefulMockEngineTests|FullyQualifiedName~ModeAwareMockInstrumentTests|FullyQualifiedName~AutoMockLoadRulesTests|FullyQualifiedName~AutoMockRuleFileTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~TypedMockMeasurementsTests|FullyQualifiedName~PowerSupplyBehaviorTests|FullyQualifiedName~PowerSupplyDiTests|FullyQualifiedName~LoggingScpiSessionTests|FullyQualifiedName~LocalHardeningTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint250-core.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    },
+    {
+      "suite": "host",
+      "exit_code": 0,
+      "seconds": 140.6314432000072,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~ApplicationBatch300Tests|FullyQualifiedName~ApplicationHeartbeatDiagnosticsTests|FullyQualifiedName~ScopeLeaseHeartbeatTests|FullyQualifiedName~HostHeartbeatTests|FullyQualifiedName~VisaSetupDiscoveryTests|FullyQualifiedName~BenchSetupTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~LocalHardeningTests|FullyQualifiedName~IviSetupBindingTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint250-host.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    },
+    {
+      "suite": "experiments",
+      "exit_code": 0,
+      "seconds": 74.29507639999792,
+      "command": [
+        "dotnet",
+        "test",
+        "tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-restore",
+        "--disable-build-servers",
+        "-m:1",
+        "-nr:false",
+        "-p:UseSharedCompilation=false",
+        "-p:NoWarn=1591",
+        "--filter",
+        "FullyQualifiedName~SimulationClockCompositionTests|FullyQualifiedName~SequenceCompositionTests|FullyQualifiedName~ApplicationCompositionTests|FullyQualifiedName~ExperimentCompositionTests|FullyQualifiedName~ExperimentDisposalTests|FullyQualifiedName~ExperimentStartupTests|FullyQualifiedName~LocalHardeningTests|FullyQualifiedName~StatefulMockCompositionTests|FullyQualifiedName~BatchedDevelopmentTests|FullyQualifiedName~VirtualInstrumentIntegrationTests|FullyQualifiedName~VirtualSmuCompositionTests",
+        "--blame-hang-timeout",
+        "2m",
+        "--blame-hang-dump-type",
+        "none",
+        "--logger",
+        "trx;LogFileName=checkpoint250-experiments.trx",
+        "--results-directory",
+        "C:\\Users\\jeffd\\Documents\\Codex\\2026-10-17\\referenced-chatgpt-conversation-this-is-an\\BenchForge\\build\\check-ports"
+      ]
+    }
+  ],
+  "workflow": {
+    "milliseconds": 20208.8344,
+    "cpu_milliseconds": 10359.375,
+    "peak_working_set_bytes": 72257536,
+    "jobs": 8,
+    "logical_processors": 12,
+    "architecture": "x64",
+    "runtime": "win-x64",
+    "command": "checks",
+    "stages": [
+      {
+        "name": "requirements",
+        "milliseconds": 397.4847,
+        "exit_code": 0
+      },
+      {
+        "name": "scoreboard",
+        "milliseconds": 130.4305,
+        "exit_code": 0
+      },
+      {
+        "name": "neutrality",
+        "milliseconds": 2387.7603,
+        "exit_code": 0
+      },
+      {
+        "name": "roslyn",
+        "milliseconds": 5892.7626,
+        "exit_code": 0
+      },
+      {
+        "name": "preflight",
+        "milliseconds": 6508.2943,
+        "exit_code": 0
+      },
+      {
+        "name": "docs",
+        "milliseconds": 7164.9072,
+        "exit_code": 0
+      },
+      {
+        "name": "compare",
+        "milliseconds": 265.4608,
+        "exit_code": 0
+      },
+      {
+        "name": "tracker-tests",
+        "milliseconds": 19966.4054,
+        "exit_code": 0
+      },
+      {
+        "name": "documentation-tests",
+        "milliseconds": 6257.8933,
+        "exit_code": 0
+      }
+    ],
+    "scheduling": "Independent checks and the two focused suites overlap; docs waits for Roslyn, comparison waits for Roslyn and preflight. Stage durations overlap and must not be summed."
+  },
+  "parity": {
+    "result": "passed",
+    "reports": {
+      "api-audit.json": "32da437ab28ce273cbd00234860d224b852e5dd5307d335109a6c58b22789ba6",
+      "requirements-scoreboard.html": "2e1f97b5464ac35e8d1323423dc6aaed923fce9fdf2f33ab5b97a9033ced774d",
+      "source-neutrality-audit.json": "3ab2718c857155ba7a06fcfada8ddf5ff3b8162d02959a982113a1af0f892b9d",
+      "docs-preflight.json": "d9c58c7ff493f765503e3ea405bea954090117b645866e8196c3692fd6e9cb5c",
+      "documentation-audit.json": "b782607129a505df5185ef3d4a5b06a466c96d6f7184648331d00a0ce90323c3",
+      "docs-parity.json": "a504f13b988303ad35177739d96c91490911511b18ecde2ad7ef69d6886620fa"
+    },
+    "jobs": [
+      1,
+      8
+    ],
+    "architecture": "x64",
+    "make_validation": "source contract only; GNU Make is not installed locally"
+  },
+  "limitations": [
+    "Windows x64 execution only",
+    "Focused related suites only",
+    "GNU Make source contracts only",
+    "No requirement promoted to Verified"
+  ]
+}
