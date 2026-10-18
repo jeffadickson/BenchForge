@@ -181,4 +181,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.SetReading("voltage",8); e.SetSequence("voltage",[4]); e.ClearAllSequences(); Assert.Equal(8,await e.MeasureAsync("voltage"));
     }
+
+    /// <summary>Removing sequences preserves pending injected faults.</summary>
+    [Fact] public void SequenceClearFaults()
+    {
+        var e=Engine(); e.SetSequence("voltage",[4]); e.QueueFault("voltage",new TimeoutException()); e.ClearAllSequences(); Assert.Equal(1,e.FaultCount("voltage"));
+    }
 }
