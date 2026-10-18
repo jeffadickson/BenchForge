@@ -13,3 +13,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 7 | Isolate SCPI logging sink failures | TR-076 | BenchDouble.Tests | Passed |
 | 8 | Fail closed when SCPI payload redactors fail | TR-076 | BenchDouble.Tests | Passed |
 | 9 | Exclude vendor exception payloads from SCPI logs | TR-076 | BenchDouble.Tests | Passed |
+| 10 | Reject routing control characters and repair short-period heartbeat timeouts | BD-CFG-003 | BenchDouble.Host.Tests | Passed |

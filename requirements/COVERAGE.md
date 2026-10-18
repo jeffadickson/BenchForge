@@ -81,3 +81,9 @@ Local iteration 07 (2026-10-17), TR-076: Isolate SCPI logging sink failures. Cou
 Local iteration 08 (2026-10-17), TR-076: Fail closed when SCPI payload redactors fail. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 09 (2026-10-17), TR-076: Exclude vendor exception payloads from SCPI logs. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 10 (2026-10-17), BD-CFG-003: Reject control characters in instrument routing IDs. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Iteration 10 regression repair, BD-HB-002: a sub-second renewal period no longer imposes a sub-second HTTP cancellation budget. A delayed-success test covers the one-second minimum, while stalled-transport coverage retains a finite deadline. No status/count change.
+
+Local iteration 10 (2026-10-17), BD-CFG-003: Reject routing control characters and repair short-period heartbeat timeouts. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

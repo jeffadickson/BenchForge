@@ -15,7 +15,7 @@ public sealed record InstrumentRoute(string Role, string HostId, Uri Endpoint, s
 public sealed class InstrumentHostDirectory
 {
     public static readonly Uri LocalEndpoint = new("http://127.0.0.1:5278/");
-    private static readonly Regex Identifier = new("^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$");
+    private static readonly Regex Identifier = new(@"\A[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}\z");
     private readonly IReadOnlyDictionary<string, InstrumentRoute> _routes;
     private readonly ILogger _logger;
     public bool UsesLocalDefaults { get; }
@@ -117,7 +117,7 @@ public sealed class InstrumentHostDirectory
 
     private static void CheckIdentifier(string value)
     {
-        if (!Identifier.IsMatch(value)) throw new InvalidDataException("Invalid instrument/host identifier.");
+        if (value is null || !Identifier.IsMatch(value)) throw new InvalidDataException("Invalid instrument/host identifier.");
     }
 
     private static Uri ParseEndpoint(string? value)

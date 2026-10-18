@@ -61,7 +61,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                     using var request = new HttpRequestMessage(HttpMethod.Post,
                         $"api/v1/scopes/{Uri.EscapeDataString(_resourceId)}/reserve/{_leaseId:D}/renew");
                     using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
-                    timeout.CancelAfter(TimeSpan.FromMilliseconds(Math.Min(_period.TotalMilliseconds, 10000)));
+                    timeout.CancelAfter(TimeSpan.FromMilliseconds(Math.Clamp(_period.TotalMilliseconds, 1000, 10000)));
                     using var response = await _client.SendAsync(request, timeout.Token).ConfigureAwait(false);
                     status = response.IsSuccessStatusCode ? ScopeHeartbeatStatus.Healthy :
                         response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict

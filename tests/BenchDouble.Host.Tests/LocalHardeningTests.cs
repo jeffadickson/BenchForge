@@ -74,5 +74,41 @@ public sealed class LocalHardeningTests
         Assert.Equal(ScopeHeartbeatStatus.Degraded, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
     }
 
+    /// <summary>Role matching rejects trailing newlines and nulls before route creation.</summary>
+    [Fact]
+    public void RoutingRejectsControlCharacters()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
+        try
+        {
+            var directory = InstrumentHostDirectory.Load(NullLogger.Instance, baseDirectory: folder);
+            Assert.Throws<InvalidDataException>(() => directory.Resolve("meter\n"));
+            Assert.Throws<InvalidDataException>(() => directory.Resolve(null!));
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
+    private sealed class DelayedHandler : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(30), cancellationToken);
+            return new HttpResponseMessage(HttpStatusCode.NoContent);
+        }
+    }
+
+    /// <summary>Short renewal scheduling does not impose an unrealistic transport deadline.</summary>
+    /// <returns>Completion after a delayed successful heartbeat.</returns>
+    [Fact]
+    public async Task ShortHeartbeatPeriodAllowsTransportLatency()
+    {
+        using var client = new HttpClient(new DelayedHandler()) { BaseAddress = new Uri("http://localhost/") };
+        await using var heartbeat = new ScopeLeaseHeartbeat(client, "meter", Guid.NewGuid(), TimeSpan.FromMilliseconds(5));
+        var notified = new TaskCompletionSource<ScopeHeartbeatStatus>(TaskCreationOptions.RunContinuationsAsynchronously);
+        heartbeat.StatusChanged += status => notified.TrySetResult(status);
+        heartbeat.Start();
+        Assert.Equal(ScopeHeartbeatStatus.Healthy, await notified.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+    }
+
 // CASES
 }

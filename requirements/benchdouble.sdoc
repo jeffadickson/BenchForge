@@ -1102,7 +1102,8 @@ STATEMENT: Clients and authoritative instrument hosts shall exchange authenticat
 UID: BD-HB-002
 STATUS: Active
 TITLE: Real-time deadlines P0
-STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validated finite interval, timeout and expiry settings independent of simulated time. Acceptance: Advance simulation or change wall clock; real lease expiration is unchanged; reject invalid budgets. Validate interval, suspect and expiry relationships at startup; absent host settings use finite defaults. Acceptance: Duplicate or out-of-order heartbeat messages do not extend last-seen time; wall-clock changes do not affect age or expiry, and exact expiry boundaries fence ownership. Acceptance: Reject scope renewal identifiers containing separators or control characters and periods above one minute before starting renewal. Acceptance: Concurrent and repeated scope heartbeat disposal shall share completion; start after disposal shall fail without issuing HTTP requests. Acceptance: A failed heartbeat observer shall not suppress subsequent observers or stop periodic renewal. Acceptance: Every scope heartbeat request shall have a real-time cancellation deadline no greater than ten seconds and its renewal period; timeout reports Degraded without releasing ownership.
+STATEMENT: Heartbeat and lease expiry shall use monotonic real time with validated finite interval, timeout and expiry settings independent of simulated time. Acceptance: Advance simulation or change wall clock; real lease expiration is unchanged; reject invalid budgets. Validate interval, suspect and expiry relationships at startup; absent host settings use finite defaults. Acceptance: Duplicate or out-of-order heartbeat messages do not extend last-seen time; wall-clock changes do not affect age or expiry, and exact expiry boundaries fence ownership. Acceptance: Reject scope renewal identifiers containing separators or control characters and periods above one minute before starting renewal. Acceptance: Concurrent and repeated scope heartbeat disposal shall share completion; start after disposal shall fail without issuing HTTP requests. Acceptance: A failed heartbeat observer shall not suppress subsequent observers or stop periodic renewal. Acceptance: Every scope heartbeat request shall have a real-time cancellation deadline clamped to one through ten seconds; timeout reports Degraded without releasing ownership. Acceptance: A successful transport response taking longer than a sub-second renewal period shall remain Healthy when it completes within the independent one-second minimum HTTP budget.
+
 
 
 
@@ -1258,7 +1259,8 @@ STATEMENT: When the conventional configuration file is absent the framework shal
 UID: BD-CFG-003
 STATUS: Active
 TITLE: BD-CFG-003 P0
-STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete routing configuration shall fail without silently choosing a local or different instrument. Acceptance: Reject invalid versions, duplicate keys, unknown fields/hosts/roles and unsafe endpoints; verify no fallback request.
+STATEMENT: Explicit missing, malformed, ambiguous, unsupported or incomplete routing configuration shall fail without silently choosing a local or different instrument. Acceptance: Reject invalid versions, duplicate keys, unknown fields/hosts/roles and unsafe endpoints; verify no fallback request. Acceptance: Null roles and identifiers ending with newlines shall fail validation without creating a route.
+
 
 [REQUIREMENT]
 UID: BD-CFG-004
