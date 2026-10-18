@@ -111,4 +111,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); e.SetSequence("voltage",[3]); var map=Assert.IsAssignableFrom<IDictionary<string,string>>(e.Snapshot().BehaviorKinds); Assert.Throws<NotSupportedException>(()=>map["voltage"]="bad");
     }
+
+    /// <summary>One snapshot samples the virtual clock once.</summary>
+    [Fact] public void SnapshotClockOnce()
+    {
+        var count=0; var e=Engine(new CallbackClock(()=>{++count;return TimeSpan.Zero;})); _=e.Snapshot(); Assert.Equal(1,count);
+    }
 }
