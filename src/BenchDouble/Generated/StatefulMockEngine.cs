@@ -390,6 +390,21 @@ public sealed partial class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Remove synchronous, async and sequence models while preserving mode, overrides and faults.</summary>
+    /// <returns>Number of removed configurations; zero leaves revision unchanged.</returns>
+    public int ClearAllBehaviors()
+    {
+        _gate.Wait();
+        try
+        {
+            var count = _models.Count + _asyncModels.Count + _sequences.Count;
+            _models.Clear(); _asyncModels.Clear(); _sequences.Clear();
+            if (count > 0) ++_revision;
+            return count;
+        }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Reset the mode, overrides, behaviors and pending faults.</summary>
     public void Reset()
     {

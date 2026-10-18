@@ -235,6 +235,10 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Remove all scalar behavior models while retaining overrides and faults.</summary>
+    /// <returns>Removed configuration count; zero leaves revision unchanged.</returns>
+    public int ClearAllBehaviors() => _engine.ClearAllBehaviors();
+
     /// <summary>Reset canonical simulation state asynchronously without physical I/O.</summary>
     /// <param name="ct">Cancellation before resetting state.</param>
     /// <returns>Completion of the canonical engine reset.</returns>
