@@ -143,4 +143,10 @@ public sealed class SchedulerBTests
     {
         var c=new Clock();var s=new SimulationScheduler(c);var e=s.Schedule(T(0),"a");var reads=c.Reads;Assert.Equal(e,s.Peek());Assert.Equal(reads,c.Reads);
     }
+
+    /// <summary>Counting events never reads the simulation clock.</summary>
+    [Fact] public void CountNoClock()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c);Assert.Equal(0,s.Count);Assert.Equal(0,c.Reads);
+    }
 }
