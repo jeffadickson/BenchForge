@@ -138,4 +138,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());var before=p.Sample(0).Total;Assert.Throws<ArgumentOutOfRangeException>(()=>p.Sample(-1));Assert.Equal(before,p.Sample(0).Total);
     }
+
+    /// <summary>Maximum operation indices remain finite and bounded.</summary>
+    [Fact] public void MaximumIndex()
+    {
+        var s=Profile(Stage()).Sample(long.MaxValue);Assert.InRange(s.Total.Ticks,90,110);Assert.Equal(long.MaxValue,s.OperationIndex);
+    }
 }
