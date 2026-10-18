@@ -156,3 +156,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_test_execution(self):
         """Run test projects only after generation."""
         self.invoke('--command','test');self.assertEqual('test',self.events()[-1][0]);self.assertEqual('test',self.report()['task'])
+
+    def test_catalog_failure(self):
+        """Stop before generators after catalog failure."""
+        (self.root/'fail-check_instrument_catalog.py').write_text('23');self.invoke('--command','build',expected=23);self.assertEqual(1,len(self.events()));self.assertEqual(23,self.report()['stages'][0]['ExitCode'])
