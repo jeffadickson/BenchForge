@@ -10,6 +10,14 @@ namespace BenchDouble.Host.Server.Setup;
 public sealed class IviSetupCatalogService(ILogger<IviSetupCatalogService> logger,
     Func<string, CancellationToken, IviConfigurationCatalog>? reader = null)
 {
+    private readonly ILogger<IviSetupCatalogService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private long _loggingFailures;
+    /// <summary>Diagnostic sink failures counted without changing catalog or draft outcomes.</summary>
+    public long LoggingFailureCount => Interlocked.Read(ref _loggingFailures);
+    private void Emit(Action action)
+    {
+        try { action(); } catch { Interlocked.Increment(ref _loggingFailures); }
+    }
     private readonly object _gate = new();
     private IviConfigurationCatalog? _catalog;
 
@@ -21,20 +29,20 @@ public sealed class IviSetupCatalogService(ILogger<IviSetupCatalogService> logge
     {
         lock (_gate)
         {
-            logger.LogInformation(new EventId(7400, "IviInspectionStarted"), "IVI configuration inspection started");
+            Emit(() => _logger.LogInformation(new EventId(7400, "IviInspectionStarted"), "IVI configuration inspection started"));
             try
             {
                 var catalog = (reader ?? IviConfigurationCatalogReader.ReadXml)(xml, ct);
                 ct.ThrowIfCancellationRequested();
                 _catalog = Copy(catalog);
-                logger.LogInformation(new EventId(7401, "IviInspectionCompleted"),
+                Emit(() => _logger.LogInformation(new EventId(7401, "IviInspectionCompleted"),
                     "IVI inspection completed with {LogicalNameCount} logical names and {SessionCount} sessions; no driver opened",
-                    catalog.LogicalNames.Length, catalog.Sessions.Length);
+                    catalog.LogicalNames.Length, catalog.Sessions.Length));
                 return Copy(catalog);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(new EventId(7402, "IviInspectionFailed"), "IVI inspection failed: {FailureKind}", ex.GetType().Name);
+                Emit(() => _logger.LogWarning(new EventId(7402, "IviInspectionFailed"), "IVI inspection failed: {FailureKind}", ex.GetType().Name));
                 throw;
             }
         }
@@ -52,13 +60,13 @@ public sealed class IviSetupCatalogService(ILogger<IviSetupCatalogService> logge
             try
             {
                 var result = ApplyCore(request);
-                logger.LogInformation(new EventId(7410, "IviBindingApplied"),
-                    "Reviewed IVI binding applied to draft with {InstrumentCount} instruments; activation remains disabled", result.Instruments.Length);
+                Emit(() => _logger.LogInformation(new EventId(7410, "IviBindingApplied"),
+                    "Reviewed IVI binding applied to draft with {InstrumentCount} instruments; activation remains disabled", result.Instruments.Length));
                 return result;
             }
             catch (Exception ex)
             {
-                logger.LogWarning(new EventId(7411, "IviBindingRejected"), "IVI draft binding rejected: {FailureKind}", ex.GetType().Name);
+                Emit(() => _logger.LogWarning(new EventId(7411, "IviBindingRejected"), "IVI draft binding rejected: {FailureKind}", ex.GetType().Name));
                 throw;
             }
         }

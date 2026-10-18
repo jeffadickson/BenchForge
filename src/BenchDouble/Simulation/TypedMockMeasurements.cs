@@ -76,7 +76,12 @@ public sealed class TypedMockMeasurements
                 $"Mock does not support measurement of {typeof(TQuantity).Name}.");
         // The registration API ensures the delegate returns the requested
         // quantity type; it is never inferred from a numeric value.
-        return (TQuantity)behavior(elapsed);
+        var result = (TQuantity)behavior(elapsed);
+        double canonical;
+        try { canonical = result.As(result.QuantityInfo.BaseUnitInfo.Value); }
+        catch (ArgumentException error) { throw new InvalidOperationException("Mock reading cannot be represented in its base unit.", error); }
+        if (!double.IsFinite(canonical)) throw new InvalidOperationException("Nonfinite typed mock reading.");
+        return result;
     }
 }
 
@@ -88,6 +93,8 @@ public sealed class TypedMockMeter(
     TypedMockMeasurements measurements,
     ISimulationClock clock) : ITypedConfigurableMeasurementSource
 {
+    private readonly TypedMockMeasurements _measurements = measurements ?? throw new ArgumentNullException(nameof(measurements));
+    private readonly ISimulationClock _clock = clock ?? throw new ArgumentNullException(nameof(clock));
     private readonly SemaphoreSlim _gate = new(1, 1);
     private Type? _selectedQuantity;
 
@@ -95,7 +102,7 @@ public sealed class TypedMockMeter(
     public async ValueTask ConfigureAsync<TQuantity>(CancellationToken ct = default)
         where TQuantity : struct, IQuantity
     {
-        if (!measurements.Supports<TQuantity>())
+        if (!_measurements.Supports<TQuantity>())
             throw new NotSupportedException(
                 $"Meter does not support {typeof(TQuantity).Name}.");
         await _gate.WaitAsync(ct).ConfigureAwait(false);
@@ -116,7 +123,9 @@ public sealed class TypedMockMeter(
             if (_selectedQuantity != typeof(TQuantity))
                 throw new InvalidOperationException(
                     $"Meter is configured for {_selectedQuantity.Name}, not {typeof(TQuantity).Name}.");
-            return measurements.Evaluate<TQuantity>(clock.Elapsed);
+            var result = _measurements.Evaluate<TQuantity>(_clock.Elapsed);
+            ct.ThrowIfCancellationRequested();
+            return result;
         }
         finally { _gate.Release(); }
     }

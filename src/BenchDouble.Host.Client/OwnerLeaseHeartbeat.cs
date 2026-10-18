@@ -20,6 +20,9 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
     private long _sequence;
     private volatile string _status = "NotStarted";
     private OwnerHeartbeatSnapshot? _lastAcknowledgment;
+    private long _observerFailures;
+    /// <summary>Observer exceptions counted without changing canonical owner-health outcomes.</summary>
+    public long ObserverFailureCount => Interlocked.Read(ref _observerFailures);
 
     /// <summary>NotStarted, Healthy, Degraded, Lost or Stopped; health is not device readiness.</summary>
     public string Status => _status;
@@ -73,7 +76,7 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
             using var response = await _client.PostAsJsonAsync($"api/v1/setup/ivi/{Uri.EscapeDataString(_resource)}/heartbeat",
                 new { leaseId = _lease, hostEpoch = _initial.HostEpoch, ownerGeneration = _initial.OwnerGeneration, peerEpoch = _peer, sequence }, linked.Token).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
-                return Set(response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict ? "Lost" : "Degraded");
+                return Set(response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict or HttpStatusCode.Gone ? "Lost" : "Degraded");
             var ack = await response.Content.ReadFromJsonAsync<OwnerHeartbeatSnapshot>(linked.Token).ConfigureAwait(false);
             if (ack is null || ack.HostEpoch != _initial.HostEpoch || ack.OwnerGeneration != _initial.OwnerGeneration || ack.PeerEpoch != _peer || ack.Sequence != sequence || ack.State != "Healthy" ||
                 !double.IsFinite(ack.AgeMilliseconds) || ack.AgeMilliseconds < 0 || ack.AgeMilliseconds >= ack.ExpireMilliseconds ||
@@ -91,7 +94,7 @@ public sealed class OwnerLeaseHeartbeat : IAsyncDisposable
     {
         _status = status;
         foreach (var handler in StatusChanged?.GetInvocationList() ?? [])
-            try { ((Action<string>)handler)(status); } catch { /* Observers cannot change owner health. */ }
+            try { ((Action<string>)handler)(status); } catch { Interlocked.Increment(ref _observerFailures); }
         return status;
     }
 

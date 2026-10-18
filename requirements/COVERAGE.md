@@ -187,3 +187,5 @@ Checkpoint 75: main application simulation, setup, discovery and heartbeat harde
 Checkpoint 100 source: 25 focused application regression methods added. User extended total to 300 iterations; execution evidence follows checkpoint completion. Counts remain 228 requirements, 0 Verified; statuses unchanged.
 
 Checkpoint 100 execution passed: focused core and host classes, compiled workflow and report parity. See docs/check-evidence/batch350-100.json. Counts remain 228 requirements, 0 Verified; statuses unchanged. Final batch total is now 350.
+
+Checkpoint 125: typed/supply model cancellation and clock checks, diagnostic counters and payload bounds, heartbeat status handling, composition guards and bounded setup persistence. New diagnostic/recovery regression source added; tests pending iteration 150. Existing requirements and issue links reused. Counts remain 228 requirements, 0 Verified; statuses unchanged.

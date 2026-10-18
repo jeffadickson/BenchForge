@@ -82,6 +82,8 @@ public sealed class TimedOvercurrentBehavior(
 /// </summary>
 public sealed class MockPowerSupply(ILoadBehavior behavior, ISimulationClock clock)
 {
+    private readonly ILoadBehavior _behavior = behavior ?? throw new ArgumentNullException(nameof(behavior));
+    private readonly ISimulationClock _clock = clock ?? throw new ArgumentNullException(nameof(clock));
     private readonly SemaphoreSlim _gate = new(1, 1);
     private PowerSupplyState _state = new(
         ElectricPotential.FromVolts(0),
@@ -112,12 +114,14 @@ public sealed class MockPowerSupply(ILoadBehavior behavior, ISimulationClock clo
         await _gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            TimeSpan now = clock.Elapsed;
+            TimeSpan now = _clock.Elapsed;
+            if (now < TimeSpan.Zero) throw new InvalidOperationException("Simulation clock returned negative elapsed time.");
             if (!_state.OutputEnabled)
                 return new(ElectricPotential.FromVolts(0),
                     ElectricCurrent.FromAmperes(0), now, false);
 
-            ElectricCurrent current = behavior.CurrentAt(_state.SetVoltage, now);
+            ElectricCurrent current = _behavior.CurrentAt(_state.SetVoltage, now);
+            ct.ThrowIfCancellationRequested();
             if (!double.IsFinite(current.Amperes))
                 throw new InvalidOperationException("Mock behavior returned a non-finite current.");
 

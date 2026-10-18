@@ -109,7 +109,9 @@ public sealed class ModeAwareMockInstrument : IModeAwareMockInstrument
             if (!_measurements.TryGetValue((_mode, typeof(TQuantity)), out var behavior))
                 throw new InvalidOperationException(
                     $"Mode '{_mode}' cannot measure {typeof(TQuantity).Name}.");
-            var result = (TQuantity)behavior(_clock.Elapsed);
+            var elapsed = _clock.Elapsed;
+            if (elapsed < TimeSpan.Zero) throw new InvalidOperationException("Simulation clock returned negative elapsed time.");
+            var result = (TQuantity)behavior(elapsed);
             ct.ThrowIfCancellationRequested();
             double canonical;
             try { canonical = result.As(result.QuantityInfo.BaseUnitInfo.Value); }

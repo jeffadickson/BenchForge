@@ -19,6 +19,21 @@ public sealed class ExperimentDefinitionBuilder
     private bool _hasAutoMockLoad;
     private readonly Dictionary<string, string> _roleRuleHashes = new(StringComparer.Ordinal);
     private bool _built;
+    private bool _configuring;
+
+    private static void ValidateName(string value, string parameter)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > 128 || value.Any(char.IsControl))
+            throw new ArgumentException("Composition names must be nonblank, at most 128 characters and contain no controls.", parameter);
+    }
+
+    private AutoMockLoadRulesBuilder ConfigureRules(Action<AutoMockLoadRulesBuilder> configure)
+    {
+        var rules = new AutoMockLoadRulesBuilder();
+        _configuring = true;
+        try { configure(rules); return rules; }
+        finally { _configuring = false; }
+    }
 
     public ExperimentDefinitionBuilder()
     {
@@ -35,8 +50,8 @@ public sealed class ExperimentDefinitionBuilder
         where TInterface : class where TImplementation : class, TInterface
     {
         EnsureMutable();
-        ArgumentException.ThrowIfNullOrWhiteSpace(role);
-        ArgumentException.ThrowIfNullOrWhiteSpace(hostId);
+        ValidateName(role, nameof(role));
+        ValidateName(hostId, nameof(hostId));
         if (_instruments.Any(i => string.Equals(i.Role, role, StringComparison.Ordinal)))
             throw new InvalidOperationException($"Duplicate instrument role '{role}'.");
         _instruments.Add(new ExperimentInstrument(role, typeof(TInterface), hostId, "Simulated"));
@@ -61,8 +76,8 @@ public sealed class ExperimentDefinitionBuilder
         where TInterface : class
     {
         EnsureMutable();
-        ArgumentException.ThrowIfNullOrWhiteSpace(role);
-        ArgumentException.ThrowIfNullOrWhiteSpace(hostId);
+        ValidateName(role, nameof(role));
+        ValidateName(hostId, nameof(hostId));
         ArgumentNullException.ThrowIfNull(factory);
         if (_instruments.Any(i => string.Equals(i.Role, role, StringComparison.Ordinal)))
             throw new InvalidOperationException($"Duplicate instrument role '{role}'.");
@@ -104,13 +119,12 @@ public sealed class ExperimentDefinitionBuilder
         ArgumentNullException.ThrowIfNull(configure);
         if (_hasAutoMockLoad || _services.Any(service => !service.IsKeyedService && service.ServiceType == typeof(ILoadBehavior)))
             throw new InvalidOperationException("An unkeyed ILoadBehavior is already registered; use AutoMockLoadFor for named instruments.");
-        var rulesBuilder = new AutoMockLoadRulesBuilder();
-        configure(rulesBuilder);
+        var rulesBuilder = ConfigureRules(configure);
         var rules = rulesBuilder.Build();
         _autoMockRuleHash = AutoMockRuleFiles.Sha256(rules);
         _hasAutoMockLoad = true;
         _services.AddScoped<ILoadBehavior>(sp =>
-            new RuleBasedLoadBehavior(baselineFactory(sp), rules));
+            new RuleBasedLoadBehavior(baselineFactory(sp) ?? throw new InvalidOperationException("AutoMock baseline factory returned null."), rules));
         return this;
     }
 
@@ -125,17 +139,16 @@ public sealed class ExperimentDefinitionBuilder
         Action<AutoMockLoadRulesBuilder> configure)
     {
         EnsureMutable();
-        ArgumentException.ThrowIfNullOrWhiteSpace(role);
+        ValidateName(role, nameof(role));
         ArgumentNullException.ThrowIfNull(baselineFactory);
         ArgumentNullException.ThrowIfNull(configure);
         if (_roleRuleHashes.ContainsKey(role))
             throw new InvalidOperationException($"AutoMock already registered for role '{role}'.");
-        var rulesBuilder = new AutoMockLoadRulesBuilder();
-        configure(rulesBuilder);
+        var rulesBuilder = ConfigureRules(configure);
         var rules = rulesBuilder.Build();
         _roleRuleHashes.Add(role, AutoMockRuleFiles.Sha256(rules));
         _services.AddKeyedScoped<ILoadBehavior>(role,
-            (sp, _) => new RuleBasedLoadBehavior(baselineFactory(sp), rules));
+            (sp, _) => new RuleBasedLoadBehavior(baselineFactory(sp) ?? throw new InvalidOperationException($"AutoMock baseline factory for role '{role}' returned null."), rules));
         return this;
     }
 
@@ -173,7 +186,7 @@ public sealed class ExperimentDefinitionBuilder
     public ExperimentDefinition Build(string name)
     {
         EnsureMutable();
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ValidateName(name, nameof(name));
         foreach (var role in _roleRuleHashes.Keys)
         {
             if (!_instruments.Any(i => i.Role == role && i.Backend == "Simulated"))
@@ -189,6 +202,7 @@ public sealed class ExperimentDefinitionBuilder
 
     private void EnsureMutable()
     {
+        if (_configuring) throw new InvalidOperationException("Rule callbacks may only configure their supplied rule builder.");
         if (_built) throw new InvalidOperationException("Experiment definition is already frozen.");
     }
 }

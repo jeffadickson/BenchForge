@@ -57,6 +57,13 @@ public sealed class StatefulMockEngine
         try { emit(); } catch { Interlocked.Increment(ref _loggingFailures); }
     }
 
+    private TimeSpan ReadElapsed()
+    {
+        var elapsed = _clock.Elapsed;
+        if (elapsed < TimeSpan.Zero) throw new InvalidOperationException("Simulation clock returned negative elapsed time.");
+        return elapsed;
+    }
+
     /// <summary>Construct a simulated instrument with injected clock and logger.</summary>
     /// <param name="definition">Validated instrument definition.</param>
     /// <param name="clock">Optional virtual clock, defaulting to an independent manual clock.</param>
@@ -99,6 +106,7 @@ public sealed class StatefulMockEngine
         {
             if (_mode is null || !metadata.Modes.Contains(_mode))
                 throw new InvalidOperationException("Incompatible measurement mode.");
+            var elapsed = ReadElapsed();
             if (_faults.TryGetValue(capability, out var faults) && faults.Count > 0)
             {
                 var error = faults.Dequeue();
@@ -107,7 +115,7 @@ public sealed class StatefulMockEngine
                 throw error;
             }
             double? fallback = _overrides.TryGetValue(capability, out var value) ? value : metadata.MockDefault;
-            var context = new MockReadingContext(_mode, capability, _clock.Elapsed, _revision, fallback);
+            var context = new MockReadingContext(_mode, capability, elapsed, _revision, fallback);
             double result = _asyncModels.TryGetValue(capability, out var asyncModel)
                 ? await asyncModel(context, ct).ConfigureAwait(false)
                 : _models.TryGetValue(capability, out var model) ? model(context)
@@ -301,7 +309,7 @@ public sealed class StatefulMockEngine
     public StatefulMockSnapshot Snapshot()
     {
         _gate.Wait();
-        try { return new(_mode, _revision, _clock.Elapsed,
+        try { return new(_mode, _revision, ReadElapsed(),
             new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))); }
         finally { _gate.Release(); }
     }

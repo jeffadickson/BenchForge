@@ -120,3 +120,35 @@ User extended the requested total to 300 during iterations 76-100. Commits remai
 The user extended the final total to 350 at checkpoint 100 and requested a haiku every 30 iterations, next at 120. Commits remain at multiples of 25, focused tests at multiples of 50, with one final push after 350.
 
 Checkpoint 100 passed: 74 focused core tests, 48 focused host tests, 19 tracker/documentation tests, seven compiled checks and six exact report hashes at workers 1/8. Initial sandbox runner connection failed before execution; the local-permission retry ran normally. UnitsNet conversion-overflow regressions were corrected and rerun. Generated nullable, existing XML-comment, unused-field and xUnit analyzer warnings remain separate backlog.
+
+| Iteration | Change | Execution status |
+|---|---|---|
+| 101 | Validate typed readings in canonical base units | Pending checkpoint 150 |
+| 102 | Honor cancellation after typed meter callbacks | Pending checkpoint 150 |
+| 103 | Reject missing typed meter dependencies | Pending checkpoint 150 |
+| 104 | Reject missing supply behavior | Pending checkpoint 150 |
+| 105 | Reject missing supply clock | Pending checkpoint 150 |
+| 106 | Honor cancellation after supply callbacks | Pending checkpoint 150 |
+| 107 | Reject negative supply timestamps | Pending checkpoint 150 |
+| 108 | Reject negative mode-aware timestamps before callbacks | Pending checkpoint 150 |
+| 109 | Reject negative stateful timestamps before consuming faults | Pending checkpoint 150 |
+| 110 | Expose SCPI sink failure count | Pending checkpoint 150 |
+| 111 | Expose SCPI redactor failure count | Pending checkpoint 150 |
+| 112 | Bound logged payloads without splitting surrogate pairs | Pending checkpoint 150 |
+| 113 | Reject controls in diagnostic instrument names | Pending checkpoint 150 |
+| 114 | Bound diagnostic instrument name length | Pending checkpoint 150 |
+| 115 | Add stable SCPI event IDs | Pending checkpoint 150 |
+| 116 | Count scope heartbeat observer failures | Pending checkpoint 150 |
+| 117 | Count owner heartbeat observer failures | Pending checkpoint 150 |
+| 118 | Expose stopped scope renewal state | Pending checkpoint 150 |
+| 119 | Treat gone owner lease as terminal loss | Pending checkpoint 150 |
+| 120 | Treat gone scope lease as terminal loss | Pending checkpoint 150 |
+| 121 | Reject reentrant composition during rule callbacks | Pending checkpoint 150 |
+| 122 | Diagnose null AutoMock baseline factories | Pending checkpoint 150 |
+| 123 | Validate experiment role host and definition names | Pending checkpoint 150 |
+| 124 | Bound setup JSON size and depth for import and persistence | Pending checkpoint 150 |
+| 125 | Isolate IVI catalog logging failures | Pending checkpoint 150 |
+
+Iteration 120 haiku: Quiet circuits wait / Threads weave signals through the night / New readings take shape.
+
+The user requested more tests during this batch. ApplicationDiagnosticsTests adds recovery, error identity, Unicode truncation, privacy, invalid clocks and callback cancellation cases alongside production changes; further application integration coverage follows before checkpoint 150.

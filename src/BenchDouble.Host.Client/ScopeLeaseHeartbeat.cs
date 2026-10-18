@@ -17,6 +17,9 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     private Task? _disposal;
     private readonly object _lifecycle = new();
     private volatile ScopeHeartbeatStatus _status = ScopeHeartbeatStatus.NotStarted;
+    private long _observerFailures;
+    /// <summary>Observer exceptions counted without changing renewal or shutdown outcomes.</summary>
+    public long ObserverFailureCount => Interlocked.Read(ref _observerFailures);
 
     /// <summary>Latest observed renewal status.</summary>
     public ScopeHeartbeatStatus Status => _status;
@@ -67,14 +70,14 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
                     using var response = await _client.SendAsync(request, timeout.Token).ConfigureAwait(false);
                     status = response.IsSuccessStatusCode ? ScopeHeartbeatStatus.Healthy :
                         response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.NotFound or HttpStatusCode.Conflict
-                            ? ScopeHeartbeatStatus.Lost : ScopeHeartbeatStatus.Degraded;
+                            or HttpStatusCode.Gone ? ScopeHeartbeatStatus.Lost : ScopeHeartbeatStatus.Degraded;
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
                 catch (HttpRequestException) { status = ScopeHeartbeatStatus.Degraded; }
                 catch (OperationCanceledException) { status = ScopeHeartbeatStatus.Degraded; }
                 _status = status;
                 foreach (var handler in StatusChanged?.GetInvocationList() ?? [])
-                    try { ((Action<ScopeHeartbeatStatus>)handler)(status); } catch { /* isolate each observer */ }
+                    try { ((Action<ScopeHeartbeatStatus>)handler)(status); } catch { Interlocked.Increment(ref _observerFailures); }
                 if (status == ScopeHeartbeatStatus.Lost) break;
             } while (await timer.WaitForNextTickAsync(token).ConfigureAwait(false));
         }
@@ -92,6 +95,7 @@ public sealed class ScopeLeaseHeartbeat : IAsyncDisposable
     {
         await _stop.CancelAsync().ConfigureAwait(false);
         if (_loop is not null) await _loop.ConfigureAwait(false);
+        _status = ScopeHeartbeatStatus.Stopped;
         _stop.Dispose();
     }
 }
@@ -106,5 +110,7 @@ public enum ScopeHeartbeatStatus
     /// <summary>Renewal failed transiently; instrument ownership is not confirmed.</summary>
     Degraded,
     /// <summary>The host rejected the lease or could not find it; stop instrument use.</summary>
-    Lost
+    Lost,
+    /// <summary>The client renewal helper has stopped; this makes no claim about the host lease or hardware.</summary>
+    Stopped
 }

@@ -26,9 +26,15 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     private SetupDiscovery? _discovered;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
-        WriteIndented = true, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+        WriteIndented = true, MaxDepth = 32, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
     };
     private sealed record Stored(bool Draft, BenchSetup Configuration);
+    private static JsonDocument ParseDocument(string json)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        if (json.Length > 1048576) throw new ArgumentException("Setup JSON exceeds one Mi characters.", nameof(json));
+        return JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 32 });
+    }
 
     /// <summary>Enumerate inventory without publishing an incomplete or cancelled discovery result.</summary>
     /// <param name="ct">Discovery cancellation.</param>
@@ -50,7 +56,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     /// <exception cref="ArgumentException">The document violates the setup schema.</exception>
     public static BenchSetup Parse(string json)
     {
-        using var document = JsonDocument.Parse(json);
+        using var document = ParseDocument(json);
         CheckDuplicates(document.RootElement);
         var configuration = JsonSerializer.Deserialize<BenchSetup>(json, Json)
             ?? throw new JsonException("Missing setup configuration.");
@@ -64,7 +70,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     /// <returns>A structurally valid save request.</returns>
     public static SaveSetupRequest ParseSaveRequest(string json)
     {
-        using var document = JsonDocument.Parse(json);
+        using var document = ParseDocument(json);
         CheckDuplicates(document.RootElement);
         var request = JsonSerializer.Deserialize<SaveSetupRequest>(json, Json) ?? throw new JsonException("Missing save request.");
         return request with { Configuration = Parse(JsonSerializer.Serialize(request.Configuration, Json)) };
@@ -75,7 +81,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     /// <returns>Request with a structurally validated configuration.</returns>
     public static ApplyIviBindingRequest ParseApplyIviBindingRequest(string json)
     {
-        using var document = JsonDocument.Parse(json);
+        using var document = ParseDocument(json);
         CheckDuplicates(document.RootElement);
         var request = JsonSerializer.Deserialize<ApplyIviBindingRequest>(json, Json) ?? throw new JsonException("Missing binding request.");
         return request with { Configuration = Parse(JsonSerializer.Serialize(request.Configuration, Json)) };
@@ -90,7 +96,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
     {
         try
         {
-            using var document = JsonDocument.Parse(json);
+            using var document = ParseDocument(json);
             CheckDuplicates(document.RootElement);
             return JsonSerializer.Deserialize<T>(json, Json) ?? throw new JsonException();
         }
@@ -156,6 +162,7 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
                 if (errors.Length > 0) throw new InvalidOperationException(string.Join("; ", errors.Select(x => x.Message)));
             }
             var text = JsonSerializer.Serialize(new Stored(request.Draft, candidate), Json);
+            if (text.Length > 1048576) throw new ArgumentException("Saved setup exceeds one Mi characters.", nameof(request));
             var fullPath = Path.GetFullPath(path);
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
             var temporary = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
@@ -201,9 +208,15 @@ public sealed class BenchSetupService(HostResourceRegistry registry, ISetupDisco
 
     private SavedSetup? ReadCore()
     {
-        if (!File.Exists(path)) return null;
-        var text = File.ReadAllText(path);
-        using var document = JsonDocument.Parse(text);
+        FileStream stream;
+        try { stream = File.OpenRead(path); }
+        catch (FileNotFoundException) { return null; }
+        catch (DirectoryNotFoundException) { return null; }
+        using var owned = stream;
+        if (stream.Length > 4 * 1048576) throw new InvalidDataException("Saved setup exceeds the bounded UTF-8 size.");
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        var text = reader.ReadToEnd();
+        using var document = ParseDocument(text);
         CheckDuplicates(document.RootElement);
         var saved = JsonSerializer.Deserialize<Stored>(text, Json) ?? throw new JsonException("Missing saved setup.");
         var configuration = Parse(JsonSerializer.Serialize(saved.Configuration, Json));
