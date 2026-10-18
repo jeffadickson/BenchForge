@@ -72,5 +72,9 @@ public sealed class SimulationReplay
         }
     }
 
+    /// <summary>Inspect the next immutable sample without consuming it.</summary>
+    /// <returns>Next sample, or null when exhausted.</returns>
+    public SimulationReplaySample? Peek(){lock(_gate)return _position==_samples.Length?null:_samples[_position];}
+
     // Replay members.
 }
