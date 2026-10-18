@@ -377,4 +377,5 @@ Batch 200 checkpoint 100: Focused compiled developer workflow, architecture and 
 
 
 
-Batch 200 current: Bulk clear restores bounded fault queue capacity. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions passed. Counts unchanged: 228 requirements, 0 Verified.

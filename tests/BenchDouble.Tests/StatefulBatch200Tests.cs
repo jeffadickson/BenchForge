@@ -213,7 +213,7 @@ public sealed class StatefulBatch200Tests
     /// <returns>Completion of hardware-free state verification.</returns>
     [Fact] public async Task ParallelAsyncReset()
     {
-        var e=Engine(); var r=e.Snapshot().Revision; await Task.WhenAll(Enumerable.Range(0,64).Select(_=>e.ResetAsync().AsTask())); Assert.Equal(r+64,e.Snapshot().Revision);
+        var e=Engine(); var r=e.Snapshot().Revision; await Task.WhenAll(Enumerable.Range(0,64).Select(_=>Task.Run(async()=>await e.ResetAsync()))); Assert.Equal(r+64,e.Snapshot().Revision);
     }
 
     /// <summary>Cancellation during clock sampling does not consume faults.</summary>
@@ -260,5 +260,18 @@ public sealed class StatefulBatch200Tests
     [Fact] public void FaultCapacityAfterBulkClear()
     {
         var e=Engine(); for(var i=0;i<256;i++)e.QueueFault("voltage",new TimeoutException()); Assert.Throws<InvalidOperationException>(()=>e.QueueFault("voltage",new TimeoutException())); Assert.Equal(256,e.ClearAllFaults()); e.QueueFault("voltage",new TimeoutException()); Assert.Equal(1,e.FaultCount("voltage"));
+    }
+
+    /// <summary>Snapshot JSON contains counts rather than injected exception messages.</summary>
+    [Fact] public void SnapshotJsonOmitsFaultPayload()
+    {
+        var e=Engine(); e.QueueFault("voltage",new TimeoutException("private fault payload")); var json=System.Text.Json.JsonSerializer.Serialize(e.Snapshot()); Assert.DoesNotContain("private fault payload",json); Assert.Contains("PendingFaultCounts",json);
+    }
+
+    /// <summary>Imported facade exposes the same canonical bulk controls and reset.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ImportedFacadeControlsUseCanonicalEngine()
+    {
+        var m=new ImportedInstrumentMock(ImportedInstrumentDefinition.Parse(Definition)); await m.ConfigureModeAsync("voltage"); m.SetReading("voltage",9); m.SetSequence("voltage",[4]); m.QueueFault("voltage",new IOException()); Assert.Equal(1,m.FaultCount("voltage")); Assert.Equal(1,m.ClearAllFaults()); Assert.Equal(1,m.ClearAllSequences()); m.SetBehavior("voltage",_=>3); Assert.Equal(1,m.ClearAllBehaviors()); Assert.Equal(9,await m.MeasureAsync("voltage")); await m.ResetAsync(); Assert.Null(m.Snapshot().Mode);
     }
 }

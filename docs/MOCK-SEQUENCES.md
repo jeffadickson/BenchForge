@@ -38,3 +38,19 @@ arbitrary compiled user code remain separate unfinished requirements.
 
 Regression execution for this feature is scheduled at checkpoint 200. Source
 links and new tests do not promote requirement status to Verified.
+
+## Detached diagnostics and bulk controls
+
+`StatefulMockEngine.Snapshot()` and `ImportedInstrumentMock.Snapshot()` now include
+read-only `PendingFaultCounts` and `BehaviorKinds` maps. They expose neither fault
+exception payloads nor callbacks/sequence values. `FaultCount(capability)` reads
+queued counts without consulting virtual time. Snapshot capture still samples the
+shared simulation clock and is serialized with mode and reading transactions.
+
+Both APIs provide `ClearAllFaults`, `ClearAllSequences`, `ClearAllBehaviors`, and
+`ResetAsync`. Bulk removal changes the state revision once only when it removes
+something; each operation preserves state outside its documented scope. Async
+reset shares the synchronous reset transaction and observes cancellation before
+mutation. These are simulation controls; they neither release instrument ownership
+nor certify physical safety. Cancellation observed during clock sampling now
+precedes fault consumption and sequence advancement.
