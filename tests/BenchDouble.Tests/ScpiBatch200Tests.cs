@@ -90,4 +90,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.WriteAsync("V1 2"); var snap=s.GetTranscriptSnapshot(); await s.QueryAsync("V1?"); Assert.Single(snap); Assert.Equal(2,s.GetTranscriptSnapshot().Count);
     }
+
+    /// <summary>History snapshots reject caller mutation.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ReadOnlyHistory()
+    {
+        var s=Session(); await s.QueryAsync("V1?"); var snap=Assert.IsAssignableFrom<IList<string>>(s.GetTranscriptSnapshot()); Assert.Throws<NotSupportedException>(()=>snap[0]="bad");
+    }
 }
