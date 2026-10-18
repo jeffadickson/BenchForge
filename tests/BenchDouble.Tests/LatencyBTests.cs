@@ -132,4 +132,10 @@ public sealed class LatencyBTests
     {
         var p=Profile(Stage());Assert.True(Enumerable.Range(0,64).Select(i=>p.Sample(i).Total.Ticks).Distinct().Count()>1);
     }
+
+    /// <summary>Negative indices fail without changing later samples.</summary>
+    [Fact] public void NegativeIndex()
+    {
+        var p=Profile(Stage());var before=p.Sample(0).Total;Assert.Throws<ArgumentOutOfRangeException>(()=>p.Sample(-1));Assert.Equal(before,p.Sample(0).Total);
+    }
 }
