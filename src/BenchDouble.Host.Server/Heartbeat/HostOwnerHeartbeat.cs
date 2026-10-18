@@ -64,7 +64,7 @@ public sealed partial class HostResourceRegistry
                 health.PeerEpoch != Guid.Empty && health.PeerEpoch != peerEpoch)
                 throw new InvalidOperationException("Heartbeat peer or sequence is invalid.");
             var established = health.Sequence == 0; var priorState = health.State;
-            health.PeerEpoch = peerEpoch; health.Sequence = sequence; health.LastTimestamp = Clock.GetTimestamp(); health.State = "Healthy";
+            health.PeerEpoch = peerEpoch; health.Sequence = sequence; health.LastTimestamp = health.LastObservedTimestamp; health.LastAgeMilliseconds = 0; health.State = "Healthy";
             if (established || priorState == "Suspect")
                 _logger.LogInformation(new EventId(established ? 7493 : 7492, established ? "OwnerHeartbeatEstablished" : "OwnerHeartbeatRestored"),
                     "Owner heartbeat {ResourceId} generation {OwnerGeneration} is healthy", health.ResourceId, health.Generation);
