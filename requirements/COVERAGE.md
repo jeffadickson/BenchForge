@@ -483,4 +483,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Reject backwards logical time before queue mutation. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Drain due events in deadline and acceptance order. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

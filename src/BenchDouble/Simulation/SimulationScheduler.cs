@@ -64,5 +64,22 @@ public sealed class SimulationScheduler
         }
     }
 
+    /// <summary>Remove all due events at one coherent clock observation without executing callbacks.</summary>
+    /// <param name="ct">Cancellation before removing any events.</param>
+    /// <returns>Detached read-only events ordered by due time then identifier.</returns>
+    /// <exception cref="InvalidOperationException">The clock is invalid or moved backwards.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before removal.</exception>
+    public IReadOnlyList<SimulationScheduledEvent> DrainDue(CancellationToken ct=default)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock(_gate)
+        {
+            ct.ThrowIfCancellationRequested();var now=ReadTime();ct.ThrowIfCancellationRequested();
+            var due=_pending.TakeWhile(p=>p.Key.Ticks<=now.Ticks).ToArray();
+            foreach(var pair in due){_pending.Remove(pair.Key);_keys.Remove(pair.Value.Id);}
+            return Array.AsReadOnly(due.Select(p=>p.Value).ToArray());
+        }
+    }
+
     // Scheduler members.
 }
