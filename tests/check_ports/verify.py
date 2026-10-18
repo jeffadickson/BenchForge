@@ -9,7 +9,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DLL = ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll"
+DOTNET = os.environ.get("BENCHFORGE_DOTNET", "dotnet")
+DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll")))
 NATIVE = Path(os.environ.get("BENCHFORGE_CHECKS_NATIVE", str(ROOT / ".tools/checks/native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks"))))
 REFERENCE = Path(__file__).with_name("reference.py")
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
@@ -19,7 +20,7 @@ RESULTS = []
 def run(command, root, args=(), jobs=1, reference=False, native=False):
     """Capture independent process output exactly, including exit status."""
     cmd = ([sys.executable, str(REFERENCE), command, str(root)] if reference else
-           [*([str(NATIVE)] if native else ["dotnet", str(DLL)]), command, "--root", str(root), "--jobs", str(jobs), "--python", sys.executable])
+           [*([str(NATIVE)] if native else [DOTNET, str(DLL)]), command, "--root", str(root), "--jobs", str(jobs), "--python", sys.executable])
     return subprocess.run([*cmd, *map(str, args)], cwd=root, env=ENV, capture_output=True, timeout=180)
 
 
@@ -164,6 +165,12 @@ def fixtures(root):
 
 def main():
     """Run only port checks and persist the exact-comparison inventory."""
+    for key, selected in (("BENCHFORGE_CHECKS_DLL", DLL), ("BENCHFORGE_CHECKS_NATIVE", NATIVE)):
+        if key in os.environ and not selected.is_file():
+            raise FileNotFoundError("Explicit checker selection does not exist: " + key)
+    if "BENCHFORGE_ROSLYN_DLL" in os.environ and not Path(os.environ["BENCHFORGE_ROSLYN_DLL"]).is_file():
+        raise FileNotFoundError("Explicit Roslyn selection does not exist")
+
     folder = ROOT / "build/check-ports"
     folder.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="parity-", dir=folder) as temp:
@@ -171,10 +178,10 @@ def main():
     output = ROOT / "build/api-audit.json"
     original = folder / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
     updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll")))
-    baseline = subprocess.run(["dotnet", str(original), str(ROOT), str(output)], cwd=ROOT, capture_output=True, check=True)
+    baseline = subprocess.run([DOTNET, str(original), str(ROOT), str(output)], cwd=ROOT, capture_output=True, check=True)
     content = output.read_bytes()
     for jobs in (1, 8):
-        current = subprocess.run(["dotnet", str(updated), str(ROOT), str(output), "--jobs", str(jobs)], cwd=ROOT, capture_output=True, check=True)
+        current = subprocess.run([DOTNET, str(updated), str(ROOT), str(output), "--jobs", str(jobs)], cwd=ROOT, capture_output=True, check=True)
         assert (current.stdout, current.stderr, output.read_bytes()) == (baseline.stdout, baseline.stderr, content)
     RESULTS.append({"case": "Roslyn repository report", "jobs": [1, 8], "exact": True})
     with tempfile.TemporaryDirectory(prefix="syntax-", dir=folder) as temp:
@@ -184,8 +191,8 @@ def main():
         for name in ("A.cs", "Z.cs"):
             write(fixture, "src/" + name, "public class Broken { public void (\n")
         for jobs in (1, 8):
-            failed = subprocess.run(["dotnet", str(updated), str(fixture), str(fixture / "audit.json"), "--jobs", str(jobs)], cwd=ROOT, capture_output=True)
-            reference = subprocess.run(["dotnet", str(original), str(fixture), str(fixture / "audit.json")], cwd=ROOT, capture_output=True)
+            failed = subprocess.run([DOTNET, str(updated), str(fixture), str(fixture / "audit.json"), "--jobs", str(jobs)], cwd=ROOT, capture_output=True)
+            reference = subprocess.run([DOTNET, str(original), str(fixture), str(fixture / "audit.json")], cwd=ROOT, capture_output=True)
             assert failed.returncode != 0 and reference.returncode != 0
             assert failed.stderr.splitlines()[0] == reference.stderr.splitlines()[0]
             assert b"Cannot audit src/A.cs" in failed.stderr and not (fixture / "audit.json").exists()

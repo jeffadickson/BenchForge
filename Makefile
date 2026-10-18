@@ -7,7 +7,7 @@ PWSH ?= $(if $(filter Windows_NT,$(OS)),powershell,pwsh)
 CHECKS_ARCH ?= auto
 CHECKS_CONFIGURATION ?= Release
 CHECKS_RID ?=
-CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1 -Python "$(PYTHON)" -Dotnet "$(DOTNET)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
+CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1 -Python "$(PYTHON)" -Dotnet "$(DOTNET)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)" $(if $(strip $(CHECKS_RID)),-RuntimeIdentifier "$(CHECKS_RID)",)
 
 # Windows local measurements: docs/CHECK-PORT-BENCHMARKS.md. Build native tools
 # only for optional microbenchmarks; normal checks use the validated managed host.
@@ -17,13 +17,24 @@ CHECKS_SOURCES := $(wildcard tools/BenchForge.Checks/*.cs) tools/BenchForge.Chec
 ROSLYN_DLL := .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchDouble.DocumentationAudit.dll
 ROSLYN_JOBS ?= 8
 
-$(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES)
-	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly, for example win-x64 or linux-arm64))
-	$(DOTNET) publish tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)
+CHECK_RUNTIME = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/check-runtime.ps1 -RuntimeIdentifier "$(CHECKS_RID)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
+CHECKS_MANAGED_DLL := .tools/checks/managed/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchForge.Checks.dll
 
-$(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/RoslynAudit.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj
+.PHONY: checks-native-plan checks-execution-plan
+checks-native-plan:
+	$(if $(strip $(CHECKS_RID)),,$(error Set CHECKS_RID explicitly for optional native and standalone tools))
+	$(CHECK_RUNTIME)
+
+checks-execution-plan: checks-native-plan
+	$(CHECK_RUNTIME) -RequireExecution
+
+$(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES) | checks-native-plan
+	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly, for example win-x64 or linux-arm64))
+	"$(DOTNET)" publish tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)
+
+$(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/RoslynAudit.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj | checks-native-plan
 	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly for the optional standalone Roslyn build))
-	$(DOTNET) build tools/BenchDouble.DocumentationAudit -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+	"$(DOTNET)" build tools/BenchDouble.DocumentationAudit -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
 
 .PHONY: checks-native check-ports checks
 # Full check/report workflow: one managed build, content-validated cache, parallel checks.
@@ -43,10 +54,13 @@ checks-only:
 .PHONY: checks-native check-ports
 checks-native: $(CHECKS_NATIVE_PATH)
 
-check-ports: $(CHECKS_NATIVE_PATH) $(ROSLYN_DLL)
-	$(DOTNET) build tools/BenchForge.Checks -c Release
-	$(PYTHON) tests/check_ports/benchmark.py --prepare-baseline 68113cc72de785e5329a3df2bcf3087d0059c294 --prepare-only
-	BENCHFORGE_CHECKS_NATIVE="$(CURDIR)/$(CHECKS_NATIVE_PATH)" BENCHFORGE_ROSLYN_DLL="$(CURDIR)/$(ROSLYN_DLL)" $(PYTHON) tests/check_ports/verify.py
+check-ports: checks-execution-plan
+	$(CHECK_HOST) -Command identity
+	$(MAKE) checks-native "$(ROSLYN_DLL)"
+	"$(DOTNET)" build tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/checks/managed/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+	BENCHFORGE_DOTNET="$(DOTNET)" $(PYTHON) tests/check_ports/benchmark.py --prepare-baseline 68113cc72de785e5329a3df2bcf3087d0059c294 --prepare-only
+	BENCHFORGE_DOTNET="$(DOTNET)" BENCHFORGE_CHECKS_DLL="$(CURDIR)/$(CHECKS_MANAGED_DLL)" BENCHFORGE_CHECKS_NATIVE="$(CURDIR)/$(CHECKS_NATIVE_PATH)" BENCHFORGE_ROSLYN_DLL="$(CURDIR)/$(ROSLYN_DLL)" $(PYTHON) tests/check_ports/verify.py
+
 
 
 .PHONY: alpha-check demo-alpha import-check setup setup-windows requirements generate build test test-browser verify demo demo-normal demo-thermal demo-experiment demo-automock demo-automock-json demo-typed-meter demo-generated-mock demo-procedure demo-dashboard check-generated definer-check setup-browser scoreboard requirements-check

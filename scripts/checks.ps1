@@ -6,6 +6,7 @@ param(
     [string]$Dotnet = 'dotnet',
     [int]$Jobs = 8,
     [ValidateSet('auto','x64','x86','arm64','arm')][string]$Architecture = 'auto',
+    [string]$RuntimeIdentifier = '',
     [ValidateSet('Debug','Release')][string]$Configuration = 'Release',
     [ValidateSet('checks','checks-only','requirements','scoreboard','neutrality','neutrality-strict','roslyn','preflight','docs','compare','identity')][string]$Command = 'checks',
     [ValidateRange(1,3600)][int]$TimeoutSeconds = 300,
@@ -18,11 +19,8 @@ param(
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'check-build.ps1')
 if ($Jobs -lt 1 -or $Jobs -gt 256) { throw 'Jobs must be 1..256' }
-$platform = if ($env:OS -eq 'Windows_NT') { 'win' } elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)) { 'osx' } else { 'linux' }
-$hostArchitecture = if ($platform -eq 'win') {
-    switch ($env:PROCESSOR_ARCHITECTURE.ToLowerInvariant()) { 'amd64' { 'x64' }; 'arm64' { 'arm64' }; 'x86' { 'x86' }; default { throw 'Unsupported process architecture' } }
-} else { [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant() }
-$plan = Get-CheckBuildPlan -Platform $platform -HostArchitecture $hostArchitecture -Architecture $Architecture -Configuration $Configuration
+$runtimeHost = Get-CheckHostIdentity
+$plan = Get-CheckRequestedPlan -Platform $runtimeHost.platform -HostArchitecture $runtimeHost.architecture -Architecture $Architecture -Configuration $Configuration -RuntimeIdentifier $RuntimeIdentifier
 if ($PlanOnly) { $plan | ConvertTo-Json -Compress; exit 0 }
 if (!$PrepareOnly -and !$plan.can_execute) { throw 'Cross-architecture builds require -PrepareOnly; use the matching runtime to execute checks' }
 $Root = [System.IO.Path]::GetFullPath($Root)

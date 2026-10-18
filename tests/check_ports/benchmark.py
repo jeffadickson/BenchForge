@@ -17,10 +17,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BUILD = ROOT / "build/check-ports"
-DLL = ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll"
-AUDIT = ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
+DOTNET = os.environ.get("BENCHFORGE_DOTNET", "dotnet")
+DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll")))
+AUDIT = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll")))
 BASE = BUILD / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
-NATIVE = BUILD / "native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks")
+NATIVE = Path(os.environ.get("BENCHFORGE_CHECKS_NATIVE", str(BUILD / "native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks"))))
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
 
 
@@ -49,7 +50,7 @@ def main():
         for name in ("Program.cs", "BenchDouble.DocumentationAudit.csproj"):
             content = subprocess.check_output(["git", "show", args.prepare_baseline + ":tools/BenchDouble.DocumentationAudit/" + name], cwd=ROOT)
             (folder / name).write_bytes(content)
-        subprocess.run(["dotnet", "build", str(folder), "-c", "Release"], cwd=ROOT, check=True)
+        subprocess.run([DOTNET, "build", str(folder), "-c", "Release"], cwd=ROOT, check=True)
     if args.prepare_only:
         return
     assert args.samples >= 5 and args.warmups >= 1
@@ -68,10 +69,10 @@ def main():
         if args.tasks and task not in args.tasks.split(","):
             continue
         candidates = {"python": [sys.executable, str(ROOT / "scripts" / script), *options]} if script else {
-            "csharp-original": ["dotnet", str(BASE), str(ROOT), str(output)]}
+            "csharp-original": [DOTNET, str(BASE), str(ROOT), str(output)]}
         for jobs in (1, 8):
-            candidates[f"csharp-{jobs}"] = (["dotnet", str(DLL), task, "--root", str(ROOT), "--jobs", str(jobs), "--python", sys.executable, *options] if script else
-                                            ["dotnet", str(AUDIT), str(ROOT), str(output), "--jobs", str(jobs)])
+            candidates[f"csharp-{jobs}"] = ([DOTNET, str(DLL), task, "--root", str(ROOT), "--jobs", str(jobs), "--python", sys.executable, *options] if script else
+                                            [DOTNET, str(AUDIT), str(ROOT), str(output), "--jobs", str(jobs)])
             if script and NATIVE.exists():
                 candidates[f"native-{jobs}"] = [str(NATIVE), task, "--root", str(ROOT), "--jobs", str(jobs), "--python", sys.executable, *options]
         # Reference script has a positional root; default '.' is already the same checkout.
@@ -103,7 +104,7 @@ def main():
     source_paths = [*sorted((ROOT / "tools/BenchForge.Checks").glob("*.cs")), *sorted((ROOT / "tools/BenchForge.Checks").glob("*.csproj")), ROOT / "tools/BenchForge.Checks/scoreboard.html", ROOT / "scripts/python_ast_inventory.py", ROOT / "tools/BenchDouble.DocumentationAudit/Program.cs", *[ROOT / "scripts" / script for _, script, _, _ in tasks if script]]
     report = {"platform": platform.platform(), "cpu": platform.processor(), "logical_processors": os.cpu_count(),
               "source_sha256": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_paths},
-              "python": sys.version, "dotnet": subprocess.check_output(["dotnet", "--version"], text=True).strip(),
+              "python": sys.version, "dotnet": subprocess.check_output([DOTNET, "--version"], text=True).strip(),
               "commit_before_changes": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
               "samples_per_candidate": args.samples, "warmups_per_candidate": args.warmups, "seed": 7301,
               "timing": "Fresh-process wall time including startup, parsing, checking and report writes; output hashing excluded. Sequential interleaved candidates; no concurrent benchmarks. Warm file cache; not a cold-boot test.",

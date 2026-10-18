@@ -17,6 +17,29 @@ function Get-CheckCacheLock([string]$Path, [int]$TimeoutMilliseconds = 300000) {
     }
 }
 
+# One host identity and requested-runtime policy for all checker entry points.
+function Get-CheckHostIdentity {
+    $platform = if ($env:OS -eq 'Windows_NT') { 'win' } elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)) { 'osx' } elseif ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)) { 'linux' } else { throw 'Unsupported checker host OS' }
+    $architecture = if ($platform -eq 'win') {
+        switch ($env:PROCESSOR_ARCHITECTURE.ToLowerInvariant()) { 'amd64' { 'x64' }; 'arm64' { 'arm64' }; 'x86' { 'x86' }; default { throw 'Unsupported process architecture' } }
+    } else { [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant() }
+    [pscustomobject]@{platform=$platform;architecture=$architecture}
+}
+
+function Get-CheckRequestedPlan {
+    param([string]$Platform,[string]$HostArchitecture,[string]$Architecture='auto',[string]$Configuration='Release',[string]$RuntimeIdentifier='',[switch]$RequireExecution)
+    if ($RuntimeIdentifier -cne '') {
+        if ($RuntimeIdentifier -cnotin @('win-x64','win-x86','win-arm64','linux-x64','linux-arm64','linux-arm','osx-x64','osx-arm64')) { throw 'Unsupported canonical runtime identifier' }
+        $parts=$RuntimeIdentifier.Split('-')
+        if ($parts[0] -cne $Platform) { throw 'Cross-OS checker builds are not supported by this host entry point' }
+        if ($Architecture -ceq 'auto') { $Architecture=$parts[1] }
+        elseif ($Architecture -cne $parts[1]) { throw 'Requested architecture and runtime identifier disagree' }
+    }
+    $plan=Get-CheckBuildPlan -Platform $Platform -HostArchitecture $HostArchitecture -Architecture $Architecture -Configuration $Configuration
+    if ($RequireExecution -and !$plan.can_execute) { throw 'Cross-architecture execution is forbidden; use a matching process or prepare only' }
+    $plan
+}
+
 function Get-CheckBuildPlan {
     param(
         [string]$Platform,
