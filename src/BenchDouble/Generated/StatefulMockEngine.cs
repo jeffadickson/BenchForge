@@ -24,6 +24,10 @@ public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan 
     public IReadOnlyDictionary<string, int> PendingFaultCounts { get; init; } =
         new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
 
+    /// <summary>Detached configured model kinds: Synchronous, Asynchronous or Sequence; excludes callbacks and values.</summary>
+    public IReadOnlyDictionary<string, string> BehaviorKinds { get; init; } =
+        new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
     /// <summary>Independent cursor positions captured with the same mode and revision; contains no sequence values.</summary>
     public IReadOnlyDictionary<string, int> SequencePositions { get; init; } =
         new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
@@ -324,6 +328,9 @@ public sealed partial class StatefulMockEngine
         _gate.Wait();
         try { return new(_mode, _revision, ReadElapsed(),
             new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))) { SequencePositions = SequencePositions(),
+                BehaviorKinds = new ReadOnlyDictionary<string, string>(_models.Keys.Select(k => (Key:k, Kind:"Synchronous"))
+                    .Concat(_asyncModels.Keys.Select(k => (Key:k, Kind:"Asynchronous")))
+                    .Concat(_sequences.Keys.Select(k => (Key:k, Kind:"Sequence"))).ToDictionary(p => p.Key, p => p.Kind, StringComparer.Ordinal)),
                 PendingFaultCounts = new ReadOnlyDictionary<string, int>(_faults.Where(p => p.Value.Count > 0).ToDictionary(p => p.Key, p => p.Value.Count, StringComparer.Ordinal)) }; }
         finally { _gate.Release(); }
     }
