@@ -385,4 +385,5 @@ Batch 200 checkpoint 150: Focused stateful mock, SCPI and checker regressions pa
 
 
 
-Batch 200 current: Renew ownership using the already validated monotonic timestamp. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200 current: Reject misspelled heartbeat configuration keys. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.

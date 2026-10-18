@@ -16,6 +16,9 @@ public sealed record HostHeartbeatPolicy(TimeSpan Interval, TimeSpan SuspectAfte
     public static HostHeartbeatPolicy FromConfiguration(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        var allowed = new[] { "IntervalMilliseconds", "SuspectMilliseconds", "ExpireMilliseconds" };
+        foreach (var child in configuration.GetSection("BenchHeartbeat").GetChildren())
+            if (!allowed.Contains(child.Key, StringComparer.OrdinalIgnoreCase)) throw new ArgumentException("Unknown heartbeat setting: " + child.Key);
         TimeSpan Read(string key, TimeSpan fallback)
         {
             var value = configuration["BenchHeartbeat:" + key];
