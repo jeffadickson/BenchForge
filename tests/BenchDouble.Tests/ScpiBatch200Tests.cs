@@ -110,4 +110,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); var r=s.GetReadingsSnapshot(); Assert.Equal(2,r.Count); Assert.Equal("voltage",r[0].Parameter); Assert.Equal("ElectricPotential",r[0].Quantity); Assert.Equal("Volt",r[0].Unit); Assert.Equal(1,r[0].Channel); Assert.Equal(2,r[1].Channel);
     }
+
+    /// <summary>Reading snapshots remain detached from later writes.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task DetachedReadings()
+    {
+        var s=Session(); var before=s.GetReadingsSnapshot(); await s.WriteAsync("V1 7"); Assert.Equal(1,before[0].Value); Assert.Equal(7,s.GetReadingsSnapshot()[0].Value);
+    }
 }
