@@ -101,6 +101,7 @@ public sealed partial class StatefulMockEngine
         {
             ct.ThrowIfCancellationRequested();
             if (_mode == mode) return;
+            _prepared.Clear();
             _mode = mode;
             ++_revision;
             Emit(() => _logger.LogInformation("Mock {Instrument} mode {Mode} revision {Revision}", _definition.DriverName, mode, _revision));
