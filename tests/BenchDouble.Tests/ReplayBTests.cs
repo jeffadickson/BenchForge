@@ -175,4 +175,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());r.ReadNext("v","voltage",T(0));Assert.Throws<InvalidOperationException>(()=>r.ReadNext("v","voltage",T(0)));Assert.Equal(new SimulationReplayStatus(1,1,0),r.Status());
     }
+
+    /// <summary>Repeated peeking preserves cursor and next sample.</summary>
+    [Fact] public void PeekStable()
+    {
+        var s=S();var r=R(s);Assert.Equal(s,r.Peek());Assert.Equal(s,r.Peek());Assert.Equal(0,r.Status().Position);
+    }
 }
