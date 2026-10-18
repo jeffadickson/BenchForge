@@ -227,4 +227,10 @@ public sealed class SchedulerBTests
     {
         var s=new SimulationScheduler(new Clock());s.Schedule(T(0),"a");using var c=new CancellationTokenSource();c.Cancel();Assert.ThrowsAny<OperationCanceledException>(()=>s.DrainDue(c.Token));Assert.Equal(1,s.Count);
     }
+
+    /// <summary>Full queues reject insertion before clock observation.</summary>
+    [Fact] public void CapacityFailureNoClock()
+    {
+        var c=new Clock();var s=new SimulationScheduler(c,1);s.Schedule(T(0),"a");var reads=c.Reads;Assert.Throws<InvalidOperationException>(()=>s.Schedule(T(0),"b"));Assert.Equal(reads,c.Reads);
+    }
 }
