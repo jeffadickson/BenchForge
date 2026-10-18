@@ -102,4 +102,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;var s=r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!;Assert.Equal("Healthy",s.State);Assert.Equal(0,s.AgeMilliseconds);
     }
+
+    /// <summary>The final tick before suspect remains healthy.</summary>
+    [Fact] public void BeforeSuspect()
+    {
+        var c=new Clock();var r=Registry(c);var g=r.Reserve("DMM1")!;c.Ticks=TimeSpan.FromMilliseconds(20).Ticks-1;Assert.Equal("Healthy",r.InspectOwnerHeartbeat("DMM1",g.LeaseId)!.State);
+    }
 }
