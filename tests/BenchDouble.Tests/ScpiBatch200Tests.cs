@@ -69,4 +69,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(2,[Parameter(setter:null),Parameter(name:"other",query:"V1?",setter:null)]); await Assert.ThrowsAsync<InvalidOperationException>(async()=>await s.QueryAsync("V1?")); Assert.Empty(s.GetTranscriptSnapshot());
     }
+
+    /// <summary>Reject literal and channel-template setter ambiguity.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task OverlappingSetters()
+    {
+        var s=new DefinitionDrivenScpiMockSession(2,[Parameter(query:null),Parameter(name:"other",query:null,setter:"V1 {value}")]); await Assert.ThrowsAsync<InvalidOperationException>(async()=>await s.WriteAsync("V1 5")); Assert.All(s.GetReadingsSnapshot(),r=>Assert.Equal(1,r.Value)); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
