@@ -109,4 +109,10 @@ public sealed class ReplayBTests
     {
         foreach(var v in new[]{double.MaxValue,double.MinValue,0d,-1d})Assert.Equal(v,R(S(0,v)).ReadNext("v","voltage",T(0)).Value);
     }
+
+    /// <summary>Replay plans are isolated from caller collection replacement.</summary>
+    [Fact] public void CopiedPlan()
+    {
+        var samples=new[]{S(0,1)};var r=new SimulationReplay(samples);samples[0]=S(0,99);Assert.Equal(1,r.ReadNext("v","voltage",T(0)).Value);
+    }
 }
