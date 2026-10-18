@@ -229,4 +229,10 @@ public sealed class StatefulBatch200Tests
     {
         using var c=new CancellationTokenSource(); var e=Engine(new CallbackClock(()=>{c.Cancel();return TimeSpan.Zero;})); await e.ConfigureModeAsync("voltage"); e.SetSequence("voltage",[3,4]); await Assert.ThrowsAnyAsync<OperationCanceledException>(async()=>await e.MeasureAsync("voltage",c.Token)); Assert.Equal(0,e.SequenceStatus("voltage")!.Position);
     }
+
+    /// <summary>Bulk behavior clear counts models and sequences together.</summary>
+    [Fact] public void ClearAllBehaviorsCount()
+    {
+        var e=Engine(); e.SetBehavior("voltage",_=>3); e.SetSequence("resistance",[4]); Assert.Equal(2,e.ClearAllBehaviors()); Assert.Empty(e.Snapshot().BehaviorKinds);
+    }
 }
