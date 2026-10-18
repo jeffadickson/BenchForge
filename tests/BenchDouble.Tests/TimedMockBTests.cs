@@ -72,4 +72,11 @@ public sealed class TimedMockBTests
     {
         var e=Engine();await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);await Assert.ThrowsAsync<InvalidOperationException>(async()=>await e.MeasureAsync("voltage"));Assert.NotNull(e.PreparedMeasurementStatus("voltage"));
     }
+
+    /// <summary>The exact logical ready boundary permits scalar reads.</summary>
+    /// <returns>Completion of the simulated state transaction checks.</returns>
+    [Fact] public async Task ExactReady()
+    {
+        var c=new Clock();var e=Engine(c);await e.ConfigureModeAsync("v");await e.PrepareMeasurementAsync("voltage",Profile(),0);c.Now=TimeSpan.FromTicks(10);Assert.Equal(1,await e.MeasureAsync("voltage"));Assert.Null(e.PreparedMeasurementStatus("voltage"));
+    }
 }
