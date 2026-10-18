@@ -28,6 +28,10 @@ public sealed record StatefulMockSnapshot(string? Mode, long Revision, TimeSpan 
     public IReadOnlyDictionary<string, string> BehaviorKinds { get; init; } =
         new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
+    /// <summary>Detached opt-in scalar preparations captured with the same mode and revision.</summary>
+    public IReadOnlyDictionary<string, PreparedMockMeasurement> PreparedMeasurements { get; init; } =
+        new ReadOnlyDictionary<string, PreparedMockMeasurement>(new Dictionary<string, PreparedMockMeasurement>());
+
     /// <summary>Independent cursor positions captured with the same mode and revision; contains no sequence values.</summary>
     public IReadOnlyDictionary<string, int> SequencePositions { get; init; } =
         new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
@@ -336,6 +340,7 @@ public sealed partial class StatefulMockEngine
         _gate.Wait();
         try { return new(_mode, _revision, ReadElapsed(),
             new ReadOnlyDictionary<string, double>(new Dictionary<string, double>(_overrides))) { SequencePositions = SequencePositions(),
+                PreparedMeasurements = new ReadOnlyDictionary<string, PreparedMockMeasurement>(new Dictionary<string, PreparedMockMeasurement>(_prepared)),
                 BehaviorKinds = new ReadOnlyDictionary<string, string>(_models.Keys.Select(k => (Key:k, Kind:"Synchronous"))
                     .Concat(_asyncModels.Keys.Select(k => (Key:k, Kind:"Asynchronous")))
                     .Concat(_sequences.Keys.Select(k => (Key:k, Kind:"Sequence"))).ToDictionary(p => p.Key, p => p.Kind, StringComparer.Ordinal)),
