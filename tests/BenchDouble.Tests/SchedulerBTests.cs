@@ -191,4 +191,10 @@ public sealed class SchedulerBTests
     {
         using var token=new CancellationTokenSource();var c=new Clock{OnRead=token.Cancel};var s=new SimulationScheduler(c);Assert.ThrowsAny<OperationCanceledException>(()=>s.Schedule(T(0),"bad",token.Token));Assert.Equal(0,s.Count);
     }
+
+    /// <summary>Independent scheduler instances do not share queues or identifiers.</summary>
+    [Fact] public void IndependentRuns()
+    {
+        var c=new Clock();var a=new SimulationScheduler(c);var d=new SimulationScheduler(c);Assert.Equal(1,a.Schedule(T(0),"a").Id);Assert.Equal(1,d.Schedule(T(0),"d").Id);a.Clear();Assert.Equal(1,d.Count);
+    }
 }

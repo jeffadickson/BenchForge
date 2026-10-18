@@ -520,4 +520,5 @@ Batch 200 checkpoint 200: Focused heartbeat, workflow, report-parity and checker
 
 
 
-Batch 200B current: Cancellation from clock observation precedes event insertion. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
+
+Batch 200B current: Independent scheduler instances do not share queues or identifiers. Counts unchanged: 228 requirements, 0 Verified; tests deferred to checkpoint.
