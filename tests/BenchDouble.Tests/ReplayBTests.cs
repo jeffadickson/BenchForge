@@ -91,4 +91,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentException>(()=>R(S(10),S(9)));
     }
+
+    /// <summary>Equal-time samples preserve explicit recording order.</summary>
+    [Fact] public void EqualTime()
+    {
+        var r=R(S(0,1),S(0,2));Assert.Equal(1,r.ReadNext("v","voltage",T(0)).Value);Assert.Equal(2,r.ReadNext("v","voltage",T(0)).Value);
+    }
 }
