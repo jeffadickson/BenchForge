@@ -13,6 +13,7 @@ public sealed partial class HostResourceRegistry
         public readonly long Generation = generation;
         public long LastTimestamp = timestamp;
         public long LastObservedTimestamp = timestamp;
+        public double LastAgeMilliseconds;
         public Guid PeerEpoch;
         public long Sequence;
         public string State = "Healthy";
@@ -88,7 +89,7 @@ public sealed partial class HostResourceRegistry
         var now = Clock.GetTimestamp();
         var backwards = Clock.GetElapsedTime(health.LastObservedTimestamp, now) < TimeSpan.Zero;
         var age = Clock.GetElapsedTime(health.LastTimestamp, now);
-        if (!backwards) health.LastObservedTimestamp = now;
+        if (!backwards) { health.LastObservedTimestamp = now; health.LastAgeMilliseconds = Math.Max(0, age.TotalMilliseconds); }
         var previous = health.State;
         health.State = backwards || age < TimeSpan.Zero || age >= _heartbeatPolicy!.ExpireAfter ? "Expired" : age >= _heartbeatPolicy.SuspectAfter ? "Suspect" : "Healthy";
         if (health.State != previous)
@@ -122,6 +123,6 @@ public sealed partial class HostResourceRegistry
     }
 
     private OwnerHeartbeatSnapshot Snapshot(OwnerHealth health) => new(_hostEpoch, health.Generation, health.PeerEpoch,
-        health.Sequence, health.State, Math.Max(0, Clock.GetElapsedTime(health.LastTimestamp).TotalMilliseconds),
+        health.Sequence, health.State, health.LastAgeMilliseconds,
         _heartbeatPolicy!.Interval.TotalMilliseconds, _heartbeatPolicy.ExpireAfter.TotalMilliseconds, "FenceAndRetain");
 }

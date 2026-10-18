@@ -6,7 +6,7 @@ namespace BenchDouble.Host.Contracts;
 /// <param name="PeerEpoch">Client epoch bound on first renewal; empty before any renewal.</param>
 /// <param name="Sequence">Last accepted strictly increasing client sequence.</param>
 /// <param name="State">Healthy, Suspect or Expired; expiry never reverses for this lease.</param>
-/// <param name="AgeMilliseconds">Monotonic time since grant or last accepted renewal, in milliseconds.</param>
+/// <param name="AgeMilliseconds">Age from the last coherent monotonic observation, in milliseconds; retained expiry snapshots keep the last observed age.</param>
 /// <param name="IntervalMilliseconds">Recommended client renewal interval in milliseconds.</param>
 /// <param name="ExpireMilliseconds">Expiry budget in milliseconds.</param>
 /// <param name="LossPolicy">FenceAndRetain; no automatic hardware action or ownership reassignment.</param>
