@@ -235,4 +235,10 @@ public sealed class ImportedInstrumentMock
 
     /// <summary>Reset all mock state to its definition defaults.</summary>
     public void Reset() => _engine.Reset();
+    /// <summary>Inspect queued simulated fault count without sampling virtual time.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Pending fault count, zero through 256.</returns>
+    /// <exception cref="NotSupportedException">Capability is undeclared.</exception>
+    public int FaultCount(string capability) => _engine.FaultCount(capability);
+
 }

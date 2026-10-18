@@ -335,6 +335,18 @@ public sealed partial class StatefulMockEngine
         finally { _gate.Release(); }
     }
 
+    /// <summary>Inspect one capability's pending fault count without consuming faults or reading time.</summary>
+    /// <param name="capability">Declared scalar capability.</param>
+    /// <returns>Number of queued faults, from zero through 256.</returns>
+    /// <exception cref="NotSupportedException">The capability is not declared.</exception>
+    public int FaultCount(string capability)
+    {
+        _definition.Capability(capability);
+        _gate.Wait();
+        try { return _faults.TryGetValue(capability, out var queue) ? queue.Count : 0; }
+        finally { _gate.Release(); }
+    }
+
     /// <summary>Reset the mode, overrides, behaviors and pending faults.</summary>
     public void Reset()
     {
