@@ -261,4 +261,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=new DefinitionDrivenScpiMockSession(256,[Parameter()]); Assert.Equal(256,s.GetReadingsSnapshot().Count); Assert.Equal(256,s.GetReadingsSnapshot()[255].Channel);
     }
+
+    /// <summary>Scientific notation is stored in canonical scalar form.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task ScientificNotation()
+    {
+        var s=Session(); await s.WriteAsync("V1 2e0"); Assert.Equal(2,s.GetReadingsSnapshot()[0].Value); Assert.Equal("2",await s.QueryAsync("V1?"));
+    }
 }
