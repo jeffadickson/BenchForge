@@ -13,4 +13,10 @@ public sealed class ReplayBTests
     {
         Assert.Throws<ArgumentNullException>(()=>new SimulationReplay(null!));
     }
+
+    /// <summary>Null transcript entries are rejected.</summary>
+    [Fact] public void NullSample()
+    {
+        Assert.Throws<ArgumentException>(()=>R(new SimulationReplaySample[]{null!}));
+    }
 }
