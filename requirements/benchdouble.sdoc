@@ -742,7 +742,8 @@ STATEMENT: A browser demonstration shall execute selected C# simulation code via
 UID: BD-EXP-001
 STATUS: Active
 TITLE: BD-EXP-001 P0
-STATEMENT: An immutable experiment definition shall register uniquely named typed instrument roles and backend choices.
+STATEMENT: An immutable experiment definition shall register uniquely named typed instrument roles and backend choices. Acceptance: Public experiment and run role metadata shall reject list mutation and preserve frozen typed registrations.
+
 
 [REQUIREMENT]
 UID: BD-EXP-002

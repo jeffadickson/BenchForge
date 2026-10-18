@@ -101,3 +101,5 @@ Local iteration 13 (2026-10-17), BD-CFG-008: Validate discovery hostnames and is
 Local iteration 14 (2026-10-17), BD-CFG-008: Reject incomplete VISA endpoint descriptors. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
 
 Local iteration 15 (2026-10-17), BD-CFG-008: Bound every VISA discovery catalog. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.
+
+Local iteration 16 (2026-10-17), BD-EXP-001: Freeze experiment role metadata defensively. Counts and statuses unchanged; execution details in docs/LOCAL-ITERATIONS-2026-10-17.md.

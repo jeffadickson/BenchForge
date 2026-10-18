@@ -183,7 +183,7 @@ public sealed class ExperimentDefinition
         IReadOnlyDictionary<string, string> roleRuleHashes)
     {
         Name = name;
-        Instruments = instruments;
+        Instruments = Array.AsReadOnly(instruments.ToArray());
         _services = services;
         AutoMockRuleSha256 = autoMockRuleHash;
         AutoMockRuleHashes = new ReadOnlyDictionary<string, string>(

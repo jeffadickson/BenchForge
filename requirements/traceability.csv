@@ -121,7 +121,7 @@ BD-BUILD-004,P1,SourceCommittedUnverified,tests/BenchDouble.Browser.Tests/Unatte
 BD-DOC-001,P0,SourceCommittedUnverified,docs/SOFTWARE-DEVELOPMENT-PLAN.md,,https://github.com/jeffadickson/BenchDouble/issues/29,,
 BD-DOC-002,P1,SourceCommittedUnverified,examples/ProjectOverview/index.html,,https://github.com/jeffadickson/BenchDouble/issues/30,,
 BD-WASM-001,P2,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/30,,
-BD-EXP-001,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,,
+BD-EXP-001,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,,tests/BenchDouble.Experiments.Tests/LocalHardeningTests.cs
 BD-EXP-002,P0,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,,
 BD-EXP-003,P1,SourceCommittedUnverified,src/BenchDouble.Experiments/ExperimentDefinition.cs,tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchDouble/issues/35,,
 BD-EXP-004,P0,Planned,,,https://github.com/jeffadickson/BenchDouble/issues/35,,

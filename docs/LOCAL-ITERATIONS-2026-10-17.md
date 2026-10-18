@@ -19,3 +19,4 @@ Windows / .NET SDK 10.0.402. Each row records a completed change followed by the
 | 13 | Validate discovery hostnames and isolate deadline-sensitive tests | BD-CFG-008 | BenchDouble.Host.Tests | Passed |
 | 14 | Reject incomplete VISA endpoint descriptors | BD-CFG-008 | BenchDouble.Host.Tests | Passed |
 | 15 | Bound every VISA discovery catalog | BD-CFG-008 | BenchDouble.Host.Tests | Passed |
+| 16 | Freeze experiment role metadata defensively | BD-EXP-001 | BenchDouble.Experiments.Tests | Passed |
