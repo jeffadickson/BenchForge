@@ -100,3 +100,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
     def test_no_plan_children(self):
         """Plan mode launches no task subprocesses."""
         self.plan();self.assertEqual([],self.events())
+
+    def test_no_plan_report(self):
+        """Plan mode does not create an execution report."""
+        self.plan();self.assertFalse((self.root/'build/developer-workflow.json').exists())
