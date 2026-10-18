@@ -84,4 +84,10 @@ public sealed class HeartbeatBatch200Tests
     {
         var c=new Clock{Frequency=0}; Assert.Throws<ArgumentOutOfRangeException>(()=>Registry(c));
     }
+
+    /// <summary>Negative timestamp frequency prevents owner service startup.</summary>
+    [Fact] public void NegativeFrequency()
+    {
+        var c=new Clock{Frequency=-1}; Assert.Throws<ArgumentOutOfRangeException>(()=>Registry(c));
+    }
 }
