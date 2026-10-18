@@ -205,4 +205,10 @@ public sealed class ReplayBTests
     {
         var r=R(S());r.ReadNext("v","voltage",T(0));Assert.Single(r.Snapshot());Assert.Empty(r.RemainingSamples());
     }
+
+    /// <summary>Explicit replay reset reproduces the original first sample.</summary>
+    [Fact] public void ResetReproducible()
+    {
+        var r=R(S());var first=r.ReadNext("v","voltage",T(0));r.Reset();Assert.Equal(first,r.ReadNext("v","voltage",T(0)));
+    }
 }
