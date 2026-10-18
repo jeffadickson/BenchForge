@@ -97,4 +97,11 @@ public sealed class ScpiBatch200Tests
     {
         var s=Session(); await s.QueryAsync("V1?"); var snap=Assert.IsAssignableFrom<IList<string>>(s.GetTranscriptSnapshot()); Assert.Throws<NotSupportedException>(()=>snap[0]="bad");
     }
+
+    /// <summary>History clear preserves previously captured history.</summary>
+    /// <returns>Completion of hardware-free state verification.</returns>
+    [Fact] public async Task HistoryClearDetaches()
+    {
+        var s=Session(); await s.QueryAsync("V1?"); var snap=s.GetTranscriptSnapshot(); await s.ClearTranscriptAsync(); Assert.Single(snap); Assert.Empty(s.GetTranscriptSnapshot());
+    }
 }
