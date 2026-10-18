@@ -63,4 +63,10 @@ public sealed class StatefulBatch200Tests
     {
         var e=Engine(); await e.ConfigureModeAsync("voltage"); e.QueueFault("voltage",new TimeoutException()); await Assert.ThrowsAsync<TimeoutException>(async()=>await e.MeasureAsync("voltage")); Assert.Empty(e.Snapshot().PendingFaultCounts);
     }
+
+    /// <summary>Default fallback is not reported as a configured model.</summary>
+    [Fact] public void InitialModelKinds()
+    {
+        var e=Engine(); Assert.Empty(e.Snapshot().BehaviorKinds);
+    }
 }
