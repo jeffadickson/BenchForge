@@ -140,4 +140,97 @@ public sealed class HostV2SecurityAndRailroadTests
                 Directory.Delete(dir, recursive: true);
         }
     }
+
+    /// <summary>Verify live HTTP /api/v2/resources/{id}/limits enforces monotonic tightening and blocks over-limit remote commands before dispatch.</summary>
+    /// <returns>Completion of remote hard-limit assertions.</returns>
+    [Fact]
+    public async Task V2HardLimitsApiEnforcesMonotonicTighteningAndBlocksOverLimitRemoteCommandsOverHttp()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "benchforge-v2-limits-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+
+        const string observerToken = "obs-limits-01";
+        const string operatorToken = "op-limits-02";
+
+        var policy = new PrivateLabSecurityPolicy(
+            [
+                new LabPrincipal("observer-1", LabRole.Observer, LabPrincipal.HashToken(observerToken), ["*"]),
+                new LabPrincipal("operator-1", LabRole.Operator, LabPrincipal.HashToken(operatorToken), ["DMM1"], AllowRawScpi: true)
+            ],
+            allowPrivateLanBinding: true,
+            allowPlaintextOnIsolatedVlan: true,
+            allowRawScpiGlobal: true);
+
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseUrls("http://127.0.0.1:0");
+        builder.Services.AddSingleton(policy);
+        builder.Services.AddSingleton<HostResourceRegistry>(_ => new HostResourceRegistry());
+        builder.Services.AddSingleton(sp => new RailroadHostService(
+            sp.GetRequiredService<HostResourceRegistry>(),
+            sp.GetRequiredService<PrivateLabSecurityPolicy>(),
+            Path.Combine(dir, "audit.jsonl"),
+            Path.Combine(dir, "fencing.json"),
+            Path.Combine(dir, "commands.json")));
+
+        var app = builder.Build();
+        app.MapRailroadV2Api();
+        await app.StartAsync();
+
+        try
+        {
+            var baseUri = new Uri(app.Urls.First());
+            using var http = new HttpClient();
+            var obsClient = new RailroadHostClient(http, baseUri, observerToken);
+            var opClient = new RailroadHostClient(http, baseUri, operatorToken);
+
+            // Observer cannot register limits
+            var obsPut = await obsClient.RegisterOrTightenLimitsAsync("DMM1", new RemoteHardLimitsDto(MaxVoltageV: 28.0));
+            Assert.True(obsPut.IsFailure);
+            Assert.Equal(BenchErrorKind.Forbidden, obsPut.Error.Kind);
+
+            // Operator registers initial 28 V / 5 A fail-safe ceiling
+            var reg = await opClient.RegisterOrTightenLimitsAsync("DMM1", new RemoteHardLimitsDto(MaxVoltageV: 28.0, MaxCurrentA: 5.0, PolicyNote: "Flight bus limit"));
+            Assert.True(reg.IsSuccess);
+            Assert.Equal(28.0, reg.Value.MaxVoltageV);
+
+            // Attempting to relax 28 V -> 35 V is forbidden
+            var relax = await opClient.RegisterOrTightenLimitsAsync("DMM1", new RemoteHardLimitsDto(MaxVoltageV: 35.0, MaxCurrentA: 5.0));
+            Assert.True(relax.IsFailure);
+            Assert.Equal(BenchErrorKind.Forbidden, relax.Error.Kind);
+            Assert.Equal("BF-HARDLIMIT-RELAX-DENIED", relax.Error.Code);
+
+            // Tightening 28 V -> 24 V succeeds and is visible via GET
+            var tighten = await opClient.RegisterOrTightenLimitsAsync("DMM1", new RemoteHardLimitsDto(MaxVoltageV: 24.0, MaxCurrentA: 4.0));
+            Assert.True(tighten.IsSuccess);
+            var fetched = await obsClient.GetHardLimitsAsync("DMM1");
+            Assert.True(fetched.IsSuccess);
+            Assert.Equal(24.0, fetched.Value.MaxVoltageV);
+            Assert.Equal(4.0, fetched.Value.MaxCurrentA);
+
+            // Over-limit remote command (SOUR:VOLT 26.0) is blocked BEFORE transport dispatch
+            var grant = (await opClient.ReserveAsync("DMM1")).GetValueOrThrow();
+            var overCmd = new RemoteCommandRequest(
+                Guid.NewGuid(), "corr-lim-01", "DMM1",
+                grant.LeaseId, grant.HostEpoch, grant.Generation,
+                "Write", "AbsoluteSetpoint", "SOUR:VOLT 26.0",
+                ExpectsResponse: false, MaxSafeRetries: 0, IsRawScpi: true);
+
+            var blocked = await opClient.SubmitCommandAsync(overCmd);
+            Assert.True(blocked.IsFailure);
+            Assert.Equal(BenchErrorKind.EnvelopeViolation, blocked.Error.Kind);
+            Assert.Equal("BF-HARDLIMIT-VOLT", blocked.Error.Code);
+
+            // Audit chain verifies intact after denied relaxation & blocked command
+            var audit = await obsClient.VerifyAuditAsync();
+            Assert.True(audit.IsSuccess);
+            Assert.True(audit.Value.EntryCount >= 5);
+        }
+        finally
+        {
+            await app.StopAsync();
+            await app.DisposeAsync();
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
 }

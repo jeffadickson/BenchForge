@@ -214,7 +214,7 @@ public sealed class GeneratedBenchDmm : IBenchDigitalMultimeter
 }
 
 /// <summary>Symmetric <see cref="IBenchPowerSupply"/> adapter generated for PSU and SMU drivers.</summary>
-public sealed class GeneratedBenchPowerSupply : IBenchPowerSupply
+public sealed class GeneratedBenchPowerSupply : IBenchPowerSupply, BenchForge.Flight.IHardwareLimitProgrammable
 {
     private readonly Func<int, ElectricPotential, CancellationToken, ValueTask<BenchResult>> _setVoltage;
     private readonly Func<int, CancellationToken, ValueTask<BenchResult<ElectricPotential>>> _getVoltage;
@@ -334,6 +334,13 @@ public sealed class GeneratedBenchPowerSupply : IBenchPowerSupply
     /// <inheritdoc/>
     public Task<BenchResult<bool>> GetOutputEnabledAsync(int channel = 1, CancellationToken cancellationToken = default) =>
         Task.FromResult(BenchResult<bool>.Ok(_outputEnabled));
+
+    /// <inheritdoc/>
+    public Task<BenchResult<BenchForge.Flight.HardwareProtectionReport>> ProgramHardwareLimitsAsync(
+        BenchForge.Flight.InstrumentHardLimits limits,
+        int channel = 1,
+        CancellationToken cancellationToken = default) =>
+        BenchForge.Flight.ScpiHardwareLimitProgrammer.ProgramAsync(_session, Role, limits, channel, useChannelPrefix: false, cancellationToken);
 }
 
 /// <summary>Symmetric <see cref="IBenchThermalController"/> adapter generated for temperature controller drivers.</summary>

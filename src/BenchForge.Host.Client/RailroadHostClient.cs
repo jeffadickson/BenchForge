@@ -68,6 +68,24 @@ public sealed class RailroadHostClient
     public Task<BenchResult<AuditChainStatus>> VerifyAuditAsync(CancellationToken cancellationToken = default) =>
         SendAsync<AuditChainStatus>(HttpMethod.Get, "/api/v2/audit/verify", null, cancellationToken);
 
+    /// <summary>Register or monotonically tighten fail-safe hard maximums on a hosted instrument via <c>PUT /api/v2/resources/{resourceId}/limits</c>.</summary>
+    /// <param name="resourceId">Canonical target resource identifier.</param>
+    /// <param name="limits">Hard limit ceilings to register or tighten.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Railroad result containing the active effective <see cref="RemoteHardLimitsDto"/> or a forbidden relaxation error.</returns>
+    public Task<BenchResult<RemoteHardLimitsDto>> RegisterOrTightenLimitsAsync(
+        string resourceId,
+        RemoteHardLimitsDto limits,
+        CancellationToken cancellationToken = default) =>
+        SendAsync<RemoteHardLimitsDto>(HttpMethod.Put, $"/api/v2/resources/{Uri.EscapeDataString(resourceId)}/limits", limits, cancellationToken);
+
+    /// <summary>Query active fail-safe hard limits registered on a hosted instrument via <c>GET /api/v2/resources/{resourceId}/limits</c>.</summary>
+    /// <param name="resourceId">Canonical target resource identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Railroad result containing the registered <see cref="RemoteHardLimitsDto"/>.</returns>
+    public Task<BenchResult<RemoteHardLimitsDto>> GetHardLimitsAsync(string resourceId, CancellationToken cancellationToken = default) =>
+        SendAsync<RemoteHardLimitsDto>(HttpMethod.Get, $"/api/v2/resources/{Uri.EscapeDataString(resourceId)}/limits", null, cancellationToken);
+
     private string Address(string path) => _endpoint is null ? path : new Uri(_endpoint, path).AbsoluteUri;
 
     private async Task<BenchResult<T>> SendAsync<T>(HttpMethod method, string path, object? body, CancellationToken ct)

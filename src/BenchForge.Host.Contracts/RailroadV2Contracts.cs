@@ -60,3 +60,33 @@ public sealed record ReconcileRequest(string ReconciliationNote);
 /// <param name="HeadSha256">Latest SHA-256 chain head digest.</param>
 /// <param name="VerifiedUtc">UTC timestamp when chain verification completed.</param>
 public sealed record AuditChainStatus(long EntryCount, string HeadSha256, DateTimeOffset VerifiedUtc);
+
+/// <summary>
+/// Wire DTO representing final fail-safe hard maximums and minimums registered on a hosted instrument via
+/// <c>PUT /api/v2/resources/{resourceId}/limits</c>. Once registered, remote calls may only monotonically tighten bounds.
+/// </summary>
+/// <param name="MaxVoltageV">Optional maximum permitted voltage in volts.</param>
+/// <param name="MinVoltageV">Optional minimum permitted voltage in volts.</param>
+/// <param name="MaxCurrentA">Optional maximum permitted current in amperes.</param>
+/// <param name="MinCurrentA">Optional minimum permitted current in amperes.</param>
+/// <param name="MaxPowerW">Optional maximum permitted power in watts.</param>
+/// <param name="MinFrequencyHz">Optional minimum permitted frequency in hertz.</param>
+/// <param name="MaxFrequencyHz">Optional maximum permitted frequency in hertz.</param>
+/// <param name="MinTemperatureC">Optional minimum permitted temperature in degrees Celsius.</param>
+/// <param name="MaxTemperatureC">Optional maximum permitted temperature in degrees Celsius.</param>
+/// <param name="MinResistanceOhm">Optional minimum permitted resistance in ohms.</param>
+/// <param name="MaxResistanceOhm">Optional maximum permitted resistance in ohms.</param>
+/// <param name="PolicyNote">Optional engineering rationale or flight ICD reference.</param>
+public sealed record RemoteHardLimitsDto(
+    double? MaxVoltageV = null,
+    double? MinVoltageV = null,
+    double? MaxCurrentA = null,
+    double? MinCurrentA = null,
+    decimal? MaxPowerW = null,
+    double? MinFrequencyHz = null,
+    double? MaxFrequencyHz = null,
+    double? MinTemperatureC = null,
+    double? MaxTemperatureC = null,
+    double? MinResistanceOhm = null,
+    double? MaxResistanceOhm = null,
+    string? PolicyNote = null);

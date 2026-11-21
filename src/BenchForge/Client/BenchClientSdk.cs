@@ -13,21 +13,31 @@ namespace BenchForge.Client;
 public sealed class BenchSession : IAsyncDisposable
 {
     private readonly Dictionary<string, IBenchInstrument> _instruments;
+    private readonly HardLimitRegistry _hardLimits;
     private readonly List<FlightTestStepRecord> _steps = new();
     private readonly Lock _stepGate = new();
     private readonly DateTimeOffset _startedUtc = DateTimeOffset.UtcNow;
     private readonly TimeProvider _clock;
     private bool _disposed;
 
-    internal BenchSession(string benchName, Dictionary<string, IBenchInstrument> instruments, TimeProvider clock)
+    internal BenchSession(
+        string benchName,
+        Dictionary<string, IBenchInstrument> instruments,
+        TimeProvider clock,
+        HardLimitRegistry? hardLimits = null)
     {
         BenchName = benchName;
         _instruments = instruments;
         _clock = clock;
+        _hardLimits = hardLimits ?? new HardLimitRegistry();
+        _hardLimits.Seal();
     }
 
     /// <summary>Logical name of this bench session.</summary>
     public string BenchName { get; }
+
+    /// <summary>Sealed fail-safe hard-limit registry enforced across all registered instruments (tighten-only).</summary>
+    public HardLimitRegistry HardLimits => _hardLimits;
 
     /// <summary>Begin building a configured local, simulated, or hybrid bench session.</summary>
     /// <param name="benchName">Logical bench or test-stand name.</param>
@@ -42,14 +52,99 @@ public sealed class BenchSession : IAsyncDisposable
         _instruments.Values.OrderBy(i => i.Role, StringComparer.Ordinal).Select(i => i.Describe()).ToArray();
 
     /// <summary>
-    /// Serialize the full bench inventory, capabilities, provenance, and calibration metadata as indented JSON
-    /// so human operators and AI agents can discover every role without guessing.
+    /// Serialize the full bench inventory, capabilities, provenance, calibration metadata, and registered fail-safe hard limits
+    /// as indented JSON so human operators and AI agents can discover every role and ceiling without guessing.
     /// </summary>
     /// <returns>JSON manifest string.</returns>
     public string DescribeJson() =>
         JsonSerializer.Serialize(
-            new { benchName = BenchName, instruments = Describe() },
+            new
+            {
+                benchName = BenchName,
+                instruments = Describe(),
+                hardLimits = _hardLimits.Snapshot().ToDictionary(
+                    kv => kv.Key,
+                    kv => new
+                    {
+                        maxVoltageV = kv.Value.MaxVoltage?.Volts,
+                        minVoltageV = kv.Value.MinVoltage?.Volts,
+                        maxCurrentA = kv.Value.MaxCurrent?.Amperes,
+                        minCurrentA = kv.Value.MinCurrent?.Amperes,
+                        maxPowerW = kv.Value.MaxPower?.Watts,
+                        minFrequencyHz = kv.Value.MinFrequency?.Hertz,
+                        maxFrequencyHz = kv.Value.MaxFrequency?.Hertz,
+                        minTemperatureC = kv.Value.MinTemperature?.DegreesCelsius,
+                        maxTemperatureC = kv.Value.MaxTemperature?.DegreesCelsius,
+                        minResistanceOhm = kv.Value.MinResistance?.Ohms,
+                        maxResistanceOhm = kv.Value.MaxResistance?.Ohms,
+                        requireComplianceBeforeOutputOn = kv.Value.RequireComplianceBeforeOutputOn,
+                        programHardwareProtection = kv.Value.ProgramHardwareProtection,
+                        autoSafeOnViolation = kv.Value.AutoSafeOnViolation,
+                        policyNote = kv.Value.PolicyNote
+                    },
+                    StringComparer.OrdinalIgnoreCase)
+            },
             new JsonSerializerOptions { WriteIndented = true });
+
+    /// <summary>
+    /// Monotonically tighten the registered hard limits for <paramref name="role"/> at runtime.
+    /// Existing limits can only be narrowed, never raised or removed.
+    /// </summary>
+    /// <param name="role">Registered instrument role.</param>
+    /// <param name="stricter">Stricter ceiling constraints to intersect with existing limits.</param>
+    /// <returns>Railroad result containing the new effective limits, or a lookup/validation error.</returns>
+    public BenchResult<InstrumentHardLimits> TryTightenHardLimits(string role, InstrumentHardLimits stricter)
+    {
+        if (!_instruments.ContainsKey(role))
+            return BenchResult<InstrumentHardLimits>.Fail(new BenchError("BF-ROLE-MISSING", BenchErrorKind.ResourceNotFound, $"Instrument role '{role}' is not registered on bench '{BenchName}'.", role));
+        return _hardLimits.TryTighten(role, stricter);
+    }
+
+    /// <summary>
+    /// Program registered fail-safe maximums into instrument-resident hardware protection registers (OVP/OCP/OPP)
+    /// for every role with registered hard limits, recording honest hardware-protection provenance in the evidence trail.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Railroad result containing one <see cref="HardwareProtectionReport"/> per limited instrument role.</returns>
+    public async Task<BenchResult<IReadOnlyList<HardwareProtectionReport>>> ProgramAllHardwareLimitsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var reports = new List<HardwareProtectionReport>();
+        foreach (var (role, limits) in _hardLimits.Snapshot().OrderBy(kv => kv.Key, StringComparer.Ordinal))
+        {
+            if (!limits.ProgramHardwareProtection) continue;
+            if (!_instruments.TryGetValue(role, out var inst)) continue;
+
+            if (inst is IHardwareLimitProgrammable programmable)
+            {
+                var res = await programmable.ProgramHardwareLimitsAsync(limits, 1, cancellationToken).ConfigureAwait(false);
+                if (res.IsFailure)
+                {
+                    RecordStep($"ProgramHardwareLimits({role})", false, res.Error.Message, res.Error);
+                    return BenchResult<IReadOnlyList<HardwareProtectionReport>>.Fail(res.Error);
+                }
+                reports.Add(res.Value);
+                RecordStep($"ProgramHardwareLimits({role})", true, res.Value.Notes);
+            }
+            else
+            {
+                var report = new HardwareProtectionReport(
+                    role,
+                    HardwareProtectionSupported: false,
+                    OvpProgrammed: false,
+                    OvpThreshold: null,
+                    OcpProgrammed: false,
+                    OcpThreshold: null,
+                    OppProgrammed: false,
+                    OppThreshold: null,
+                    HardwareProtectionVerifiedOnKillTest: false,
+                    Notes: $"Instrument '{role}' ({inst.Describe().InstrumentClass}) has no hardware protection register interface; software hard limits enforced only while host runs.");
+                reports.Add(report);
+                RecordStep($"ProgramHardwareLimits({role})", true, report.Notes);
+            }
+        }
+        return BenchResult<IReadOnlyList<HardwareProtectionReport>>.Ok(reports);
+    }
 
     /// <summary>Verify that all instruments with declared calibration certificates are current before running flight tests.</summary>
     /// <param name="requireCalibrationForPhysical">When true, physical instruments without calibration metadata also fail preflight.</param>
@@ -351,6 +446,8 @@ public sealed class BenchBuilder
     private readonly TimeProvider _clock;
     private readonly Dictionary<string, IBenchInstrument> _instruments = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, FlightSafeEnvelope> _envelopes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HardLimitRegistry _hardLimits = new();
+    private bool _requireHardLimitsForPhysical;
 
     internal BenchBuilder(string benchName, TimeProvider clock)
     {
@@ -380,6 +477,37 @@ public sealed class BenchBuilder
         ArgumentNullException.ThrowIfNull(envelope);
         envelope.Validate();
         _envelopes[role] = envelope;
+        _ = _hardLimits.TryTighten(role, InstrumentHardLimits.FromFlightEnvelope(envelope));
+        return this;
+    }
+
+    /// <summary>
+    /// Register final fail-safe <see cref="InstrumentHardLimits"/> on any instrument role (PSU, SMU, Thermal, FGEN,
+    /// Electronic Load, RF Signal Generator, or LCR meter). Repeated calls may only monotonically tighten limits;
+    /// attempting to relax an already-registered maximum throws <see cref="BenchOperationException"/>.
+    /// </summary>
+    /// <param name="role">Target instrument role identifier.</param>
+    /// <param name="limits">Validated final fail-safe maximums and minimums.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder WithHardLimits(string role, InstrumentHardLimits limits)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(role);
+        ArgumentNullException.ThrowIfNull(limits);
+        var res = _hardLimits.TryRegister(role, limits);
+        if (res.IsFailure)
+            throw new BenchOperationException(res.Error);
+        return this;
+    }
+
+    /// <summary>
+    /// Require every physical output-capable instrument to have registered <see cref="InstrumentHardLimits"/> before
+    /// <see cref="Build"/> succeeds (fail-closed flight-hardware protection policy).
+    /// </summary>
+    /// <param name="require">True to fail closed when any physical output instrument lacks hard limits.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder RequireHardLimitsForPhysical(bool require = true)
+    {
+        _requireHardLimitsForPhysical = require;
         return this;
     }
 
@@ -491,18 +619,48 @@ public sealed class BenchBuilder
     public BenchBuilder AddMockLcrMeter(string role, double capacitanceFarads = 1e-6, double resistanceOhms = 0.05, InstrumentCalibrationInfo? calibration = null) =>
         AddInstrument(new StatefulMockLcrMeter(role, capacitanceFarads, resistanceOhms, calibration));
 
-    /// <summary>Build the configured <see cref="BenchSession"/>, automatically wrapping SMU roles with declared flight envelopes.</summary>
-    /// <returns>Configured <see cref="BenchSession"/>.</returns>
+    /// <summary>
+    /// Build the configured <see cref="BenchSession"/>, automatically wrapping instruments with declared flight envelopes
+    /// and sealing all registered fail-safe <see cref="InstrumentHardLimits"/>.
+    /// </summary>
+    /// <returns>Configured <see cref="BenchSession"/> with a sealed <see cref="HardLimitRegistry"/>.</returns>
     public BenchSession Build()
     {
         var resolved = new Dictionary<string, IBenchInstrument>(StringComparer.OrdinalIgnoreCase);
         foreach (var (role, inst) in _instruments)
         {
-            if (inst is IBenchSourceMeasureUnit smu && _envelopes.TryGetValue(role, out var env))
-                resolved[role] = new FlightEnvelopedSmuProxy(smu, env);
-            else
-                resolved[role] = inst;
+            var hardLimit = _hardLimits.TryGet(role);
+            if (_requireHardLimitsForPhysical &&
+                inst.Backend == Contracts.InstrumentBackend.Physical &&
+                IsOutputCapable(inst) &&
+                hardLimit is null)
+            {
+                throw new BenchOperationException(new BenchError(
+                    "BF-HARDLIMIT-UNREGISTERED",
+                    BenchErrorKind.EnvelopeViolation,
+                    $"Physical output-capable instrument '{role}' ({inst.Describe().InstrumentClass}) cannot be opened without registered fail-safe InstrumentHardLimits.",
+                    role,
+                    Remedy: $"Call WithHardLimits(\"{role}\", ...) before Build()."));
+            }
+
+            IBenchInstrument wrapped = inst;
+            if (hardLimit is not null)
+                wrapped = InstrumentHardLimitWrapper.Wrap(wrapped, hardLimit, _hardLimits);
+            if (wrapped is IBenchSourceMeasureUnit smu && _envelopes.TryGetValue(role, out var env))
+                wrapped = new FlightEnvelopedSmuProxy(smu, env);
+
+            resolved[role] = wrapped;
         }
-        return new BenchSession(_benchName, resolved, _clock);
+        _hardLimits.Seal();
+        return new BenchSession(_benchName, resolved, _clock, _hardLimits);
     }
+
+    private static bool IsOutputCapable(IBenchInstrument instrument) =>
+        instrument is IBenchPowerSupply
+            or IBenchSourceMeasureUnit
+            or IBenchThermalController
+            or IBenchFunctionGenerator
+            or IBenchElectronicLoad
+            or IBenchRfSignalGenerator
+            or IBenchLcrMeter;
 }

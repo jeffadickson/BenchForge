@@ -1,16 +1,18 @@
 using System.Collections.Concurrent;
 using BenchForge.Async;
 using BenchForge.Contracts;
+using BenchForge.Flight;
 using BenchForge.Host.Contracts;
 using BenchForge.Host.Server.Recovery;
 using BenchForge.Host.Server.Security;
 using BenchForge.Outcomes;
+using UnitsNet;
 
 namespace BenchForge.Host.Server.Security;
 
 /// <summary>
 /// Coordinates principal-bound v2 leases, canonical fenced command dispatch, durable command receipts,
-/// and hash-chained audit logging on top of the single authoritative <see cref="HostResourceRegistry"/>.
+/// fail-safe instrument hard-limit enforcement, and hash-chained audit logging on top of the single authoritative <see cref="HostResourceRegistry"/>.
 /// </summary>
 public sealed class RailroadHostService : IDisposable
 {
@@ -20,6 +22,8 @@ public sealed class RailroadHostService : IDisposable
     private readonly string _auditLogPath;
     private readonly HostFencingLedger _fencingLedger;
     private readonly FileCommandLedger _commandLedger;
+    private readonly HardLimitRegistry _hardLimits = new();
+    private readonly HardLimitScpiGuard _hardLimitGuard;
     private readonly ConcurrentDictionary<Guid, RemoteReservationGrant> _v2Leases = new();
     private readonly ConcurrentDictionary<string, Guid> _activeLeaseByResource = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, CanonicalCommandDispatcher> _dispatchers = new(StringComparer.OrdinalIgnoreCase);
@@ -44,10 +48,14 @@ public sealed class RailroadHostService : IDisposable
         _auditLog = new HashChainedAuditLog(_auditLogPath);
         _fencingLedger = new HostFencingLedger(fencingLedgerPath);
         _commandLedger = new FileCommandLedger(commandLedgerPath);
+        _hardLimitGuard = _hardLimits.ToScpiGuard(enforceOnSimulation: true, requireRegisteredLimitsForPhysical: false);
     }
 
     /// <summary>Active private-lab security policy enforced by this host service.</summary>
     public PrivateLabSecurityPolicy Security => _security;
+
+    /// <summary>Fail-safe instrument hard-limit registry enforced prior to remote command dispatch (tighten-only once registered).</summary>
+    public HardLimitRegistry HardLimits => _hardLimits;
 
     /// <summary>Authenticate a request token, or synthesize a loopback-local operator principal when no principals are configured on loopback.</summary>
     /// <param name="rawToken">Bearer token extracted from <c>X-BenchForge-Token</c> or <c>Authorization</c> header.</param>
@@ -209,6 +217,20 @@ public sealed class RailroadHostService : IDisposable
             return BenchResult<CommandReceipt>.Fail(authz.Error);
         }
 
+        // Enforce registered fail-safe hard maximums BEFORE any bytes reach the instrument transport.
+        var limitDecision = await _hardLimitGuard.EvaluateAsync(
+            new InstrumentOperationContext(request.ResourceId, request.CommandText, opKind, 1, null, IsPhysicalHardware: true),
+            cancellationToken).ConfigureAwait(false);
+        if (!limitDecision.Allowed)
+        {
+            _auditLog.Append(principal.PrincipalId, $"HardLimit:{opKind}", request.ResourceId, $"Denied:{limitDecision.RuleId}");
+            return BenchResult<CommandReceipt>.Fail(BenchError.EnvelopeViolation(
+                limitDecision.RuleId,
+                limitDecision.Reason ?? $"Command on '{request.ResourceId}' violated registered fail-safe hard limits.",
+                request.ResourceId,
+                $"Inspect GET /api/v2/resources/{request.ResourceId}/limits and stay within registered maximums."));
+        }
+
         var leaseFence = new LeaseFence(request.LeaseId, request.HostEpoch, request.Generation);
         var envelope = new CommandEnvelope(
             CommandEnvelope.CurrentSchemaVersion,
@@ -238,6 +260,62 @@ public sealed class RailroadHostService : IDisposable
         return receipt.IsTransportSuccess
             ? BenchResult<CommandReceipt>.Ok(receipt)
             : BenchResult<CommandReceipt>.Fail(BenchError.FromReceipt(receipt));
+    }
+
+    /// <summary>
+    /// Register or monotonically tighten fail-safe hard maximums for <paramref name="resourceId"/>.
+    /// Attempting to raise an already-registered maximum or remove a limit is denied and audited.
+    /// </summary>
+    /// <param name="principal">Authenticated caller principal (must hold <see cref="LabHostAction.Actuate"/> permission).</param>
+    /// <param name="resourceId">Canonical target resource identifier.</param>
+    /// <param name="dto">Hard limit bounds to register or tighten.</param>
+    /// <returns>Railroad result containing the active effective <see cref="RemoteHardLimitsDto"/>.</returns>
+    public BenchResult<RemoteHardLimitsDto> RegisterOrTightenLimits(
+        LabPrincipal principal,
+        string resourceId,
+        RemoteHardLimitsDto dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        var authz = _security.Authorize(principal, LabHostAction.Actuate, resourceId);
+        if (authz.IsFailure)
+        {
+            _auditLog.Append(principal.PrincipalId, "RegisterHardLimits", resourceId, $"Denied:{authz.Error.Code}");
+            return BenchResult<RemoteHardLimitsDto>.Fail(authz.Error);
+        }
+
+        var limits = FromDto(dto);
+        var reg = _hardLimits.TryRegister(resourceId, limits);
+        if (reg.IsFailure)
+        {
+            _auditLog.Append(principal.PrincipalId, "RegisterHardLimits", resourceId, $"Denied:{reg.Error.Code}");
+            return BenchResult<RemoteHardLimitsDto>.Fail(reg.Error);
+        }
+
+        _auditLog.Append(principal.PrincipalId, "RegisterHardLimits", resourceId, $"Active:MaxV={reg.Value.MaxVoltage?.Volts},MaxI={reg.Value.MaxCurrent?.Amperes},MaxP={reg.Value.MaxPower?.Watts}");
+        return BenchResult<RemoteHardLimitsDto>.Ok(ToDto(reg.Value));
+    }
+
+    /// <summary>Retrieve the currently registered fail-safe hard limits for <paramref name="resourceId"/>.</summary>
+    /// <param name="principal">Authenticated caller principal.</param>
+    /// <param name="resourceId">Canonical target resource identifier.</param>
+    /// <returns>Railroad result containing active <see cref="RemoteHardLimitsDto"/> or <see cref="BenchErrorKind.ResourceNotFound"/>.</returns>
+    public BenchResult<RemoteHardLimitsDto> GetHardLimits(LabPrincipal principal, string resourceId)
+    {
+        var authz = _security.Authorize(principal, LabHostAction.Observe, resourceId);
+        if (authz.IsFailure)
+            return BenchResult<RemoteHardLimitsDto>.Fail(authz.Error);
+
+        var limits = _hardLimits.TryGet(resourceId);
+        if (limits is null)
+        {
+            return BenchResult<RemoteHardLimitsDto>.Fail(new BenchError(
+                "BF-HARDLIMIT-NONE",
+                BenchErrorKind.ResourceNotFound,
+                $"No hard limits are currently registered on '{resourceId}'.",
+                resourceId,
+                Remedy: $"PUT /api/v2/resources/{resourceId}/limits to register final fail-safe maximums."));
+        }
+        return BenchResult<RemoteHardLimitsDto>.Ok(ToDto(limits));
     }
 
     /// <summary>Explicitly reconcile quarantined command ledger records for a resource (requires <see cref="LabRole.RecoveryAdmin"/>).</summary>
@@ -282,6 +360,34 @@ public sealed class RailroadHostService : IDisposable
         _commandLedger.Dispose();
         _fencingLedger.Dispose();
     }
+
+    private static InstrumentHardLimits FromDto(RemoteHardLimitsDto dto) => new(
+        MaxVoltage: dto.MaxVoltageV is { } maxV ? ElectricPotential.FromVolts(maxV) : null,
+        MinVoltage: dto.MinVoltageV is { } minV ? ElectricPotential.FromVolts(minV) : null,
+        MaxCurrent: dto.MaxCurrentA is { } maxI ? ElectricCurrent.FromAmperes(maxI) : null,
+        MinCurrent: dto.MinCurrentA is { } minI ? ElectricCurrent.FromAmperes(minI) : null,
+        MaxPower: dto.MaxPowerW is { } maxP ? Power.FromWatts(maxP) : null,
+        MinFrequency: dto.MinFrequencyHz is { } minF ? Frequency.FromHertz(minF) : null,
+        MaxFrequency: dto.MaxFrequencyHz is { } maxF ? Frequency.FromHertz(maxF) : null,
+        MinTemperature: dto.MinTemperatureC is { } minT ? Temperature.FromDegreesCelsius(minT) : null,
+        MaxTemperature: dto.MaxTemperatureC is { } maxT ? Temperature.FromDegreesCelsius(maxT) : null,
+        MinResistance: dto.MinResistanceOhm is { } minR ? ElectricResistance.FromOhms(minR) : null,
+        MaxResistance: dto.MaxResistanceOhm is { } maxR ? ElectricResistance.FromOhms(maxR) : null,
+        PolicyNote: dto.PolicyNote);
+
+    private static RemoteHardLimitsDto ToDto(InstrumentHardLimits limits) => new(
+        MaxVoltageV: limits.MaxVoltage?.Volts,
+        MinVoltageV: limits.MinVoltage?.Volts,
+        MaxCurrentA: limits.MaxCurrent?.Amperes,
+        MinCurrentA: limits.MinCurrent?.Amperes,
+        MaxPowerW: limits.MaxPower?.Watts,
+        MinFrequencyHz: limits.MinFrequency?.Hertz,
+        MaxFrequencyHz: limits.MaxFrequency?.Hertz,
+        MinTemperatureC: limits.MinTemperature?.DegreesCelsius,
+        MaxTemperatureC: limits.MaxTemperature?.DegreesCelsius,
+        MinResistanceOhm: limits.MinResistance?.Ohms,
+        MaxResistanceOhm: limits.MaxResistance?.Ohms,
+        PolicyNote: limits.PolicyNote);
 
     private bool ValidateFence(string resourceId, LeaseFence fence) =>
         _v2Leases.TryGetValue(fence.LeaseId, out var active) &&
@@ -333,6 +439,12 @@ public static class RailroadV2Endpoints
             var res = await host.SubmitCommandAsync(principal.Value, request, ct).ConfigureAwait(false);
             return ToHttpResult(res);
         });
+
+        app.MapPut("/api/v2/resources/{resourceId}/limits", (HttpContext http, string resourceId, RemoteHardLimitsDto request, RailroadHostService host) =>
+            WithAuth(http, host, p => host.RegisterOrTightenLimits(p, resourceId, request)));
+
+        app.MapGet("/api/v2/resources/{resourceId}/limits", (HttpContext http, string resourceId, RailroadHostService host) =>
+            WithAuth(http, host, p => host.GetHardLimits(p, resourceId)));
 
         app.MapPost("/api/v2/resources/{resourceId}/reconcile", (HttpContext http, string resourceId, ReconcileRequest request, RailroadHostService host) =>
             WithAuth(http, host, p => host.Reconcile(p, resourceId, request.ReconciliationNote)));
