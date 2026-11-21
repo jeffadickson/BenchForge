@@ -139,10 +139,14 @@ public sealed class MockProcedure : ExperimentProcedure
         }
 
         Name = name;
+        RunFingerprint = ProcedureRunFingerprint.Compute(document);
     }
 
     /// <summary>Human-readable procedure name reported in <see cref="ExperimentRun"/>.</summary>
     public override string Name { get; }
+
+    /// <summary>Content-addressed SHA-256 fingerprint of this procedure document for bit-for-bit replay tracking.</summary>
+    public string RunFingerprint { get; }
 
     /// <summary>Number of Starlark interpreter steps consumed during the most recent execution.</summary>
     public long LastRunSteps { get; private set; }
@@ -154,7 +158,7 @@ public sealed class MockProcedure : ExperimentProcedure
     /// <param name="token">Cancellation token enforced cooperatively by both the Starlark engine and async mocks.</param>
     /// <returns>Completion of the procedure execution.</returns>
     /// <exception cref="ProcedureAssertionException">A <c>verify_between</c> assertion failed.</exception>
-    /// <exception cref="ExecutionLimitException">The procedure exceeded step, memory, or timeout limits.</exception>
+    /// <exception cref="ExecutionLimitException">The procedure exceeded step, memory, future, or timeout limits.</exception>
     /// <exception cref="OperationCanceledException">Execution was cancelled via <paramref name="token"/>.</exception>
     /// <exception cref="StarlarkException">A script runtime error or host validation violation occurred.</exception>
     public override Task ExecuteAsync(ExperimentContext context, CancellationToken token)
@@ -162,6 +166,7 @@ public sealed class MockProcedure : ExperimentProcedure
         ArgumentNullException.ThrowIfNull(context);
         token.ThrowIfCancellationRequested();
 
+        var stateGate = new object();
         var declaredRoles = new HashSet<string>(StringComparer.Ordinal);
         var configuredModes = new Dictionary<string, MeasurementKind>(StringComparer.Ordinal);
         var available = _session.RegisteredInstruments.ToDictionary(x => x.Role, StringComparer.Ordinal);
@@ -173,6 +178,11 @@ public sealed class MockProcedure : ExperimentProcedure
             MaxSteps = _limits.MaxSteps,
             MaxAllocatedBytes = _limits.MaxAllocatedBytes,
             Timeout = _limits.Timeout ?? TimeSpan.FromSeconds(10),
+            FutureLimits = new Starlark.Eval.Futures.FutureLimits
+            {
+                MaxConcurrency = _limits.MaxConcurrency,
+                MaxLiveFutures = _limits.MaxLiveFutures
+            },
             Cancellation = token,
             Print = line => context.Logger.LogInformation("Procedure {ProcedureName}: {Line}", Name, line)
         };
@@ -185,15 +195,21 @@ public sealed class MockProcedure : ExperimentProcedure
             if (instrument.Backend != "Simulated" ||
                 instrument.InterfaceType != typeof(ITypedConfigurableMeasurementSource))
                 throw new InvalidOperationException($"Instrument '{role}' must be a simulated typed meter.");
-            if (!declaredRoles.Add(role))
-                throw new InvalidOperationException($"Duplicate instrument declaration '{role}'.");
+            lock (stateGate)
+            {
+                if (!declaredRoles.Add(role))
+                    throw new InvalidOperationException($"Duplicate instrument declaration '{role}'.");
+            }
         });
 
         interpreter.Register("configure", async (string role, string kindText) =>
         {
             token.ThrowIfCancellationRequested();
-            if (!declaredRoles.Contains(role))
-                throw new InvalidOperationException($"Instrument '{role}' must be declared before use.");
+            lock (stateGate)
+            {
+                if (!declaredRoles.Contains(role))
+                    throw new InvalidOperationException($"Instrument '{role}' must be declared before use.");
+            }
             if (!ProcedureParser.TryParseKind(kindText, out var kind))
                 throw new ArgumentException("Unsupported measurement kind. Use 'VOLTAGE' or 'RESISTANCE'.");
 
@@ -202,32 +218,37 @@ public sealed class MockProcedure : ExperimentProcedure
                 await meter.ConfigureAsync<ElectricResistance>(token).ConfigureAwait(false);
             else
                 await meter.ConfigureAsync<ElectricPotential>(token).ConfigureAwait(false);
-            configuredModes[role] = kind;
+            lock (stateGate)
+            {
+                configuredModes[role] = kind;
+            }
         });
 
-        interpreter.Register("measure", async (string role, string kindText, string? name) =>
+        async Task<ProcedureQuantity> AcquireQuantityAsync(string role, string kindText)
         {
             token.ThrowIfCancellationRequested();
-            if (!declaredRoles.Contains(role))
-                throw new InvalidOperationException($"Instrument '{role}' must be declared before use.");
             if (!ProcedureParser.TryParseKind(kindText, out var kind))
                 throw new ArgumentException("Unsupported measurement kind. Use 'VOLTAGE' or 'RESISTANCE'.");
-            if (!configuredModes.TryGetValue(role, out var mode) || mode != kind)
-                throw new InvalidOperationException($"Configure '{role}' for {kind} before measuring.");
+            lock (stateGate)
+            {
+                if (!declaredRoles.Contains(role))
+                    throw new InvalidOperationException($"Instrument '{role}' must be declared before use.");
+                if (!configuredModes.TryGetValue(role, out var mode) || mode != kind)
+                    throw new InvalidOperationException($"Configure '{role}' for {kind} before measuring.");
+            }
 
             var meter = Meter(role);
-            ProcedureQuantity reading;
             if (kind == MeasurementKind.Resistance)
             {
                 var resistance = await meter.MeasureAsync<ElectricResistance>(token).ConfigureAwait(false);
-                reading = new ProcedureQuantity(kind, resistance.Ohms, "Ohm", resistance);
+                return new ProcedureQuantity(kind, resistance.Ohms, "Ohm", resistance);
             }
-            else
-            {
-                var voltage = await meter.MeasureAsync<ElectricPotential>(token).ConfigureAwait(false);
-                reading = new ProcedureQuantity(kind, voltage.Volts, "V", voltage);
-            }
+            var voltage = await meter.MeasureAsync<ElectricPotential>(token).ConfigureAwait(false);
+            return new ProcedureQuantity(kind, voltage.Volts, "V", voltage);
+        }
 
+        async Task EmitReadingAsync(string? name, ProcedureQuantity reading)
+        {
             string sampleName = string.IsNullOrWhiteSpace(name)
                 ? $"sample_{++unnamedSampleIndex}"
                 : name;
@@ -246,8 +267,27 @@ public sealed class MockProcedure : ExperimentProcedure
                         ["simulatedElapsedSeconds"] = "s"
                     }),
                 token).ConfigureAwait(false);
+        }
 
+        interpreter.Register("measure", async (string role, string kindText, string? name) =>
+        {
+            var reading = await AcquireQuantityAsync(role, kindText).ConfigureAwait(false);
+            await EmitReadingAsync(name, reading).ConfigureAwait(false);
             return reading;
+        });
+
+        interpreter.Register(
+            "measure_async",
+            (string role, string kindText) => AcquireQuantityAsync(role, kindText),
+            threadSafe: true,
+            asFuture: true);
+
+        interpreter.Register("record_sample", async (string name, ProcedureQuantity reading) =>
+        {
+            token.ThrowIfCancellationRequested();
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentNullException.ThrowIfNull(reading);
+            await EmitReadingAsync(name, reading).ConfigureAwait(false);
         });
 
         interpreter.Register("wait_s", (double seconds) =>

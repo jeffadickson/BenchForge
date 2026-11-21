@@ -14,14 +14,16 @@ public static class ProcedureParser
 
     /// <summary>
     /// Restricted deterministic Starlark dialect for procedures: permits top-level statements,
-    /// loops, functions, and f-strings while disabling <c>load()</c> and recursion.
+    /// loops, functions, f-strings, and deterministic futures (<c>parallel_map</c>, <c>all_of</c>, <c>spawn</c>)
+    /// while disabling <c>load()</c>, recursion, and nondeterministic race combinators.
     /// </summary>
     public static Dialect ProcedureDialect { get; } = Dialect.Standard with
     {
         EnableTopLevelStmt = true,
         EnableLoad = false,
         EnableRecursion = false,
-        EnableFStrings = true
+        EnableFStrings = true,
+        EnableFutures = true
     };
 
     /// <summary>
@@ -165,6 +167,7 @@ public static class ProcedureParser
                 break;
 
             case "measure":
+            case "measure_async":
                 if (args.Count >= 2 && TryStringArg(args[0], out var measRole) && TryStringArg(args[1], out var measKindText))
                 {
                     if (TryParseKind(measKindText, out var measKind))

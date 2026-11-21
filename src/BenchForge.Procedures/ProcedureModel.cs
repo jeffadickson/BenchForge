@@ -23,10 +23,14 @@ public enum MeasurementKind
 /// <param name="MaxSteps">Maximum interpreter statements and expressions allowed per run.</param>
 /// <param name="MaxAllocatedBytes">Maximum single-object allocation ceiling in bytes.</param>
 /// <param name="Timeout">Maximum wall-clock execution duration for one procedure run.</param>
+/// <param name="MaxConcurrency">Maximum concurrent deterministic future worker slots allowed by <c>parallel_map</c>/<c>all_of</c>.</param>
+/// <param name="MaxLiveFutures">Maximum uncollected futures allowed per run.</param>
 public sealed record StarlarkProcedureLimits(
     long MaxSteps = 100_000,
     long MaxAllocatedBytes = 1024 * 1024,
-    TimeSpan? Timeout = null)
+    TimeSpan? Timeout = null,
+    int MaxConcurrency = 4,
+    int MaxLiveFutures = 64)
 {
     /// <summary>Validate that all configured execution limits are strictly positive.</summary>
     /// <exception cref="ArgumentOutOfRangeException">Any limit is non-positive or non-finite.</exception>
@@ -38,6 +42,44 @@ public sealed record StarlarkProcedureLimits(
             throw new ArgumentOutOfRangeException(nameof(MaxAllocatedBytes), "MaxAllocatedBytes must be positive.");
         if (Timeout is { } timeout && timeout <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(Timeout), "Timeout must be positive.");
+        if (MaxConcurrency <= 0)
+            throw new ArgumentOutOfRangeException(nameof(MaxConcurrency), "MaxConcurrency must be positive.");
+        if (MaxLiveFutures <= 0)
+            throw new ArgumentOutOfRangeException(nameof(MaxLiveFutures), "MaxLiveFutures must be positive.");
+    }
+}
+
+/// <summary>
+/// Computes content-addressed SHA-256 fingerprints over Starlark procedures and bench inputs so any
+/// simulated or laboratory run can be uniquely identified and replayed bit-for-bit.
+/// </summary>
+public static class ProcedureRunFingerprint
+{
+    /// <summary>Compute a deterministic uppercase SHA-256 hex digest for a procedure run.</summary>
+    /// <param name="document">Parsed immutable Starlark procedure document.</param>
+    /// <param name="benchSetupJson">Optional bench setup JSON serialized canonically.</param>
+    /// <param name="mockRulesJson">Optional mock rules JSON serialized canonically.</param>
+    /// <param name="catalogRevision">Optional instrument catalog revision or commit identifier.</param>
+    /// <returns>Uppercase hexadecimal SHA-256 content digest.</returns>
+    public static string Compute(
+        ProcedureDocument document,
+        string? benchSetupJson = null,
+        string? mockRulesJson = null,
+        string? catalogRevision = null)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        var normalizedSource = document.Source.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+        var roles = string.Join(",", document.DeclaredInstruments.Select(d => d.Role).OrderBy(r => r, StringComparer.Ordinal));
+        var canonical = string.Join(
+            "\u001f",
+            "benchforge-run-v1",
+            document.FileName,
+            normalizedSource,
+            roles,
+            benchSetupJson ?? string.Empty,
+            mockRulesJson ?? string.Empty,
+            catalogRevision ?? string.Empty);
+        return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(canonical)));
     }
 }
 

@@ -42,6 +42,7 @@
     <Project Path="examples/BenchForge.ThermalCycleDemo/BenchForge.ThermalCycleDemo.csproj" />
     <Project Path="examples/BenchForge.TypedMockDemo/BenchForge.TypedMockDemo.csproj" />
     <Project Path="examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj" />
+    <Project Path="examples/BenchForge.FlagshipBench/BenchForge.FlagshipBench.csproj" />
   </Folder>
   <Folder Name="/generated/">
     <Project Path="generated/BenchForge.Instruments/BenchForge.Instruments.csproj" />
