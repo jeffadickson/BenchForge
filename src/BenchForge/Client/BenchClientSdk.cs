@@ -91,6 +91,11 @@ public sealed class BenchSession : IAsyncDisposable
     /// <returns>Railroad result containing the <see cref="IBenchDigitalMultimeter"/> or a structured lookup error.</returns>
     public BenchResult<IBenchDigitalMultimeter> TryGetDmm(string role) => Resolve<IBenchDigitalMultimeter>(role, "DMM");
 
+    /// <summary>Resolve a registered DC power supply (or SMU) by role using railroad error handling.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing the <see cref="IBenchPowerSupply"/> or a structured lookup error.</returns>
+    public BenchResult<IBenchPowerSupply> TryGetPowerSupply(string role) => Resolve<IBenchPowerSupply>(role, "PSU");
+
     /// <summary>Resolve a registered SMU by role using railroad error handling.</summary>
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Railroad result containing the <see cref="IBenchSourceMeasureUnit"/> or a structured lookup error.</returns>
@@ -110,6 +115,11 @@ public sealed class BenchSession : IAsyncDisposable
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Resolved <see cref="IBenchDigitalMultimeter"/>.</returns>
     public IBenchDigitalMultimeter Dmm(string role) => TryGetDmm(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a power supply or SMU role (throws <see cref="BenchOperationException"/> if missing or mismatched).</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchPowerSupply"/>.</returns>
+    public IBenchPowerSupply PowerSupply(string role) => TryGetPowerSupply(role).GetValueOrThrow();
 
     /// <summary>Convenience accessor for an SMU role (throws <see cref="BenchOperationException"/> if missing or mismatched).</summary>
     /// <param name="role">Logical bench role name.</param>

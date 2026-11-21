@@ -2,6 +2,7 @@ using BenchForge.Host.Server.Heartbeat;
 using BenchForge.Host.Server.Lifecycle;
 using BenchForge.Host.Server.Recovery;
 using BenchForge.Host.Server;
+using BenchForge.Host.Server.Security;
 using BenchForge.Host.Server.Setup;
 using BenchForge;
 using BenchForge.Host.Contracts;
@@ -11,14 +12,29 @@ using BenchForge.Oscilloscopes;
 using Microsoft.Extensions.Logging.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
-// Intentionally loopback-only. Remote listeners require TLS and authentication first.
-builder.WebHost.UseUrls("http://127.0.0.1:5278");
+// Intentionally loopback-only by default; non-loopback bindings fail closed unless PrivateLabSecurityPolicy permits them.
+var listenUrl = builder.Configuration["BenchHost:ListenUrl"] ?? "http://127.0.0.1:5278";
+var securityPolicy = new PrivateLabSecurityPolicy(
+    [],
+    allowPrivateLanBinding: bool.TryParse(builder.Configuration["BenchSecurity:AllowPrivateLanBinding"], out var lan) && lan,
+    requireTlsOnLan: !bool.TryParse(builder.Configuration["BenchSecurity:RequireTlsOnLan"], out var tls) || tls,
+    allowPlaintextOnIsolatedVlan: bool.TryParse(builder.Configuration["BenchSecurity:AllowPlaintextOnIsolatedVlan"], out var vlan) && vlan,
+    allowRawScpiGlobal: bool.TryParse(builder.Configuration["BenchSecurity:AllowRawScpiGlobal"], out var raw) && raw);
+securityPolicy.ValidateListenerUri(new Uri(listenUrl)).ThrowIfFailure();
+builder.WebHost.UseUrls(listenUrl);
 // One host-owned directory and single writer for all registered physical DMM ownership.
 var setupPath = builder.Configuration["BenchSetup:Path"] ?? Path.Combine(builder.Environment.ContentRootPath, "build", "bench-setup.json");
+builder.Services.AddSingleton(securityPolicy);
 builder.Services.AddSingleton<IHostOwnershipJournal>(_ => new FileHostOwnershipJournal(
     builder.Configuration["BenchSetup:OwnershipDirectory"] ?? setupPath + ".ownership"));
 builder.Services.AddSingleton(HostHeartbeatPolicy.FromConfiguration(builder.Configuration));
 builder.Services.AddSingleton<HostResourceRegistry>();
+builder.Services.AddSingleton(sp => new RailroadHostService(
+    sp.GetRequiredService<HostResourceRegistry>(),
+    sp.GetRequiredService<PrivateLabSecurityPolicy>(),
+    builder.Configuration["BenchSecurity:AuditLogPath"] ?? setupPath + ".audit.jsonl",
+    builder.Configuration["BenchSecurity:FencingLedgerPath"] ?? setupPath + ".fencing.json",
+    builder.Configuration["BenchSecurity:CommandLedgerPath"] ?? setupPath + ".commands.json"));
 builder.Services.AddHostedService<OwnerHeartbeatService>();
 var shutdownPolicy = HostShutdownPolicy.FromConfiguration(builder.Configuration);
 builder.Services.AddSingleton(shutdownPolicy);
@@ -47,6 +63,7 @@ app.Use(async (context, next) =>
     await next(context);
 });
 app.MapBenchSetup();
+app.MapRailroadV2Api();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapGet("/", () => Results.Redirect("/dashboard/"));
