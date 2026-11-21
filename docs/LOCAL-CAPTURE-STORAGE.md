@@ -1,6 +1,6 @@
 # Save a scope trace and screenshot locally
 
-The first implemented artifact backend is `BenchDouble.Artifacts.Sqlite`.
+The first implemented artifact backend is `BenchForge.Artifacts.Sqlite`.
 It stores **the original bytes and searchable metadata together in a local SQLite
 file**. It does not store a filename pointing to a separate user-managed image.
 No database server, cloud account or network is required.
@@ -18,7 +18,7 @@ make setup
 make demo-capture
 ```
 
-Or run `dotnet run --project examples/BenchDouble.CaptureDemo`. The example prints
+Or run `dotnet run --project examples/BenchForge.CaptureDemo`. The example prints
 where it wrote `capture-demo-output/captures.sqlite`, saves four synthetic voltage
 samples and a one-pixel PNG fixture, finds both by acquisition and exports a verified
 `capture.png`. These are synthetic fixtures, not a live oscilloscope acquisition.

@@ -19,5 +19,5 @@ thermal-demo-output/
 docfx.local-*.json
 **/__pycache__/
 capture-demo-output/
-tests/BenchDouble.Acceptance.Tests/Features/*.feature.cs
-tests/BenchDouble.Acceptance.Tests/Reqnroll/
+tests/BenchForge.Acceptance.Tests/Features/*.feature.cs
+tests/BenchForge.Acceptance.Tests/Reqnroll/

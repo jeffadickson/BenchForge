@@ -45,7 +45,7 @@ The standalone HTML demos run in current browsers with no server; they are JavaS
 
 ## Experiment composition and local dashboard increment
 
-`src/BenchDouble.Experiments` depends on `BenchDouble` and **Microsoft.Extensions.DependencyInjection 8.0.1**; the core does not depend on the DI container. The example `BenchDouble.ExperimentDemo` depends on the experiment project. The dashboard is static HTML/CSS/JavaScript served by the existing ASP.NET Core `BenchDouble.Host.Server`; **no charting or UI NuGet package** is added. `tests/BenchDouble.Experiments.Tests` uses xUnit 2.9.2, xunit.runner.visualstudio 2.8.2 and Microsoft.NET.Test.Sdk 17.12.0. Bootstrap scripts already restore recursively discovered C# projects. The Makefile and three-OS CI now explicitly build/run the experiment demo and its tests. Versioned behavior manifests, dependency lockfiles and external host TLS/auth are still outstanding.
+`src/BenchForge.Experiments` depends on `BenchForge` and **Microsoft.Extensions.DependencyInjection 8.0.1**; the core does not depend on the DI container. The example `BenchForge.ExperimentDemo` depends on the experiment project. The dashboard is static HTML/CSS/JavaScript served by the existing ASP.NET Core `BenchForge.Host.Server`; **no charting or UI NuGet package** is added. `tests/BenchForge.Experiments.Tests` uses xUnit 2.9.2, xunit.runner.visualstudio 2.8.2 and Microsoft.NET.Test.Sdk 17.12.0. Bootstrap scripts already restore recursively discovered C# projects. The Makefile and three-OS CI now explicitly build/run the experiment demo and its tests. Versioned behavior manifests, dependency lockfiles and external host TLS/auth are still outstanding.
 
 ## AutoMock dependency decision
 
@@ -57,11 +57,11 @@ The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.
 
 ## Optional procedure parser package
 
-`src/BenchDouble.Procedures/BenchDouble.Procedures.csproj` references **`starlark-cs`** (`external/starlark-cs` git submodule, `Starlark.Syntax` + `Starlark.Eval`, `.NET 11`) and the existing `BenchDouble` and `BenchDouble.Experiments` projects, replacing the earlier Parlot 1.5.9 prototype. The core instrument library does **not** depend on `starlark-cs`. `tests/BenchDouble.Procedures.Tests` uses the existing xUnit, runner and test SDK packages. `make build`, `make test`, `make demo-procedure`, `BenchForge.slnx` and the three-OS CI workflow include the updated projects. NuGet lockfiles and cross-OS CI validation remain outstanding.
+`src/BenchForge.Procedures/BenchForge.Procedures.csproj` references **`starlark-cs`** (`external/starlark-cs` git submodule, `Starlark.Syntax` + `Starlark.Eval`, `.NET 11`) and the existing `BenchForge` and `BenchForge.Experiments` projects, replacing the earlier Parlot 1.5.9 prototype. The core instrument library does **not** depend on `starlark-cs`. `tests/BenchForge.Procedures.Tests` uses the existing xUnit, runner and test SDK packages. `make build`, `make test`, `make demo-procedure`, `BenchForge.slnx` and the three-OS CI workflow include the updated projects. NuGet lockfiles and cross-OS CI validation remain outstanding.
 
 ## Generated driver/mock dependencies
 
-The `BenchDouble.DriverGen` console tool uses only .NET 8 `System.Text.Json`, `Regex` and standard code generation; generated typed drivers and mocks depend on the existing UnitsNet 5.75.1 and `IAsyncScpiSession` contracts. No additional NuGet runtime package is required. A standard-library Python catalog validator is used by `make generate` and CI. Generated source is committed so direct `dotnet build` and editor IntelliSense do not depend on running code generation first. The optional no-write `--check` gate detects stale source. Cross-platform CI cannot be marked green while GitHub runner allocation is unavailable.
+The `BenchForge.DriverGen` console tool uses only .NET 8 `System.Text.Json`, `Regex` and standard code generation; generated typed drivers and mocks depend on the existing UnitsNet 5.75.1 and `IAsyncScpiSession` contracts. No additional NuGet runtime package is required. A standard-library Python catalog validator is used by `make generate` and CI. Generated source is committed so direct `dotnet build` and editor IntelliSense do not depend on running code generation first. The optional no-write `--check` gate detects stale source. Cross-platform CI cannot be marked green while GitHub runner allocation is unavailable.
 
 ## Instrument Definer dependencies
 
@@ -75,7 +75,7 @@ The new `tools/InstrumentDefiner/definer.py` uses Python standard-library `ast`,
 `src`, `tests`, `examples` and `tools`. They use global.json when installing an SDK
 and share `tools/requirements.txt` with CI (StrictDoc 0.30.2). The routing client
 adds Microsoft.Extensions.Logging.Abstractions 8.0.3, matching core.
-`tools/BenchDouble.BrowserSetup` uses Microsoft.Playwright 1.56.0, matching browser
+`tools/BenchForge.BrowserSetup` uses Microsoft.Playwright 1.56.0, matching browser
 tests, and removes the Unix PowerShell dependency for Chromium provisioning.
 See `docs/LOCAL-FIRST-CONFIGURATION.md` for prerequisites and Linux system libraries.
 Transitive Python/NuGet lockfiles and clean-platform provisioning remain #28/#60.
@@ -94,7 +94,7 @@ Transitive Python/NuGet lockfiles and clean-platform provisioning remain #28/#60
 
 ## Local binary captures
 
-The optional `BenchDouble.Artifacts.Sqlite` package uses Microsoft.Data.Sqlite
+The optional `BenchForge.Artifacts.Sqlite` package uses Microsoft.Data.Sqlite
 8.0.11, matching the existing time-series SQLite adapter. Bootstrap project
 discovery includes the capture demo, xUnit tests and process-exit probe.
 `make artifact-check` runs the focused tests and recovery probe.

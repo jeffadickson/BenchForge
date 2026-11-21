@@ -1,10 +1,10 @@
-# BenchDouble — Consolidated Test-Lab Runner Requirements
+# BenchForge — Consolidated Test-Lab Runner Requirements
 
 **Baseline:** TR-REQ-001 · 2026-10-14 · **Status:** requirements, not implementation verification.
 
-This is the single indexed requirements baseline for the integrated electronic procedure editor, experiment runner, hardware orchestration, results, simulation, review, and signoff discussed for BenchDouble. It complements the existing subsystem specifications. Stable IDs support traceability and tests. **P0** = correctness/safety core; **P1** = usable beta; **P2** = subsequent enhancement.
+This is the single indexed requirements baseline for the integrated electronic procedure editor, experiment runner, hardware orchestration, results, simulation, review, and signoff discussed for BenchForge. It complements the existing subsystem specifications. Stable IDs support traceability and tests. **P0** = correctness/safety core; **P1** = usable beta; **P2** = subsequent enhancement.
 
-**Product boundary:** BenchDouble runs and records measurement-oriented procedures. TestForge can build on its execution engine for formal flight-hardware qualification, verification matrices, approvals, and evidence management; do not create two competing execution engines.
+**Product boundary:** BenchForge runs and records measurement-oriented procedures. TestForge can build on its execution engine for formal flight-hardware qualification, verification matrices, approvals, and evidence management; do not create two competing execution engines.
 
 ## A. Structured procedure editor and authoring
 
@@ -125,7 +125,7 @@ This is the single indexed requirements baseline for the integrated electronic p
 
 ## J. Implementation inventory (not inferred from requirements)
 
-**Existing prototype source:** `src/BenchDouble/Experiments/ExperimentRunner.cs` lifecycle and in-memory results; synchronous and async SCPI session facades; basic strict replay; simulator models; in-process reservation manager; loopback-only simulated `Host.Server` and `Host.Client`; UnitsNet facades; local structured logging.
+**Existing prototype source:** `src/BenchForge/Experiments/ExperimentRunner.cs` lifecycle and in-memory results; synchronous and async SCPI session facades; basic strict replay; simulator models; in-process reservation manager; loopback-only simulated `Host.Server` and `Host.Client`; UnitsNet facades; local structured logging.
 
 **Not yet demonstrated as complete:** integrated procedure editor/signoff; production scheduling; persistent results; secure distributed host leases; real VISA and full IVI driver interchangeability; streaming host logs; shared virtual clock; advanced mock partial-order verifier; offline sync; safe physical recovery. The repository has not established a complete green .NET CI baseline in the referenced development sessions.
 

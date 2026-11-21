@@ -4,9 +4,9 @@
 
 ## Decision
 
-BenchDouble will support IVI as a first-class instrument abstraction, without claiming IVI conformance prematurely.
+BenchForge will support IVI as a first-class instrument abstraction, without claiming IVI conformance prematurely.
 
-The initial `BenchDouble.Ivi` namespace defines **BenchDouble-owned IVI-class-inspired contracts**, not the official IVI Foundation binary interfaces. They enable the existing typed SCPI drivers and simulators to share class-level operations. The next milestone is an independently packaged adapter against the actual official IVI.NET interfaces, subject to license and platform compatibility verification.
+The initial `BenchForge.Ivi` namespace defines **BenchForge-owned IVI-class-inspired contracts**, not the official IVI Foundation binary interfaces. They enable the existing typed SCPI drivers and simulators to share class-level operations. The next milestone is an independently packaged adapter against the actual official IVI.NET interfaces, subject to license and platform compatibility verification.
 
 ## Relevant standards
 
@@ -25,7 +25,7 @@ References:
 ## Layering
 
 1. Test application requests DMM, FGEN, power supply or scope features through an instrument-class contract.
-2. Adapters expose the same contract for vendor IVI drivers, BenchDouble SCPI-specific drivers, and simulated implementations.
+2. Adapters expose the same contract for vendor IVI drivers, BenchForge SCPI-specific drivers, and simulated implementations.
 3. Mocks check either instrument-class operations or the underlying SCPI transcript; these are **distinct** verification levels.
 4. Optional VISA transports keep vendor-specific native dependencies out of the portable core.
 

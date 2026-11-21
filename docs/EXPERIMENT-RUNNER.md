@@ -1,7 +1,7 @@
-# BenchDouble Experiment Runner
+# BenchForge Experiment Runner
 
 ## Why it belongs in the instrument-control library
-external instrument source separates parameterized `Procedure`, lifecycle execution by `Worker`, structured `Results`, and GUI queue management by `Manager`. This is a useful reference for a hardware-independent .NET execution core. BenchDouble experiments must run with real IVI/VISA, simulated or strictly mocked instruments. The instrument-control and runner components are useful standalone; TestForge may additionally handle qualification, requirements, operators and signoff.
+external instrument source separates parameterized `Procedure`, lifecycle execution by `Worker`, structured `Results`, and GUI queue management by `Manager`. This is a useful reference for a hardware-independent .NET execution core. BenchForge experiments must run with real IVI/VISA, simulated or strictly mocked instruments. The instrument-control and runner components are useful standalone; TestForge may additionally handle qualification, requirements, operators and signoff.
 
 References:
 - https://external instrument source.readthedocs.io/en/latest/tutorial/procedure.html

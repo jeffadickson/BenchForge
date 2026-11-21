@@ -3,7 +3,7 @@
 BenchForge's schema-v2 preview emitter now generates typed stateful mock decorators for scalar capabilities with **explicit** definition defaults. The generated mock retains a value across reads, allows test-specific async behavior injection, enforces the preview's mode eligibility, and supports reset to the definition default.
 
 ```csharp
-using BenchDouble.Generated;
+using BenchForge.Generated;
 using UnitsNet;
 
 var meter = new ExampleTwoModeDmmMockDecorator(new ExampleTwoModeDmmPreview());
@@ -28,4 +28,4 @@ Generated public API names and documentation use BenchForge terminology only. im
 
 ## Verification
 
-Run `make check-v2-preview`, `make build-generated`, and `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj`. Passing CI evidence is still required before closing the generator issue.
+Run `make check-v2-preview`, `make build-generated`, and `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj`. Passing CI evidence is still required before closing the generator issue.

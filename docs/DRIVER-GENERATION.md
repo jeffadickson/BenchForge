@@ -53,9 +53,9 @@ A draft JSON profile and specification have been committed. Existing `ScpiParame
 
 ## Revised decision — standalone source emission, not compiler-time generator
 
-**This supersedes the earlier Roslyn incremental-generator recommendation above.** Developers edit instrument descriptions and invoke a standalone .NET generator from the build, which writes ordinary `.g.cs` files into `src/BenchDouble/Generated`. Generated files should be committed and indexed by editors, inspected in diffs, debugged, and included in ordinary compilation. No compiler/analyzer magic is required.
+**This supersedes the earlier Roslyn incremental-generator recommendation above.** Developers edit instrument descriptions and invoke a standalone .NET generator from the build, which writes ordinary `.g.cs` files into `src/BenchForge/Generated`. Generated files should be committed and indexed by editors, inspected in diffs, debugged, and included in ordinary compilation. No compiler/analyzer magic is required.
 
-Current tool: `tools/BenchDouble.DriverGen`. Run `make generate` (or `dotnet run --project tools/BenchDouble.DriverGen -- instrument-definitions src/BenchDouble/Generated`). The tool currently handles numeric frequency/potential/resistance/current properties with SCPI get/set templates, channel placeholders, basic bounds and UnitsNet conversions. It is an **early generator**, not yet a general external instrument source driver converter or full IVI mapping.
+Current tool: `tools/BenchForge.DriverGen`. Run `make generate` (or `dotnet run --project tools/BenchForge.DriverGen -- instrument-definitions src/BenchForge/Generated`). The tool currently handles numeric frequency/potential/resistance/current properties with SCPI get/set templates, channel placeholders, basic bounds and UnitsNet conversions. It is an **early generator**, not yet a general external instrument source driver converter or full IVI mapping.
 
 ### Mock behavior as data and code
 Mock outputs must support not only static responses but scripted behaviors:

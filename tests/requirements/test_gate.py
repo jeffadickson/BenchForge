@@ -78,7 +78,7 @@ class RequirementGateTests(unittest.TestCase):
         self.assertEqual(1, self.run_gate())
 
     def test_changed_statement_requires_review(self):
-        path = self.root / 'requirements/benchdouble.sdoc'
+        path = self.root / 'requirements/benchforge.sdoc'
         path.write_text(path.read_text().replace('STATEMENT: ', 'STATEMENT: Changed ', 1))
         self.assertEqual(1, self.run_gate())
 

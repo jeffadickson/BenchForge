@@ -17,8 +17,8 @@ They must be related but are not interchangeable. A Git commit identifies source
 
 Clone once:
 ```bash
-git clone https://github.com/jeffadickson/BenchDouble.git
-cd BenchDouble
+git clone https://github.com/jeffadickson/BenchForge.git
+cd BenchForge
 git status
 ```
 
@@ -32,7 +32,7 @@ Change the C# behavior, requirements and tests together. Then review:
 git diff
 git status
 python3 scripts/check_requirements.py
-dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj
+dotnet test tests/BenchForge.Experiments.Tests/BenchForge.Experiments.Tests.csproj
 ```
 
 Commit a coherent change:
@@ -52,7 +52,7 @@ git show <commit-sha>
 
 A release tag marks a reviewed baseline:
 ```bash
-git tag -a v0.1.0 -m "BenchDouble prototype baseline"
+git tag -a v0.1.0 -m "BenchForge prototype baseline"
 git push origin v0.1.0
 ```
 
@@ -112,7 +112,7 @@ Commit C# source, test fixtures, requirements, design documents, examples, depen
 
 ## 7. Traceability and review
 
-Every requirement should have a stable ID in `requirements/benchdouble.sdoc` and a traceability row linking source, tests and GitHub issue. Reqnroll feature tags such as `@BD-UOM-001` make acceptance intent visible.
+Every requirement should have a stable ID in `requirements/benchforge.sdoc` and a traceability row linking source, tests and GitHub issue. Reqnroll feature tags such as `@BD-UOM-001` make acceptance intent visible.
 
 A passing unit test validates behavior under its fixture. A production release still needs integration tests, platform evidence, physical-instrument acceptance and independent safety review.
 

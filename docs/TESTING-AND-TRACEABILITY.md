@@ -32,7 +32,7 @@ public async Task FaultAtFiveSecondsCreatesExactlyOneAlarm()
 }
 ```
 
-This is the basic pattern used in `tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs`. It runs without hardware, a browser, a database, email, or real five-second waiting.
+This is the basic pattern used in `tests/BenchForge.Tests/UnattendedCurrentMonitorTests.cs`. It runs without hardware, a browser, a database, email, or real five-second waiting.
 
 ## Executable requirement example
 
@@ -50,7 +50,7 @@ Feature: Unattended operations overcurrent alarm
     Then exactly one overcurrent alarm is raised at 5 simulated seconds
 ```
 
-Reqnroll binds each line to C# methods in `tests/BenchDouble.Acceptance.Tests/Steps/UnattendedOperationsSteps.cs`. This makes the acceptance criterion reviewable by engineers and executable by CI.
+Reqnroll binds each line to C# methods in `tests/BenchForge.Acceptance.Tests/Steps/UnattendedOperationsSteps.cs`. This makes the acceptance criterion reviewable by engineers and executable by CI.
 
 ## Browser test example
 
@@ -67,7 +67,7 @@ This verifies that the real Chromium browser updates its DOM/SVG after the simul
 
 ## Requirements management workflow
 
-1. Define a unique requirement in `requirements/benchdouble.sdoc`.
+1. Define a unique requirement in `requirements/benchforge.sdoc`.
 2. Add a row in `requirements/traceability.csv` with priority, status, code/test file and GitHub issue.
 3. Add a Reqnroll scenario for behavior-level acceptance and xUnit component tests.
 4. Add Playwright checks for visible UI and interactions where applicable.

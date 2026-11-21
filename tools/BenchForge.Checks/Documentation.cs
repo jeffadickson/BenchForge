@@ -11,6 +11,7 @@ internal static class Documentation
     private static string[] Files(bool portable) => Areas.Take(portable ? 6 : 5).SelectMany(area =>
         Directory.Exists(Data.At(area)) ? Directory.EnumerateFiles(Data.At(area), "*", SearchOption.AllDirectories)
             .Where(p => !Data.Relative(p).Split('/').Any(x => portable ? Skip.Contains(x) : x is "bin" or "obj" or "__pycache__"))
+            .Where(p => !p.EndsWith(".feature.cs", StringComparison.OrdinalIgnoreCase))
             .Where(p => portable ? Path.GetExtension(p) is ".cs" or ".py" : Path.GetExtension(p) == ".py").Order(Data.PathOrder) : Enumerable.Empty<string>()).ToArray();
 
     private static List<JsonNode>[] PythonRows(string[] files, bool portable)

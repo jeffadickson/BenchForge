@@ -1,13 +1,13 @@
-# BenchDouble Software Development Plan (SDP)
+# BenchForge Software Development Plan (SDP)
 
 **Baseline:** SDP-001 · 2026-10-15 · **Maturity:** active prototype / pre-beta; not production qualified.
 
 ## 1. Product and process
-BenchDouble is a .NET laboratory instrument-control, mocking and experiment-execution platform with typed IVI/SCPI/legacy GPIB APIs, local/remote instrument hosts, virtual bench physics, procedure editing, monitoring and persistence. Development follows requirements-driven increments: **requirement → GitHub issue → implementation → unit/BDD/browser test → CI evidence → review → release**. Keep evidence and implementation status distinct.
+BenchForge is a .NET laboratory instrument-control, mocking and experiment-execution platform with typed IVI/SCPI/legacy GPIB APIs, local/remote instrument hosts, virtual bench physics, procedure editing, monitoring and persistence. Development follows requirements-driven increments: **requirement → GitHub issue → implementation → unit/BDD/browser test → CI evidence → review → release**. Keep evidence and implementation status distinct.
 
 ## 2. Configuration and change control
-- GitHub repository: `jeffadickson/BenchDouble`. All source, docs and tests are reviewed as commits/PRs.
-- Stable IDs in `requirements/benchdouble.sdoc`; `requirements/traceability.csv` is the requirement-to-code/test/issue matrix.
+- GitHub repository: `jeffadickson/BenchForge`. All source, docs and tests are reviewed as commits/PRs.
+- Stable IDs in `requirements/benchforge.sdoc`; `requirements/traceability.csv` is the requirement-to-code/test/issue matrix.
 - StrictDoc parses/exports the requirements. Reqnroll executes Gherkin acceptance scenarios tagged with requirement IDs. xUnit is used for component tests.
 - Existing `TR-001..TR-090` requirements remain valid; subsystem specifications are linked from the software description.
 - Changes to a released requirement are reviewed; record rationale and impact on code/tests/manual.
@@ -33,9 +33,9 @@ GitHub Issues #1–#26 cover existing known subsystem gaps; #27–#33 cover brow
 1. `bash scripts/bootstrap.sh` on Linux/macOS, `pwsh -File scripts/bootstrap.ps1` on Windows.
 2. `python3 scripts/check_requirements.py` checks IDs, statuses, local paths and issue links.
 3. StrictDoc export validates the machine-readable baseline and produces navigable HTML.
-4. `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj`: component/physics/monitor tests.
-5. `dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj`: Reqnroll scenarios.
-6. `dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj`: real Chromium DOM/SVG smoke tests after Playwright browser install.
+4. `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj`: component/physics/monitor tests.
+5. `dotnet test tests/BenchForge.Acceptance.Tests/BenchForge.Acceptance.Tests.csproj`: Reqnroll scenarios.
+6. `dotnet test tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj`: real Chromium DOM/SVG smoke tests after Playwright browser install.
 7. SQLite tests, other package tests and demo applications run on the Windows/Linux/macOS CI matrix.
 8. Physical hardware tests are opt-in, authorized, fixture-specific, and require separate safe-state verification. A green mock CI is not a hardware qualification.
 
@@ -82,7 +82,7 @@ New requirements BD-AM-013..016 cover explicit UnitsNet generic measurement type
 
 ## 13. Requirement audit and release-gate remediation
 
-The [2026-10-15 runner requirements audit](REQUIREMENTS-AUDIT-2026-10-15.md) individually assessed TR-001..TR-090: 45 PartialSourceUnverified, 6 DesignOnly and 39 NoImplementationEvidence. These categories are evidence findings, not acceptance. All 175 requirements remain unverified or planned. Source and test paths, remaining gaps and issue links are recorded in `requirements/legacy-runner-audit.csv`; the canonical traceability matrix has been reconciled. The static checker now fails on missing/duplicate legacy IDs, nonexistent evidence paths and mismatched statuses. Observed GitHub Actions push runs failed across Windows, Ubuntu and macOS; detailed logs could not be retrieved. **Release gate:** no requirement may move to Verified until the CI/build/test failure is resolved and the specific acceptance evidence is reviewed. Prioritize [#50 CI](https://github.com/jeffadickson/BenchDouble/issues/50), [#47 runner safety](https://github.com/jeffadickson/BenchDouble/issues/47), [#46 host security](https://github.com/jeffadickson/BenchDouble/issues/46), then [#45 structured procedures](https://github.com/jeffadickson/BenchDouble/issues/45), [#48 evidence](https://github.com/jeffadickson/BenchDouble/issues/48) and [#49 browser/telemetry](https://github.com/jeffadickson/BenchDouble/issues/49).
+The [2026-10-15 runner requirements audit](REQUIREMENTS-AUDIT-2026-10-15.md) individually assessed TR-001..TR-090: 45 PartialSourceUnverified, 6 DesignOnly and 39 NoImplementationEvidence. These categories are evidence findings, not acceptance. All 175 requirements remain unverified or planned. Source and test paths, remaining gaps and issue links are recorded in `requirements/legacy-runner-audit.csv`; the canonical traceability matrix has been reconciled. The static checker now fails on missing/duplicate legacy IDs, nonexistent evidence paths and mismatched statuses. Observed GitHub Actions push runs failed across Windows, Ubuntu and macOS; detailed logs could not be retrieved. **Release gate:** no requirement may move to Verified until the CI/build/test failure is resolved and the specific acceptance evidence is reviewed. Prioritize [#50 CI](https://github.com/jeffadickson/BenchForge/issues/50), [#47 runner safety](https://github.com/jeffadickson/BenchForge/issues/47), [#46 host security](https://github.com/jeffadickson/BenchForge/issues/46), then [#45 structured procedures](https://github.com/jeffadickson/BenchForge/issues/45), [#48 evidence](https://github.com/jeffadickson/BenchForge/issues/48) and [#49 browser/telemetry](https://github.com/jeffadickson/BenchForge/issues/49).
 
 ## 14. Runner safety increment and CI diagnostic boundary
 

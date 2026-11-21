@@ -27,7 +27,7 @@ Core specifies simulation, session thread safety and initialization controls inc
 
 ## Existing source and concrete gaps
 
-`BenchDouble.Ivi.Official` already references official Driver/Dmm/Fgen 2.1.0 packages and DriverCore 1.0.1. `OfficialDmmBridge` and `OfficialFgenBridge` accept typed official interfaces and caller-supplied operations. They retain caller-owned lifetime. They do not load drivers or resolve configuration-store entries. Referencing DriverCore does not itself implement its contract.
+`BenchForge.Ivi.Official` already references official Driver/Dmm/Fgen 2.1.0 packages and DriverCore 1.0.1. `OfficialDmmBridge` and `OfficialFgenBridge` accept typed official interfaces and caller-supplied operations. They retain caller-owned lifetime. They do not load drivers or resolve configuration-store entries. Referencing DriverCore does not itself implement its contract.
 
 The setup schema currently contains transport providers, controllers, routes and roles, but no driver binding, IVI session reference, initialization policy or import provenance. `HostResourceRegistry` in `Program.cs` registers two SCPI simulators. Its SCPI query path cannot generically dispatch an official typed IVI driver. Native VISA discovery enumerates addresses only. Therefore physical activation needs both driver resolution and a typed host execution boundary; an importer alone cannot complete it.
 
@@ -78,16 +78,16 @@ The host now owns typed DMM opening, operation dispatch, close and provider reco
 
 ## Local hardening and operator continuity
 
-Ten local iterations add atomic registration, shared binding validation, configuration-before-measurement, correlated operation diagnostics, stable preflight reasons, optional provider identity checks, cached session status, tab reload continuity, serialized UI actions and cancellation while queued. Serial numbers remain optional. See `BENCH-SETUP-ITERATIONS-2026-10-16.md` for execution scope and limits. No vendor qualification, durable restart reconciliation or automatic failure recovery is claimed.
+Ten local iterations add atomic registration, shared binding validation, configuration-before-measurement, correlated operation diagnostics, stable preflight reasons, optional provider identity checks, cached session status, tab reload continuity, serialized UI actions and cancellation while queued. Serial numbers remain optional. See `archive/BENCH-SETUP-ITERATIONS-2026-10-16.md` for execution scope and limits. No vendor qualification, durable restart reconciliation or automatic failure recovery is claimed.
 
 ## Second local ten-iteration batch
 
-Shared-registry descriptor uniqueness, declared function capabilities, strict runtime requests, measurement provenance, failure-isolated lifecycle logs, queued-recovery cancellation and explicit lease resumption extend the controlled activation path. Measurement metadata remains tied to its dispatch even during concurrent reconfiguration. See `BENCH-SETUP-ITERATIONS-2026-10-16-B.md`; hardware qualification and durable restart recovery remain outstanding.
+Shared-registry descriptor uniqueness, declared function capabilities, strict runtime requests, measurement provenance, failure-isolated lifecycle logs, queued-recovery cancellation and explicit lease resumption extend the controlled activation path. Measurement metadata remains tied to its dispatch even during concurrent reconfiguration. See `archive/BENCH-SETUP-ITERATIONS-2026-10-16-B.md`; hardware qualification and durable restart recovery remain outstanding.
 
 
 ## Third batch: ownership persistence and restart reconciliation
 
-Twenty additional iterations implement a single-writer local ownership journal for registered DMMs, fail-closed startup quarantine, explicit provider-qualified restart reconciliation, setup inspection/confirmation, and structured ownership diagnostics. A forced process exit preserves the canonical reservation until a fresh process explicitly reconciles it. Missing or changed startup mappings block physical grants. The test has no vendor I/O and does not establish power-loss or physical recovery acceptance. BD-LIFE-006 moves to PartialSourceUnverified under existing issue #55; no requirement becomes Verified. The preceding in-memory limitations describe earlier increments; current behavior and remaining boundaries are in the setup guide and `BENCH-SETUP-ITERATIONS-2026-10-16-C.md`.
+Twenty additional iterations implement a single-writer local ownership journal for registered DMMs, fail-closed startup quarantine, explicit provider-qualified restart reconciliation, setup inspection/confirmation, and structured ownership diagnostics. A forced process exit preserves the canonical reservation until a fresh process explicitly reconciles it. Missing or changed startup mappings block physical grants. The test has no vendor I/O and does not establish power-loss or physical recovery acceptance. BD-LIFE-006 moves to PartialSourceUnverified under existing issue #55; no requirement becomes Verified. The preceding in-memory limitations describe earlier increments; current behavior and remaining boundaries are in the setup guide and `archive/BENCH-SETUP-ITERATIONS-2026-10-16-C.md`.
 
 
 ## Shutdown and heartbeat batches

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Design **real instrument-control interfaces** with interchangeable test doubles. This document reports established external patterns, the IVI source dependencies to study, and how BenchDouble should represent device-specific extensions without forcing every DMM or scope to support every option.
+Design **real instrument-control interfaces** with interchangeable test doubles. This document reports established external patterns, the IVI source dependencies to study, and how BenchForge should represent device-specific extensions without forcing every DMM or scope to support every option.
 
 ## Source projects investigated
 
@@ -11,7 +11,7 @@ Official driver specs, shared components, .NET interface assemblies and example 
 
 Read the official IVI class specifications and the exact .NET interface assemblies, especially DMM, Fgen, Scope, DC Power and RF Sig Gen. Instrument class standards have common base functions, class-specific functions and extension capabilities. The newer IVI Generation 2026 driver core must not be conflated with legacy class-driver APIs.
 
-Dependency packages already isolated in `BenchDouble.Ivi.Official`:
+Dependency packages already isolated in `BenchForge.Ivi.Official`:
 `IviFoundation.Driver`, `IviFoundation.Driver.Dmm`, `IviFoundation.Driver.Fgen` at version 2.1.0, and `IviFoundation.DriverCore` version 1.0.1. These packages are restored by .NET tooling; their code is **not copied** into this repository.
 
 ### external instrument source — https://github.com/external instrument source/external instrument source
@@ -68,7 +68,7 @@ Drivers must reject unsupported features; no silent no-ops. Units, min/max range
 
 ## Work implemented now
 
-- `BenchDouble.Contracts`: instrument identity, backend provenance, capability record, `IInstrument`, `IDigitalMultimeter`, `IFunctionGenerator`, `IFunctionGeneratorChannel`, `IOscilloscope`, `IOscilloscopeChannel`, and optional extension contracts.
+- `BenchForge.Contracts`: instrument identity, backend provenance, capability record, `IInstrument`, `IDigitalMultimeter`, `IFunctionGenerator`, `IFunctionGeneratorChannel`, `IOscilloscope`, `IOscilloscopeChannel`, and optional extension contracts.
 - `BasicDmmAdapter` and `BasicFunctionGeneratorAdapter`: minimal SCPI-backed implementations using existing typed device drivers.
 - Tests cover generic DMM measurement, independently addressed function-generator channels and failure on unavailable functions.
 
@@ -105,7 +105,7 @@ Reviewed upstream documentation and concrete driver patterns:
 
 ### Audit findings / corrections to our first interfaces
 
-| Finding | Current BenchDouble | Decision |
+| Finding | Current BenchForge | Decision |
 |---|---|---|
 | Transport separated from command protocol | `IScpiSession` mixes abstract session with textual SCPI | Retain compatibility API, introduce lower level message session with binary buffers, timeout, connection metadata, explicit ownership |
 | Validated declarative parameter | `InstrumentFeature` is passive metadata | Add typed `IInstrumentParameter<T>` with read/write, units, constraints and device-side mapping; do not use reflection to guess capabilities |

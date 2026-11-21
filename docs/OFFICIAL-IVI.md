@@ -3,7 +3,7 @@
 Current architecture review: [IVI configuration integration](IVI-CONFIGURATION-REVIEW.md). The DMM and FGEN delegate bridges both exist; the original phase-1 limitations and checklist below are historical. Configuration-store resolution, vendor activation and hardware validation remain outstanding.
 
 ## Objective
-Use real IVI Foundation assemblies instead of redefining their class contracts. The portable `BenchDouble` project must have **no** vendor/IVI dependencies; official integration is in `BenchDouble.Ivi.Official`.
+Use real IVI Foundation assemblies instead of redefining their class contracts. The portable `BenchForge` project must have **no** vendor/IVI dependencies; official integration is in `BenchForge.Ivi.Official`.
 
 ## Real dependencies
 The project now references:
@@ -12,7 +12,7 @@ The project now references:
 - `IviFoundation.Driver.Fgen` 2.1.0
 - `IviFoundation.DriverCore` 1.0.1 (Generation 2026 core)
 
-Official namespaces of legacy instrument classes are `Ivi.Dmm` and `Ivi.Fgen`. The adapter boundary uses actual `IIviDmm` and `IIviFgen` compile-time types, not BenchDouble-owned substitutes.
+Official namespaces of legacy instrument classes are `Ivi.Dmm` and `Ivi.Fgen`. The adapter boundary uses actual `IIviDmm` and `IIviFgen` compile-time types, not BenchForge-owned substitutes.
 
 ## What is now coded
 `OfficialIviCompatibility` tests and inspects the actual official interface types and rejects arbitrary objects; `OfficialDmmBridge` accepts an official DMM object plus explicitly mapped operation delegates, producing a `IIviDigitalMultimeter` object used by application tests. This enables integrating a real IVI DMM via separately supplied functions without claiming a universal mapping of every class operation.
@@ -26,7 +26,7 @@ This is not a full IVI driver implementation, driver factory, vendor loader, aut
 3. Implement standard IVI class operations using the real class API (with repeated-capability/channel semantics).
 4. Add function-generator operational adapter and feature/range matching.
 5. Integrate IVI configuration store / factories where supported. A driver may need to be explicitly loaded because .NET 6+ does not use the historical GAC discovery behavior.
-6. Demonstrate one compiled test using an actual IVI DMM and BenchDouble mock with identical application code.
+6. Demonstrate one compiled test using an actual IVI DMM and BenchForge mock with identical application code.
 7. Test behavior on Windows hardware before making interchangeability claims.
 
 ## Source material
@@ -39,7 +39,7 @@ This is not a full IVI driver implementation, driver factory, vendor loader, aut
 ## 2026-10-14 implementation increment
 
 - Implemented an `OfficialFgenBridge` using compile-time `Ivi.Fgen.IIviFgen` types and explicitly injected operation delegates, parallel to the existing official DMM bridge.
-- Added `tests/BenchDouble.Ivi.Official.Tests/`, which uses real IVI interface assemblies and NSubstitute doubles to check loading, type identity, interface-based dispatch, argument validation, and lifecycle delegation.
+- Added `tests/BenchForge.Ivi.Official.Tests/`, which uses real IVI interface assemblies and NSubstitute doubles to check loading, type identity, interface-based dispatch, argument validation, and lifecycle delegation.
 - The cross-platform CI matrix now builds the optional module and runs these official interface contract tests.
 - **Verification status:** tests have been committed but not executed in the current environment. Vendor method mapping, actual driver loading, end-to-end IVI interchangeability and native VISA remain outstanding.
 

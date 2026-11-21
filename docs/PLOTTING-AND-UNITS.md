@@ -4,9 +4,9 @@
 Keep **physical quantities and measurement metadata** in the experiment runner and result store. Convert to plain finite numerical coordinates only in a separate plotting layer. A renderer is not allowed to reinterpret volts as ohms or silently change RMS/Vpp/peak basis.
 
 ### Package boundaries
-- `BenchDouble`: typed UnitsNet quantities and measurement provenance; no visualization dependencies.
-- `BenchDouble.Plotting`: renderer-neutral `QuantityAxis<T>`, `MeasurementPlotSeries`, unit conversion and Plotly.js-compatible JSON.
-- `BenchDouble.Plotting.ScottPlot`: optional headless PNG renderer, pinned to ScottPlot 5.1.59.
+- `BenchForge`: typed UnitsNet quantities and measurement provenance; no visualization dependencies.
+- `BenchForge.Plotting`: renderer-neutral `QuantityAxis<T>`, `MeasurementPlotSeries`, unit conversion and Plotly.js-compatible JSON.
+- `BenchForge.Plotting.ScottPlot`: optional headless PNG renderer, pinned to ScottPlot 5.1.59.
 - Browser test-lab runner: consume Plotly.js figure JSON and load a pinned, locally hosted Plotly.js bundle when the web interface is implemented. No plotting library is required on instrument hosts.
 - Plotly.NET 5.1.0 is available but not required for browser rendering: the initial adapter writes the Plotly.js figure schema directly, avoiding a redundant F#/C# chart-object dependency. Add Plotly.NET as an optional adapter only if its typed chart construction becomes valuable.
 - LiveCharts2 and OxyPlot remain candidates for native desktop/dashboard adapters, not core dependencies.
@@ -55,8 +55,8 @@ Committed: core unit-aware plot conversion, built-in axes for frequency/voltage/
 
 ## Standalone companion-library direction (2026-10-15)
 
-The unit conversion/axis project now references **UnitsNet directly** and no longer depends on the BenchDouble instrument library. This enables independent reuse and eventual upstream submission as a companion package. The source currently retains the `BenchDouble.Plotting` namespace and project name to avoid premature breaking renames; `UnitsNet.Plotting` is a proposed future public package identity, **not yet published or accepted by UnitsNet maintainers**.
+The unit conversion/axis project now references **UnitsNet directly** and no longer depends on the BenchForge instrument library. This enables independent reuse and eventual upstream submission as a companion package. The source currently retains the `BenchForge.Plotting` namespace and project name to avoid premature breaking renames; `UnitsNet.Plotting` is a proposed future public package identity, **not yet published or accepted by UnitsNet maintainers**.
 
-**Upstream-ready separation:** (1) core typed plotting axis/series abstraction has only UnitsNet + .NET dependencies; (2) ScottPlot is isolated in its own optional project; (3) Plotly.js JSON export currently lives in the plotting core and may be extracted to a separate adapter once the API stabilizes; (4) independent tests compile without referencing BenchDouble. Before submitting upstream, discuss desired namespace/package ownership, confirm license compatibility and contributor guidance, add CI, API docs, dimension validation and unit conversion edge cases. Avoid requiring UnitsNet core to depend on ScottPlot or Plotly.
+**Upstream-ready separation:** (1) core typed plotting axis/series abstraction has only UnitsNet + .NET dependencies; (2) ScottPlot is isolated in its own optional project; (3) Plotly.js JSON export currently lives in the plotting core and may be extracted to a separate adapter once the API stabilizes; (4) independent tests compile without referencing BenchForge. Before submitting upstream, discuss desired namespace/package ownership, confirm license compatibility and contributor guidance, add CI, API docs, dimension validation and unit conversion edge cases. Avoid requiring UnitsNet core to depend on ScottPlot or Plotly.
 
 **Status:** code and independent test source committed; successful build/test execution is not yet verified.

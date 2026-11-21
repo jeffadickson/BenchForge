@@ -1,6 +1,6 @@
 > Superseded for complete baseline coverage by [revision 2](REQUIREMENTS-FULL-AUDIT-2026-10-15.md). Historical TR scope and CI observations below remain dated evidence.
 
-# BenchDouble — 90-Requirement Runner Audit
+# BenchForge — 90-Requirement Runner Audit
 
 **Audit date:** 2026-10-15  
 **Scope:** TR-001 through TR-090 in `docs/TEST-LAB-RUNNER-REQUIREMENTS.md`  
@@ -35,17 +35,17 @@ These are **audit evidence categories, not percentages of functional completenes
 
 ## Concrete findings
 
-**Runner (updated):** `ExperimentRunner.cs` has six enum states, startup/execute/shutdown, bounded independent cleanup, aggregated cleanup errors and a RecoveryRequired reuse latch. Full intermediate state transitions, durable resource quarantine, preflight, approved revision pinning and device-specific safe-state confirmation remain incomplete. See TR-015–019 and [issue #47](https://github.com/jeffadickson/BenchDouble/issues/47).
+**Runner (updated):** `ExperimentRunner.cs` has six enum states, startup/execute/shutdown, bounded independent cleanup, aggregated cleanup errors and a RecoveryRequired reuse latch. Full intermediate state transitions, durable resource quarantine, preflight, approved revision pinning and device-specific safe-state confirmation remain incomplete. See TR-015–019 and [issue #47](https://github.com/jeffadickson/BenchForge/issues/47).
 
-**Host:** `HostResourceRegistry` has a real local-only exclusive GUID reservation check and sanitized activity log. Its source explicitly states no expiry, authenticated identity, persistence, physical safe-state recovery or remote TLS. Therefore TR-032 and TR-039 cannot be marked complete, regardless of passing local conflict tests. See [issue #46](https://github.com/jeffadickson/BenchDouble/issues/46).
+**Host:** `HostResourceRegistry` has a real local-only exclusive GUID reservation check and sanitized activity log. Its source explicitly states no expiry, authenticated identity, persistence, physical safe-state recovery or remote TLS. Therefore TR-032 and TR-039 cannot be marked complete, regardless of passing local conflict tests. See [issue #46](https://github.com/jeffadickson/BenchForge/issues/46).
 
-**Mock simulation:** Typed meter modes, seeded signals, timed faults, shared manual clocks and typed virtual wiring have directly relevant source and tests. Strict EasyMock-style cross-device expectations, complete instrument command state models, robust virtual scheduling and deterministic transcript replay remain incomplete. See TR-041–050 and [issue #40](https://github.com/jeffadickson/BenchDouble/issues/40).
+**Mock simulation:** Typed meter modes, seeded signals, timed faults, shared manual clocks and typed virtual wiring have directly relevant source and tests. Strict EasyMock-style cross-device expectations, complete instrument command state models, robust virtual scheduling and deterministic transcript replay remain incomplete. See TR-041–050 and [issue #40](https://github.com/jeffadickson/BenchForge/issues/40).
 
-**Measurements:** SQLite WAL, append-only samples, typed quantity validation, UTC and virtual-time queries exist in source. Full immutable procedure/run event records, calibration/driver/step provenance, central replication and recovery are not established. See TR-051–060 and [issue #48](https://github.com/jeffadickson/BenchDouble/issues/48).
+**Measurements:** SQLite WAL, append-only samples, typed quantity validation, UTC and virtual-time queries exist in source. Full immutable procedure/run event records, calibration/driver/step provenance, central replication and recovery are not established. See TR-051–060 and [issue #48](https://github.com/jeffadickson/BenchForge/issues/48).
 
-**Procedure editing, review and signatures:** No working shared structured browser editor/runner, approved procedure revision ledger, attributable signature workflow or post-signature tamper invalidation was found. This is the largest product-level P0 gap. See TR-001–014, TR-061–069 and [issue #45](https://github.com/jeffadickson/BenchDouble/issues/45).
+**Procedure editing, review and signatures:** No working shared structured browser editor/runner, approved procedure revision ledger, attributable signature workflow or post-signature tamper invalidation was found. This is the largest product-level P0 gap. See TR-001–014, TR-061–069 and [issue #45](https://github.com/jeffadickson/BenchForge/issues/45).
 
-**Browser/logging:** The instrument dashboard and thermal/unattended HTML demonstrations exist, but they do not implement the integrated procedure workspace, cross-host correlated event replay, durable logs or OpenTelemetry propagation. See TR-069–081 and [issue #49](https://github.com/jeffadickson/BenchDouble/issues/49).
+**Browser/logging:** The instrument dashboard and thermal/unattended HTML demonstrations exist, but they do not implement the integrated procedure workspace, cross-host correlated event replay, durable logs or OpenTelemetry propagation. See TR-069–081 and [issue #49](https://github.com/jeffadickson/BenchForge/issues/49).
 
 ## Priority P0 requirements with no implementation evidence
 
@@ -55,18 +55,18 @@ These are **15 P0 evidence gaps** requiring implementation or more precise sourc
 
 ## CI verification finding
 
-GitHub Actions push run [#38766706928](https://github.com/jeffadickson/BenchDouble/actions/runs/38766706928), created 2026-10-15, reports **failure** for Windows, Ubuntu and macOS jobs. Several adjacent push runs also report failures. Attempts to retrieve full job logs returned unavailable/not found, and the job step summaries were empty. Consequently the **specific failure cause remains unknown**. Do not assume a compiler, StrictDoc, browser, or dependency issue without logs.
+GitHub Actions push run [#38766706928](https://github.com/jeffadickson/BenchForge/actions/runs/38766706928), created 2026-10-15, reports **failure** for Windows, Ubuntu and macOS jobs. Several adjacent push runs also report failures. Attempts to retrieve full job logs returned unavailable/not found, and the job step summaries were empty. Consequently the **specific failure cause remains unknown**. Do not assume a compiler, StrictDoc, browser, or dependency issue without logs.
 
-[Issue #50](https://github.com/jeffadickson/BenchDouble/issues/50) tracks investigating the actual failure and obtaining successful cross-platform CI evidence.
+[Issue #50](https://github.com/jeffadickson/BenchForge/issues/50) tracks investigating the actual failure and obtaining successful cross-platform CI evidence.
 
 ## Development actions created
 
-- [#45 — Structured procedure revision, editor and signed evidence](https://github.com/jeffadickson/BenchDouble/issues/45)
-- [#46 — Secure host identity, leases and fencing](https://github.com/jeffadickson/BenchDouble/issues/46)
-- [#47 — Runner lifecycle and safe-state recovery](https://github.com/jeffadickson/BenchDouble/issues/47)
-- [#48 — Measurement provenance and offline replay](https://github.com/jeffadickson/BenchDouble/issues/48)
-- [#49 — Live browser runner, logs and OpenTelemetry](https://github.com/jeffadickson/BenchDouble/issues/49)
-- [#50 — Cross-platform CI failures and verification gates](https://github.com/jeffadickson/BenchDouble/issues/50)
+- [#45 — Structured procedure revision, editor and signed evidence](https://github.com/jeffadickson/BenchForge/issues/45)
+- [#46 — Secure host identity, leases and fencing](https://github.com/jeffadickson/BenchForge/issues/46)
+- [#47 — Runner lifecycle and safe-state recovery](https://github.com/jeffadickson/BenchForge/issues/47)
+- [#48 — Measurement provenance and offline replay](https://github.com/jeffadickson/BenchForge/issues/48)
+- [#49 — Live browser runner, logs and OpenTelemetry](https://github.com/jeffadickson/BenchForge/issues/49)
+- [#50 — Cross-platform CI failures and verification gates](https://github.com/jeffadickson/BenchForge/issues/50)
 
 Existing issues remain open for more detailed subsystem implementation.
 
@@ -82,5 +82,5 @@ Existing issues remain open for more detailed subsystem implementation.
 4. Connect the C# runner to live browser/logging and durable provenance (#49, #48).
 5. Execute the complete six-step procedure and multi-host end-to-end acceptance tests before moving P0 requirements to Verified.
 
-**Bottom line:** BenchDouble has meaningful instrument, mock, experiment and storage prototypes, but the original test-lab runner specification is not yet a verified integrated product. The audit makes the gaps visible and actionable rather than treating committed source as completion.
+**Bottom line:** BenchForge has meaningful instrument, mock, experiment and storage prototypes, but the original test-lab runner specification is not yet a verified integrated product. The audit makes the gaps visible and actionable rather than treating committed source as completion.
 

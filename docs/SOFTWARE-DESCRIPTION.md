@@ -1,4 +1,4 @@
-# BenchDouble — Software Design Description
+# BenchForge — Software Design Description
 **Status:** engineering prototype / living architecture baseline  
 **Updated:** 2026-10-14  
 **Scope:** instrument-class mocks, SCPI/VISA abstraction, protocol verification, virtual test benches, and IVI interoperability.
@@ -7,7 +7,7 @@
 
 ## 1. Executive overview
 
-BenchDouble is an open-source-oriented .NET test-double framework for automated laboratory and aerospace/flight-hardware test software. Its objective is to let engineers develop and test measurement automation without requiring every developer and CI job to access GPIB, USB, Ethernet or serial instruments. The design supports four separable levels of verification:
+BenchForge is an open-source-oriented .NET test-double framework for automated laboratory and aerospace/flight-hardware test software. Its objective is to let engineers develop and test measurement automation without requiring every developer and CI job to access GPIB, USB, Ethernet or serial instruments. The design supports four separable levels of verification:
 
 1. **Application tests:** assert typed instrument-class method calls and their arguments.
 2. **Protocol tests:** assert precise SCPI write/query transcripts, including ordering across sessions.
@@ -17,7 +17,7 @@ BenchDouble is an open-source-oriented .NET test-double framework for automated 
 None of these alone substitutes for calibration, hardware acceptance tests or electrical safety verification.
 
 ### 1.1 Distinctive goal
-BenchDouble combines EasyMock-inspired deterministic strict transcripts with IVI-aware interchangeable instrument abstractions, explicit capability profiles, and predictable fault injection. It should coexist with xUnit, NSubstitute, vendor IVI drivers, NI/Keysight VISA implementations and other existing test tools rather than competing with them.
+BenchForge combines EasyMock-inspired deterministic strict transcripts with IVI-aware interchangeable instrument abstractions, explicit capability profiles, and predictable fault injection. It should coexist with xUnit, NSubstitute, vendor IVI drivers, NI/Keysight VISA implementations and other existing test tools rather than competing with them.
 
 ### 1.2 Terminology
 - **Mock:** scripted responses plus assertions about calls made.
@@ -33,7 +33,7 @@ BenchDouble combines EasyMock-inspired deterministic strict transcripts with IVI
 
 | Component | Status | Source |
 |---|---|---|
-| Synchronous SCPI session (`Write`, `Query`) | Implemented | `src/BenchDouble/Instruments.cs` |
+| Synchronous SCPI session (`Write`, `Query`) | Implemented | `src/BenchForge/Instruments.cs` |
 | Typed function-generator facade | Implemented, sine only | `FunctionGenerator` |
 | Typed DMM facade | Implemented, DC voltage only | `DigitalMultimeter` |
 | Strict exact-order replay | Implemented | `StrictSession` |
@@ -41,7 +41,7 @@ BenchDouble combines EasyMock-inspired deterministic strict transcripts with IVI
 | Stateful generator | Partial | `GeneratorSimulator` |
 | Stateful DMM | Partial | `MultimeterSimulator` |
 | One-shot transport timeout | Implemented | `StatefulScpiDevice.FailNextOperation` |
-| IVI-inspired, BenchDouble-owned instrument-class contracts | Partial | `Ivi/IviAbstractions.cs` |
+| IVI-inspired, BenchForge-owned instrument-class contracts | Partial | `Ivi/IviAbstractions.cs` |
 | DMM and generator class-to-SCPI adapters | Partial | `Ivi/ScpiIviAdapters.cs` |
 | Official IVI.NET assembly compatibility | Not implemented | Planned optional package |
 | Native VISA transports | Not implemented | Planned optional package |
@@ -58,7 +58,7 @@ Test application, test procedure, TestForge or standalone xUnit test
    |
    +---- [Typed instrument-class contract]
    |           |
-   |           +---- BenchDouble IVI-inspired adapter -- SCPI driver
+   |           +---- BenchForge IVI-inspired adapter -- SCPI driver
    |           |                                   |
    |           |                              IScpiSession
    |           |                                   |
@@ -75,7 +75,7 @@ Test application, test procedure, TestForge or standalone xUnit test
 ```
 
 ### 3.1 Important seam: typed IVI operations vs wire-level SCPI
-`IIviDigitalMultimeter.Measure()` is an **application-level** invocation; `MEAS:VOLT:DC?` is a **wire-level** SCPI query. A driver's legitimate internal status checks, caching, and retries can change the wire transcript while leaving class-level behavior equivalent. BenchDouble must make the chosen assertion boundary explicit. Do not assume a vendor IVI driver emits exactly the same SCPI commands as our reference driver.
+`IIviDigitalMultimeter.Measure()` is an **application-level** invocation; `MEAS:VOLT:DC?` is a **wire-level** SCPI query. A driver's legitimate internal status checks, caching, and retries can change the wire transcript while leaving class-level behavior equivalent. BenchForge must make the chosen assertion boundary explicit. Do not assume a vendor IVI driver emits exactly the same SCPI commands as our reference driver.
 
 ### 3.2 Dependency direction
 Core contracts should remain independent of NI, Keysight, COM, Windows registry, native GPIB libraries, and vendor DLLs. An optional adapter package may reference official IVI.NET or VISA assemblies. This ensures that developer tests without hardware can run on Windows, macOS and Linux.
@@ -83,7 +83,7 @@ Core contracts should remain independent of NI, Keysight, COM, Windows registry,
 ## 4. IVI integration strategy
 
 ### 4.1 Goals
-A single test procedure should configure and read compatible function generators, DMMs, oscilloscopes, DC power supplies and RF generators through stable class-level operations, with either a hardware driver or a BenchDouble substitute injected at composition time.
+A single test procedure should configure and read compatible function generators, DMMs, oscilloscopes, DC power supplies and RF generators through stable class-level operations, with either a hardware driver or a BenchForge substitute injected at composition time.
 
 ### 4.2 Compatibility levels
 - **Level 0 — IVI-inspired:** own interfaces modeled on IVI classes. **This is what exists now.**
@@ -213,7 +213,7 @@ IIviDigitalMultimeter meter = new ScpiDigitalMultimeterAdapter(
 meter.ConfigureMeasurement(IviMeasurementFunction.DcVoltage);
 double volts = meter.Measure();
 ```
-Imports: `using BenchDouble;` and `using BenchDouble.Ivi;`.
+Imports: `using BenchForge;` and `using BenchForge.Ivi;`.
 
 ### 10.4 Mock type selection
 Use NSubstitute for ordinary business collaborators; a strict transcript for exact protocol expectations; a stateful simulator for behavior and faults; Testcontainers for real auxiliary services; and physical bench testing for true electrical compatibility.
@@ -239,17 +239,17 @@ Before alpha: clean CI, pinned/reproducible dependencies, coherent package bound
 
 Current:
 ```text
-src/BenchDouble/                  single .NET 8 library
+src/BenchForge/                  single .NET 8 library
   Instruments.cs                  SCPI session, drivers, models, verifier
   Ivi/                             own IVI-inspired interfaces and adapters
-tests/BenchDouble.Tests/          xUnit + NSubstitute
+tests/BenchForge.Tests/          xUnit + NSubstitute
 docs/                              roadmap and IVI integration plan
 .github/workflows/test.yml         CI matrix
 global.json                        .NET SDK selection
 ```
 
 Proposed when justified by tested dependencies:
-`BenchDouble.Core`, `BenchDouble.Scpi`, `BenchDouble.Ivi`, `BenchDouble.Visa`, `BenchDouble.Instruments`, `BenchDouble.VirtualBench`, `BenchDouble.Testing`. Avoid splitting prematurely merely to mirror a diagram.
+`BenchForge.Core`, `BenchForge.Scpi`, `BenchForge.Ivi`, `BenchForge.Visa`, `BenchForge.Instruments`, `BenchForge.VirtualBench`, `BenchForge.Testing`. Avoid splitting prematurely merely to mirror a diagram.
 
 ## 13. Non-functional requirements
 
@@ -283,13 +283,13 @@ Proposed when justified by tested dependencies:
 
 ## 16. Success criteria
 
-A developer can clone BenchDouble onto Windows/macOS/Linux, execute hardware-free tests, swap a real instrument adapter and a simulator without rewriting application business logic, verify safety-relevant ordering, produce diagnosable evidence from a failed test, and explicitly see where simulation fidelity ends. These are *target acceptance criteria*, not current achievements.
+A developer can clone BenchForge onto Windows/macOS/Linux, execute hardware-free tests, swap a real instrument adapter and a simulator without rewriting application business logic, verify safety-relevant ordering, produce diagnosable evidence from a failed test, and explicitly see where simulation fidelity ends. These are *target acceptance criteria*, not current achievements.
 
 ## 17. Official IVI integration update — 2026-10-14
 
-An optional `src/BenchDouble.Ivi.Official` assembly now references the **real** IVI Foundation DMM/Fgen shared component packages (`IviFoundation.Driver.Dmm` and `IviFoundation.Driver.Fgen` 2.1.0) and the Generation 2026 DriverCore assembly (1.0.1). The code checks actual official class interface types and exposes an application-supplied delegate bridge from official `Ivi.Dmm.IIviDmm` drivers into the BenchDouble DMM abstraction. This is a *typed interoperability boundary*, not a completed mapping or conformant IVI driver. See [OFFICIAL-IVI.md](OFFICIAL-IVI.md).
+An optional `src/BenchForge.Ivi.Official` assembly now references the **real** IVI Foundation DMM/Fgen shared component packages (`IviFoundation.Driver.Dmm` and `IviFoundation.Driver.Fgen` 2.1.0) and the Generation 2026 DriverCore assembly (1.0.1). The code checks actual official class interface types and exposes an application-supplied delegate bridge from official `Ivi.Dmm.IIviDmm` drivers into the BenchForge DMM abstraction. This is a *typed interoperability boundary*, not a completed mapping or conformant IVI driver. See [OFFICIAL-IVI.md](OFFICIAL-IVI.md).
 
-The package is isolated from `BenchDouble.Core` functionality so portable tests need no native driver. Verification remains pending: current session lacks the .NET SDK, and no full vendor driver has been exercised. Generation 2026 Core does not by itself guarantee IVI 2014 class interface semantics.
+The package is isolated from `BenchForge.Core` functionality so portable tests need no native driver. Verification remains pending: current session lacks the .NET SDK, and no full vendor driver has been exercised. Generation 2026 Core does not by itself guarantee IVI 2014 class interface semantics.
 
 ## 18. Official DMM/FGEN typed bridges and contract tests
 
@@ -313,13 +313,13 @@ The current interfaces were reviewed against external instrument source's instru
 
 ## 22. Declarative instrument parameters and design patterns
 
-The `BenchDouble.Declarative` namespace implements external instrument source-inspired parameter factories `Control`, `Measurement`, `Setting`. The immutable definition describes SCPI get/set templates, codec, optional validator, and display/capability metadata; binding it to a session/channel produces read/write operations with explicit read-only/write-only rejection. `DoubleCodec` and `BooleanCodec` provide basic invariant conversion. `ScpiChannelGroup` and `ScpiChannel` are initial hierarchical binding helpers. Tests cover multi-channel command generation, readback, boundary rejection and access rules. Integration into mature vendor-specific drivers remains outstanding; code is committed but compile/test status is unverified.
+The `BenchForge.Declarative` namespace implements external instrument source-inspired parameter factories `Control`, `Measurement`, `Setting`. The immutable definition describes SCPI get/set templates, codec, optional validator, and display/capability metadata; binding it to a session/channel produces read/write operations with explicit read-only/write-only rejection. `DoubleCodec` and `BooleanCodec` provide basic invariant conversion. `ScpiChannelGroup` and `ScpiChannel` are initial hierarchical binding helpers. Tests cover multi-channel command generation, readback, boundary rejection and access rules. Integration into mature vendor-specific drivers remains outstanding; code is committed but compile/test status is unverified.
 
 See [DESIGN-PATTERNS.md](DESIGN-PATTERNS.md) for Abstract Factory, Adapter, Strategy, Composite, Decorator, Command, State, Builder, Specification and Observer rationale. These patterns define options for engineering tradeoffs, not mandates to add abstractions before they earn their complexity.
 
 ## 23. Design-pattern rationale (normative guidance)
 
-BenchDouble deliberately uses the following patterns, matched to specific problems rather than applied indiscriminately:
+BenchForge deliberately uses the following patterns, matched to specific problems rather than applied indiscriminately:
 
 | Pattern | Concrete responsibility | Status |
 |---|---|---|
@@ -342,7 +342,7 @@ Full pattern rationale, tradeoffs and anti-patterns: [DESIGN-PATTERNS.md](DESIGN
 
 **Decision:** integrate `Microsoft.Extensions.Logging` for portable, DI-friendly structured events and leave providers/exporters to host applications. Logging must be usable for physical VISA, virtual instrument, and strict mock sessions. Do not implement a separate proprietary logging framework.
 
-**Initial implementation:** `BenchDouble.Observability.LoggingScpiSession` decorates the synchronous `IScpiSession`. It forwards `Write`/`Query`, emits structured start/success/failure records, measures elapsed time with `Stopwatch`, preserves exceptions, and redacts command/response payloads unless independently opted in. Application-supplied redaction is supported. The wrapper does not retry, swallow exceptions, or claim instrument state transitions succeeded.
+**Initial implementation:** `BenchForge.Observability.LoggingScpiSession` decorates the synchronous `IScpiSession`. It forwards `Write`/`Query`, emits structured start/success/failure records, measures elapsed time with `Stopwatch`, preserves exceptions, and redacts command/response payloads unless independently opted in. Application-supplied redaction is supported. The wrapper does not retry, swallow exceptions, or claim instrument state transitions succeeded.
 
 **Mandatory future structured fields:** instrument logical identifier; backend provenance (real/simulator/mock); resource/session ID; procedure/test run and step correlation; operation type; monotonic duration; status/error category; driver/instrument model; response metadata. A log of a command being issued must never be interpreted as proof of physical effect.
 
@@ -360,7 +360,7 @@ See [LOGGING.md](LOGGING.md) for code example, event taxonomy, current limitatio
 
 ## 26. Asynchronous instrument-control baseline
 
-The `BenchDouble.Async` namespace introduces `IAsyncScpiSession` with cancellable `ValueTask` write/query operations; `SerializedAsyncScpiSession` serializes operations sharing one SCPI connection; `AsyncDigitalMultimeter` and `AsyncFunctionGenerator` expose cancellable typed operations for the currently supported profiles. `SynchronousScpiAdapter` preserves existing synchronous mocks and simulated devices for compatibility, but it **blocks** while calling the underlying synchronous session and must not be represented as native asynchronous VISA I/O. The serialized adapter owns only its semaphore; disposal requires no in-flight operations. Cancellation requests do **not** establish that actual hardware aborted an acquisition or reached a safe state. End-to-end cleanup, abort confirmation, asynchronous native VISA backend, instrument reservations, and stream acquisition are future work. The committed tests cover legacy compatibility, cancellation before dispatch, and serialization. Compilation and test execution remain unverified.
+The `BenchForge.Async` namespace introduces `IAsyncScpiSession` with cancellable `ValueTask` write/query operations; `SerializedAsyncScpiSession` serializes operations sharing one SCPI connection; `AsyncDigitalMultimeter` and `AsyncFunctionGenerator` expose cancellable typed operations for the currently supported profiles. `SynchronousScpiAdapter` preserves existing synchronous mocks and simulated devices for compatibility, but it **blocks** while calling the underlying synchronous session and must not be represented as native asynchronous VISA I/O. The serialized adapter owns only its semaphore; disposal requires no in-flight operations. Cancellation requests do **not** establish that actual hardware aborted an acquisition or reached a safe state. End-to-end cleanup, abort confirmation, asynchronous native VISA backend, instrument reservations, and stream acquisition are future work. The committed tests cover legacy compatibility, cancellation before dispatch, and serialization. Compilation and test execution remain unverified.
 
 **Requirements:** one physical session must not receive concurrent query/write sequences without explicit provider support; preserve query atomicity; use `Task<T>` or `ValueTask<T>` for eventual results and `IAsyncEnumerable<T>` for eventual streaming acquisitions; distinguish cancellation of a waiting operation from cancellation of already-issued hardware commands. Concurrent multi-instrument experiments shall use explicit synchronization barriers and partial-order expectations, not only a strict total timeline. Avoid fire-and-forget hardware operations, silent retries or unbounded cleanup after a fault.
 
@@ -382,11 +382,11 @@ Every physical instrument host must display its own structured command/response/
 
 ## 30. Host platform neutrality clarification
 
-Instrument hosts are **hardware-form-factor neutral**: any computer/environment that supports the BenchDouble host runtime and its required instrument-driver stack can be a host. This includes conventional workstations, servers, industrial PCs, laptops, mini PCs and supported embedded computers. Raspberry Pi is only an illustrative deployment option. Capabilities are determined per OS/architecture/device-driver combination, not inferred from the machine type. The network protocol, reservation authority, logging and experiment-client API are portable by design. See [DISTRIBUTED-INSTRUMENT-HOST.md](DISTRIBUTED-INSTRUMENT-HOST.md).
+Instrument hosts are **hardware-form-factor neutral**: any computer/environment that supports the BenchForge host runtime and its required instrument-driver stack can be a host. This includes conventional workstations, servers, industrial PCs, laptops, mini PCs and supported embedded computers. Raspberry Pi is only an illustrative deployment option. Capabilities are determined per OS/architecture/device-driver combination, not inferred from the machine type. The network protocol, reservation authority, logging and experiment-client API are portable by design. See [DISTRIBUTED-INSTRUMENT-HOST.md](DISTRIBUTED-INSTRUMENT-HOST.md).
 
 ## 31. Initial physical host/server project structure
 
-The distributed-host architecture is now represented by separate C# project directories: `BenchDouble.Host.Contracts` contains simple DTOs; `BenchDouble.Host.Server` is an ASP.NET Core development server; `BenchDouble.Host.Client` is its asynchronous HTTP development client; and `BenchDouble.Host.Tests` contains server-side lease/exclusivity tests. The host currently exposes two **simulated** instruments through a loopback-only HTTP API, with exclusive in-memory GUID leases and a basic leased SCPI query endpoint. Source compatibility with existing instrument APIs is preserved. These components are explicitly **not production-network-ready** and are not the final authenticated gRPC protocol. Authentication, authorization, TLS, lease expiry/fencing, operation cancellation, host event streaming, physical VISA, recovery and per-instrument queues are still pending. See [HOST-REPO-STRUCTURE.md](HOST-REPO-STRUCTURE.md). Build/test execution has not yet been confirmed.
+The distributed-host architecture is now represented by separate C# project directories: `BenchForge.Host.Contracts` contains simple DTOs; `BenchForge.Host.Server` is an ASP.NET Core development server; `BenchForge.Host.Client` is its asynchronous HTTP development client; and `BenchForge.Host.Tests` contains server-side lease/exclusivity tests. The host currently exposes two **simulated** instruments through a loopback-only HTTP API, with exclusive in-memory GUID leases and a basic leased SCPI query endpoint. Source compatibility with existing instrument APIs is preserved. These components are explicitly **not production-network-ready** and are not the final authenticated gRPC protocol. Authentication, authorization, TLS, lease expiry/fencing, operation cancellation, host event streaming, physical VISA, recovery and per-instrument queues are still pending. See [HOST-REPO-STRUCTURE.md](HOST-REPO-STRUCTURE.md). Build/test execution has not yet been confirmed.
 
 ## 32. Version-tolerant protocol, driver packages and shared observation
 
@@ -398,7 +398,7 @@ The primary application experience is an integrated, structured **test procedure
 
 ## 34. UnitsNet and physical quantity-safe instrument APIs
 
-BenchDouble adopts stable **UnitsNet 5.75.1** for physical quantities and conversion. Typed facades now provide voltage as `ElectricPotential`, generator frequency as `Frequency`, and the framework defines resistance `ElectricResistance` and current `ElectricCurrent` interfaces for future profiles; unsupported functions explicitly throw. Existing double-valued methods remain available, avoiding a disruptive migration. Physical quantities are distinct from measurement metadata (timestamp, quality, calibration, RMS versus Vpp). Network payloads use versioned quantity/value/unit DTOs, not serialized CLR quantity objects. Design and gaps: [UNITS-AND-MEASUREMENTS.md](UNITS-AND-MEASUREMENTS.md). Source and tests committed; build status not yet confirmed.
+BenchForge adopts stable **UnitsNet 5.75.1** for physical quantities and conversion. Typed facades now provide voltage as `ElectricPotential`, generator frequency as `Frequency`, and the framework defines resistance `ElectricResistance` and current `ElectricCurrent` interfaces for future profiles; unsupported functions explicitly throw. Existing double-valued methods remain available, avoiding a disruptive migration. Physical quantities are distinct from measurement metadata (timestamp, quality, calibration, RMS versus Vpp). Network payloads use versioned quantity/value/unit DTOs, not serialized CLR quantity objects. Design and gaps: [UNITS-AND-MEASUREMENTS.md](UNITS-AND-MEASUREMENTS.md). Source and tests committed; build status not yet confirmed.
 
 ## 35. Declarative instrument descriptions and Roslyn driver generation
 
@@ -406,7 +406,7 @@ Instrument profiles will use validated versioned JSON/YAML-style data to declare
 
 ## 36. Standalone driver generation and programmable mock responses
 
-The previous proposal to generate instrument drivers inside Roslyn compilation is **superseded**. The adopted approach is an explicit standalone .NET generator (`tools/BenchDouble.DriverGen`) invoked by a Makefile target or directly using `dotnet run`. It writes conventional, reviewable, debugger- and editor-visible `.g.cs` files into the source tree, with deterministic regeneration and drift detection as release criteria. It generates typed async SCPI methods and UnitsNet quantities from versioned instrument JSON; IVI class interoperability remains a separate layer. The generator currently supports only a limited numeric subset and has not been verified through compilation.
+The previous proposal to generate instrument drivers inside Roslyn compilation is **superseded**. The adopted approach is an explicit standalone .NET generator (`tools/BenchForge.DriverGen`) invoked by a Makefile target or directly using `dotnet run`. It writes conventional, reviewable, debugger- and editor-visible `.g.cs` files into the source tree, with deterministic regeneration and drift detection as release criteria. It generates typed async SCPI methods and UnitsNet quantities from versioned instrument JSON; IVI class interoperability remains a separate layer. The generator currently supports only a limited numeric subset and has not been verified through compilation.
 
 Mocks must be programmable, not restricted to fixed query replies. Initial runtime behavior implementations cover sine, seeded uniform random and composite signal responses; the description schema-to-behavior binding, error/timeouts/stateful scripts, seeded distributions and generated mock classes remain future work. See [DRIVER-GENERATION.md](DRIVER-GENERATION.md). User-supplied code execution must not be allowed in privileged instrument host processes.
 
@@ -424,7 +424,7 @@ The canonical interface separates **access transport** (local or remote) from **
 
 ## 40. 25 external instrument source instrument entries and Keithley 236 driver
 
-The original 25-operation examples have been supplemented by [external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md](external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md), listing **25 distinct external instrument source catalog instrument entries**, differentiating directly inspected source from catalog-only verification. The Keithley 236 is **not** present in external instrument source's listed drivers. BenchDouble has a new independently written UnitsNet-typed async DC source/measure core using legacy Keithley IEEE-488 F/B/L/S/N/G commands and a bus abstraction with separate write/read phases. A stateful resistive-DUT mock and tests cover DC voltage/current sourcing, measurement, compliance and standby. This is **partial model coverage**; sweeps, triggers, status, real GPIB handshaking, calibration/safety interlocks and hardware tests are not implemented or verified. Never treat the legacy 236 as a SCPI instrument or claim physical-safe-state confirmation from the current software.
+The original 25-operation examples have been supplemented by [external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md](external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md), listing **25 distinct external instrument source catalog instrument entries**, differentiating directly inspected source from catalog-only verification. The Keithley 236 is **not** present in external instrument source's listed drivers. BenchForge has a new independently written UnitsNet-typed async DC source/measure core using legacy Keithley IEEE-488 F/B/L/S/N/G commands and a bus abstraction with separate write/read phases. A stateful resistive-DUT mock and tests cover DC voltage/current sourcing, measurement, compliance and standby. This is **partial model coverage**; sweeps, triggers, status, real GPIB handshaking, calibration/safety interlocks and hardware tests are not implemented or verified. Never treat the legacy 236 as a SCPI instrument or claim physical-safe-state confirmation from the current software.
 
 ## 41. Selective TPL Dataflow adoption
 
@@ -432,11 +432,11 @@ The preferred internal use of `System.Threading.Tasks.Dataflow` is a **bounded, 
 
 ## 42. UnitsNet-aware visualization adapters
 
-Plotting is a separate optional layer rather than a dependency of instrument drivers or the runner. `BenchDouble.Plotting` uses typed `QuantityAxis<T>` conversion to transform UnitsNet measurements into finite numerical series while retaining display-unit and dimension metadata. It exports Plotly.js figure JSON for browser visualization; `BenchDouble.Plotting.ScottPlot` is an optional ScottPlot 5.1.59 headless PNG renderer. Plotly.NET remains an evaluated optional library, not a required runtime package; LiveCharts2/OxyPlot are deferred. Full requirements: [PLOTTING-AND-UNITS.md](PLOTTING-AND-UNITS.md). Initial adapters and unit tests are committed but not build-verified; no live web plotting or full measurement quality/uncertainty integration exists yet.
+Plotting is a separate optional layer rather than a dependency of instrument drivers or the runner. `BenchForge.Plotting` uses typed `QuantityAxis<T>` conversion to transform UnitsNet measurements into finite numerical series while retaining display-unit and dimension metadata. It exports Plotly.js figure JSON for browser visualization; `BenchForge.Plotting.ScottPlot` is an optional ScottPlot 5.1.59 headless PNG renderer. Plotly.NET remains an evaluated optional library, not a required runtime package; LiveCharts2/OxyPlot are deferred. Full requirements: [PLOTTING-AND-UNITS.md](PLOTTING-AND-UNITS.md). Initial adapters and unit tests are committed but not build-verified; no live web plotting or full measurement quality/uncertainty integration exists yet.
 
 ## 43. Dependency injection / IoC and programmable behavior SDK — initial implementation
 
-BenchDouble now implements `ILoadBehavior` and `MockPowerSupply` using **constructor injection** with no dependency on a DI container in the core library. `ResistiveLoadBehavior` and the `TimedOvercurrentBehavior` decorator are interchangeable simulations driven by a run-scoped `ISimulationClock` / `ManualSimulationClock`. A new console application under `examples/BenchDouble.DiDemo` uses `Microsoft.Extensions.DependencyInjection` as its composition root and runs an unchanged controller test against either a resistive baseline or a timed overcurrent fault. The example uses UnitsNet voltage/current/resistance quantities, explicit output control and simulated cleanup. DI scope tests ensure two runs cannot share clock state accidentally. The supply is an idealized current-demand mock, **not** a physical compliance solver or safety interlock. Runtime Roslyn compilation, approved behavior package deployment, isolated workers and production remote integration remain planned. See [DEPENDENCY-INJECTION-AND-MOCK-BEHAVIORS.md](DEPENDENCY-INJECTION-AND-MOCK-BEHAVIORS.md). Source and CI steps committed; execution not yet verified.
+BenchForge now implements `ILoadBehavior` and `MockPowerSupply` using **constructor injection** with no dependency on a DI container in the core library. `ResistiveLoadBehavior` and the `TimedOvercurrentBehavior` decorator are interchangeable simulations driven by a run-scoped `ISimulationClock` / `ManualSimulationClock`. A new console application under `examples/BenchForge.DiDemo` uses `Microsoft.Extensions.DependencyInjection` as its composition root and runs an unchanged controller test against either a resistive baseline or a timed overcurrent fault. The example uses UnitsNet voltage/current/resistance quantities, explicit output control and simulated cleanup. DI scope tests ensure two runs cannot share clock state accidentally. The supply is an idealized current-demand mock, **not** a physical compliance solver or safety interlock. Runtime Roslyn compilation, approved behavior package deployment, isolated workers and production remote integration remain planned. See [DEPENDENCY-INJECTION-AND-MOCK-BEHAVIORS.md](DEPENDENCY-INJECTION-AND-MOCK-BEHAVIORS.md). Source and CI steps committed; execution not yet verified.
 
 ## 44. Unattended Operations Monitor and operator notification extension
 
@@ -456,21 +456,21 @@ Mock-to-mock physical coupling uses run-scoped, constructor-injected, UnitsNet-t
 
 ## 48. Time-series storage interface and offline-first persistence
 
-The optional time-series subsystem separates measurement ingestion/query from the authoritative procedure/audit store and bulk waveform/object storage. Initial `BenchDouble.TimeSeries` interfaces `ITimeSeriesWriter`/`ITimeSeriesReader` support batch append and bounded async queries over canonical `TimeSeriesSample` DTOs containing run/instrument/signal identity, UTC acquisition time, numeric value, physical quantity/unit, optional simulation elapsed time, quality and sequence. A test-only `InMemoryTimeSeriesStore` provides basic idempotency and duplicate-conflict detection. Planned production storage is local SQLite WAL with checkpointed, idempotent optional PostgreSQL/TimescaleDB replication; InfluxDB and QuestDB are evaluated alternatives. Raw data is authoritative, visualization/downsampling is separate, and remote database failures must not block hardware control. No actual database adapter, local durable spool or dimension registry exists yet. See [TIME-SERIES-STORAGE.md](TIME-SERIES-STORAGE.md).
+The optional time-series subsystem separates measurement ingestion/query from the authoritative procedure/audit store and bulk waveform/object storage. Initial `BenchForge.TimeSeries` interfaces `ITimeSeriesWriter`/`ITimeSeriesReader` support batch append and bounded async queries over canonical `TimeSeriesSample` DTOs containing run/instrument/signal identity, UTC acquisition time, numeric value, physical quantity/unit, optional simulation elapsed time, quality and sequence. A test-only `InMemoryTimeSeriesStore` provides basic idempotency and duplicate-conflict detection. Planned production storage is local SQLite WAL with checkpointed, idempotent optional PostgreSQL/TimescaleDB replication; InfluxDB and QuestDB are evaluated alternatives. Raw data is authoritative, visualization/downsampling is separate, and remote database failures must not block hardware control. No actual database adapter, local durable spool or dimension registry exists yet. See [TIME-SERIES-STORAGE.md](TIME-SERIES-STORAGE.md).
 
 ## 49. Durable SQLite time-series implementation
 
-`BenchDouble.TimeSeries.Sqlite` is an optional adapter using Microsoft.Data.Sqlite 8.0.11, SQLite WAL and synchronous FULL. It supports transactional append-only batches, stable sample IDs, idempotent replay with conflicting-duplicate rejection, a per-signal dimension/unit/basis schema and indexed acquisition-UTC queries. `QuantitySeries.FromQuantity` maps supported UnitsNet quantities to canonical storage units (K/V/A/Ohm/Hz/s) and rejects nonfinite/incompatible values. The thermal-cycle demo records four typed signals at five-minute virtual intervals into a persistent SQLite file, queries stored sensor data and still exports Plotly figures. The core library has no SQLite dependency. No server-side TimescaleDB adapter, durable replication/outbox, production backpressure or virtual-time query has yet been built; build/test success is not verified. See [TIME-SERIES-STORAGE.md](TIME-SERIES-STORAGE.md).
+`BenchForge.TimeSeries.Sqlite` is an optional adapter using Microsoft.Data.Sqlite 8.0.11, SQLite WAL and synchronous FULL. It supports transactional append-only batches, stable sample IDs, idempotent replay with conflicting-duplicate rejection, a per-signal dimension/unit/basis schema and indexed acquisition-UTC queries. `QuantitySeries.FromQuantity` maps supported UnitsNet quantities to canonical storage units (K/V/A/Ohm/Hz/s) and rejects nonfinite/incompatible values. The thermal-cycle demo records four typed signals at five-minute virtual intervals into a persistent SQLite file, queries stored sensor data and still exports Plotly figures. The core library has no SQLite dependency. No server-side TimescaleDB adapter, durable replication/outbox, production backpressure or virtual-time query has yet been built; build/test success is not verified. See [TIME-SERIES-STORAGE.md](TIME-SERIES-STORAGE.md).
 
 The SQLite adapter additionally implements `ISimulationTimeSeriesReader` for bounded queries over simulated elapsed time, indexed independently of acquisition UTC, supporting accelerated experiment replay.
 
 ## 50. Requirements management, acceptance tests, user documentation and cross-platform setup
 
-The repository now includes `requirements/benchdouble.sdoc` (StrictDoc), `requirements/traceability.csv` (122 stable requirement IDs), a Python traceability checker, `Reqnroll.xUnit` executable Gherkin acceptance tests, `Microsoft.Playwright` Chromium browser smoke tests, and pure xUnit `UnattendedCurrentMonitor` threshold/deduplication tests. The monitor's C# decision logic is separate from its HTML presentation; the browser demo still uses a standalone JavaScript simulator and must be connected to the C# runner before claiming full end-to-end equivalence. Cross-platform bootstrap scripts install the .NET 8 SDK when absent, provision StrictDoc and restore NuGet projects; GitHub Actions now exports StrictDoc and runs BDD/browser tests on Windows, macOS and Linux. The [software development plan](SOFTWARE-DEVELOPMENT-PLAN.md), [user manual](USER-MANUAL.md), [feature audit](FEATURE-AUDIT.md), [testing guide](TESTING-AND-TRACEABILITY.md) and [interactive project overview](../examples/ProjectOverview/index.html) are maintained alongside the code. Open work is tracked in GitHub Issues #1–#33. No successful CI/build or hardware validation is asserted merely by these source changes.
+The repository now includes `requirements/benchforge.sdoc` (StrictDoc), `requirements/traceability.csv` (122 stable requirement IDs), a Python traceability checker, `Reqnroll.xUnit` executable Gherkin acceptance tests, `Microsoft.Playwright` Chromium browser smoke tests, and pure xUnit `UnattendedCurrentMonitor` threshold/deduplication tests. The monitor's C# decision logic is separate from its HTML presentation; the browser demo still uses a standalone JavaScript simulator and must be connected to the C# runner before claiming full end-to-end equivalence. Cross-platform bootstrap scripts install the .NET 8 SDK when absent, provision StrictDoc and restore NuGet projects; GitHub Actions now exports StrictDoc and runs BDD/browser tests on Windows, macOS and Linux. The [software development plan](SOFTWARE-DEVELOPMENT-PLAN.md), [user manual](USER-MANUAL.md), [feature audit](FEATURE-AUDIT.md), [testing guide](TESTING-AND-TRACEABILITY.md) and [interactive project overview](../examples/ProjectOverview/index.html) are maintained alongside the code. Open work is tracked in GitHub Issues #1–#33. No successful CI/build or hardware validation is asserted merely by these source changes.
 
 ## 51. Experiment-scoped IoC composition and local instrument status dashboard (2026-10-15)
 
-**Implemented in source:** A new optional `BenchDouble.Experiments` project wraps Microsoft.Extensions.DependencyInjection in a typed `ExperimentDefinitionBuilder`. Engineers register uniquely named instrument roles via `Simulated<TInterface,TImplementation>(role)`, inject ordinary mock behaviors/models, and build an experiment definition. `StartSimulated()` creates a new per-run provider and async DI scope with its own `ManualSimulationClock`; `ExperimentRun.Instrument<T>(role)` resolves keyed instruments only at the composition boundary. This is an explicit application of **inversion of control**, constructor injection, Strategy and scoped lifetime management. The core instrument library has no container dependency. A C# thermal example and xUnit tests demonstrate named instruments, cross-mock dependencies, isolation and invalid-role rejection. **Not yet implemented:** physical host discovery, authenticated resource selection, fenced leases, versioned experiment manifests, partial-start rollback and real hardware safety verification. See [Experiment Composition](EXPERIMENT-COMPOSITION.md), [ADR-001](ADR-001-EXPERIMENT-SCOPED-COMPOSITION.md) and [Version Control Tutorial](VERSION-CONTROL-TUTORIAL.md).
+**Implemented in source:** A new optional `BenchForge.Experiments` project wraps Microsoft.Extensions.DependencyInjection in a typed `ExperimentDefinitionBuilder`. Engineers register uniquely named instrument roles via `Simulated<TInterface,TImplementation>(role)`, inject ordinary mock behaviors/models, and build an experiment definition. `StartSimulated()` creates a new per-run provider and async DI scope with its own `ManualSimulationClock`; `ExperimentRun.Instrument<T>(role)` resolves keyed instruments only at the composition boundary. This is an explicit application of **inversion of control**, constructor injection, Strategy and scoped lifetime management. The core instrument library has no container dependency. A C# thermal example and xUnit tests demonstrate named instruments, cross-mock dependencies, isolation and invalid-role rejection. **Not yet implemented:** physical host discovery, authenticated resource selection, fenced leases, versioned experiment manifests, partial-start rollback and real hardware safety verification. See [Experiment Composition](EXPERIMENT-COMPOSITION.md), [ADR-001](ADR-001-EXPERIMENT-SCOPED-COMPOSITION.md) and [Version Control Tutorial](VERSION-CONTROL-TUTORIAL.md).
 
 **Implemented in source:** The existing local-only ASP.NET Core host now exposes a read-only `GET /api/v1/monitor` snapshot with instrument IDs/classes/backends, host endpoint, Idle/Reserved lease state, and a bounded, sanitized per-instrument activity history. A lightweight responsive HTML dashboard is served at `http://127.0.0.1:5278/dashboard/`. It refreshes every three seconds and shows connection failures. Unit tests check reservation transitions and absence of raw SCPI command text. The page does **not** aggregate remote hosts, authenticate operators, show durable logs, or control hardware. The host's underlying reservation/query endpoints remain an unsafe-for-production local demonstration. See [Instrument Dashboard](INSTRUMENT-DASHBOARD.md).
 
@@ -490,7 +490,7 @@ The core `ITypedMeasurementSource` exposes `ValueTask<TQuantity> MeasureAsync<TQ
 
 ## 54. Requirement evidence audit and implementation maturity
 
-The original 90 TR-001..TR-090 runner requirements have now been individually mapped to source/test evidence or explicit missing-implementation findings in `requirements/legacy-runner-audit.csv`. The audit found 45 requirements with partial source evidence, 6 with design documentation only and 39 with no direct implementation evidence in the reviewed repository. The canonical `requirements/traceability.csv` now carries these assessments instead of a blanket Unverified status; `scripts/check_requirements.py` checks coverage and agreement. No requirement is marked Verified without passing acceptance evidence. Critical gaps include a shared structured procedure editor, controlled revisions and signatures, secure host leases, bounded physical safe-state recovery, durable complete provenance and a single backend-driven browser runner. Recent Windows/Linux/macOS GitHub Actions runs reported failures; full logs were unavailable, so root cause is undetermined. See [audit report](REQUIREMENTS-AUDIT-2026-10-15.md) and [issues #45–#50](https://github.com/jeffadickson/BenchDouble/issues).
+The original 90 TR-001..TR-090 runner requirements have now been individually mapped to source/test evidence or explicit missing-implementation findings in `requirements/legacy-runner-audit.csv`. The audit found 45 requirements with partial source evidence, 6 with design documentation only and 39 with no direct implementation evidence in the reviewed repository. The canonical `requirements/traceability.csv` now carries these assessments instead of a blanket Unverified status; `scripts/check_requirements.py` checks coverage and agreement. No requirement is marked Verified without passing acceptance evidence. Critical gaps include a shared structured procedure editor, controlled revisions and signatures, secure host leases, bounded physical safe-state recovery, durable complete provenance and a single backend-driven browser runner. Recent Windows/Linux/macOS GitHub Actions runs reported failures; full logs were unavailable, so root cause is undetermined. See [audit report](REQUIREMENTS-AUDIT-2026-10-15.md) and [issues #45–#50](https://github.com/jeffadickson/BenchForge/issues).
 
 ## 55. Runner cleanup recovery increment
 
@@ -498,7 +498,7 @@ The core experiment runner now has configurable bounded real-wall-time shutdown,
 
 ## 56. Parlot-based typed procedure language prototype
 
-The optional `BenchDouble.Procedures` .NET 8 project depends on the existing instrument core and `BenchDouble.Experiments`, plus stable Parlot 1.5.9. A line-oriented grammar parses `INSTRUMENT`, `CONFIGURE`, `MEASURE`, `VERIFY` and `WAIT` into typed `ProcedureDocument` steps with source-line diagnostics. `ProcedureValidator` preflights experiment roles, simulated typed meter interfaces, measurement mode, variable identity and UnitsNet voltage/resistance dimensions. `MockProcedure` executes the AST using the existing `ExperimentRunner`, typed mock measurements, run-scoped DI and virtual clock; it emits unit-labeled measurement rows and raises attributable limit assertion failures. The project is intentionally mock-only, with no arbitrary C# or physical host command execution. A runnable console example and xUnit tests are source committed. It does **not** implement a released structured procedure editor, comment-preserving round-trip, stable step IDs, approval/signatures, or the complete runner DSL; these are tracked in issue #51 and TR-001..014. See [PROCEDURE-DSL.md](PROCEDURE-DSL.md).
+The optional `BenchForge.Procedures` .NET 8 project depends on the existing instrument core and `BenchForge.Experiments`, plus stable Parlot 1.5.9. A line-oriented grammar parses `INSTRUMENT`, `CONFIGURE`, `MEASURE`, `VERIFY` and `WAIT` into typed `ProcedureDocument` steps with source-line diagnostics. `ProcedureValidator` preflights experiment roles, simulated typed meter interfaces, measurement mode, variable identity and UnitsNet voltage/resistance dimensions. `MockProcedure` executes the AST using the existing `ExperimentRunner`, typed mock measurements, run-scoped DI and virtual clock; it emits unit-labeled measurement rows and raises attributable limit assertion failures. The project is intentionally mock-only, with no arbitrary C# or physical host command execution. A runnable console example and xUnit tests are source committed. It does **not** implement a released structured procedure editor, comment-preserving round-trip, stable step IDs, approval/signatures, or the complete runner DSL; these are tracked in issue #51 and TR-001..014. See [PROCEDURE-DSL.md](PROCEDURE-DSL.md).
 
 ## 57. Definition-driven SCPI driver/mock pair generation
 
@@ -506,4 +506,4 @@ The offline driver generator now emits two checked-in source files per supported
 
 ## 58. Instrument Definer v2 and typed mode-aware mock preview
 
-The optional `tools/InstrumentDefiner/definer.py` performs non-executing AST inspection of external instrument source `Instrument.control`, `measurement` and `setting` descriptors plus public class methods; it also imports spreadsheet-exported property/method CSV files. It creates schema-v2 JSON review drafts with identity, source revision, license, capabilities, UnitsNet units, modes, operations, mock defaults and reviewer state. Validation checks unique names, dimension mappings, numeric ranges and unsupported hardware-validation claims. It does not resolve inheritance, dynamic attributes, response parsing or hardware semantics automatically. `ModeAwareMockBuilder`/`ModeAwareMockInstrument` serialize mode changes and typed measurement requests, refusing incompatible quantities. `InstrumentDefinitionMockLoader.CreatePreview` maps explicit schema-v2 modes and numeric defaults into a simulation-only mock; it never connects to hardware or guesses missing readings. Existing schema-v1 `BenchDouble.DriverGen` remains independent until reviewed v2 definitions can be promoted. See [Instrument Definer](INSTRUMENT-DEFINER.md), issues #52–#53, and BD-DEF-001..008. All code and tests are committed but unverified by execution.
+The optional `tools/InstrumentDefiner/definer.py` performs non-executing AST inspection of external instrument source `Instrument.control`, `measurement` and `setting` descriptors plus public class methods; it also imports spreadsheet-exported property/method CSV files. It creates schema-v2 JSON review drafts with identity, source revision, license, capabilities, UnitsNet units, modes, operations, mock defaults and reviewer state. Validation checks unique names, dimension mappings, numeric ranges and unsupported hardware-validation claims. It does not resolve inheritance, dynamic attributes, response parsing or hardware semantics automatically. `ModeAwareMockBuilder`/`ModeAwareMockInstrument` serialize mode changes and typed measurement requests, refusing incompatible quantities. `InstrumentDefinitionMockLoader.CreatePreview` maps explicit schema-v2 modes and numeric defaults into a simulation-only mock; it never connects to hardware or guesses missing readings. Existing schema-v1 `BenchForge.DriverGen` remains independent until reviewed v2 definitions can be promoted. See [Instrument Definer](INSTRUMENT-DEFINER.md), issues #52–#53, and BD-DEF-001..008. All code and tests are committed but unverified by execution.

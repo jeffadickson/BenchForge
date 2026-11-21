@@ -2,7 +2,7 @@
 
 ## Run the demonstration
 
-Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a browser. The file is fully standalone (HTML/CSS/JS, no external CDN or server). Alternatively run `dotnet run --project examples/BenchDouble.DiDemo` for the C# dependency-injection scenario with simulated operator alerts.
+Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a browser. The file is fully standalone (HTML/CSS/JS, no external CDN or server). Alternatively run `dotnet run --project examples/BenchForge.DiDemo` for the C# dependency-injection scenario with simulated operator alerts.
 
 **This is a simulation only.** The browser demo does not talk to the C# backend or a physical instrument, and neither demo sends actual email or SMS. Notification log lines explicitly say **SIMULATED** and **not sent**.
 
@@ -19,7 +19,7 @@ Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a brows
 
 ## DI notification contract
 
-`examples/BenchDouble.DiDemo/Notifications.cs` defines `IOperatorNotificationSink` and a `SimulatedOperatorNotificationSink`. The demo registers the sink in `Microsoft.Extensions.DependencyInjection` and invokes it on overcurrent without embedding notification provider code in the mock power supply. Later production sinks may implement authenticated SMTP/email or SMS services with an outbox and retries.
+`examples/BenchForge.DiDemo/Notifications.cs` defines `IOperatorNotificationSink` and a `SimulatedOperatorNotificationSink`. The demo registers the sink in `Microsoft.Extensions.DependencyInjection` and invokes it on overcurrent without embedding notification provider code in the mock power supply. Later production sinks may implement authenticated SMTP/email or SMS services with an outbox and retries.
 
 **IoC boundaries:**
 1. Instrument or mock emits typed measurement samples.
@@ -35,7 +35,7 @@ Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a brows
 - Deduplicate alarms and notifications by run/instrument/rule/event IDs. Support escalation policies, cooldown, acknowledgment, operator on-call schedules and alert severity.
 - Add configurable alarm conditions: high/low threshold, rate-of-change, missing telemetry, sensor stale, heartbeat loss, instrument fault and watchdog timeout.
 - Support hysteresis/debounce and measurement-quality validation to avoid noise-induced false alarms.
-- Plot raw UnitsNet samples using the reusable `BenchDouble.Plotting`/Plotly.js layer. Current standalone page draws a native SVG plot to avoid runtime dependencies.
+- Plot raw UnitsNet samples using the reusable `BenchForge.Plotting`/Plotly.js layer. Current standalone page draws a native SVG plot to avoid runtime dependencies.
 - Host and client display matching event IDs, timestamp, measurement provenance and correlation to procedure steps. Resume after reconnect with cursor replay.
 - Operators must authenticate and be authorized for acknowledgments, alarm configuration and hardware shutdown. Do not leak personal contact details in logs.
 - Safety interlocks and verified physical safe-state recovery must not depend on email/SMS, web UI availability or client connectivity.
@@ -60,15 +60,15 @@ Open [index.html](../examples/UnattendedOperationsMonitor/index.html) in a brows
 
 ## Automated test coverage (2026-10-15)
 
-The monitoring decision is now independently testable as `BenchDouble.Monitoring.UnattendedCurrentMonitor` with an injected `ICurrentAlarmSink`. xUnit tests verify a 0.5 A nominal reading, a 2.5 A fault at 5 simulated seconds, exactly one alarm after repeated observations, threshold equality, concurrent calls and virtual-time acceleration. See [UnattendedCurrentMonitorTests.cs](../tests/BenchDouble.Tests/UnattendedCurrentMonitorTests.cs).
+The monitoring decision is now independently testable as `BenchForge.Monitoring.UnattendedCurrentMonitor` with an injected `ICurrentAlarmSink`. xUnit tests verify a 0.5 A nominal reading, a 2.5 A fault at 5 simulated seconds, exactly one alarm after repeated observations, threshold equality, concurrent calls and virtual-time acceleration. See [UnattendedCurrentMonitorTests.cs](../tests/BenchForge.Tests/UnattendedCurrentMonitorTests.cs).
 
-[Reqnroll acceptance scenarios](../tests/BenchDouble.Acceptance.Tests/Features/UnattendedOperations.feature) express the same behavior in Given–When–Then steps, tagged `@BD-UOM-001`, and run with `Reqnroll.xUnit`.
+[Reqnroll acceptance scenarios](../tests/BenchForge.Acceptance.Tests/Features/UnattendedOperations.feature) express the same behavior in Given–When–Then steps, tagged `@BD-UOM-001`, and run with `Reqnroll.xUnit`.
 
-[Playwright Chromium browser tests](../tests/BenchDouble.Browser.Tests/UnattendedMonitorBrowserTests.cs) open the actual HTML file, trigger a simulated fault, verify the SVG chart and alarm text, inspect simulated notification log entries, reset the UI, and verify alarms still work when notification checkboxes are disabled. The test project also checks the thermal chamber and filtered sensor SVG plots.
+[Playwright Chromium browser tests](../tests/BenchForge.Browser.Tests/UnattendedMonitorBrowserTests.cs) open the actual HTML file, trigger a simulated fault, verify the SVG chart and alarm text, inspect simulated notification log entries, reset the UI, and verify alarms still work when notification checkboxes are disabled. The test project also checks the thermal chamber and filtered sensor SVG plots.
 
 **Testing limitation:** The browser demo still uses its own JavaScript simulation, whereas the .NET tests exercise the C# monitoring logic. Passing both layers is not yet proof of shared runtime integration. Issue #23 tracks connecting the browser to the actual backend measurement stream. No test execution is claimed until CI evidence is reviewed.
 
-[Testing guide](TESTING-AND-TRACEABILITY.md) · [StrictDoc requirements](../requirements/benchdouble.sdoc) · [Feature audit](FEATURE-AUDIT.md)
+[Testing guide](TESTING-AND-TRACEABILITY.md) · [StrictDoc requirements](../requirements/benchforge.sdoc) · [Feature audit](FEATURE-AUDIT.md)
 
 ## AutoMock integration test
 

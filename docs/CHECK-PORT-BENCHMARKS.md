@@ -76,7 +76,7 @@ Build the candidates and pinned original with the same .NET SDK:
 
 ```
 dotnet build tools/BenchForge.Checks -c Release
-dotnet build tools/BenchDouble.DocumentationAudit -c Release
+dotnet build tools/BenchForge.DocumentationAudit -c Release
 dotnet publish tools/BenchForge.Checks -c Release -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native
 python tests/check_ports/benchmark.py --prepare-baseline 68113cc72de785e5329a3df2bcf3087d0059c294 --prepare-only
 python tests/check_ports/verify.py
@@ -107,6 +107,6 @@ for other supported hosts, but those timings still need measurement.
 .tools/checks/native/BenchForge.Checks.exe neutrality --jobs 8 --output build/source-neutrality-audit.json
 .tools/checks/native/BenchForge.Checks.exe preflight --jobs 8 --output build/docs-preflight.json
 .tools/checks/native/BenchForge.Checks.exe compare --jobs 8 --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
-dotnet tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll . build/api-audit.json --jobs 8
+dotnet tools/BenchForge.DocumentationAudit/bin/Release/net10.0/BenchForge.DocumentationAudit.dll . build/api-audit.json --jobs 8
 python scripts/check_api_docs.py
 ```

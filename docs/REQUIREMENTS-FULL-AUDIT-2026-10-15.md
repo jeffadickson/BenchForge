@@ -1,6 +1,6 @@
 # Complete baseline and traceability audit — revision 2
 
-Audit input: BenchDouble commit `e219b3eaf2f4be42e55bbf451f3ae759e18555df`.
+Audit input: BenchForge commit `e219b3eaf2f4be42e55bbf451f3ae759e18555df`.
 Reviewed the entire 175-statement baseline, canonical matrix, original 90-row audit,
 repository tree, linked source/test artifacts, design documentation and all 54
 existing GitHub issues. Added 30 requirements, giving **205 tracked requirements**.

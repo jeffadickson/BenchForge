@@ -6,12 +6,12 @@
 
 An **ExperimentDefinition** describes named instrument roles, simulated/physical backend selection, behavior configuration and run parameters. An **ExperimentRun** owns a fresh DI container, run scope, virtual clock and instrument instances. This follows the **Inversion of Control** principle: ordinary instrument and behavior classes receive their dependencies rather than looking them up globally.
 
-The new `BenchDouble.Experiments` project uses `Microsoft.Extensions.DependencyInjection` only at the composition boundary. The core instrument library remains independent of the container.
+The new `BenchForge.Experiments` project uses `Microsoft.Extensions.DependencyInjection` only at the composition boundary. The core instrument library remains independent of the container.
 
 ## How to run
 
 ```bash
-dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
+dotnet run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj
 ```
 
 The example registers `Chamber1` and `Supply1`, composes a first-order thermal sensor, injects a temperature-dependent load, advances the shared virtual clock and prints the instrument roles and readings.
@@ -39,7 +39,7 @@ var supply = run.Instrument<IPowerSupply>("Supply1");
 
 The example's `SensorDrivenLoad` is a plain constructor-injected C# class; it does not know about the DI container.
 
-.NET 8 keyed services support multiple instruments implementing the same interface. `[FromKeyedServices("Chamber1")]` is available when a behavior needs a specific named role. See the [experiment tests](../tests/BenchDouble.Experiments.Tests/ExperimentCompositionTests.cs).
+.NET 8 keyed services support multiple instruments implementing the same interface. `[FromKeyedServices("Chamber1")]` is available when a behavior needs a specific named role. See the [experiment tests](../tests/BenchForge.Experiments.Tests/ExperimentCompositionTests.cs).
 
 ## What the current code guarantees
 

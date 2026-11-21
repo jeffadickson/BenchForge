@@ -86,13 +86,13 @@ This version does **not** model current limiting or voltage droop. A real power 
 Run from the repository root:
 
 ```bash
-dotnet run --project examples/BenchDouble.ExperimentDemo -- --automock
-dotnet run --project examples/BenchDouble.ExperimentDemo -- --automock-json
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
-dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj
+dotnet run --project examples/BenchForge.ExperimentDemo -- --automock
+dotnet run --project examples/BenchForge.ExperimentDemo -- --automock-json
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
+dotnet test tests/BenchForge.Experiments.Tests/BenchForge.Experiments.Tests.csproj
 ```
 
-The JSON example file is `examples/BenchDouble.ExperimentDemo/automock-overcurrent.json`. The demo uses a two-hour fault threshold to fit the thermal cycle example.
+The JSON example file is `examples/BenchForge.ExperimentDemo/automock-overcurrent.json`. The demo uses a two-hour fault threshold to fit the thermal cycle example.
 
 ## Existing .NET rules engines
 
@@ -116,7 +116,7 @@ Do not introduce any of these into the core by default. If adopted, hide them be
 
 ## Generated mock adapters (planned)
 
-**BD-AM-011** will use the existing instrument-definition/code-generation pipeline to create default typed mock adapters for DMM, SMU, generator, chamber and other instrument classes. The goal is to avoid writing command boilerplate twice: generated adapters preserve compile-time method/property signatures, while AutoMock rules override selected measurements, command responses and fault behavior. This generator integration has **not** yet been implemented. See [issue #40](https://github.com/jeffadickson/BenchDouble/issues/40).
+**BD-AM-011** will use the existing instrument-definition/code-generation pipeline to create default typed mock adapters for DMM, SMU, generator, chamber and other instrument classes. The goal is to avoid writing command boilerplate twice: generated adapters preserve compile-time method/property signatures, while AutoMock rules override selected measurements, command responses and fault behavior. This generator integration has **not** yet been implemented. See [issue #40](https://github.com/jeffadickson/BenchForge/issues/40).
 
 ## Multiple instruments in one experiment
 
@@ -124,7 +124,7 @@ The composition root supports independently keyed rules using `AutoMockLoadFor("
 
 ## Integrated unattended-monitor verification increment
 
-`tests/BenchDouble.Tests/AutoMockUnattendedIntegrationTests.cs` exercises the **same C# backend** from declarative AutoMock timed fault through `MockPowerSupply`, `UnattendedCurrentMonitor`, one alarm and explicit simulated output-off. It also asserts the matched rule name and virtual timestamp. This advances issue #42, but it does not yet connect SQLite, host dashboard or browser plots to the same run. No physical shutdown is claimed.
+`tests/BenchForge.Tests/AutoMockUnattendedIntegrationTests.cs` exercises the **same C# backend** from declarative AutoMock timed fault through `MockPowerSupply`, `UnattendedCurrentMonitor`, one alarm and explicit simulated output-off. It also asserts the matched rule name and virtual timestamp. This advances issue #42, but it does not yet connect SQLite, host dashboard or browser plots to the same run. No physical shutdown is claimed.
 
 ## Typed quantity selection (new foundation)
 

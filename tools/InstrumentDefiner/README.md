@@ -50,7 +50,7 @@ Schema conformance, generated C# compilation, or hardware correctness.
 
 ## Review workflow
 
-**Extracted → Source reviewed → Manual reviewed → Hardware validated.** Reviewer, source revision, manual reference and unresolved questions remain part of the definition. Hardware validation requires actual hardware evidence and a named reviewer. The draft format is [schema v2](../../instrument-definitions/schema/instrument-definition-v2.schema.json). The existing `BenchDouble.DriverGen` consumes the older, limited **schema v1** `*.instrument.json` files only. It must not silently convert v2 extraction drafts into working drivers until command mappings, units, modes and safety are reviewed.
+**Extracted → Source reviewed → Manual reviewed → Hardware validated.** Reviewer, source revision, manual reference and unresolved questions remain part of the definition. Hardware validation requires actual hardware evidence and a named reviewer. The draft format is [schema v2](../../instrument-definitions/schema/instrument-definition-v2.schema.json). The existing `BenchForge.DriverGen` consumes the older, limited **schema v1** `*.instrument.json` files only. It must not silently convert v2 extraction drafts into working drivers until command mappings, units, modes and safety are reviewed.
 
 ## Generator roadmap
 
@@ -101,4 +101,4 @@ requires a fixture ID and test-evidence reference. These checks validate
 
 Run `make definer-check` for the source-extraction, batch, review-gate and
 schema-draft unit tests. The reviewed schema-v2-to-C# driver generator is
-still outstanding in [issue #53](https://github.com/jeffadickson/BenchDouble/issues/53).
+still outstanding in [issue #53](https://github.com/jeffadickson/BenchForge/issues/53).

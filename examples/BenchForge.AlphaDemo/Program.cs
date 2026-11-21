@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using BenchDouble.Oscilloscopes;
+using BenchForge.Oscilloscopes;
 using UnitsNet;
 
 namespace BenchForge.AlphaDemo;

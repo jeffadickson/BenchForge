@@ -1,6 +1,6 @@
 // Execute actual setup policy functions with detached DOM and transport substitutes.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync('src/BenchDouble.Host.Server/wwwroot/setup/setup.js','utf8');
+const source=fs.readFileSync('src/BenchForge.Host.Server/wwwroot/setup/setup.js','utf8');
 const start=source.indexOf('async function refreshIvi('),end=source.indexOf('\nfunction parseIviLease',start);
 const elements=new Map(),errors=[],requests=[];let changed=0,count=0,pinned=1000;
 const $=id=>{if(!elements.has(id))elements.set(id,{textContent:'',className:'',value:'',checked:false,children:[]});return elements.get(id);};
@@ -24,6 +24,6 @@ assert.throws(()=>context.parseReadingFreshness(null,true),/numeric text/);count
  const before=requests.length;$('readingFreshness').value='';await assert.rejects(context.refreshIvi(),/freshness limit/i);assert.equal(requests.length,before);assert.match($('readingHealth').textContent,/unconfirmed/);count++;
  pinned=null;$('useSavedReadingFreshness').checked=true;await context.refreshIvi();assert.match($('readingHealth').textContent,/Unspecified/);count++;
  vm.runInContext(source.split('\n').find(line=>line.startsWith("$('useSavedReadingFreshness').onchange=")),context);const calls=requests.length;$('useSavedReadingFreshness').checked=false;$('useSavedReadingFreshness').onchange();assert.equal($('readingFreshness').disabled,false);assert.equal(requests.length,calls);assert.match($('readingHealth').textContent,/Refresh session status/);count++;
- const html=fs.readFileSync('src/BenchDouble.Host.Server/wwwroot/setup/index.html','utf8');assert.match(html,/id="useSavedReadingFreshness"[^>]*checked/);assert.match(html,/id="readingFreshness"[^>]*disabled/);
+ const html=fs.readFileSync('src/BenchForge.Host.Server/wwwroot/setup/index.html','utf8');assert.match(html,/id="useSavedReadingFreshness"[^>]*checked/);assert.match(html,/id="readingFreshness"[^>]*disabled/);
  console.log('PASS: '+count+' saved-policy editor, validation and status-routing scenarios; no device dispatch');
 })().catch(error=>{console.error(error);process.exitCode=1;});

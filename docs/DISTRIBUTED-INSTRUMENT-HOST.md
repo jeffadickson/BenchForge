@@ -2,13 +2,13 @@
 Status: Approved target design, not implemented. Date: 2026-10-14.
 
 ## Executive decision
-The instrument reservation authority and hardware access belong in a **separate instrument-host service**, not in individual test client processes. Run one host on each computer physically connected to USB/GPIB/serial hardware, optionally on a Raspberry Pi, mini PC, laptop or workstation. A client on the network discovers hosts, reserves devices, executes operations through leases, and receives measurements and status. BenchDouble local simulators use the same client contract.
+The instrument reservation authority and hardware access belong in a **separate instrument-host service**, not in individual test client processes. Run one host on each computer physically connected to USB/GPIB/serial hardware, optionally on a Raspberry Pi, mini PC, laptop or workstation. A client on the network discovers hosts, reserves devices, executes operations through leases, and receives measurements and status. BenchForge local simulators use the same client contract.
 
 ## Topology
 ```text
 .NET test application / notebook / TestForge / experiment runner
                         |
-            BenchDouble remote client
+            BenchForge remote client
                         |
             authenticated TLS connection
                         |
@@ -76,14 +76,14 @@ A multi-host coordinator is *optional* for later fleet-level workflows. A host M
 - Host shall run without a database and buffer bounded telemetry locally during upstream outages.
 
 ## Package plan (logical, not yet built)
-- `BenchDouble.Host.Abstractions`: host transport-independent contracts
-- `BenchDouble.Host.Server`: resource inventory, security, leases, operations and state
-- `BenchDouble.Host.Grpc`: protobuf services and server binding
-- `BenchDouble.Host.Client`: remote instrument proxy compatible with typed interfaces
-- `BenchDouble.Host.Visa`: hardware provider bridge
-- `BenchDouble.Host.Cli`: discovery/admin and provisioning
-- `BenchDouble.Host.Web`: optional operator dashboard
-- `BenchDouble.Host.Testing`: deterministic in-memory host, fault injection and conformance tests
+- `BenchForge.Host.Abstractions`: host transport-independent contracts
+- `BenchForge.Host.Server`: resource inventory, security, leases, operations and state
+- `BenchForge.Host.Grpc`: protobuf services and server binding
+- `BenchForge.Host.Client`: remote instrument proxy compatible with typed interfaces
+- `BenchForge.Host.Visa`: hardware provider bridge
+- `BenchForge.Host.Cli`: discovery/admin and provisioning
+- `BenchForge.Host.Web`: optional operator dashboard
+- `BenchForge.Host.Testing`: deterministic in-memory host, fault injection and conformance tests
 
 Avoid prematurely splitting into empty packages. Keep interfaces hardware-independent and preserve the original synchronous and async C# APIs while migrating.
 
@@ -155,7 +155,7 @@ The notebook/experiment-runner client displays live instrument logs alongside ex
 **Implementation status:** architectural requirement only. The existing `LoggingScpiSession` emits structured local `ILogger` events, but there is no gRPC remote event stream, durable spool, host dashboard, or client log display yet.
 
 ## Host platform neutrality (normative)
-An **instrument host** is any supported computing environment capable of running the BenchDouble host service and accessing the required instrument hardware/driver stack. It may be a Windows, Linux, or macOS workstation, server, VM with supported device passthrough, industrial PC, mini PC, laptop, Raspberry Pi, or other supported ARM/x64 system. Raspberry Pi is merely one deployment example, **not** an architecture dependency or preferred/default host.
+An **instrument host** is any supported computing environment capable of running the BenchForge host service and accessing the required instrument hardware/driver stack. It may be a Windows, Linux, or macOS workstation, server, VM with supported device passthrough, industrial PC, mini PC, laptop, Raspberry Pi, or other supported ARM/x64 system. Raspberry Pi is merely one deployment example, **not** an architecture dependency or preferred/default host.
 
 Compatibility is determined by the intersection of: (1) .NET runtime/OS/CPU support; (2) available VISA, USB/GPIB/serial, IVI and vendor drivers; (3) transport/device permissions; (4) resource ownership and operational security; (5) reliability and deployment requirements. A host need not have a monitor or local browser; its logging shall remain locally accessible through an appropriate CLI/service mechanism and remotely through authorized clients. Do not assert that all drivers work on every OS/CPU.
 

@@ -2,7 +2,7 @@
 #nullable enable
 // Simulation-only schema-v2 preview. Not a hardware driver.
 using UnitsNet;
-namespace BenchDouble.Generated;
+namespace BenchForge.Generated;
 /// <summary>Typed simulation-only instrument preview for Keithley2400.</summary>
 public sealed class Keithley2400Preview
 {

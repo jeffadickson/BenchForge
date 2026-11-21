@@ -33,7 +33,7 @@ Use the JSON editor or a local JSON file to import a draft; import does not save
 
 For adapters without stable identity, rediscovery requires renewed operator confirmation. Injected providers can supply stable adapter IDs, in which case the resolver follows that identity across controller-index changes and rejects missing or ambiguous matches. It never chooses the first of several matches.
 
-The default file is `src/BenchDouble.Host.Server/build/bench-setup.json` when started from the project directory. Override with the host configuration key `BenchSetup:Path` (environment variable `BenchSetup__Path`). The host is the sole writer. Saving uses a temporary file in the same directory and an atomic rename; revision hashes reject stale edits. This is not a multi-process file coordination service or a power-loss durability guarantee. Invalid input, cancellation of UI edits and failed validation preserve the saved document. Corrupt saved files produce an error rather than resetting to defaults.
+The default file is `src/BenchForge.Host.Server/build/bench-setup.json` when started from the project directory. Override with the host configuration key `BenchSetup:Path` (environment variable `BenchSetup__Path`). The host is the sole writer. Saving uses a temporary file in the same directory and an atomic rename; revision hashes reject stale edits. This is not a multi-process file coordination service or a power-loss durability guarantee. Invalid input, cancellation of UI edits and failed validation preserve the saved document. Corrupt saved files produce an error rather than resetting to defaults.
 
 Loaded configuration objects are detached copies. An active setup lease retains its configuration revision and selected connection snapshot even if another draft is saved. There is no automatic interface failover or retry of unanswered instrument commands. All simulator aliases use the same existing canonical host reservation authority.
 
@@ -68,7 +68,7 @@ On a Windows host, open **Review an existing IVI configuration**, select an IVI 
 
 The endpoint is `POST /api/v1/setup/ivi-catalog` with UTF-8 XML as its body, limited to 2 MiB. It shares the existing local-host/origin restrictions. It accepts uploaded content, never a host filesystem path. XML with DTDs/external entities is rejected. The returned revision hashes the submitted text encoded as UTF-8, after the endpoint removes a leading BOM.
 
-The host references the official ConfigServer package through the existing optional IVI integration module; the portable BenchDouble core remains independent. ConfigServer 2.1.0 accesses the Windows registry even for configuration objects. Linux/macOS hosts therefore return an explicit HTTP 503 provider diagnostic; simulation and manual setup continue to work. No automatic vendor installation or driver assembly loading occurs.
+The host references the official ConfigServer package through the existing optional IVI integration module; the portable BenchForge core remains independent. ConfigServer 2.1.0 accesses the Windows registry even for configuration objects. Linux/macOS hosts therefore return an explicit HTTP 503 provider diagnostic; simulation and manual setup continue to work. No automatic vendor installation or driver assembly loading occurs.
 
 This is a metadata preview, not schema validation, a lossless export, an applied driver binding, or hardware activation. The official `LoadWithoutValidation` API avoids requiring a separately installed schema; malformed structure or unresolved references can be rejected by the official loader. Custom data, virtual ranges and other extensions remain in the original XML. Standard settings are displayed but never applied. Keep the original XML; do not treat the catalog JSON as a replacement.
 
@@ -89,7 +89,7 @@ The host retains the most recent successful catalog in memory. A changed catalog
 
 ## Setup logging
 
-Setup uses `Microsoft.Extensions.Logging`; events appear in the host console and configured logging providers. Categories are `BenchDouble.Host.Server.Setup.BenchSetupService` and `BenchDouble.Host.Server.Setup.IviSetupCatalogService`. Default host logging includes information and warning events.
+Setup uses `Microsoft.Extensions.Logging`; events appear in the host console and configured logging providers. Categories are `BenchForge.Host.Server.Setup.BenchSetupService` and `BenchForge.Host.Server.Setup.IviSetupCatalogService`. Default host logging includes information and warning events.
 
 | Event IDs | Meaning |
 |---|---|
@@ -104,7 +104,7 @@ Application events omit uploaded XML, driver option values, raw descriptors and 
 
 ## Explicit activation of a registered DMM
 
-The host now has a typed DMM activation path. It ships with **no vendor factories**. An integrator must register an `IviDmmRegistration` in host dependency injection before `builder.Build()`, with one canonical resource ID, exact approved binding snapshots, a typed opening factory and a provider-specific recovery operation. The executable integration pattern is exercised in `tests/BenchDouble.Host.Tests/HostedIviDmmTests.cs`; its official-interface doubles are not vendor hardware.
+The host now has a typed DMM activation path. It ships with **no vendor factories**. An integrator must register an `IviDmmRegistration` in host dependency injection before `builder.Build()`, with one canonical resource ID, exact approved binding snapshots, a typed opening factory and a provider-specific recovery operation. The executable integration pattern is exercised in `tests/BenchForge.Host.Tests/HostedIviDmmTests.cs`; its official-interface doubles are not vendor hardware.
 
 The factory returns an `OwnedIviDmm`: an `OfficialDmmBridge` over the actual official `IIviDmm`, plus an explicit vendor-session close operation. Opening receives `Reset=false` and `IdQuery=true`. The provider must honor those policies, validate model compatibility, interpret only qualified options, and clean up partial allocations if opening throws. The host cannot infer constructor side effects from an IVI interface. XML cannot register factories, load arbitrary assemblies or turn a declaration into executable code.
 
@@ -211,7 +211,7 @@ Passive monitor/status requests and other experiments' heartbeats never renew th
 
 The setup tab starts independent renewal after inspecting a heartbeat-enabled retained session. It uses the inspected peer/sequence on reload or explicit lease resumption, rejects mismatched acknowledgments and stops on terminal ownership rejection. It preserves the private token for explicit recovery, never reopens a driver, and stops its timer after closure or page departure. Browser suspension, background throttling, computer sleep or network loss can still expire the lease. A resumed tab must inspect current host state; healthy status never revives an already expired owner. Two tabs sharing one capability are not independent owners and can race sequences; use one controlling tab per lease.
 
-For .NET clients, `BenchDouble.Host.Client.OwnerLeaseHeartbeat` accepts a current `OwnerHeartbeatSnapshot`, canonical resource and lease token. `Start()` begins immediate then periodic renewal; `RenewAsync()` permits a serialized explicit renewal. Acknowledgments are checked, requests have finite cancellation budgets, and observer exceptions are isolated. `DisposeAsync()` stops renewal without releasing the lease or disposing the caller-owned `HttpClient`. HTTP transports must honor cancellation. The older `ScopeLeaseHeartbeat` remains specific to the separate scope coordinator.
+For .NET clients, `BenchForge.Host.Client.OwnerLeaseHeartbeat` accepts a current `OwnerHeartbeatSnapshot`, canonical resource and lease token. `Start()` begins immediate then periodic renewal; `RenewAsync()` permits a serialized explicit renewal. Acknowledgments are checked, requests have finite cancellation budgets, and observer exceptions are isolated. `DisposeAsync()` stops renewal without releasing the lease or disposing the caller-owned `HttpClient`. HTTP transports must honor cancellation. The older `ScopeLeaseHeartbeat` remains specific to the separate scope coordinator.
 
 Events 7480–7484 cover admission stop, shutdown start, worker outcomes, bounded decision and deadline uncertainty. Events 7462/7463 cover qualified DMM preparation start/completion; provider failure uses the existing sanitized lifecycle fault event. Events 7490/7491 cover suspect/expired owner transitions, 7492 restored pre-expiry health and 7493 the first accepted heartbeat. These events exclude lease capabilities, raw driver messages, command payloads and measurements; registry/lifecycle sink exceptions do not change control decisions.
 

@@ -1,6 +1,6 @@
 # Requirements management
 
-The authoritative baseline is [benchdouble.sdoc](benchdouble.sdoc) (StrictDoc).
+The authoritative baseline is [benchforge.sdoc](benchforge.sdoc) (StrictDoc).
 [traceability.csv](traceability.csv) tracks status, source, tests, issue and passing
 verification evidence. [COVERAGE.md](COVERAGE.md) holds current counts;
 [full-audit.csv](full-audit.csv) contains one assessment for every requirement.
@@ -36,10 +36,10 @@ Playwright provide executable acceptance evidence. Stable IDs are not renumbered
 
 ## Supplemental local regressions
 
-The optional `supplemental_verification` field contains semicolon-separated additional regression source paths, preserving the primary acceptance links and GitHub work item. These are source links, not full verification evidence. The thirty-iteration batch deliberately defers runtime test execution to iterations 10, 20 and 30 at the user's request; see `docs/LOCAL-BATCH-30.md`. No requirement status is promoted by that cadence.
+The optional `supplemental_verification` field contains semicolon-separated additional regression source paths, preserving the primary acceptance links and GitHub work item. These are source links, not full verification evidence. The thirty-iteration batch deliberately defers runtime test execution to iterations 10, 20 and 30 at the user's request; see `docs/archive/LOCAL-BATCH-30.md`. No requirement status is promoted by that cadence.
 
 ## Measured checker implementation
 
 `make requirements-check` uses the shared compiled managed C# gate and retains the focused tracker regressions. `python scripts/check_requirements.py` remains an independent reference and no-build fallback. See [port parity and benchmarks](../docs/CHECK-PORT-BENCHMARKS.md) for selected commands and evidence; no requirement status changes follow from a speed comparison.
 
-`./build.ps1` is the primary Make-free entry point (`make checks` remains optional) for the complete requirements/documentation workflow. It uses one managed C# tooling build and a content-validated cache, runs all seven checks and 19 focused regressions, and regenerates every report on every run. The standalone Make targets also use the shared compiled C# cache. Architecture selection, cache validation and test cadence are described in [the local development ledger](../docs/LOCAL-BATCH-350.md). See [full-workflow measurements](../docs/CHECK-WORKFLOW-BENCHMARKS.md).
+`./build.ps1` is the primary Make-free entry point (`make checks` remains optional) for the complete requirements/documentation workflow. It uses one managed C# tooling build and a content-validated cache, runs all seven checks and 19 focused regressions, and regenerates every report on every run. The standalone Make targets also use the shared compiled C# cache. Architecture selection, cache validation and test cadence are described in [the local development ledger](../docs/archive/LOCAL-BATCH-350.md). See [full-workflow measurements](../docs/CHECK-WORKFLOW-BENCHMARKS.md).

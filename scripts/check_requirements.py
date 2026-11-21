@@ -8,7 +8,7 @@ import hashlib
 import json
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-DOC = ROOT / "requirements/benchdouble.sdoc"
+DOC = ROOT / "requirements/benchforge.sdoc"
 TRACE = ROOT / "requirements/traceability.csv"
 VALID = {
     "Planned", "Unverified", "SourceCommittedUnverified",
@@ -50,7 +50,7 @@ def main() -> int:
                 errors.append(f"{uid}: missing {column}: {path}")
         issue = row["github_issue"]
         if issue and not re.fullmatch(
-            r"https://github\.com/jeffadickson/BenchDouble/issues/[0-9]+", issue
+            r"https://github\.com/jeffadickson/BenchForge/issues/[0-9]+", issue
         ):
             errors.append(f"{uid}: malformed GitHub issue URL")
         if not issue:

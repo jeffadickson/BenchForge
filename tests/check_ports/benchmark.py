@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BUILD = ROOT / "build/check-ports"
 DOTNET = os.environ.get("BENCHFORGE_DOTNET", "dotnet")
 DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll")))
-AUDIT = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net11.0/BenchDouble.DocumentationAudit.dll")))
+AUDIT = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchForge.DocumentationAudit/bin/Release/net11.0/BenchForge.DocumentationAudit.dll")))
 BASE = BUILD / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
 NATIVE = Path(os.environ.get("BENCHFORGE_CHECKS_NATIVE", str(BUILD / "native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks"))))
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
@@ -47,8 +47,8 @@ def main():
     if args.prepare_baseline:
         folder = BUILD / "roslyn-baseline"
         folder.mkdir(parents=True, exist_ok=True)
-        for name in ("Program.cs", "BenchDouble.DocumentationAudit.csproj"):
-            content = subprocess.check_output(["git", "show", args.prepare_baseline + ":tools/BenchDouble.DocumentationAudit/" + name], cwd=ROOT)
+        for name in ("Program.cs", "BenchForge.DocumentationAudit.csproj"):
+            content = subprocess.check_output(["git", "show", args.prepare_baseline + ":tools/BenchForge.DocumentationAudit/" + name], cwd=ROOT)
             (folder / name).write_bytes(content)
         subprocess.run([DOTNET, "build", str(folder), "-c", "Release"], cwd=ROOT, check=True)
     if args.prepare_only:
@@ -101,7 +101,7 @@ def main():
         assert previous["samples_per_candidate"] == args.samples and previous["warmups_per_candidate"] == args.warmups
         replacements = {row["task"]: row for row in reports}
         reports = [replacements.get(row["task"], row) for row in previous["results"]]
-    source_paths = [*sorted((ROOT / "tools/BenchForge.Checks").glob("*.cs")), *sorted((ROOT / "tools/BenchForge.Checks").glob("*.csproj")), ROOT / "tools/BenchForge.Checks/scoreboard.html", ROOT / "scripts/python_ast_inventory.py", ROOT / "tools/BenchDouble.DocumentationAudit/Program.cs", *[ROOT / "scripts" / script for _, script, _, _ in tasks if script]]
+    source_paths = [*sorted((ROOT / "tools/BenchForge.Checks").glob("*.cs")), *sorted((ROOT / "tools/BenchForge.Checks").glob("*.csproj")), ROOT / "tools/BenchForge.Checks/scoreboard.html", ROOT / "scripts/python_ast_inventory.py", ROOT / "tools/BenchForge.DocumentationAudit/Program.cs", *[ROOT / "scripts" / script for _, script, _, _ in tasks if script]]
     report = {"platform": platform.platform(), "cpu": platform.processor(), "logical_processors": os.cpu_count(),
               "source_sha256": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_paths},
               "python": sys.version, "dotnet": subprocess.check_output([DOTNET, "--version"], text=True).strip(),

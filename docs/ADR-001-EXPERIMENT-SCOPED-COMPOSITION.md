@@ -3,7 +3,7 @@
 **Status:** Proposed for external architectural review (2026-10-15). **No external expert has reviewed or approved this ADR.**
 
 ## Context
-BenchDouble supports typed instrument APIs, local/remote physical devices, simulated behaviors, shared virtual time, deterministic thermal/DUT models, and a typed virtual signal graph. The current graph API risks exposing more wiring mechanics than ordinary C# engineers need. An experiment-scoped composition root can assemble instruments and injected mock behaviors while keeping normal application code strongly typed.
+BenchForge supports typed instrument APIs, local/remote physical devices, simulated behaviors, shared virtual time, deterministic thermal/DUT models, and a typed virtual signal graph. The current graph API risks exposing more wiring mechanics than ordinary C# engineers need. An experiment-scoped composition root can assemble instruments and injected mock behaviors while keeping normal application code strongly typed.
 
 ## Recommendation
 **Adopt experiment definitions and experiment runs as separate concepts.** A definition is an immutable, versioned description of instrument roles, desired capabilities, host selection constraints, simulation behaviors, run parameters and procedures. A run resolves hosts and instrument capabilities, acquires/fences physical leases, creates a run-scoped DI container and simulation clock, composes behaviors, verifies dependency graph/lifecycle, executes, persists provenance and disposes resources.
@@ -48,11 +48,11 @@ BenchDouble supports typed instrument APIs, local/remote physical devices, simul
 8. Verify assembly hash, source version and injected behavior selection are persisted with the run.
 
 ## Naming review
-Proposed brand **Framework.Test** is understandable but very generic, may read as a .NET test project/namespace rather than a laboratory instrument-control platform, and a project named Framework.Test already exists in WorkplaceX/Framework. A quick web search is not trademark, package, or domain clearance. Keep repository name BenchDouble provisionally; make naming a separate decision after ecosystem/availability checks.
+Proposed brand **Framework.Test** is understandable but very generic, may read as a .NET test project/namespace rather than a laboratory instrument-control platform, and a project named Framework.Test already exists in WorkplaceX/Framework. A quick web search is not trademark, package, or domain clearance. Keep repository name BenchForge provisionally; make naming a separate decision after ecosystem/availability checks.
 
 ## Status
 Architecture recommendation only; no experiment-scoped composition root was implemented by this ADR. External human review is requested but not performed.
 
 ## Prototype implementation update (2026-10-15)
 
-The simulation-only composition-root prototype has been committed in `src/BenchDouble.Experiments/ExperimentDefinition.cs`, with a C# thermal demo and xUnit tests. It demonstrates named keyed instrument registrations and isolated run scopes. **ADR status remains proposed pending external human architecture review**, and physical discovery/leases, durable definition revisions and isolated Roslyn package deployment remain open. See [experiment implementation guide](EXPERIMENT-COMPOSITION.md) and [issue #35](https://github.com/jeffadickson/BenchDouble/issues/35).
+The simulation-only composition-root prototype has been committed in `src/BenchForge.Experiments/ExperimentDefinition.cs`, with a C# thermal demo and xUnit tests. It demonstrates named keyed instrument registrations and isolated run scopes. **ADR status remains proposed pending external human architecture review**, and physical discovery/leases, durable definition revisions and isolated Roslyn package deployment remain open. See [experiment implementation guide](EXPERIMENT-COMPOSITION.md) and [issue #35](https://github.com/jeffadickson/BenchForge/issues/35).

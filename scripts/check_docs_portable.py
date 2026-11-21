@@ -164,7 +164,7 @@ def audit(root: Path) -> dict:
         for path in sorted(folder.rglob("*")):
             if not path.is_file() or any(part in SKIP for part in path.relative_to(root).parts):
                 continue
-            if path.suffix == ".cs":
+            if path.suffix == ".cs" and not path.name.endswith(".feature.cs"):
                 findings.extend(scan_csharp(path, root))
                 counts["cs"] += 1
             elif path.suffix == ".py":

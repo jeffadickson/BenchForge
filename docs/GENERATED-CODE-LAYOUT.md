@@ -7,10 +7,10 @@ BenchForge separates **source data** from **disposable generated C#**.
 | `instrument-definitions/imports/external source/` | Snapshot provenance and eventually all extracted, unreviewed schema-v2 definitions | **No** |
 | `instrument-definitions/drafts/` | Reviewed or illustrative schema-v2 input definitions | **No** |
 | `instrument-definitions/keysight/` | Existing schema-v1 driver inputs | **No** |
-| `tools/BenchDouble.DriverGen/` | Hand-maintained generator and Dataflow emitter | **No** |
+| `tools/BenchForge.DriverGen/` | Hand-maintained generator and Dataflow emitter | **No** |
 | `generated/BenchForge.Instruments/BenchForge.Instruments.csproj` | Hand-maintained .NET 10 generated-code build project | **No** |
 | `generated/BenchForge.Instruments/Code/` | Generated schema-v2 simulation-preview C# files | **Yes, via make clean-generated** |
-| `src/BenchDouble/Generated/` | Legacy schema-v1 generated output | Not yet; migrate separately |
+| `src/BenchForge/Generated/` | Legacy schema-v1 generated output | Not yet; migrate separately |
 
 ## Regenerate
 
@@ -19,7 +19,7 @@ make clean-generated
 make generate-v2-preview
 make check-v2-preview
 make build-generated
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
 The v2 emitter uses bounded TPL Dataflow stages, UnitsNet quantity mappings and XML documentation comments. All generated classes are **simulation-only** until the review gate and production driver generator are complete. CI checks generated-code drift and compiles the isolated generated project.

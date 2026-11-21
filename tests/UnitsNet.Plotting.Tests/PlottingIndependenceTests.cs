@@ -1,11 +1,11 @@
-using BenchDouble.Plotting;
+using BenchForge.Plotting;
 using UnitsNet;
 using System.Text.Json;
 using Xunit;
 
 namespace UnitsNet.Plotting.Tests;
 
-/// <summary>Tests the plotting core without a BenchDouble instrument library reference.</summary>
+/// <summary>Tests the plotting core without a BenchForge instrument library reference.</summary>
 public sealed class PlottingIndependenceTests
 {
     [Fact]

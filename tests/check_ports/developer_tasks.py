@@ -22,7 +22,7 @@ def main():
         fixture = Path(directory)
         projects = ['src/App/App.csproj', 'examples/Demo/Demo.csproj',
                     'tools/Generator/Generator.csproj', 'generated/Driver/Driver.csproj',
-                    'tests/Core/Core.csproj', 'tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj',
+                    'tests/Core/Core.csproj', 'tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj',
                     'src/App/obj/Hidden.csproj']
         for name in projects:
             path = fixture / name

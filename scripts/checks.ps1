@@ -50,7 +50,7 @@ function Invoke-WorkflowStep([string]$Name, [string]$Executable, [string[]]$Argu
 $inputs = @(
     Get-ChildItem -LiteralPath (Join-Path $Root 'tools/BenchForge.CheckWorkflow') -File | Where-Object { $_.Extension -in '.cs','.csproj' }
     Get-ChildItem -LiteralPath (Join-Path $Root 'tools/BenchForge.Checks') -File | Where-Object { $_.Extension -eq '.cs' -or $_.Name -eq 'scoreboard.html' }
-    Get-Item -LiteralPath (Join-Path $Root 'tools/BenchDouble.DocumentationAudit/RoslynAudit.cs')
+    Get-Item -LiteralPath (Join-Path $Root 'tools/BenchForge.DocumentationAudit/RoslynAudit.cs')
     Get-Item -LiteralPath (Join-Path $Root 'scripts/python_ast_inventory.py')
     foreach ($name in @('global.json','Directory.Build.props','Directory.Build.targets','Directory.Packages.props','NuGet.Config')) {
         if (Test-Path -LiteralPath (Join-Path $Root $name)) { Get-Item -LiteralPath (Join-Path $Root $name) }

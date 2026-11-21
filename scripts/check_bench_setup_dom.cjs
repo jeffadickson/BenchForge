@@ -7,8 +7,8 @@ const root=path.resolve(__dirname,'..');
 (async()=>{
  const {Window}=await import(process.env.HAPPY_DOM_MODULE||'happy-dom');
  const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'bench-setup-dom-'));
- const hostRoot=path.join(root,'src/BenchDouble.Host.Server');
- const child=spawn(process.env.BENCH_SETUP_DOTNET||'dotnet',[path.join(hostRoot,'bin/Release/net11.0/BenchDouble.Host.Server.dll')],{cwd:hostRoot,env:{...process.env,BenchSetup__Path:path.join(temporary,'config.json')},stdio:['ignore','pipe','pipe']});
+ const hostRoot=path.join(root,'src/BenchForge.Host.Server');
+ const child=spawn(process.env.BENCH_SETUP_DOTNET||'dotnet',[path.join(hostRoot,'bin/Release/net11.0/BenchForge.Host.Server.dll')],{cwd:hostRoot,env:{...process.env,BenchSetup__Path:path.join(temporary,'config.json')},stdio:['ignore','pipe','pipe']});
  let log='',window;child.stdout.on('data',x=>log+=x);child.stderr.on('data',x=>log+=x);
  const base='http://127.0.0.1:5278';
  const request=(route,body,extra={})=>fetch(base+route,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...extra},body:body===undefined?undefined:JSON.stringify(body)});

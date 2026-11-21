@@ -1,4 +1,4 @@
-# TPL Dataflow Assessment for BenchDouble
+# TPL Dataflow Assessment for BenchForge
 
 **Decision (2026-10-15):** Use `System.Threading.Tasks.Dataflow` **selectively** as an internal implementation tool for host-owned, serialized instrument command actors and selected bounded processing pipelines. Do not make it the public instrument API, the procedure definition format, the reservation authority, the durable workflow engine, or the safety system.
 
@@ -25,7 +25,7 @@ Integrated procedure editor and experiment scheduler (versioned steps / durable 
 
 The actor's mailbox is scoped to **canonical physical resource ID**, not to an individual driver object or remote client session. Host-level leases gate **enqueue and execution**, with fencing/identity checked again at dispatch. Only one actor owns each physical session. Clients cannot create their own actors to bypass the host. Distinct instrument actors can run concurrently.
 
-## Sketch (illustrative; not current BenchDouble API)
+## Sketch (illustrative; not current BenchForge API)
 
 ```csharp
 using System.Threading.Tasks.Dataflow;

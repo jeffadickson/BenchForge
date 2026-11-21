@@ -67,7 +67,7 @@ def fixtures(root):
     """Check error order, evidence validation, lexical cases, HTML and report escaping."""
     req = root / "requirements"
     req.mkdir()
-    for name in ("benchdouble.sdoc", "traceability.csv", "full-audit.csv", "legacy-runner-audit.csv"):
+    for name in ("benchforge.sdoc", "traceability.csv", "full-audit.csv", "legacy-runner-audit.csv"):
         shutil.copy2(ROOT / "requirements" / name, req / name)
     originals = {p: p.read_bytes() for p in req.iterdir()}
     with (req / "traceability.csv").open(newline="", encoding="utf-8") as f:
@@ -100,7 +100,7 @@ def fixtures(root):
         parity("requirements: " + name, "requirements", root, expected=code)
     for p, content in originals.items():
         p.write_bytes(content)
-    sdoc = req / "benchdouble.sdoc"
+    sdoc = req / "benchforge.sdoc"
     sdoc.write_text(sdoc.read_text(encoding="utf-8").replace("STATEMENT: ", "STATEMENT: changed ", 1), encoding="utf-8")
     parity("requirements: changed hash", "requirements", root, expected=1)
     with (req / "traceability.csv").open(newline="", encoding="utf-8") as f:
@@ -177,7 +177,7 @@ def main():
         fixtures(Path(temp))
     output = ROOT / "build/api-audit.json"
     original = folder / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
-    updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net11.0/BenchDouble.DocumentationAudit.dll")))
+    updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchForge.DocumentationAudit/bin/Release/net11.0/BenchForge.DocumentationAudit.dll")))
     baseline = subprocess.run([DOTNET, str(original), str(ROOT), str(output)], cwd=ROOT, capture_output=True, check=True)
     content = output.read_bytes()
     for jobs in (1, 8):

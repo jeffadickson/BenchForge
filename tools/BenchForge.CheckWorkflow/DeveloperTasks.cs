@@ -11,10 +11,10 @@ internal static class DeveloperTasks
     {
         if (configuration is not ("Debug" or "Release")) throw new ArgumentException("Invalid configuration");
         Step Dotnet(params string[] args) => new(dotnet, args);
-        var generator = "tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj";
+        var generator = "tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj";
         Step[] Generate() => [
             new(Program.Python, ["scripts/check_instrument_catalog.py"]),
-            Dotnet("run", "--project", generator, "--configuration", configuration, "--", "instrument-definitions", "src/BenchDouble/Generated"),
+            Dotnet("run", "--project", generator, "--configuration", configuration, "--", "instrument-definitions", "src/BenchForge/Generated"),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "--preview-v2", "instrument-definitions/drafts", "generated/BenchForge.Instruments/Code")];
         string[] Projects(string folder)
         {
@@ -37,7 +37,7 @@ internal static class DeveloperTasks
             "generate" => Generate(),
             "build" => Generate().Concat(new[] { "src", "examples", "tools", "generated" }.SelectMany(Projects)
                 .Select(p => Dotnet("build", p, "--configuration", configuration))).ToArray(),
-            "test" => Generate().Concat(Projects("tests").Where(p => !p.EndsWith("BenchDouble.Browser.Tests.csproj", StringComparison.OrdinalIgnoreCase))
+            "test" => Generate().Concat(Projects("tests").Where(p => !p.EndsWith("BenchForge.Browser.Tests.csproj", StringComparison.OrdinalIgnoreCase))
                 .Select(p => Dotnet(new[] { "test", p, "--configuration", configuration }.Concat(string.IsNullOrWhiteSpace(testFilter) ? [] : new[] { "--filter", testFilter }).ToArray()))).ToArray(),
             _ => throw new ArgumentException($"Unknown development task {task}")
         };

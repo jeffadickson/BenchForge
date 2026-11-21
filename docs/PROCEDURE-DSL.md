@@ -1,10 +1,10 @@
-# BenchDouble.Procedures — Starlark Procedure Runtime (`starlark-cs`)
+# BenchForge.Procedures — Starlark Procedure Runtime (`starlark-cs`)
 
 **Status:** optional .NET 11 project backed by [`starlark-cs`](https://github.com/jeffadickson/StarLark-cs) (`external/starlark-cs`). This is a **mock-only procedure runtime**, not the released physical-equipment procedure editor.
 
 ## Why `starlark-cs`?
 
-The instrument library and mock engine remain free of any scripting dependency. The optional `src/BenchDouble.Procedures` project depends on `BenchDouble`, `BenchDouble.Experiments`, and `starlark-cs` (`Starlark.Syntax` + `Starlark.Eval`), replacing the earlier line-oriented Parlot prototype.
+The instrument library and mock engine remain free of any scripting dependency. The optional `src/BenchForge.Procedures` project depends on `BenchForge`, `BenchForge.Experiments`, and `starlark-cs` (`Starlark.Syntax` + `Starlark.Eval`), replacing the earlier line-oriented Parlot prototype.
 
 `starlark-cs` provides properties uniquely suited to test-lab procedures:
 - **Deterministic and hermetic**: no filesystem, network, clock, or RNG access unless explicitly exposed by the host.
@@ -37,8 +37,8 @@ verify_between(r2, 100, 110, "Ohm")
 ## Run
 
 ```bash
-dotnet run --project examples/BenchDouble.ProcedureDemo
-dotnet test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj
+dotnet run --project examples/BenchForge.ProcedureDemo
+dotnet test tests/BenchForge.Procedures.Tests/BenchForge.Procedures.Tests.csproj
 ```
 
 ## Security and scope
@@ -48,4 +48,4 @@ dotnet test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.cspr
 - `StarlarkProcedureLimits` enforces uncatchable step (`100,000` default), per-object allocation (`1 MiB` default), wall-clock timeout (`10 s` default), and `CancellationToken` limits.
 - Only simulated `ITypedConfigurableMeasurementSource` roles can be bound; physical instrument control remains explicitly out of scope until authorization and safe-state gates are completed.
 
-[Requirement matrix](../requirements/traceability.csv) · [User manual](USER-MANUAL.md) · [Issue #51](https://github.com/jeffadickson/BenchDouble/issues/51)
+[Requirement matrix](../requirements/traceability.csv) · [User manual](USER-MANUAL.md) · [Issue #51](https://github.com/jeffadickson/BenchForge/issues/51)

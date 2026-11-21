@@ -4,7 +4,7 @@
 
 ## One definition, two implementations
 
-An `*.instrument.json` file describes the supported instrument properties, physical quantities, canonical units, SCPI query/write templates, ranges, channels, and initial mock values. The offline `BenchDouble.DriverGen` tool generates:
+An `*.instrument.json` file describes the supported instrument properties, physical quantities, canonical units, SCPI query/write templates, ranges, channels, and initial mock values. The offline `BenchForge.DriverGen` tool generates:
 
 1. `Keysight33522B.g.cs` — typed driver using `IAsyncScpiSession` and UnitsNet.
 2. `Keysight33522BMock.g.cs` — typed mock configuration and a stateful SCPI transport that uses the **same command templates**.
@@ -62,10 +62,10 @@ python3 scripts/check_instrument_catalog.py
 make generate
 make check-generated
 make demo-generated-mock
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
-On Windows, use the equivalent `dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated` and append `--check` to compare checked-in generated files without modifying them.
+On Windows, use the equivalent `dotnet run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated` and append `--check` to compare checked-in generated files without modifying them.
 
 Generated source is committed to the repository so IDE navigation and ordinary `dotnet build` work without running the generator first. The no-write `--check` mode guards against source drift. The Makefile and cross-platform CI include catalog validation and generated-source checks. **CI is still blocked by GitHub-hosted runner allocation**, so this is not a verified green build.
 
@@ -81,9 +81,9 @@ The catalog does not contain fabricated command mappings. Only the illustrative 
 
 ## Keithley 236 reference implementation
 
-The legacy [Keithley236](../src/BenchDouble/Instruments/Keithley/Keithley236.cs) source and [mock bus](../src/BenchDouble/Simulation/Keithley236MockBus.cs) now reject invalid mode enum values, reset old compliance/bias state on source-mode changes, serialize mode checks with GPIB bus operations, and require mode/bias/compliance configuration before requesting OPERATE. Tests cover both DC source/measure modes, compliance clipping, standby, mode change, invalid values and simulated write failures.
+The legacy [Keithley236](../src/BenchForge/Instruments/Keithley/Keithley236.cs) source and [mock bus](../src/BenchForge/Simulation/Keithley236MockBus.cs) now reject invalid mode enum values, reset old compliance/bias state on source-mode changes, serialize mode checks with GPIB bus operations, and require mode/bias/compliance configuration before requesting OPERATE. Tests cover both DC source/measure modes, compliance clipping, standby, mode change, invalid values and simulated write failures.
 
-**Not yet complete:** source/measure sweeps, trigger and status parsing, fixed ranges, hardware error bits, calibrated GPIB TALK/EOI timing, physical safe-state verification, and authorized instrument leases. A software standby request does not prove safe terminals. See [Keithley and external instrument source catalog](external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md) and [issue #19](https://github.com/jeffadickson/BenchDouble/issues/19).
+**Not yet complete:** source/measure sweeps, trigger and status parsing, fixed ranges, hardware error bits, calibrated GPIB TALK/EOI timing, physical safe-state verification, and authorized instrument leases. A software standby request does not prove safe terminals. See [Keithley and external instrument source catalog](external instrument source-25-INSTRUMENTS-AND-KEITHLEY-236.md) and [issue #19](https://github.com/jeffadickson/BenchForge/issues/19).
 
 ## Architectural limitations and next increments
 
@@ -91,4 +91,4 @@ The generated mock currently models scalar control/readback parameters with exac
 
 Before generating hundreds of drivers, expand the schema to cover capability/mode state machines, read-only measurements, initialize/reset behavior, quantity basis (RMS/peak/peak-to-peak), channel hierarchies, device status/errors, and default mock behavior functions. The typed mock adapter should then consume the schema while custom C# behaviors remain injected through experiment-scoped DI.
 
-Track these tasks in [issue #44](https://github.com/jeffadickson/BenchDouble/issues/44). All new requirement IDs BD-GEN-001..006 remain SourceCommittedUnverified until actual tests pass.
+Track these tasks in [issue #44](https://github.com/jeffadickson/BenchForge/issues/44). All new requirement IDs BD-GEN-001..006 remain SourceCommittedUnverified until actual tests pass.

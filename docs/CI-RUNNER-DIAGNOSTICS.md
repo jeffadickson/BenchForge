@@ -6,15 +6,15 @@
 
 A dependency-free workflow, [`.github/workflows/runner-smoke.yml`](../.github/workflows/runner-smoke.yml), was added to test whether GitHub can allocate standard hosted runners. It uses only a built-in shell `echo` step on `ubuntu-latest`, `windows-latest`, and `macos-latest`. It has no checkout, .NET, NuGet, Python, StrictDoc, or third-party actions.
 
-[Runner smoke run #38771580547](https://github.com/jeffadickson/BenchDouble/actions/runs/38771580547) failed on **all three** operating systems with:
+[Runner smoke run #38771580547](https://github.com/jeffadickson/BenchForge/actions/runs/38771580547) failed on **all three** operating systems with:
 - `conclusion = failure`
 - `steps = []` (no commands executed)
 - `runner_id = 0`
 - `runner_name = ""`
 
-The regular [Tests workflow run #38769300188](https://github.com/jeffadickson/BenchDouble/actions/runs/38769300188) showed the same behavior. Its failed jobs were explicitly retried (attempt 2) and failed again before runner allocation.
+The regular [Tests workflow run #38769300188](https://github.com/jeffadickson/BenchForge/actions/runs/38769300188) showed the same behavior. Its failed jobs were explicitly retried (attempt 2) and failed again before runner allocation.
 
-**This isolates the current CI blocker from the BenchDouble build and tests.** It does not establish the precise account/platform cause.
+**This isolates the current CI blocker from the BenchForge build and tests.** It does not establish the precise account/platform cause.
 
 ## Actions already performed in the repository
 
@@ -40,4 +40,4 @@ The available GitHub connector can commit code, view workflow/job metadata and r
 
 A successful runner-smoke run with at least one executed shell step on each target OS; then a successful full Tests workflow, followed by real test evidence linked to requirements. After runner allocation is restored, compilation, dependency, and test failures may still require independent fixes.
 
-Tracking: [Issue #50](https://github.com/jeffadickson/BenchDouble/issues/50).
+Tracking: [Issue #50](https://github.com/jeffadickson/BenchForge/issues/50).

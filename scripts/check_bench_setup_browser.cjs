@@ -11,9 +11,9 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 (async () => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-setup-browser-'));
-  const hostRoot = path.join(root, 'src/BenchDouble.Host.Server');
+  const hostRoot = path.join(root, 'src/BenchForge.Host.Server');
   const child = spawn(process.env.BENCH_SETUP_DOTNET || 'dotnet',
-    [path.join(hostRoot, 'bin/Release/net11.0/BenchDouble.Host.Server.dll')], {
+    [path.join(hostRoot, 'bin/Release/net11.0/BenchForge.Host.Server.dll')], {
       cwd: hostRoot, env: {...process.env, BenchSetup__Path: path.join(temporary, 'configuration.json')}, stdio: ['ignore', 'pipe', 'pipe']
     });
   let hostOutput = '', browser;

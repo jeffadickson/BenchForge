@@ -5,7 +5,7 @@
 ## Start the server
 
 ```bash
-dotnet run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
+dotnet run --project src/BenchForge.Host.Server/BenchForge.Host.Server.csproj
 ```
 
 Open **http://127.0.0.1:5278/dashboard/** in a browser. The host listens only on loopback by design.
@@ -34,7 +34,7 @@ The experiment definition will declare instrument roles; the host resolver will 
 
 ## Verification
 
-[Host dashboard unit tests](../tests/BenchDouble.Host.Tests/HostDashboardTests.cs) check idle/reserved/released state and sanitized log messages. Browser tests for real dashboard DOM updates, reconnect behavior and multi-host status remain planned. Compilation/CI evidence has not been reviewed.
+[Host dashboard unit tests](../tests/BenchForge.Host.Tests/HostDashboardTests.cs) check idle/reserved/released state and sanitized log messages. Browser tests for real dashboard DOM updates, reconnect behavior and multi-host status remain planned. Compilation/CI evidence has not been reviewed.
 
 ## AutoMock visibility (planned)
 

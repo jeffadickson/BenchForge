@@ -1,4 +1,4 @@
-# BenchDouble Feature-to-Requirement Audit
+# BenchForge Feature-to-Requirement Audit
 
 **Date:** 2026-10-15 · **Basis:** 90 original runner requirements plus 77 cross-subsystem requirements, current source/test inventory and GitHub Issues #1–#50. **Scope:** the high-level subsystem summary below is supplemented by a completed 90-row evidence audit; no passing test run is claimed.
 
@@ -48,7 +48,7 @@ A full [90-row source-evidence matrix](../requirements/legacy-runner-audit.csv) 
 
 ## Starlark procedure runtime (`starlark-cs`)
 
-BD-DSL-001..007 provide a separate optional `BenchDouble.Procedures` project backed by `starlark-cs` (`external/starlark-cs`) with hermetic AST parsing, semantic preflight, uncatchable execution budgets, immutable UnitsNet `ProcedureQuantity` interop, and mock-only execution through `ExperimentRunner`. It does not yet satisfy the full original TR-001..014 structured editor/revision/signature requirements; the gap remains tracked in issue #51.
+BD-DSL-001..007 provide a separate optional `BenchForge.Procedures` project backed by `starlark-cs` (`external/starlark-cs`) with hermetic AST parsing, semantic preflight, uncatchable execution budgets, immutable UnitsNet `ProcedureQuantity` interop, and mock-only execution through `ExperimentRunner`. It does not yet satisfy the full original TR-001..014 structured editor/revision/signature requirements; the gap remains tracked in issue #51.
 
 ## Generated instrument and default mock reference
 

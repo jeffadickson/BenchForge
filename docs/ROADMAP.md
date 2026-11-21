@@ -1,4 +1,4 @@
-# BenchDouble roadmap
+# BenchForge roadmap
 
 ## Current prototype
 - [x] Transport-independent SCPI session interface
@@ -34,7 +34,7 @@ See [SOFTWARE-DESCRIPTION.md](SOFTWARE-DESCRIPTION.md) for subsystem interfaces,
 - [x] Basic adapter unit tests committed
 - [ ] Compile and execute all tests on Windows/macOS/Linux
 - [ ] Map to official IVI.NET assemblies with approved dependencies
-- [ ] Compare real vendor driver and BenchDouble behavior for one common procedure
+- [ ] Compare real vendor driver and BenchForge behavior for one common procedure
 - [ ] Validate capabilities/ranges/triggering and session status semantics
 - [ ] Publish documented supported instrument matrix
 
@@ -253,7 +253,7 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add waveform/downsampling policies preserving limit excursions
 
 ### Standalone UnitsNet plotting companion
-- [x] Remove BenchDouble core dependency from typed plotting adapter
+- [x] Remove BenchForge core dependency from typed plotting adapter
 - [x] Add independent test project referencing only plotting library
 - [ ] Verify standalone project and tests build on supported operating systems
 - [ ] Split Plotly JSON renderer into optional adapter if API stability warrants
@@ -410,7 +410,7 @@ Use [TEST-LAB-RUNNER-REQUIREMENTS.md](TEST-LAB-RUNNER-REQUIREMENTS.md) as the in
 - [ ] Add full runner state transitions and externally validated recovery/resume workflow
 
 ### Parlot procedure DSL and mock-backed execution
-- [x] Add optional BenchDouble.Procedures project with stable Parlot dependency
+- [x] Add optional BenchForge.Procedures project with stable Parlot dependency
 - [x] Parse five step types into typed AST with line diagnostics
 - [x] Validate simulated instrument roles, modes, variables and UnitsNet dimensions
 - [x] Execute mock-only DSL using experiment DI scope, virtual clock and existing runner

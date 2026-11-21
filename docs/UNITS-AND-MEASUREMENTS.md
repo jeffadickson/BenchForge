@@ -22,13 +22,13 @@ A typed quantity represents numerical magnitude and unit conversion. It does **n
 - overload / stale sample / instrument error
 - instrument provenance / calibration information
 
-BenchDouble measurement records therefore retain source, timestamp and quality separately. Proposed next contracts should encode amplitude basis (Vpp, peak, RMS) rather than conflate them even though all use volts.
+BenchForge measurement records therefore retain source, timestamp and quality separately. Proposed next contracts should encode amplitude basis (Vpp, peak, RMS) rather than conflate them even though all use volts.
 
 ## Wire protocol
 Do **not** serialize arbitrary UnitsNet CLR objects between clients/hosts. Use stable DTOs containing quantity identifier, numeric value in canonical unit (or declared enum), unit symbol/code, optional measurement basis, timestamp, quality, and schema version. Validate dimensions on deserialization; reject ohms supplied to a voltage field. UI may display localized, user-selected units.
 
 ## Extending UnitsNet
-Prefer UnitsNet's quantity/extension mechanism and upstream contributions for broadly useful engineering units. Maintain niche instrument metadata such as dBm reference impedance, NPLC, ADC counts, or decibels with explicit reference quantities in BenchDouble-specific extensions. Avoid forking all of UnitsNet simply for a proprietary unit.
+Prefer UnitsNet's quantity/extension mechanism and upstream contributions for broadly useful engineering units. Maintain niche instrument metadata such as dBm reference impedance, NPLC, ADC counts, or decibels with explicit reference quantities in BenchForge-specific extensions. Avoid forking all of UnitsNet simply for a proprietary unit.
 
 ## Tests and completion
 - Verify volts/millivolts, kHz/Hz, ohms/kOhms, Celsius/Kelvin, and invalid dimension rejection.

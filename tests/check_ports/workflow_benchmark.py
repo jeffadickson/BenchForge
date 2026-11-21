@@ -26,7 +26,7 @@ def prepare(cache):
     source=cache/'source'
     paths=subprocess.check_output(['git','ls-tree','-r','--name-only',BASE],cwd=ROOT,text=True).splitlines()
     for name in paths:
-        if name.startswith(('tools/BenchForge.Checks/','tools/BenchDouble.DocumentationAudit/')) or name in ('scripts/python_ast_inventory.py','global.json','tests/requirements/test_gate.py','tests/requirements/test_scoreboard.py'):
+        if name.startswith(('tools/BenchForge.Checks/','tools/BenchForge.DocumentationAudit/')) or name in ('scripts/python_ast_inventory.py','global.json','tests/requirements/test_gate.py','tests/requirements/test_scoreboard.py'):
             target=source/name
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_bytes(subprocess.check_output(['git','show',BASE+':'+name],cwd=ROOT))

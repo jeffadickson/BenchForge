@@ -5,7 +5,7 @@ BenchForge now provides `ScopeLeaseHeartbeat` in the host-client project. It aut
 ## Example
 
 ```csharp
-using BenchDouble.Host.Client;
+using BenchForge.Host.Client;
 
 using var http = new HttpClient { BaseAddress = new Uri("http://127.0.0.1:5278/") };
 var leaseId = Guid.Parse("REPLACE_WITH_ACTUAL_LEASE_ID");

@@ -1,5 +1,5 @@
 # Package Boundaries and Architectural Requirements
-**Decision:** retain the BenchDouble repository and existing namespaces temporarily. The product scope is **production instrument control with integrated mocking and simulation**. A future branding decision must not dictate present package dependencies.
+**Decision:** retain the BenchForge repository and existing namespaces temporarily. The product scope is **production instrument control with integrated mocking and simulation**. A future branding decision must not dictate present package dependencies.
 
 ## 1. Architectural principles
 1. Real instrument control is a primary deliverable, not a side effect of mocking.
@@ -15,20 +15,20 @@
 
 | Logical package (provisional) | Role | May depend on | Must not depend on |
 |---|---|---|---|
-| `BenchDouble.Abstractions` | instrument/session contracts, units, capability descriptors, errors, lifecycle | BCL | VISA vendor SDKs, mocking frameworks |
-| `BenchDouble.Visa` | resource manager, sessions, timeouts, binary blocks, GPIB/USB/TCPIP/serial; pluggable providers | Abstractions | mocks, instrument-specific commands |
-| `BenchDouble.Scpi` | SCPI command/query formatting, parsing, status/errors, dialect support | Abstractions | device model implementations |
-| `BenchDouble.Ivi` | instrument-class API + mapping rules/capabilities | Abstractions | NI vendor transport, simulation |
-| `BenchDouble.Ivi.Official` | bridge to real IVI Foundation assemblies | Abstractions, Ivi, official IVI packages | mocking engine |
-| `BenchDouble.Instruments` | typed DMM, FGEN, PSU, scope, RF generator device profiles | Abstractions, Scpi, Ivi | simulation-only packages |
-| `BenchDouble.Simulation` | stateful instrument models, deterministic clock, fault injection | Abstractions, optional instrument profiles | native VISA drivers |
-| `BenchDouble.Mocking` | EasyMock-like ordered/unordered expectation DSL, capture/replay, assertion reports | Abstractions | VISA or vendor drivers |
-| `BenchDouble.VirtualBench` | virtual wiring, DUT models, coordinated sources/meters | Abstractions, Simulation | physical transport implementation |
-| `BenchDouble.Testing` | opt-in xUnit/NSubstitute helpers and fixtures | Abstractions, Mocking, Simulation | production runtime packages |
-| `BenchDouble.Hosting` | dependency injection, config, resource registry, explicit backend selection | Abstractions and selected adapters | static global state |
-| `BenchDouble.Observability` | logs, diagnostics, OpenTelemetry spans and redaction | Abstractions | instrument vendor DLLs |
+| `BenchForge.Abstractions` | instrument/session contracts, units, capability descriptors, errors, lifecycle | BCL | VISA vendor SDKs, mocking frameworks |
+| `BenchForge.Visa` | resource manager, sessions, timeouts, binary blocks, GPIB/USB/TCPIP/serial; pluggable providers | Abstractions | mocks, instrument-specific commands |
+| `BenchForge.Scpi` | SCPI command/query formatting, parsing, status/errors, dialect support | Abstractions | device model implementations |
+| `BenchForge.Ivi` | instrument-class API + mapping rules/capabilities | Abstractions | NI vendor transport, simulation |
+| `BenchForge.Ivi.Official` | bridge to real IVI Foundation assemblies | Abstractions, Ivi, official IVI packages | mocking engine |
+| `BenchForge.Instruments` | typed DMM, FGEN, PSU, scope, RF generator device profiles | Abstractions, Scpi, Ivi | simulation-only packages |
+| `BenchForge.Simulation` | stateful instrument models, deterministic clock, fault injection | Abstractions, optional instrument profiles | native VISA drivers |
+| `BenchForge.Mocking` | EasyMock-like ordered/unordered expectation DSL, capture/replay, assertion reports | Abstractions | VISA or vendor drivers |
+| `BenchForge.VirtualBench` | virtual wiring, DUT models, coordinated sources/meters | Abstractions, Simulation | physical transport implementation |
+| `BenchForge.Testing` | opt-in xUnit/NSubstitute helpers and fixtures | Abstractions, Mocking, Simulation | production runtime packages |
+| `BenchForge.Hosting` | dependency injection, config, resource registry, explicit backend selection | Abstractions and selected adapters | static global state |
+| `BenchForge.Observability` | logs, diagnostics, OpenTelemetry spans and redaction | Abstractions | instrument vendor DLLs |
 
-Names are **logical targets**, not claims of published NuGet packages. Existing `src/BenchDouble` stays in place until compilation, characterization tests, and staged migrations demonstrate equivalence. Do not create empty assemblies solely for the architecture diagram.
+Names are **logical targets**, not claims of published NuGet packages. Existing `src/BenchForge` stays in place until compilation, characterization tests, and staged migrations demonstrate equivalence. Do not create empty assemblies solely for the architecture diagram.
 
 ## 3. Dependency graph
 ```text
@@ -81,7 +81,7 @@ Physical integration is opt-in; CI must pass hardware-free, and the hardware-bac
 
 ## 6. Migration and API compatibility
 - Stage A: document boundaries and add architecture checks; no breaking relocation.
-- Stage B: introduce Abstractions with explicit API versioning; adapters keep legacy `BenchDouble` types compiling.
+- Stage B: introduce Abstractions with explicit API versioning; adapters keep legacy `BenchForge` types compiling.
 - Stage C: move SCPI and IVI code under separated source projects, maintain shims and tests.
 - Stage D: deliver real VISA + vendor driver support and use it in a hardware-backed smoke suite.
 - Stage E: isolate Mocking/Simulation, implement strict typed expectations and optional virtual bench.
@@ -108,4 +108,4 @@ Each stage requires a green build, no dependency cycles, documented API compatib
 **Not implemented:** physical VISA backend, complete IVI interchangeability, async/binary sessions, power-supply/scope production drivers, virtual bench wiring, advanced expectation DSL, individual package projects listed above.
 
 ## 9. Rationale for deferring the name
-The name BenchDouble communicates mocks, but the planned product controls real instruments. The repository is kept intact while package architecture is established. Future parent brand and naming migration should preserve source compatibility and avoid leaving the mock package conflated with hardware drivers.
+The name BenchForge communicates mocks, but the planned product controls real instruments. The repository is kept intact while package architecture is established. Future parent brand and naming migration should preserve source compatibility and avoid leaving the mock package conflated with hardware drivers.

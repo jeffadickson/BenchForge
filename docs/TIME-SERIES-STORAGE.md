@@ -1,4 +1,4 @@
-# Time-Series Storage Architecture for BenchDouble
+# Time-Series Storage Architecture for BenchForge
 
 **Decision:** A first-class **optional time-series interface** with durable offline-first ingestion, independent of the instrument API, virtual physics graph, and procedure/audit event store. The initial backend-neutral C# interfaces and in-memory test adapter are implemented; actual SQLite, TimescaleDB and InfluxDB adapters are not.
 
@@ -29,9 +29,9 @@ Instrument or mock -> typed UnitsNet Measurement<T> -> ingestion service
 
 ## 3. Core contracts now committed
 
-`BenchDouble.TimeSeries.ITimeSeriesWriter`: `AppendAsync(IReadOnlyList<TimeSeriesSample>, CancellationToken)`.
+`BenchForge.TimeSeries.ITimeSeriesWriter`: `AppendAsync(IReadOnlyList<TimeSeriesSample>, CancellationToken)`.
 
-`BenchDouble.TimeSeries.ITimeSeriesReader`: `QueryAsync(TimeSeriesQuery, CancellationToken)` returning `IAsyncEnumerable<TimeSeriesSample>`.
+`BenchForge.TimeSeries.ITimeSeriesReader`: `QueryAsync(TimeSeriesQuery, CancellationToken)` returning `IAsyncEnumerable<TimeSeriesSample>`.
 
 `TimeSeriesSample` includes `RunId`, `InstrumentId`, `SignalId`, `AcquiredUtc`, canonical numeric value, quantity kind, unit code, sequence, optional simulation elapsed, quality and measurement basis.
 
@@ -112,10 +112,10 @@ Time-series storage is for observations; the virtual wiring graph remains the so
 ## 10. Implementation increment: durable SQLite (2026-10-15)
 
 **Implemented in source (not yet build-verified):**
-- `src/BenchDouble/TimeSeries/QuantitySeries.cs`: UnitsNet-to-canonical storage conversion and allow-listed quantity kinds and units (K, V, A, Ohm, Hz, s). A voltage cannot be inserted into a resistance/current series by changing the unit string.
-- `src/BenchDouble.TimeSeries.Sqlite`: optional `Microsoft.Data.Sqlite` adapter with WAL, synchronous FULL, durable local database file, version-1 schema, indexed acquired-time queries, atomic batch commits, signal dimension/basis locking, and duplicate replay verification.
-- `tests/BenchDouble.TimeSeries.Sqlite.Tests`: isolated-file tests for close/reopen durability, idempotent replay, atomic rollback on conflicting duplicates, incompatible quantity rejection, noncanonical unit rejection, and bounded queries.
-- `examples/BenchDouble.ThermalCycleDemo`: records four signals at five-minute intervals across the seven-hour virtual thermal cycle and queries stored sensor samples. Uses deterministic simulated timestamps for demo reproducibility; **production physical timestamps must come from actual acquisition**.
+- `src/BenchForge/TimeSeries/QuantitySeries.cs`: UnitsNet-to-canonical storage conversion and allow-listed quantity kinds and units (K, V, A, Ohm, Hz, s). A voltage cannot be inserted into a resistance/current series by changing the unit string.
+- `src/BenchForge.TimeSeries.Sqlite`: optional `Microsoft.Data.Sqlite` adapter with WAL, synchronous FULL, durable local database file, version-1 schema, indexed acquired-time queries, atomic batch commits, signal dimension/basis locking, and duplicate replay verification.
+- `tests/BenchForge.TimeSeries.Sqlite.Tests`: isolated-file tests for close/reopen durability, idempotent replay, atomic rollback on conflicting duplicates, incompatible quantity rejection, noncanonical unit rejection, and bounded queries.
+- `examples/BenchForge.ThermalCycleDemo`: records four signals at five-minute intervals across the seven-hour virtual thermal cycle and queries stored sensor samples. Uses deterministic simulated timestamps for demo reproducibility; **production physical timestamps must come from actual acquisition**.
 - The storage package is optional: the core instrument library has no SQLite dependency.
 
 ### Developer example
@@ -161,4 +161,4 @@ See [Binary capture storage](BINARY-CAPTURE-STORAGE.md) for the managed artifact
 service proposal, stable IDs, raw waveform metadata, linked screenshots,
 transactional indexing/outbox and recovery. This extends the bulk-store design;
 the existing SQLite time-series adapter remains separate from the new optional
-`BenchDouble.Artifacts.Sqlite` BLOB adapter. See [capture examples](LOCAL-CAPTURE-STORAGE.md).
+`BenchForge.Artifacts.Sqlite` BLOB adapter. See [capture examples](LOCAL-CAPTURE-STORAGE.md).

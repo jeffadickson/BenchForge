@@ -3,7 +3,7 @@
 The `OscilloscopeSessionCoordinator` owns one `IAsyncBinaryScpiSession` and provides a semaphore-protected transaction across **all** commands required for one acquisition. All in-process clients must share the same coordinator and must not bypass it to call the raw transport. The `CoordinatedOscilloscope` is a simulation-oriented facade that uses this mechanism.
 
 ```csharp
-using BenchDouble.Oscilloscopes;
+using BenchForge.Oscilloscopes;
 
 var session = new SimulatedOscilloscopeSession(channels: 2, samples: 128);
 var coordinator = new OscilloscopeSessionCoordinator(session);
@@ -15,7 +15,7 @@ Console.WriteLine(acquisitions[0].VoltageAt(0).Volts); // 0 V
 Console.WriteLine(acquisitions[1].VoltageAt(0).Volts); // 1 V
 ```
 
-The two acquisitions do not interleave their channel-selection, preamble or waveform-data commands. `tests/BenchDouble.Tests/OscilloscopeSessionCoordinatorTests.cs` covers concurrent acquisitions, cancelled waiters and failure latching. Run with `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj` on .NET 10.
+The two acquisitions do not interleave their channel-selection, preamble or waveform-data commands. `tests/BenchForge.Tests/OscilloscopeSessionCoordinatorTests.cs` covers concurrent acquisitions, cancelled waiters and failure latching. Run with `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj` on .NET 10.
 
 ## Recovery policy
 

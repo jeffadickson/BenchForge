@@ -1,4 +1,4 @@
-# BenchDouble logging and observability
+# BenchForge logging and observability
 
 ## Decision
 Use **Microsoft.Extensions.Logging** with structured fields, dependency injection and pluggable providers. Do not implement a custom log file format or hardwire Serilog/Seq/Application Insights into the instrument core. The initial implementation is `LoggingScpiSession`, a decorator over `IScpiSession`.
@@ -15,8 +15,8 @@ Use **Microsoft.Extensions.Logging** with structured fields, dependency injectio
 
 ## Integration example
 ```csharp
-using BenchDouble;
-using BenchDouble.Observability;
+using BenchForge;
+using BenchForge.Observability;
 using Microsoft.Extensions.Logging;
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Debug));

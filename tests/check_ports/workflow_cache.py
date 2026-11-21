@@ -23,7 +23,7 @@ def main():
                     target = source / name / file.name
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(file, target)
-        for name in ('tools/BenchDouble.DocumentationAudit/RoslynAudit.cs', 'scripts/python_ast_inventory.py', 'global.json'):
+        for name in ('tools/BenchForge.DocumentationAudit/RoslynAudit.cs', 'scripts/python_ast_inventory.py', 'global.json'):
             target = source / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)

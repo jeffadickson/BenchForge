@@ -39,7 +39,7 @@ for project in src/*/*.csproj tests/*/*.csproj examples/*/*.csproj tools/*/*.csp
   if [[ -f "$project" ]]; then dotnet restore "$project"; fi
 done
 if [[ "$browser" == true ]]; then
-  dotnet run --project tools/BenchDouble.BrowserSetup -- install chromium
+  dotnet run --project tools/BenchForge.BrowserSetup -- install chromium
 fi
 echo "Setup complete. Make automatically uses .tools/dotnet when present."
 echo "For direct dotnet commands: export PATH=\"$PWD/.tools/dotnet:\$PATH\""

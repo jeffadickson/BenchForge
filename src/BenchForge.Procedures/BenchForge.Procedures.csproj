@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../BenchForge/BenchForge.csproj"/>
+    <ProjectReference Include="../BenchForge.Experiments/BenchForge.Experiments.csproj"/>
+    <ProjectReference Include="../../external/starlark-cs/src/Starlark.Eval/Starlark.Eval.csproj"/>
+    <ProjectReference Include="../../external/starlark-cs/src/Starlark.Syntax/Starlark.Syntax.csproj"/>
+  </ItemGroup>
+</Project>

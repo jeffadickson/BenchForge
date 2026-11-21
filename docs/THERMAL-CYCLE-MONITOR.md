@@ -1,7 +1,7 @@
 # Thermal Cycle Monitor — Chamber + Power Supply Demonstration
 
 ## Purpose
-A second end-to-end BenchDouble example: an idealized environmental chamber cycles between +70°C and −30°C, while a separately injected power-supply load model changes current with chamber temperature. The **same run-scoped simulation clock** drives both instruments.
+A second end-to-end BenchForge example: an idealized environmental chamber cycles between +70°C and −30°C, while a separately injected power-supply load model changes current with chamber temperature. The **same run-scoped simulation clock** drives both instruments.
 
 This is a **thermal-chamber setpoint** demonstration, not a vacuum-pressure model, a calibrated chamber dynamics simulator, or hardware control.
 
@@ -31,11 +31,11 @@ A real thermal/electrical DUT could instead inject a temperature-dependent IV cu
 
 **Browser:** Open [examples/ThermalCycleMonitor/index.html](../examples/ThermalCycleMonitor/index.html) directly. This standalone HTML page includes two SVG plots, 1×-style virtual pacing options of 60×, 3600×, 7200×, 14400×, start/pause/reset, manual step, phase indicators and event log. No external network or instrument connection.
 
-**C# console:** `dotnet run --project examples/BenchDouble.ThermalCycleDemo` or `make demo-thermal`. It uses Microsoft DI to create one clock, chamber model, temperature-dependent load behavior and mock supply per run, advances 5-minute steps without waiting, prints hourly readings, and writes two Plotly.js-compatible JSON figure files to `thermal-demo-output/`.
+**C# console:** `dotnet run --project examples/BenchForge.ThermalCycleDemo` or `make demo-thermal`. It uses Microsoft DI to create one clock, chamber model, temperature-dependent load behavior and mock supply per run, advances 5-minute steps without waiting, prints hourly readings, and writes two Plotly.js-compatible JSON figure files to `thermal-demo-output/`.
 
 **Current status:** browser demo and .NET source committed, but .NET compilation and browser visual review are not yet verified.
 
-## Integration with BenchDouble architecture
+## Integration with BenchForge architecture
 
 - `ThermalCycleSettings`: typed UnitsNet temperature settings and configurable durations.
 - `ThermalChamberModel`: pure piecewise-linear setpoint evaluation and phase.

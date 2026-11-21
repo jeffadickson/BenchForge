@@ -91,10 +91,10 @@ For larger coupled systems, add an explicit graph of signal providers and consum
 
 ## Files and verification
 
-- `src/BenchDouble/Simulation/ThermalSignals.cs`: typed signal interfaces and first-order sensor.
-- `src/BenchDouble/Simulation/ThermalCycle.cs`: chamber implements `ITemperatureProgram`.
-- `examples/BenchDouble.ThermalCycleDemo/Program.cs`: DI registration, simulated sensor samples, Plotly JSON export.
+- `src/BenchForge/Simulation/ThermalSignals.cs`: typed signal interfaces and first-order sensor.
+- `src/BenchForge/Simulation/ThermalCycle.cs`: chamber implements `ITemperatureProgram`.
+- `examples/BenchForge.ThermalCycleDemo/Program.cs`: DI registration, simulated sensor samples, Plotly JSON export.
 - `examples/ThermalCycleMonitor/index.html`: chamber/sensor overlays and live sensor readout.
-- `tests/BenchDouble.Tests/ThermalSignalsTests.cs`: lag, deterministic sampling, boundary continuity and time ordering.
+- `tests/BenchForge.Tests/ThermalSignalsTests.cs`: lag, deterministic sampling, boundary continuity and time ordering.
 
 **Status:** code committed, build and visual tests not yet verified. Models are idealized; no calibrated instrument or physical safety claim.

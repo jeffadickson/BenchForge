@@ -1,0 +1,125 @@
+namespace BenchForge.Simulation;
+/// <summary>Immutable scheduled simulation event; its identifier is not an ownership capability.</summary>
+/// <param name="Id">Positive acceptance-order identifier local to one scheduler.</param>
+/// <param name="Label">Bounded caller label, never a command or file path.</param>
+/// <param name="DueAt">Nonnegative run-scoped logical deadline.</param>
+public sealed record SimulationScheduledEvent(long Id,string Label,TimeSpan DueAt);
+/// <summary>Thread-safe explicitly pumped virtual event queue; no timers, workers, callbacks or physical I/O.</summary>
+/// <remarks>The caller supplies the canonical run clock. Clock providers must not reenter this scheduler.</remarks>
+public sealed class SimulationScheduler
+{
+    private readonly object _gate=new();
+    private readonly ISimulationClock _clock;
+    private readonly int _capacity;
+    private readonly SortedDictionary<(long Ticks,long Id),SimulationScheduledEvent> _pending=new();
+    private readonly Dictionary<long,(long Ticks,long Id)> _keys=new();
+    private long _nextId;
+    private TimeSpan _observed;
+    /// <summary>Construct a simulation queue bound to the caller's run clock.</summary>
+    /// <param name="clock">Nonnull shared simulation clock; not a physical deadline clock.</param>
+    /// <param name="capacity">Maximum queued events, one through 4096.</param>
+    /// <exception cref="ArgumentNullException">Clock is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Capacity is outside the supported interval.</exception>
+    public SimulationScheduler(ISimulationClock clock,int capacity=4096)
+    {
+        ArgumentNullException.ThrowIfNull(clock);
+        if(capacity<1||capacity>4096)throw new ArgumentOutOfRangeException(nameof(capacity));
+        _clock=clock;_capacity=capacity;
+    }
+    /// <summary>Current pending event count without sampling or advancing the clock.</summary>
+    public int Count {get{lock(_gate)return _pending.Count;}}
+    private TimeSpan ReadTime()
+    {
+        var now=_clock.Elapsed;
+        if(now<TimeSpan.Zero)throw new InvalidOperationException("Simulation clock is negative.");
+        if(now<_observed)throw new InvalidOperationException("Simulation clock moved backwards.");
+        _observed=now;return now;
+    }
+    /// <summary>Schedule one event after a logical delay without sleeping or advancing time.</summary>
+    /// <param name="delay">Nonnegative logical delay.</param>
+    /// <param name="label">Nonblank label, at most 128 characters without controls.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>Immutable accepted event with a unique positive identifier.</returns>
+    /// <exception cref="ArgumentException">Delay or label is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Queue is full or clock is invalid.</exception>
+    /// <exception cref="OverflowException">Identifier or deadline is unrepresentable.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public SimulationScheduledEvent Schedule(TimeSpan delay,string label,CancellationToken ct=default)=>ScheduleCore(delay,label,false,ct);
+    private SimulationScheduledEvent ScheduleCore(TimeSpan time,string label,bool absolute,CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(label);
+        if(label.Length>128||label.Any(char.IsControl))throw new ArgumentException("Invalid event label.",nameof(label));
+        if(time<TimeSpan.Zero)throw new ArgumentOutOfRangeException(nameof(time));
+        ct.ThrowIfCancellationRequested();
+        lock(_gate)
+        {
+            ct.ThrowIfCancellationRequested();
+            if(_pending.Count>=_capacity)throw new InvalidOperationException("Simulation event queue is full.");
+            var now=ReadTime();ct.ThrowIfCancellationRequested();
+            var due=absolute?time:TimeSpan.FromTicks(checked(now.Ticks+time.Ticks));
+            if(due<now)throw new ArgumentOutOfRangeException(nameof(time),"Deadline precedes current logical time.");
+            var id=checked(_nextId+1);var item=new SimulationScheduledEvent(id,label,due);
+            var key=(due.Ticks,id);_pending.Add(key,item);_keys.Add(id,key);_nextId=id;return item;
+        }
+    }
+
+    /// <summary>Remove all due events at one coherent clock observation without executing callbacks.</summary>
+    /// <param name="ct">Cancellation before removing any events.</param>
+    /// <returns>Detached read-only events ordered by due time then identifier.</returns>
+    /// <exception cref="InvalidOperationException">The clock is invalid or moved backwards.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before removal.</exception>
+    public IReadOnlyList<SimulationScheduledEvent> DrainDue(CancellationToken ct=default)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock(_gate)
+        {
+            ct.ThrowIfCancellationRequested();var now=ReadTime();ct.ThrowIfCancellationRequested();
+            var due=_pending.TakeWhile(p=>p.Key.Ticks<=now.Ticks).ToArray();
+            foreach(var pair in due){_pending.Remove(pair.Key);_keys.Remove(pair.Value.Id);}
+            return Array.AsReadOnly(due.Select(p=>p.Value).ToArray());
+        }
+    }
+
+    /// <summary>Inspect pending events without sampling time or consuming events.</summary>
+    /// <returns>Detached read-only events ordered by deadline and identifier.</returns>
+    public IReadOnlyList<SimulationScheduledEvent> Snapshot()
+    {lock(_gate)return Array.AsReadOnly(_pending.Values.ToArray());}
+
+    /// <summary>Remove one pending simulation event; does not alter clock or ownership.</summary>
+    /// <param name="id">Positive event identifier from this scheduler.</param>
+    /// <param name="ct">Cancellation before removal.</param>
+    /// <returns>True only when a pending event was removed.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Identifier is not positive.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before removal.</exception>
+    public bool Cancel(long id,CancellationToken ct=default)
+    {
+        if(id<=0)throw new ArgumentOutOfRangeException(nameof(id));ct.ThrowIfCancellationRequested();
+        lock(_gate){ct.ThrowIfCancellationRequested();if(!_keys.Remove(id,out var key))return false;_pending.Remove(key);return true;}
+    }
+
+    /// <summary>Clear the queue without resetting identifiers or advancing time.</summary>
+    /// <param name="ct">Cancellation before clearing.</param>
+    /// <returns>Number of removed pending events.</returns>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before clearing.</exception>
+    public int Clear(CancellationToken ct=default)
+    {ct.ThrowIfCancellationRequested();lock(_gate){ct.ThrowIfCancellationRequested();var count=_pending.Count;_pending.Clear();_keys.Clear();return count;}}
+
+    /// <summary>Inspect the first pending event without reading the clock.</summary>
+    /// <returns>Immutable next event, or null when no events are queued.</returns>
+    public SimulationScheduledEvent? Peek(){lock(_gate)return _pending.Count==0?null:_pending.First().Value;}
+
+    /// <summary>Remaining queue slots captured under the same gate as event mutations.</summary>
+    public int RemainingCapacity{get{lock(_gate)return _capacity-_pending.Count;}}
+
+    /// <summary>Schedule an absolute logical deadline at or after the current run time.</summary>
+    /// <param name="dueAt">Nonnegative absolute logical deadline.</param>
+    /// <param name="label">Nonblank bounded event label.</param>
+    /// <param name="ct">Cancellation before mutation.</param>
+    /// <returns>Immutable event accepted by this scheduler.</returns>
+    /// <exception cref="ArgumentException">Deadline or label is invalid.</exception>
+    /// <exception cref="InvalidOperationException">Queue is full or clock is invalid.</exception>
+    /// <exception cref="OverflowException">Event identifiers are exhausted.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is observed before mutation.</exception>
+    public SimulationScheduledEvent ScheduleAt(TimeSpan dueAt,string label,CancellationToken ct=default)=>ScheduleCore(dueAt,label,true,ct);
+
+}

@@ -18,7 +18,7 @@ def main():
     spec.loader.exec_module(module)
     module.ROOT = root
     if command == "requirements":
-        module.DOC = root / "requirements/benchdouble.sdoc"
+        module.DOC = root / "requirements/benchforge.sdoc"
         module.TRACE = root / "requirements/traceability.csv"
         module.AUDIT = root / "requirements/legacy-runner-audit.csv"
     elif command == "docs":

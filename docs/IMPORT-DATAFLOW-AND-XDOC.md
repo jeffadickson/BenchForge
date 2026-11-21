@@ -3,7 +3,7 @@
 Instrument definition intake uses `System.Threading.Tasks.Dataflow` for bounded asynchronous processing. `InstrumentImportPipeline.ValidateAsync` accepts schema-v2 JSON documents, validates them with a configurable `TransformBlock`, and collects ordered results through an `ActionBlock`.
 
 ```csharp
-using BenchDouble.Generated;
+using BenchForge.Generated;
 
 string[] jsonDefinitions = Directory.GetFiles("instrument-definitions/drafts", "*.definition.json")
     .Select(File.ReadAllText).ToArray();
@@ -20,7 +20,7 @@ All public handwritten and generated C# types and members require meaningful `//
 
 ## Verification
 
-Run `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj`, `make docs-check` and `make check-generated`. These commands must pass in .NET 10 CI before marking this increment verified.
+Run `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj`, `make docs-check` and `make check-generated`. These commands must pass in .NET 10 CI before marking this increment verified.
 
 ## Where Dataflow belongs
 

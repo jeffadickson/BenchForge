@@ -1,4 +1,4 @@
-# BenchDouble developer documentation
+# BenchForge developer documentation
 
 Browse the [C# API reference](../../build/api/toc.yml), [Python tooling reference](../../build/python/index.html),
 and [feature overview](../FEATURE-OVERVIEW.md).

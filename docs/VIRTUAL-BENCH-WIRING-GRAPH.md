@@ -85,7 +85,7 @@ This code uses the existing thermal sensor as a **stateful transform**. The depe
 
 ## Verification
 
-Added `tests/BenchDouble.Tests/VirtualBenchGraphTests.cs` covering:
+Added `tests/BenchForge.Tests/VirtualBenchGraphTests.cs` covering:
 - typed two-input current calculation;
 - shared-source evaluation exactly once per snapshot;
 - cycle detection;
@@ -97,7 +97,7 @@ The C# thermal demo now builds the graph, samples it every five simulated minute
 
 ## Next increments
 
-1. Run `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj` and thermal console demo on CI.
+1. Run `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj` and thermal console demo on CI.
 2. Add `GraphLoadBehavior` consuming the graph at a run-scoped snapshot and replace the separate setpoint-based current implementation where selected.
 3. Add immutable snapshot export, thread-safe scheduler ownership, seeded noise decorators, and graph schema validation.
 4. Add typed pressure, resistance, heat-flow, voltage and current ports with capability metadata.

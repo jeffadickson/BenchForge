@@ -2,4 +2,4 @@
 *.g.cs text eol=lf
 *.definition.json text eol=lf
 generated/** text eol=lf
-src/BenchDouble/Generated/** text eol=lf
+src/BenchForge/Generated/** text eol=lf

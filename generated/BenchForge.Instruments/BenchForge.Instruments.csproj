@@ -11,6 +11,6 @@
     <AssemblyMetadata Include="BenchForgeGitCommit" Value="$(SourceRevisionId)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/BenchDouble/BenchDouble.csproj" />
+    <ProjectReference Include="../../src/BenchForge/BenchForge.csproj" />
   </ItemGroup>
 </Project>

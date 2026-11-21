@@ -3,7 +3,7 @@
 BenchForge now has a source-neutral, hardware-free signal model in `VirtualSignalBus` and a shared instrument view in `VirtualBench`. The model provides an explicitly configured sine source, resistive load, current compliance, output enable/disable, voltage and current at virtual time, and deterministic DC/RMS meter readings. `VirtualBench.Capture` converts the same source state to a signed 16-bit `WaveformCapture` with UnitsNet time/voltage metadata.
 
 ```csharp
-using BenchDouble.Simulation;
+using BenchForge.Simulation;
 using UnitsNet;
 
 var signal = new VirtualSignalBus();

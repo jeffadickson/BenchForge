@@ -10,7 +10,7 @@ internal static class Requirements
 
     internal static int Run()
     {
-        var source = Data.Read(Data.At("requirements/benchdouble.sdoc"));
+        var source = Data.Read(Data.At("requirements/benchforge.sdoc"));
         var ids = Matches(source, @"^UID:\s+([A-Z][A-Z0-9-]+)$").Where(x => x != "BD-BASELINE").ToArray();
         var errors = new List<string>();
         if (ids.Length != ids.Distinct().Count()) errors.Add("Duplicate requirement UID in StrictDoc source");
@@ -36,7 +36,7 @@ internal static class Requirements
                 else if (path.Length > 0 && !files[path]) errors.Add($"{uid}: missing {column}: {path}");
             }
             var issue = row["github_issue"];
-            if (issue.Length > 0 && !Full(issue, @"https://github\.com/jeffadickson/BenchDouble/issues/[0-9]+")) errors.Add($"{uid}: malformed GitHub issue URL");
+            if (issue.Length > 0 && !Full(issue, @"https://github\.com/jeffadickson/BenchForge/issues/[0-9]+")) errors.Add($"{uid}: malformed GitHub issue URL");
             if (issue.Length == 0) errors.Add($"{uid}: requirement lacks GitHub issue");
             if (status != "Verified") continue;
             var evidence = row.GetValueOrDefault("verification_evidence", "").Trim();

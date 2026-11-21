@@ -3,7 +3,7 @@
 BenchForge can now parse a limited subset of schema-v2 instrument definitions directly into `ImportedInstrumentDefinition` and instantiate a `ImportedInstrumentMock` with mode-dependent scalar readings.
 
 ```csharp
-using BenchDouble.Generated;
+using BenchForge.Generated;
 
 string json = File.ReadAllText("instrument-definitions/drafts/example-two-mode-dmm.definition.json");
 var definition = ImportedInstrumentDefinition.Parse(json);
@@ -18,6 +18,6 @@ The adapter rejects invalid mode identifiers, duplicate capability names, unsafe
 
 **Maturity boundary:** This is a runtime **simulation-only scalar subset**, not completed source generation. It does not yet emit C# classes, enforce the full JSON Schema, verify provenance/review status, implement source/measure writes, parse binary data, support trigger operations or connect to physical hardware. An illustrative definition is accepted for mock preview only; do not treat that as manual review or hardware validation.
 
-Run `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj` on .NET 10. Source tests are committed but CI results remain unverified.
+Run `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj` on .NET 10. Source tests are committed but CI results remain unverified.
 
 Next: integrate reviewed schema-v2 definitions into the standalone DriverGen, generate typed async methods and stateful mocks, enforce review gating for hardware-backed drivers, and add oscilloscope waveform capabilities. Track #63 and #66.

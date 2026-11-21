@@ -15,14 +15,14 @@ def main():
     """Run the compiled probe and assert SQLite recovery, bytes, digest and atomic outbox state."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dotnet", default="dotnet")
-    parser.add_argument("--probe", default="tools/BenchDouble.ArtifactCrashProbe/bin/Debug/net11.0/BenchDouble.ArtifactCrashProbe.dll")
+    parser.add_argument("--probe", default="tools/BenchForge.ArtifactCrashProbe/bin/Debug/net11.0/BenchForge.ArtifactCrashProbe.dll")
     args = parser.parse_args()
     probe = Path(args.probe).resolve()
     if not probe.is_file():
-        parser.error("Build tools/BenchDouble.ArtifactCrashProbe before running recovery checks.")
+        parser.error("Build tools/BenchForge.ArtifactCrashProbe before running recovery checks.")
     # Windows may retain a native SQLite handle briefly after the crash probe exits.
     # Keep integrity and outbox assertions strict; retry only final directory cleanup.
-    directory = Path(tempfile.mkdtemp(prefix="benchdouble-crash-"))
+    directory = Path(tempfile.mkdtemp(prefix="benchforge-crash-"))
     try:
         database = directory / "captures.sqlite"
         result = subprocess.run([args.dotnet, "exec", str(probe), str(database)], capture_output=True, text=True, timeout=30)

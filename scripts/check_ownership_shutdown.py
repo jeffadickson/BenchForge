@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exercise actual SIGTERM/Generic Host shutdown, without vendor I/O or hardware claims.
 
-Build tools/BenchDouble.RecoveryProbe in Release first. BENCH_SETUP_DOTNET selects
+Build tools/BenchForge.RecoveryProbe in Release first. BENCH_SETUP_DOTNET selects
 its runtime. Each process uses an isolated journal and a finite exit deadline.
 """
 import json
@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PROBE = ROOT / "tools/BenchDouble.RecoveryProbe/bin/Release/net11.0/BenchDouble.RecoveryProbe.dll"
+PROBE = ROOT / "tools/BenchForge.RecoveryProbe/bin/Release/net11.0/BenchForge.RecoveryProbe.dll"
 
 
 def main():

@@ -3,7 +3,7 @@
 **Status:** architectural decision / implementation requirements, 2026-10-14.
 
 ## Motivation
-Past Java object serialization bound client and server to compatible class versions; XML messages were more tolerant. BenchDouble SHALL NOT serialize arbitrary .NET runtime object graphs across the network. Independent client and instrument-host versions must interoperate through schema-versioned messages and explicit capabilities.
+Past Java object serialization bound client and server to compatible class versions; XML messages were more tolerant. BenchForge SHALL NOT serialize arbitrary .NET runtime object graphs across the network. Independent client and instrument-host versions must interoperate through schema-versioned messages and explicit capabilities.
 
 ## Wire format
 - Primary instrument protocol: gRPC + Protocol Buffers with stable numeric field identifiers, add-only compatible schema evolution, `reserved` field numbers/names for deletions, and versioned packages for incompatible operations.

@@ -7,7 +7,7 @@ This routes to the local **server**, not directly to VISA. The supplied host has
 two simulated resources, DMM1 and FGEN1; it does not discover physical devices.
 
 ```csharp
-using BenchDouble.Host.Client;
+using BenchForge.Host.Client;
 using Microsoft.Extensions.Logging;
 
 // logger is supplied by your application's configured logging provider.
@@ -70,7 +70,7 @@ transport; production remote hosting remains incomplete.
 - Windows: `powershell -File scripts/bootstrap.ps1` does the same.
 - Browser assets: `make setup-browser` or `powershell -File scripts/bootstrap.ps1 -Browser`.
 - Linux browser system libraries, where missing: after setup run
-  `dotnet run --project tools/BenchDouble.BrowserSetup -- install --with-deps chromium`.
+  `dotnet run --project tools/BenchForge.BrowserSetup -- install --with-deps chromium`.
   Playwright's system-package installation may require administrator access.
 - `make scoreboard` generates `build/requirements-scoreboard.html` with searchable
   requirement IDs, priorities, evidence status and GitHub issue links.

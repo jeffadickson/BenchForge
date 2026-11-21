@@ -16,7 +16,7 @@ class DocumentationGateTests(unittest.TestCase):
 
     def test_generated_gaps_fail_even_in_baseline(self):
         """Generated output must never inherit legacy documentation exceptions."""
-        rows = [dict(path="src/BenchDouble/Generated/Test.g.cs", symbol="Test", issues=["summary"])]
+        rows = [dict(path="src/BenchForge/Generated/Test.g.cs", symbol="Test", issues=["summary"])]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "build").mkdir()

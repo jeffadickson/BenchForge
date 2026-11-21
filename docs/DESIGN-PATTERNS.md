@@ -1,8 +1,8 @@
-# Design Patterns for BenchDouble
+# Design Patterns for BenchForge
 **Status:** architecture guidance. Separate existing code from proposed patterns and avoid indiscriminate abstraction.
 
 ## Context
-BenchDouble controls **real** lab instruments while also running hardware-free tests. The same client code must be able to use VISA/SCPI, official IVI/vendor drivers, scripted mocks or stateful simulators. The design should avoid a giant lowest-common-denominator instrument API, repetitive driver SCPI plumbing, and hidden hardware side effects.
+BenchForge controls **real** lab instruments while also running hardware-free tests. The same client code must be able to use VISA/SCPI, official IVI/vendor drivers, scripted mocks or stateful simulators. The design should avoid a giant lowest-common-denominator instrument API, repetitive driver SCPI plumbing, and hidden hardware side effects.
 
 ## 1. Abstract Factory + Dependency Injection
 **Purpose:** resolve a logical instrument name such as `DMM1` or `FGEN_A` into the proper class interface and explicitly selected backend.

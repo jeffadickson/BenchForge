@@ -84,16 +84,16 @@ A source meter has an even richer state model: source voltage vs source current,
 
 ## 5. Tests and example
 
-- `tests/BenchDouble.Tests/TypedMockMeasurementsTests.cs`: Ω and V types, unit conversion, mode mismatch, unsupported capability, time-indexed behavior, duplicate registration.
-- `examples/BenchDouble.TypedMockDemo`: standalone resistance/voltage DMM mock.
-- `examples/BenchDouble.ExperimentDemo`: adds a named `Meter1` to the same experiment as the thermal chamber and power supply.
+- `tests/BenchForge.Tests/TypedMockMeasurementsTests.cs`: Ω and V types, unit conversion, mode mismatch, unsupported capability, time-indexed behavior, duplicate registration.
+- `examples/BenchForge.TypedMockDemo`: standalone resistance/voltage DMM mock.
+- `examples/BenchForge.ExperimentDemo`: adds a named `Meter1` to the same experiment as the thermal chamber and power supply.
 
 Run:
 
 ```bash
-dotnet run --project examples/BenchDouble.TypedMockDemo
-dotnet run --project examples/BenchDouble.ExperimentDemo
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet run --project examples/BenchForge.TypedMockDemo
+dotnet run --project examples/BenchForge.ExperimentDemo
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
 ## 6. Future integration

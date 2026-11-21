@@ -13,7 +13,7 @@ CHECK_HOST = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/checks.ps1
 CHECKS_NATIVE_PATH := .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchForge.Checks$(if $(filter Windows_NT,$(OS)),.exe,)
 CHECKS_NATIVE := "$(CURDIR)/$(CHECKS_NATIVE_PATH)" --python "$(PYTHON)"
 CHECKS_SOURCES := $(wildcard tools/BenchForge.Checks/*.cs) tools/BenchForge.Checks/BenchForge.Checks.csproj tools/BenchForge.Checks/scoreboard.html scripts/python_ast_inventory.py
-ROSLYN_DLL := .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchDouble.DocumentationAudit.dll
+ROSLYN_DLL := .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)/BenchForge.DocumentationAudit.dll
 ROSLYN_JOBS ?= 8
 
 CHECK_RUNTIME = $(PWSH) -NoLogo -NoProfile -NonInteractive -File scripts/check-runtime.ps1 -RuntimeIdentifier "$(CHECKS_RID)" -Architecture "$(CHECKS_ARCH)" -Configuration "$(CHECKS_CONFIGURATION)"
@@ -31,9 +31,9 @@ $(CHECKS_NATIVE_PATH): $(CHECKS_SOURCES) | checks-native-plan
 	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly, for example win-x64 or linux-arm64))
 	"$(DOTNET)" publish tools/BenchForge.Checks -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -p:PublishAot=true -p:IlcOptimizationPreference=Speed -p:ILLinkTreatWarningsAsErrors=true -o .tools/checks/native/$(CHECKS_RID)/$(CHECKS_CONFIGURATION)
 
-$(ROSLYN_DLL): tools/BenchDouble.DocumentationAudit/Program.cs tools/BenchDouble.DocumentationAudit/RoslynAudit.cs tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj | checks-native-plan
+$(ROSLYN_DLL): tools/BenchForge.DocumentationAudit/Program.cs tools/BenchForge.DocumentationAudit/RoslynAudit.cs tools/BenchForge.DocumentationAudit/BenchForge.DocumentationAudit.csproj | checks-native-plan
 	$(if $(CHECKS_RID),,@$(error Set CHECKS_RID explicitly for the optional standalone Roslyn build))
-	"$(DOTNET)" build tools/BenchDouble.DocumentationAudit -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
+	"$(DOTNET)" build tools/BenchForge.DocumentationAudit -c $(CHECKS_CONFIGURATION) -r $(CHECKS_RID) -o .tools/roslyn/$(CHECKS_RID)/$(CHECKS_CONFIGURATION) --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false
 
 .PHONY: checks-native check-ports checks
 # Full check/report workflow: one managed build, content-validated cache, parallel checks.
@@ -94,46 +94,46 @@ test:
 	$(CHECK_HOST) -Command test
 
 test-browser:
-	$(DOTNET) build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj
-	$(DOTNET) run --project tools/BenchDouble.BrowserSetup -- install chromium
-	$(DOTNET) test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --no-build
+	$(DOTNET) build tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj
+	$(DOTNET) run --project tools/BenchForge.BrowserSetup -- install chromium
+	$(DOTNET) test tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj --no-build
 
 verify: requirements build test docs artifact-recovery
 
 check-generated:
 	$(PYTHON) scripts/check_instrument_catalog.py
-	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
+	$(DOTNET) run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated --check
 
 demo:
-	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.DiDemo/BenchForge.DiDemo.csproj
 
 demo-normal:
-	$(DOTNET) run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj -- --normal
+	$(DOTNET) run --project examples/BenchForge.DiDemo/BenchForge.DiDemo.csproj -- --normal
 
 demo-thermal:
-	$(DOTNET) run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.ThermalCycleDemo/BenchForge.ThermalCycleDemo.csproj
 
 demo-experiment:
-	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj
 
 demo-dashboard:
 	@echo "Open http://127.0.0.1:5278/dashboard/ after the server starts"
-	$(DOTNET) run --project src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj
+	$(DOTNET) run --project src/BenchForge.Host.Server/BenchForge.Host.Server.csproj
 
 demo-automock:
-	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj -- --automock
+	$(DOTNET) run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj -- --automock
 
 demo-automock-json:
-	$(DOTNET) run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj -- --automock-json
+	$(DOTNET) run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj -- --automock-json
 
 demo-typed-meter:
-	$(DOTNET) run --project examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.TypedMockDemo/BenchForge.TypedMockDemo.csproj
 
 demo-procedure:
-	$(DOTNET) run --project examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.ProcedureDemo/BenchForge.ProcedureDemo.csproj
 
 demo-generated-mock:
-	$(DOTNET) run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj
+	$(DOTNET) run --project examples/BenchForge.GeneratedMockDemo/BenchForge.GeneratedMockDemo.csproj
 
 # Pure-Python source extraction tests; does not require GitHub-hosted runners.
 definer-check:
@@ -155,24 +155,24 @@ docs: check-generated docs-check
 
 .PHONY: demo-capture artifact-check artifact-recovery
 demo-capture:
-	$(DOTNET) run --project examples/BenchDouble.CaptureDemo
+	$(DOTNET) run --project examples/BenchForge.CaptureDemo
 
 artifact-check: artifact-recovery
-	$(DOTNET) test tests/BenchDouble.Artifacts.Tests
+	$(DOTNET) test tests/BenchForge.Artifacts.Tests
 
 artifact-recovery:
-	$(DOTNET) build tools/BenchDouble.ArtifactCrashProbe
+	$(DOTNET) build tools/BenchForge.ArtifactCrashProbe
 	$(PYTHON) scripts/check_artifact_recovery.py --dotnet "$(DOTNET)"
 
 # Focused .NET 10 alpha verification, without expanding distributed-host scope.
 import-check:
-	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~ImportedInstrumentDefinitionTests|FullyQualifiedName~InstrumentImportPipelineTests"
+	$(DOTNET) test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~ImportedInstrumentDefinitionTests|FullyQualifiedName~InstrumentImportPipelineTests"
 
 demo-alpha:
 	$(DOTNET) run --project examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj --configuration Release
 
 alpha-check: check-generated import-check demo-alpha
-	$(DOTNET) test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
+	$(DOTNET) test tests/BenchForge.Host.Tests/BenchForge.Host.Tests.csproj --configuration Release
 
 # Full external source inventory from a pinned local checkout.
 .PHONY: instrument-source-inventory
@@ -190,10 +190,10 @@ instrument-normalize:
 .PHONY: generate-v2-preview check-v2-preview
 V2_PREVIEW_DIR ?= generated/BenchForge.Instruments/Code
 generate-v2-preview:
-	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR)
+	$(DOTNET) run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR)
 
 check-v2-preview:
-	$(DOTNET) run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR) --check
+	$(DOTNET) run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts $(V2_PREVIEW_DIR) --check
 
 # Dedicated disposable schema-v2 generated C# project.
 .PHONY: build-generated clean-generated
@@ -206,7 +206,7 @@ clean-generated:
 # Shared-signal stateful mock integration tests (source, meter, oscilloscope).
 .PHONY: test-virtual-bench
 test-virtual-bench:
-	$(DOTNET) test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
+	$(DOTNET) test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
 
 # Full tracked-file source-neutrality audit and XML API documentation verification.
 .PHONY: source-audit source-audit-strict xdoc-check

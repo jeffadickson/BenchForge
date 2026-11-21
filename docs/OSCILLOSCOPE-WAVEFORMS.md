@@ -11,7 +11,7 @@ Status: source implementation and xUnit tests committed; CI and physical hardwar
 ## Example
 
 ```csharp
-using BenchDouble.Oscilloscopes;
+using BenchForge.Oscilloscopes;
 using UnitsNet;
 
 byte[] frame = "#14"u8.ToArray().Concat(new byte[] { 100, 0, 156, 255 }).ToArray();
@@ -26,7 +26,7 @@ Console.WriteLine($"First: {capture.TimeAt(0).Microseconds} us, {capture.Voltage
 
 Expected: 2 samples; first at -2 microseconds and 1 V. The waveform is synthetic and does not require equipment.
 
-Run `dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj` on .NET 10. No passing run is claimed here.
+Run `dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj` on .NET 10. No passing run is claimed here.
 
 ## Boundaries
 

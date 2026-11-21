@@ -41,8 +41,8 @@ The mock is intentionally an **idealized measurement model**. It reports `Curren
 ## 3. Runnable demo
 
 ```bash
-dotnet run --project examples/BenchDouble.DiDemo
-dotnet run --project examples/BenchDouble.DiDemo -- --normal
+dotnet run --project examples/BenchForge.DiDemo
+dotnet run --project examples/BenchForge.DiDemo -- --normal
 ```
 
 Default behavior: configure 12 V, a 24 Ω resistive load, 3 A configured limit, and a virtual fault at 5 seconds. The baseline current is 0.5 A. At 5 simulated seconds the injected behavior returns 2.5 A. The unchanged controller loop trips its 2 A threshold and disables the simulated output. The `--normal` variant injects only the resistor behavior and never trips. Both run **without real waiting**, because the test advances the virtual clock in 250 ms steps.

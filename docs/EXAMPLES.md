@@ -16,10 +16,10 @@ On Windows (PowerShell 7):
 
 ```powershell
 pwsh -File scripts/bootstrap.ps1
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
-**Migration note:** The GitHub repository and public-facing documentation are named BenchForge, but some C# project paths, namespaces, assembly names and command targets remain `BenchDouble` pending the tracked identity migration [#64](https://github.com/jeffadickson/BenchForge/issues/64). Do not rename those paths in commands until the corresponding project migration lands.
+**Migration note:** The GitHub repository and public-facing documentation are named BenchForge, but some C# project paths, namespaces, assembly names and command targets remain `BenchForge` pending the tracked identity migration [#64](https://github.com/jeffadickson/BenchForge/issues/64). Do not rename those paths in commands until the corresponding project migration lands.
 
 ## 2. Stateful generated function-generator mock
 
@@ -28,7 +28,7 @@ make demo-generated-mock
 make check-generated
 ```
 
-**What to observe:** the checked-in Keysight 33522B generated driver and mock share channel-specific SCPI templates and UnitsNet quantities. Inspect [driver source](../src/BenchDouble/Generated/Keysight33522B.g.cs) and [mock source](../src/BenchDouble/Generated/Keysight33522BMock.g.cs). The demonstration is not proof of complete hardware fidelity. Instrument limits and commands must be reviewed against the manufacturer's manual.
+**What to observe:** the checked-in Keysight 33522B generated driver and mock share channel-specific SCPI templates and UnitsNet quantities. Inspect [driver source](../src/BenchForge/Generated/Keysight33522B.g.cs) and [mock source](../src/BenchForge/Generated/Keysight33522BMock.g.cs). The demonstration is not proof of complete hardware fidelity. Instrument limits and commands must be reviewed against the manufacturer's manual.
 
 **Failure case to test:** set an out-of-range frequency or use an unsupported channel and confirm validation rejects the operation. Never interpret a mock acceptance as permission to apply a voltage to physical equipment.
 
@@ -36,7 +36,7 @@ make check-generated
 
 ```sh
 make demo-typed-meter
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
 **What to observe:** typed voltage and resistance quantities, with mode checks that reject mismatched measurement types. Read [the typed mock tutorial](GENERIC-UNIT-AWARE-MOCKS.md). Source tests exist; this guide does not claim the full suite passed.

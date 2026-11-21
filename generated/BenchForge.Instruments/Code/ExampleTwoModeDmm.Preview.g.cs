@@ -2,12 +2,12 @@
 #nullable enable
 // Simulation-only schema-v2 preview. Not a hardware driver.
 using UnitsNet;
-namespace BenchDouble.Generated;
+namespace BenchForge.Generated;
 /// <summary>Typed simulation-only instrument preview for ExampleTwoModeDmm.</summary>
 public sealed class ExampleTwoModeDmmPreview
 {
   /// <summary>SHA-256 of the exact input definition bytes.</summary>
-  public const string DefinitionSha256 = "592faccb10026d5bc0b3d7449bf4706980f8ca171ebf379d841b26b84ed05397";
+  public const string DefinitionSha256 = "8ff3f1b2f0f8552cadf6cb7d429520cbc9241918e99a51b543fbe62e740b68c4";
   /// <summary>Versioned generator implementation identifier.</summary>
   public const string GeneratorVersion = "v2-stateful-3";
   /// <summary>BenchForge Git commit recorded in assembly metadata at build time.</summary>

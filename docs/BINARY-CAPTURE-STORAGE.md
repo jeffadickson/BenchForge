@@ -1,6 +1,6 @@
 # Binary scope traces and screenshots
 
-Requirements: BD-ART-001..005. [Implementation/benchmark issue #62](https://github.com/jeffadickson/BenchDouble/issues/62).
+Requirements: BD-ART-001..005. [Implementation/benchmark issue #62](https://github.com/jeffadickson/BenchForge/issues/62).
 The local SQLite BLOB backend is now implemented as an initial adapter. See
 [save/retrieve examples and current limits](LOCAL-CAPTURE-STORAGE.md). The separate
 file/object-store protocol below remains a design, and remote replication is not implemented.

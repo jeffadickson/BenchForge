@@ -42,6 +42,6 @@ Get-ChildItem src,tests,examples,tools -Filter *.csproj -Recurse | ForEach-Objec
     Invoke-Checked "dotnet" @("restore", $_.FullName)
 }
 if ($Browser) {
-    Invoke-Checked "dotnet" @("run", "--project", "tools/BenchDouble.BrowserSetup", "--", "install", "chromium")
+    Invoke-Checked "dotnet" @("run", "--project", "tools/BenchForge.BrowserSetup", "--", "install", "chromium")
 }
 Write-Host "Setup complete. Run dotnet commands in this session, or use .tools/dotnet/dotnet.exe."

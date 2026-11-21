@@ -289,8 +289,8 @@
       "definitionStatus": "manualDriverPartial",
       "implementationStatus": "partialDcSourceMeasure",
       "hardwareValidated": false,
-      "driverPath": "src/BenchDouble/Instruments/Keithley/Keithley236.cs",
-      "mockPath": "src/BenchDouble/Simulation/Keithley236MockBus.cs"
+      "driverPath": "src/BenchForge/Instruments/Keithley/Keithley236.cs",
+      "mockPath": "src/BenchForge/Simulation/Keithley236MockBus.cs"
     }
   ]
 }

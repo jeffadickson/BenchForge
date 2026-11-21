@@ -3,7 +3,7 @@
 The schema-v2 emitter now generates two simulation-only classes per supported definition: `<Instrument>Preview` and `<Instrument>MockDecorator`. The decorator wraps the preview and exposes explicitly injectable, asynchronous, UnitsNet-typed measurement behaviors. It delegates mode selection and validates mode eligibility **before** invoking an injected behavior. Setting a behavior to null restores the definition's illustrative default, if one was explicitly supplied.
 
 ```csharp
-using BenchDouble.Generated;
+using BenchForge.Generated;
 using UnitsNet;
 
 var preview = new ExampleTwoModeDmmPreview();
@@ -44,7 +44,7 @@ make clean-generated
 make generate-v2-preview
 make check-v2-preview
 make build-generated
-dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj
+dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj
 ```
 
 The `generated/BenchForge.Instruments/Code/` directory is disposable; its parent project file is not. New xUnit tests check mode guards, injected UnitsNet values, reset-to-default behavior, and provenance metadata.

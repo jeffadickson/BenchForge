@@ -5,7 +5,7 @@ BenchForge's loopback-only ASP.NET Core host now includes a simulation-only scop
 Start the host with .NET 10:
 
 ```sh
-dotnet run --project src/BenchDouble.Host.Server
+dotnet run --project src/BenchForge.Host.Server
 ```
 
 Reserve:
@@ -28,7 +28,7 @@ The response includes acquisition ID, channel, sample count, preamble and the fi
 curl -X DELETE http://127.0.0.1:5278/api/v1/scopes/SCOPE1/reserve/REPLACE_WITH_LEASE_GUID
 ```
 
-The host rejects missing/incorrect leases, refuses a second reservation while one is active, and will not release a lease while an acquisition is in flight. Concurrent requests sharing the same valid lease are serialized at the coordinator. Tests: `dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj`.
+The host rejects missing/incorrect leases, refuses a second reservation while one is active, and will not release a lease while an acquisition is in flight. Concurrent requests sharing the same valid lease are serialized at the coordinator. Tests: `dotnet test tests/BenchForge.Host.Tests/BenchForge.Host.Tests.csproj`.
 
 ## Security and recovery boundaries
 

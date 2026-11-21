@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tools/check-workflow
-          key: check-workflow-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/BenchForge.CheckWorkflow/*', 'tools/BenchForge.Checks/*.cs', 'tools/BenchForge.Checks/scoreboard.html', 'tools/BenchDouble.DocumentationAudit/RoslynAudit.cs', 'scripts/python_ast_inventory.py', 'global.json', 'Directory.Build.*', 'Directory.Packages.props') }}
+          key: check-workflow-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/BenchForge.CheckWorkflow/*', 'tools/BenchForge.Checks/*.cs', 'tools/BenchForge.Checks/scoreboard.html', 'tools/BenchForge.DocumentationAudit/RoslynAudit.cs', 'scripts/python_ast_inventory.py', 'global.json', 'Directory.Build.*', 'Directory.Packages.props') }}
       - name: Run complete check and report workflow
         shell: pwsh
         run: ./scripts/checks.ps1 -Python python
@@ -74,10 +74,10 @@ jobs:
       - name: Regenerate source into working tree for exact drift diagnosis
         shell: bash
         run: |
-          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated
-          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code
-          git diff --binary -- src/BenchDouble/Generated generated/BenchForge.Instruments/Code > generated-drift.patch
-          git status --short -- src/BenchDouble/Generated generated/BenchForge.Instruments/Code > generated-drift-status.txt
+          dotnet run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated
+          dotnet run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code
+          git diff --binary -- src/BenchForge/Generated generated/BenchForge.Instruments/Code > generated-drift.patch
+          git status --short -- src/BenchForge/Generated generated/BenchForge.Instruments/Code > generated-drift-status.txt
       - name: Archive exact generated-source drift
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,18 +95,18 @@ jobs:
             echo "Generated source differs from committed source. Download the generated-drift artifact."
             exit 1
           fi
-          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- instrument-definitions src/BenchDouble/Generated --check
-          dotnet run --project tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
+          dotnet run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated --check
+          dotnet run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- --preview-v2 instrument-definitions/drafts generated/BenchForge.Instruments/Code --check
       - name: Test shared virtual bench and stateful signal model
-        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
+        run: dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSignalBusTests|FullyQualifiedName~VirtualBenchTests"
       - name: Test stateful mock engine and IoC composition
-        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockEngineTests"
+        run: dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockEngineTests"
       - name: Test run-scoped stateful mock composition
-        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockCompositionTests"
+        run: dotnet test tests/BenchForge.Experiments.Tests/BenchForge.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~StatefulMockCompositionTests"
       - name: Test coherent virtual source and oscilloscope acquisition
-        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualCoherentAcquisitionTests"
+        run: dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualCoherentAcquisitionTests"
       - name: Test run-scoped virtual source and scope composition
-        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSmuCompositionTests"
+        run: dotnet test tests/BenchForge.Experiments.Tests/BenchForge.Experiments.Tests.csproj --configuration Release --filter "FullyQualifiedName~VirtualSmuCompositionTests"
       - name: Compile committed schema-v2 generated preview
         run: dotnet build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
       - name: Archive portable XDoc comparison
@@ -140,13 +140,13 @@ jobs:
             build/documentation-audit.json
           if-no-files-found: ignore
       - name: Test local binary captures
-        run: dotnet test tests/BenchDouble.Artifacts.Tests/BenchDouble.Artifacts.Tests.csproj
+        run: dotnet test tests/BenchForge.Artifacts.Tests/BenchForge.Artifacts.Tests.csproj
       - name: Build artifact recovery probe
-        run: dotnet build tools/BenchDouble.ArtifactCrashProbe
+        run: dotnet build tools/BenchForge.ArtifactCrashProbe
       - name: Verify artifact process-exit recovery
         run: python scripts/check_artifact_recovery.py
       - name: Run tests
-        run: dotnet test tests/BenchDouble.Tests/BenchDouble.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release
 
       - name: Run alpha waveform and RMS integration smoke test
         run: dotnet run --project examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj --configuration Release
@@ -158,32 +158,32 @@ jobs:
           path: alpha-demo-output/
           if-no-files-found: ignore
       - name: Run generated typed driver/mock demonstration
-        run: dotnet run --project examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.GeneratedMockDemo/BenchForge.GeneratedMockDemo.csproj --configuration Release
       - name: Test experiment-scoped dependency injection
-        run: dotnet test tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Experiments.Tests/BenchForge.Experiments.Tests.csproj --configuration Release
       - name: Run experiment composition demonstration
-        run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj --configuration Release
       - name: Run generic UnitsNet meter demonstration
-        run: dotnet run --project examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.TypedMockDemo/BenchForge.TypedMockDemo.csproj --configuration Release
       - name: Run AutoMock fluent experiment demonstration
-        run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock
+        run: dotnet run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj --configuration Release -- --automock
       - name: Run AutoMock JSON experiment demonstration
-        run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock-json
+        run: dotnet run --project examples/BenchForge.ExperimentDemo/BenchForge.ExperimentDemo.csproj --configuration Release -- --automock-json
       - name: Run Instrument Definer unit tests
         run: python -m unittest discover -s tests/instrument_definer -p 'test_*.py' -v
       - name: Test Starlark mock-backed procedures
-        run: dotnet test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Procedures.Tests/BenchForge.Procedures.Tests.csproj --configuration Release
       - name: Run mock-backed procedure example
-        run: dotnet run --project examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.ProcedureDemo/BenchForge.ProcedureDemo.csproj --configuration Release
       - name: Run Reqnroll executable acceptance scenarios
-        run: dotnet test tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Acceptance.Tests/BenchForge.Acceptance.Tests.csproj --configuration Release
       - name: Build browser test project
-        run: dotnet build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release
+        run: dotnet build tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj --configuration Release
       - name: Install Playwright Chromium
         shell: pwsh
-        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net11.0/playwright.ps1 install chromium
+        run: ./tests/BenchForge.Browser.Tests/bin/Release/net11.0/playwright.ps1 install chromium
       - name: Run real-browser unattended monitor tests
-        run: dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release --no-build
+        run: dotnet test tests/BenchForge.Browser.Tests/BenchForge.Browser.Tests.csproj --configuration Release --no-build
       - name: Archive browser failure screenshots
         uses: actions/upload-artifact@v4
         if: always()
@@ -195,25 +195,25 @@ jobs:
         run: dotnet test tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj --configuration Release
 
       - name: Run dependency-injection overcurrent demo
-        run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.DiDemo/BenchForge.DiDemo.csproj --configuration Release
       - name: Run dependency-injection normal demo
-        run: dotnet run --project examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj --configuration Release -- --normal
+        run: dotnet run --project examples/BenchForge.DiDemo/BenchForge.DiDemo.csproj --configuration Release -- --normal
       - name: Test durable SQLite time-series recorder
-        run: dotnet test tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.TimeSeries.Sqlite.Tests/BenchForge.TimeSeries.Sqlite.Tests.csproj --configuration Release
 
       - name: Run seven-hour thermal-cycle simulation demo
-        run: dotnet run --project examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj --configuration Release
+        run: dotnet run --project examples/BenchForge.ThermalCycleDemo/BenchForge.ThermalCycleDemo.csproj --configuration Release
       - name: Build ScottPlot visualization adapter
-        run: dotnet build src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj --configuration Release
+        run: dotnet build src/BenchForge.Plotting.ScottPlot/BenchForge.Plotting.ScottPlot.csproj --configuration Release
 
       - name: Build official IVI.NET adapter
-        run: dotnet build src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj --configuration Release
+        run: dotnet build src/BenchForge.Ivi.Official/BenchForge.Ivi.Official.csproj --configuration Release
       - name: Run official IVI.NET adapter contract tests
-        run: dotnet test tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Ivi.Official.Tests/BenchForge.Ivi.Official.Tests.csproj --configuration Release
       - name: Build instrument host and client
-        run: dotnet build src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj --configuration Release
+        run: dotnet build src/BenchForge.Host.Server/BenchForge.Host.Server.csproj --configuration Release
       - name: Test instrument-host reservation contracts
-        run: dotnet test tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj --configuration Release
+        run: dotnet test tests/BenchForge.Host.Tests/BenchForge.Host.Tests.csproj --configuration Release
 
       - name: Enforce source-neutrality release gate
         if: always()
