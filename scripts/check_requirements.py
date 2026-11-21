@@ -44,7 +44,9 @@ def main() -> int:
             errors.append(f"{uid}: invalid status {row['implementation_status']}")
         for column in ("implementation_file", "verification_file"):
             path = row[column].strip()
-            if path and not (ROOT / path).is_file():
+            if "\\" in path:
+                errors.append(f"{uid}: {column} must use forward slashes: {path}")
+            elif path and not (ROOT / path).is_file():
                 errors.append(f"{uid}: missing {column}: {path}")
         issue = row["github_issue"]
         if issue and not re.fullmatch(

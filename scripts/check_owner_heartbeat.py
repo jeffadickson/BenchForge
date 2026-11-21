@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     """Run the bounded process probe and inspect durable ownership after its exit."""
     with tempfile.TemporaryDirectory(prefix="bench-heartbeat-") as directory:
-        probe = ROOT / "tools/BenchDouble.RecoveryProbe/bin/Release/net10.0/BenchDouble.RecoveryProbe.dll"
+        probe = ROOT / "tools/BenchDouble.RecoveryProbe/bin/Release/net11.0/BenchDouble.RecoveryProbe.dll"
         result = subprocess.run([os.environ.get("BENCH_SETUP_DOTNET", "dotnet"), str(probe), "heartbeat-expire", directory],
                                 text=True, capture_output=True, timeout=20, check=True)
         document = json.loads((Path(directory) / "ownership.json").read_text())

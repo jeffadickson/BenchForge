@@ -16,7 +16,7 @@ QUANTITY_HINTS = (
     (r"\b(voltage|volts?)\b", "ElectricPotential", "Volt"),
     (r"\b(temperature|celsius)\b", "Temperature", "DegreeCelsius"),
 )
-PREFIX = re.compile(r"^(?:gets? or sets?|gets?|sets?|returns?|reads?|writes?|the value of|this property)\s+", re.I)
+PREFIX = re.compile(r"^(?:(?:gets? or sets?|gets?|sets?|returns?|reads?|writes?)(?:\s+the)?|the value of|this property)\s+", re.I)
 
 
 def concise(value):

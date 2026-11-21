@@ -986,7 +986,7 @@ STATEMENT: Typed measurement mock behaviors shall support deterministic experime
 UID: BD-DSL-001
 STATUS: Active
 TITLE: BD-DSL-001 P1
-STATEMENT: The test framework shall provide a separate optional Parlot-based procedure parsing project with no parser dependency in the instrument core.
+STATEMENT: The test framework shall provide a separate optional starlark-cs-based procedure parsing and execution project with no interpreter dependency in the instrument core.
 
 [REQUIREMENT]
 UID: BD-DSL-002
@@ -1343,7 +1343,7 @@ STATEMENT: Routing configuration shall exclude credentials, use HTTPS for non-lo
 UID: BD-CFG-006
 STATUS: Active
 TITLE: BD-CFG-006 P1
-STATEMENT: Dependency setup shall discover all project references, install a compatible SDK and pinned documentation tools, and offer browser provisioning without a separate PowerShell requirement on Unix. Acceptance: Run setup on clean supported operating systems and restore every project including the browser installer; report missing system prerequisites explicitly. Acceptance: A .NET 10 SDK in a later feature band shall run local project tests without editing global.json.
+STATEMENT: Dependency setup shall discover all project references, install a compatible SDK and pinned documentation tools, and offer browser provisioning without a separate PowerShell requirement on Unix. Acceptance: Run setup on clean supported operating systems and restore every project including the browser installer; report missing system prerequisites explicitly. Acceptance: A .NET 11 SDK in a later feature band shall run local project tests without editing global.json.
 
 
 [REQUIREMENT]

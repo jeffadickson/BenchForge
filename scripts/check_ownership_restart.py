@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PROBE = ROOT / "tools/BenchDouble.RecoveryProbe/bin/Release/net10.0/BenchDouble.RecoveryProbe.dll"
+PROBE = ROOT / "tools/BenchDouble.RecoveryProbe/bin/Release/net11.0/BenchDouble.RecoveryProbe.dll"
 
 
 def main():

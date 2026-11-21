@@ -3,12 +3,12 @@
 Release-build `BenchForge.Checks.csproj`, then invoke its DLL with one of:
 
 ```
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll requirements
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll scoreboard
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll neutrality --output build/source-neutrality-audit.json
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll preflight --output build/docs-preflight.json
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll docs
-dotnet tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll compare --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll requirements
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll scoreboard
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll neutrality --output build/source-neutrality-audit.json
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll preflight --output build/docs-preflight.json
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll docs
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll compare --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
 ```
 
 `--root` selects the checkout, `--jobs` bounds independent file work (1–256;

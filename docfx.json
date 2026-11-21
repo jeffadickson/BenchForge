@@ -17,7 +17,7 @@
       ],
       "dest": "build/api",
       "properties": {
-        "TargetFramework": "net10.0"
+        "TargetFramework": "net11.0"
       }
     }
   ],

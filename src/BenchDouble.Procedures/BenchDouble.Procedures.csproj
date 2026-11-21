@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="../BenchDouble/BenchDouble.csproj"/>
     <ProjectReference Include="../BenchDouble.Experiments/BenchDouble.Experiments.csproj"/>
-    <PackageReference Include="Parlot" Version="1.5.9"/>
+    <ProjectReference Include="../../external/starlark-cs/src/Starlark.Eval/Starlark.Eval.csproj"/>
+    <ProjectReference Include="../../external/starlark-cs/src/Starlark.Syntax/Starlark.Syntax.csproj"/>
   </ItemGroup>
 </Project>

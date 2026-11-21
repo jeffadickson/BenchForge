@@ -11,7 +11,7 @@ File.AppendAllText("events.jsonl", JsonSerializer.Serialize(items)+Environment.N
 if(File.Exists("sleep"))Thread.Sleep(30000);
 return items.Length>0 && File.Exists("fail-"+items[0]) ? int.Parse(File.ReadAllText("fail-"+items[0])) : File.Exists("exit-code") ? int.Parse(File.ReadAllText("exit-code")) : 0;
 '''
-PROJECT='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><UseAppHost>true</UseAppHost></PropertyGroup></Project>'
+PROJECT='<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net11.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><UseAppHost>true</UseAppHost></PropertyGroup></Project>'
 
 
 def recording_host():

@@ -18,8 +18,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 BUILD = ROOT / "build/check-ports"
 DOTNET = os.environ.get("BENCHFORGE_DOTNET", "dotnet")
-DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll")))
-AUDIT = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll")))
+DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll")))
+AUDIT = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net11.0/BenchDouble.DocumentationAudit.dll")))
 BASE = BUILD / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
 NATIVE = Path(os.environ.get("BENCHFORGE_CHECKS_NATIVE", str(BUILD / "native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks"))))
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}

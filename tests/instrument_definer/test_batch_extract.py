@@ -58,8 +58,8 @@ class BatchExtractTests(unittest.TestCase):
             source.mkdir()
             manifest = root / "manifest.csv"
             manifest.write_text(
-                "manufacturer,model,className,sourcePath,revision\\n"
-                "Acme,X,,,\\n", encoding="utf-8")
+                "manufacturer,model,className,sourcePath,revision\n"
+                "Acme,X,,,\n", encoding="utf-8")
             result = batch_extract.process(manifest, source, root / "out")
             self.assertEqual(1, result["failed"])
             self.assertIn("required", result["entries"][0]["error"])

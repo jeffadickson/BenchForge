@@ -13,7 +13,7 @@ const root = path.resolve(__dirname, '..');
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'bench-setup-browser-'));
   const hostRoot = path.join(root, 'src/BenchDouble.Host.Server');
   const child = spawn(process.env.BENCH_SETUP_DOTNET || 'dotnet',
-    [path.join(hostRoot, 'bin/Release/net10.0/BenchDouble.Host.Server.dll')], {
+    [path.join(hostRoot, 'bin/Release/net11.0/BenchDouble.Host.Server.dll')], {
       cwd: hostRoot, env: {...process.env, BenchSetup__Path: path.join(temporary, 'configuration.json')}, stdio: ['ignore', 'pipe', 'pipe']
     });
   let hostOutput = '', browser;

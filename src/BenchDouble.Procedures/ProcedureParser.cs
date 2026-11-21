@@ -1,150 +1,82 @@
-using Parlot.Fluent;
-using static Parlot.Fluent.Parsers;
+using Starlark.Syntax;
 
 namespace BenchDouble.Procedures;
 
 /// <summary>
-/// Small, deliberately non-Turing-complete procedure language implemented with
-/// Parlot combinators. Produces typed AST nodes, never executes during parsing.
+/// Hermetic Starlark procedure parser powered by <c>starlark-cs</c>.
+/// Produces an immutable <see cref="AstModule"/> and static preflight metadata;
+/// parsing never executes code, touches instruments, or reads files.
 /// </summary>
 public static class ProcedureParser
 {
     private const int MaxDocumentChars = 128 * 1024;
-    private const int MaxSteps = 2048;
+    private const double MaxWaitSeconds = 86_400;
 
     /// <summary>
-    /// Parse a line-oriented v1 DSL. Unknown syntax produces a line-specific
-    /// diagnostic instead of silently skipping a step.
+    /// Restricted deterministic Starlark dialect for procedures: permits top-level statements,
+    /// loops, functions, and f-strings while disabling <c>load()</c> and recursion.
     /// </summary>
-    public static ProcedureParseResult Parse(string source)
+    public static Dialect ProcedureDialect { get; } = Dialect.Standard with
+    {
+        EnableTopLevelStmt = true,
+        EnableLoad = false,
+        EnableRecursion = false,
+        EnableFStrings = true
+    };
+
+    /// <summary>
+    /// Parse a Starlark procedure source string into an immutable syntax tree and static diagnostics.
+    /// </summary>
+    /// <param name="source">Starlark procedure text (at most 128 KiB).</param>
+    /// <param name="fileName">Logical source name reported in diagnostics.</param>
+    /// <returns>Parse result containing the syntax tree and any syntax or static-preflight diagnostics.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="source"/> exceeds the 128 KiB safety ceiling or <paramref name="fileName"/> is blank.</exception>
+    public static ProcedureParseResult Parse(string source, string fileName = "procedure.star")
     {
         ArgumentNullException.ThrowIfNull(source);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         if (source.Length > MaxDocumentChars)
             throw new ArgumentException("Procedure exceeds maximum source length.", nameof(source));
 
-        var steps = new List<ProcedureStep>();
-        var errors = new List<ProcedureDiagnostic>();
-        var lines = source.Replace("\r\n", "\n", StringComparison.Ordinal)
-            .Replace('\r', '\n').Split('\n');
-
-        for (int i = 0; i < lines.Length; i++)
+        AstModule ast;
+        try
         {
-            string line = lines[i].Trim();
-            if (line.Length == 0 || line.StartsWith('#') ||
-                line.StartsWith("//", StringComparison.Ordinal))
-                continue;
-
-            var location = new ProcedureLocation(i + 1);
-            if (steps.Count >= MaxSteps)
-            {
-                errors.Add(new(location, "Procedure exceeds maximum step count."));
-                break;
-            }
-
-            if (TryStatement(line, location, out var step, out var message))
-                steps.Add(step!);
-            else
-                errors.Add(new(location, message ?? "Invalid procedure statement."));
+            ast = AstModule.Parse(fileName, source, ProcedureDialect);
+        }
+        catch (StarlarkSyntaxException ex)
+        {
+            var location = ResolveLocation(ex.Location.File, ex.Location.Span);
+            return new ProcedureParseResult(
+                null,
+                new[] { new ProcedureDiagnostic(location, ex.RawMessage) });
         }
 
-        return new(new ProcedureDocument(steps.AsReadOnly()), errors.AsReadOnly());
+        var diagnostics = new List<ProcedureDiagnostic>();
+        var instruments = new List<ProcedureInstrumentDeclaration>();
+        var configures = new List<ProcedureConfigureReference>();
+        var measures = new List<ProcedureMeasureReference>();
+
+        WalkStatement(ast.Statement, ast.CodeMap, instruments, configures, measures, diagnostics);
+
+        var document = new ProcedureDocument(
+            fileName,
+            source,
+            ast,
+            instruments.AsReadOnly(),
+            configures.AsReadOnly(),
+            measures.AsReadOnly());
+
+        return new ProcedureParseResult(document, diagnostics.AsReadOnly());
     }
 
-    private static bool TryStatement(string text, ProcedureLocation location,
-        out ProcedureStep? step, out string? error)
+    internal static ProcedureLocation ResolveLocation(CodeMap codeMap, Span span)
     {
-        step = null;
-        error = null;
-
-        // INSTRUMENT Meter1
-        var instrument = Terms.Keyword("INSTRUMENT", caseInsensitive: true)
-            .SkipAnd(Terms.Identifier()).Eof();
-        if (instrument.TryParse(text, out var role))
-        {
-            step = new InstrumentStep(role.ToString(), location);
-            return true;
-        }
-
-        // CONFIGURE Meter1 RESISTANCE
-        var configure = Terms.Keyword("CONFIGURE", caseInsensitive: true)
-            .SkipAnd(Terms.Identifier()).And(Terms.Identifier()).Eof();
-        if (configure.TryParse(text, out var config))
-        {
-            if (!TryKind(config.Item2.ToString(), out var kind))
-                error = "Unsupported measurement kind. Use VOLTAGE or RESISTANCE.";
-            else
-            {
-                step = new ConfigureStep(config.Item1.ToString(), kind, location);
-                return true;
-            }
-            return false;
-        }
-
-        // MEASURE Meter1 RESISTANCE AS R1
-        var measure = Terms.Keyword("MEASURE", caseInsensitive: true)
-            .SkipAnd(Terms.Identifier()).And(Terms.Identifier())
-            .AndSkip(Terms.Keyword("AS", caseInsensitive: true))
-            .And(Terms.Identifier()).Eof();
-        if (measure.TryParse(text, out var reading))
-        {
-            if (!TryKind(reading.Item2.ToString(), out var kind))
-                error = "Unsupported measurement kind. Use VOLTAGE or RESISTANCE.";
-            else
-            {
-                step = new MeasureStep(reading.Item1.ToString(), kind,
-                    reading.Item3.ToString(), location);
-                return true;
-            }
-            return false;
-        }
-
-        // WAIT 5 s (simulated time, not wall-clock time)
-        var wait = Terms.Keyword("WAIT", caseInsensitive: true)
-            .SkipAnd(Terms.Decimal()).And(Terms.Identifier()).Eof();
-        if (wait.TryParse(text, out var delay))
-        {
-            if (!delay.Item2.ToString().Equals("s", StringComparison.OrdinalIgnoreCase) ||
-                delay.Item1 < 0 || delay.Item1 > 86400)
-                error = "WAIT expects a duration between 0 and 86400 s.";
-            else
-            {
-                step = new WaitStep(TimeSpan.FromSeconds((double)delay.Item1), location);
-                return true;
-            }
-            return false;
-        }
-
-        // VERIFY R1 BETWEEN 95 Ohm AND 105 Ohm
-        var verify = Terms.Keyword("VERIFY", caseInsensitive: true)
-            .SkipAnd(Terms.Identifier())
-            .AndSkip(Terms.Keyword("BETWEEN", caseInsensitive: true))
-            .And(Terms.Decimal()).And(Terms.Identifier())
-            .AndSkip(Terms.Keyword("AND", caseInsensitive: true))
-            .And(Terms.Decimal()).And(Terms.Identifier()).Eof();
-        if (verify.TryParse(text, out var limit))
-        {
-            string lowerUnit = limit.Item3.ToString();
-            string upperUnit = limit.Item5.ToString();
-            if (!TryUnit(lowerUnit, out var kind) ||
-                !TryUnit(upperUnit, out var upperKind) || kind != upperKind)
-                error = "VERIFY requires matching physical units (Ohm or V).";
-            else if (limit.Item2 > limit.Item4)
-                error = "VERIFY lower limit must not exceed upper limit.";
-            else
-            {
-                step = new VerifyStep(limit.Item1.ToString(), kind,
-                    (double)limit.Item2, (double)limit.Item4, location);
-                return true;
-            }
-            return false;
-        }
-
-        error = "Unknown or malformed statement. Expected INSTRUMENT, CONFIGURE, " +
-            "MEASURE, WAIT, or VERIFY.";
-        return false;
+        var resolved = codeMap.ResolveSpan(span);
+        return new ProcedureLocation(resolved.Begin.Line + 1, resolved.Begin.Column + 1);
     }
 
-    private static bool TryKind(string value, out MeasurementKind kind)
+    internal static bool TryParseKind(string value, out MeasurementKind kind)
     {
         if (value.Equals("VOLTAGE", StringComparison.OrdinalIgnoreCase))
         {
@@ -160,7 +92,7 @@ public static class ProcedureParser
         return false;
     }
 
-    private static bool TryUnit(string value, out MeasurementKind kind)
+    internal static bool TryParseUnit(string value, out MeasurementKind kind)
     {
         if (value.Equals("V", StringComparison.OrdinalIgnoreCase))
         {
@@ -174,5 +106,126 @@ public static class ProcedureParser
         }
         kind = default;
         return false;
+    }
+
+    private static void WalkStatement(
+        Stmt stmt,
+        CodeMap codeMap,
+        List<ProcedureInstrumentDeclaration> instruments,
+        List<ProcedureConfigureReference> configures,
+        List<ProcedureMeasureReference> measures,
+        List<ProcedureDiagnostic> diagnostics)
+    {
+        stmt.VisitOwnExprs(expr => WalkExpression(expr, codeMap, instruments, configures, measures, diagnostics));
+        stmt.VisitStmt(child => WalkStatement(child, codeMap, instruments, configures, measures, diagnostics));
+    }
+
+    private static void WalkExpression(
+        Expr expr,
+        CodeMap codeMap,
+        List<ProcedureInstrumentDeclaration> instruments,
+        List<ProcedureConfigureReference> configures,
+        List<ProcedureMeasureReference> measures,
+        List<ProcedureDiagnostic> diagnostics)
+    {
+        if (expr is CallExpr call && call.Function is IdentExpr ident)
+        {
+            var location = ResolveLocation(codeMap, call.Span);
+            InspectHostCall(ident.Name, call.Args, location, instruments, configures, measures, diagnostics);
+        }
+        expr.VisitExpr(child => WalkExpression(child, codeMap, instruments, configures, measures, diagnostics));
+    }
+
+    private static void InspectHostCall(
+        string name,
+        IReadOnlyList<Argument> args,
+        ProcedureLocation location,
+        List<ProcedureInstrumentDeclaration> instruments,
+        List<ProcedureConfigureReference> configures,
+        List<ProcedureMeasureReference> measures,
+        List<ProcedureDiagnostic> diagnostics)
+    {
+        switch (name)
+        {
+            case "instrument":
+                if (args.Count == 1 && TryStringArg(args[0], out var role))
+                    instruments.Add(new ProcedureInstrumentDeclaration(role, location));
+                else
+                    diagnostics.Add(new ProcedureDiagnostic(location, "instrument(role) requires one string literal role name."));
+                break;
+
+            case "configure":
+                if (args.Count >= 2 && TryStringArg(args[0], out var cfgRole) && TryStringArg(args[1], out var cfgKindText))
+                {
+                    if (TryParseKind(cfgKindText, out var cfgKind))
+                        configures.Add(new ProcedureConfigureReference(cfgRole, cfgKind, location));
+                    else
+                        diagnostics.Add(new ProcedureDiagnostic(location, "Unsupported measurement kind. Use 'VOLTAGE' or 'RESISTANCE'."));
+                }
+                break;
+
+            case "measure":
+                if (args.Count >= 2 && TryStringArg(args[0], out var measRole) && TryStringArg(args[1], out var measKindText))
+                {
+                    if (TryParseKind(measKindText, out var measKind))
+                        measures.Add(new ProcedureMeasureReference(measRole, measKind, location));
+                    else
+                        diagnostics.Add(new ProcedureDiagnostic(location, "Unsupported measurement kind. Use 'VOLTAGE' or 'RESISTANCE'."));
+                }
+                break;
+
+            case "wait_s":
+                if (args.Count == 1 && TryNumericLiteral(args[0], out var seconds))
+                {
+                    if (!double.IsFinite(seconds) || seconds < 0 || seconds > MaxWaitSeconds)
+                        diagnostics.Add(new ProcedureDiagnostic(location, "wait_s expects a duration between 0 and 86400 seconds."));
+                }
+                break;
+
+            case "verify_between":
+                if (args.Count >= 4 && TryStringArg(args[3], out var unitText) && !TryParseUnit(unitText, out _))
+                    diagnostics.Add(new ProcedureDiagnostic(location, "verify_between requires unit 'Ohm' or 'V'."));
+                if (args.Count >= 3 && TryNumericLiteral(args[1], out var low) && TryNumericLiteral(args[2], out var high) && low > high)
+                    diagnostics.Add(new ProcedureDiagnostic(location, "verify_between lower limit must not exceed upper limit."));
+                break;
+        }
+    }
+
+    private static bool TryStringArg(Argument arg, out string value)
+    {
+        if (arg is PositionalArgument pos && pos.Value is StringLiteral literal)
+        {
+            value = literal.Value;
+            return true;
+        }
+        value = string.Empty;
+        return false;
+    }
+
+    private static bool TryNumericLiteral(Argument arg, out double value)
+    {
+        if (arg is PositionalArgument pos)
+            return TryNumericExpr(pos.Value, out value);
+        value = 0;
+        return false;
+    }
+
+    private static bool TryNumericExpr(Expr expr, out double value)
+    {
+        switch (expr)
+        {
+            case FloatLiteral f:
+                value = f.Value;
+                return true;
+            case IntLiteral i:
+                value = (double)i.Value.Value;
+                return true;
+            case MinusExpr m when TryNumericExpr(m.Operand, out var inner):
+                value = -inner;
+                return true;
+            default:
+                value = 0;
+                return false;
+        }
     }
 }

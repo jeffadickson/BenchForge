@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DOTNET = os.environ.get("BENCHFORGE_DOTNET", "dotnet")
-DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net10.0/BenchForge.Checks.dll")))
+DLL = Path(os.environ.get("BENCHFORGE_CHECKS_DLL", str(ROOT / "tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll")))
 NATIVE = Path(os.environ.get("BENCHFORGE_CHECKS_NATIVE", str(ROOT / ".tools/checks/native" / ("BenchForge.Checks.exe" if os.name == "nt" else "BenchForge.Checks"))))
 REFERENCE = Path(__file__).with_name("reference.py")
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"}
@@ -177,7 +177,7 @@ def main():
         fixtures(Path(temp))
     output = ROOT / "build/api-audit.json"
     original = folder / "roslyn-baseline/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll"
-    updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net10.0/BenchDouble.DocumentationAudit.dll")))
+    updated = Path(os.environ.get("BENCHFORGE_ROSLYN_DLL", str(ROOT / "tools/BenchDouble.DocumentationAudit/bin/Release/net11.0/BenchDouble.DocumentationAudit.dll")))
     baseline = subprocess.run([DOTNET, str(original), str(ROOT), str(output)], cwd=ROOT, capture_output=True, check=True)
     content = output.read_bytes()
     for jobs in (1, 8):

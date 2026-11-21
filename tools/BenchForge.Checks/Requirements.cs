@@ -32,7 +32,8 @@ internal static class Requirements
             foreach (var column in new[] { "implementation_file", "verification_file" })
             {
                 var path = row[column].Trim();
-                if (path.Length > 0 && !files[path]) errors.Add($"{uid}: missing {column}: {path}");
+                if (path.Contains('\\')) errors.Add($"{uid}: {column} must use forward slashes: {path}");
+                else if (path.Length > 0 && !files[path]) errors.Add($"{uid}: missing {column}: {path}");
             }
             var issue = row["github_issue"];
             if (issue.Length > 0 && !Full(issue, @"https://github\.com/jeffadickson/BenchDouble/issues/[0-9]+")) errors.Add($"{uid}: malformed GitHub issue URL");

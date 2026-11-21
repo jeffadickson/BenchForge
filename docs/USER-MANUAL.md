@@ -102,7 +102,7 @@ The [full runner audit](REQUIREMENTS-AUDIT-2026-10-15.md) reviews all 90 origina
 
 ## Text procedures backed by typed instrument mocks
 
-The optional [Parlot procedure tutorial](PROCEDURE-DSL.md) introduces a small human-readable DSL for engineers who prefer editing procedure text. Run `make demo-procedure` or `dotnet run --project examples/BenchForge.ProcedureDemo` from the repository root. The sample registers a simulated `Meter1`, selects resistance mode, measures 100 Ohm, checks limits, advances the virtual clock five seconds, then measures 105 Ohm. A failed `VERIFY` produces a failed run and a source-line error. The DSL does not connect to physical instruments, execute arbitrary code or replace the graphical procedure editor. Future editor integration and revision control remain in issue #51.
+The optional [Starlark procedure guide](PROCEDURE-DSL.md) introduces a deterministic, hermetic Starlark procedure runtime powered by `starlark-cs` (`external/starlark-cs`). Run `make demo-procedure` or `dotnet run --project examples/BenchDouble.ProcedureDemo` from the repository root. The sample (`resistance-test.star`) registers a simulated `Meter1`, selects resistance mode, measures 100 Ohm, checks limits with `verify_between`, advances the virtual clock five seconds via `wait_s(5)`, then measures 105 Ohm. A failed limit check produces a failed run and an exact source-line error. The runtime enforces uncatchable step/memory/timeout/cancellation budgets and does not connect to physical instruments or replace the graphical procedure editor. Future editor integration and revision control remain in issue #51.
 
 ## Generated instrument mocks
 

@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 using UnitsNet;
 
 string path = args.Length == 0
-    ? "examples/BenchDouble.ProcedureDemo/resistance-test.bench"
+    ? "examples/BenchDouble.ProcedureDemo/resistance-test.star"
     : args[0];
 var source = await File.ReadAllTextAsync(path);
-var parsed = ProcedureParser.Parse(source);
-if (!parsed.Success)
+var parsed = ProcedureParser.Parse(source, path);
+if (!parsed.Success || parsed.Document is null)
 {
     foreach (var error in parsed.Diagnostics)
         Console.Error.WriteLine($"Line {error.Location.Line}: {error.Message}");

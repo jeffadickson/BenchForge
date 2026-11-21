@@ -1,0 +1,3 @@
+[submodule "external/starlark-cs"]
+	path = external/starlark-cs
+	url = https://github.com/jeffadickson/StarLark-cs.git

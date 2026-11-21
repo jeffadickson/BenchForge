@@ -57,7 +57,7 @@ The first AutoMock engine uses only .NET 8 `System.Text.Json`, `System.Security.
 
 ## Optional procedure parser package
 
-`src/BenchDouble.Procedures/BenchDouble.Procedures.csproj` references **Parlot 1.5.9** (stable NuGet package, BSD-3-Clause license) and the existing `BenchDouble` and `BenchDouble.Experiments` projects. The core instrument library does **not** depend on Parlot. `tests/BenchDouble.Procedures.Tests` uses the existing xUnit, runner and test SDK packages; the example uses the existing logging abstractions. `make build`, `make test`, `make demo-procedure` and the three-OS CI workflow include the new projects. NuGet lockfiles and successful CI validation remain outstanding.
+`src/BenchDouble.Procedures/BenchDouble.Procedures.csproj` references **`starlark-cs`** (`external/starlark-cs` git submodule, `Starlark.Syntax` + `Starlark.Eval`, `.NET 11`) and the existing `BenchDouble` and `BenchDouble.Experiments` projects, replacing the earlier Parlot 1.5.9 prototype. The core instrument library does **not** depend on `starlark-cs`. `tests/BenchDouble.Procedures.Tests` uses the existing xUnit, runner and test SDK packages. `make build`, `make test`, `make demo-procedure`, `BenchForge.slnx` and the three-OS CI workflow include the updated projects. NuGet lockfiles and cross-OS CI validation remain outstanding.
 
 ## Generated driver/mock dependencies
 

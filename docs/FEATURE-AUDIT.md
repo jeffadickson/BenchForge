@@ -46,9 +46,9 @@ BD-AM-013..016 add explicit quantity-typed measurement registration and mode-saf
 
 A full [90-row source-evidence matrix](../requirements/legacy-runner-audit.csv) and [summary report](REQUIREMENTS-AUDIT-2026-10-15.md) supersede earlier high-level assumptions about TR-001..090. Findings: 45 partial source, 6 design-only and 39 with no direct implementation evidence. The canonical traceability statuses have been updated. No requirement has reviewed passing verification evidence; CI is currently failing on the three OS targets. Issues #45–#50 capture P0 implementation and verification gaps.
 
-## Parlot procedure language prototype
+## Starlark procedure runtime (`starlark-cs`)
 
-BD-DSL-001..007 introduce a separate optional `BenchDouble.Procedures` project with typed AST, Parlot grammar, semantic checks and mock-only execution through `ExperimentRunner`. The source and xUnit tests are committed but not executed. It does not satisfy the full original TR-001..014 structured editor/revision/signature requirements; the gap remains tracked in issue #51.
+BD-DSL-001..007 provide a separate optional `BenchDouble.Procedures` project backed by `starlark-cs` (`external/starlark-cs`) with hermetic AST parsing, semantic preflight, uncatchable execution budgets, immutable UnitsNet `ProcedureQuantity` interop, and mock-only execution through `ExperimentRunner`. It does not yet satisfy the full original TR-001..014 structured editor/revision/signature requirements; the gap remains tracked in issue #51.
 
 ## Generated instrument and default mock reference
 

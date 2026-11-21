@@ -99,6 +99,17 @@ class RequirementGateTests(unittest.TestCase):
         self.mutate_csv('requirements/full-audit.csv', lambda rows: rows.append(rows[-1].copy()))
         self.assertEqual(1, self.run_gate())
 
+    def test_backslash_path_fails(self):
+        """Reject Windows backslash path separators so Linux/macOS gates never break."""
+        def inject_backslash(rows):
+            """Replace forward slashes with backslashes in the first path-bearing row."""
+            for row in rows:
+                if '/' in row.get('implementation_file', ''):
+                    row['implementation_file'] = row['implementation_file'].replace('/', '\\')
+                    break
+        self.mutate_csv('requirements/traceability.csv', inject_backslash)
+        self.assertEqual(1, self.run_gate())
+
 
 if __name__ == '__main__':
     unittest.main()

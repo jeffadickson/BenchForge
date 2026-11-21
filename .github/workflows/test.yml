@@ -19,6 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Archive source snapshot for local documentation audit
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -37,7 +39,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -167,7 +169,9 @@ jobs:
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock
       - name: Run AutoMock JSON experiment demonstration
         run: dotnet run --project examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj --configuration Release -- --automock-json
-      - name: Test Parlot mock-backed procedures
+      - name: Run Instrument Definer unit tests
+        run: python -m unittest discover -s tests/instrument_definer -p 'test_*.py' -v
+      - name: Test Starlark mock-backed procedures
         run: dotnet test tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj --configuration Release
       - name: Run mock-backed procedure example
         run: dotnet run --project examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj --configuration Release
@@ -177,7 +181,7 @@ jobs:
         run: dotnet build tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release
       - name: Install Playwright Chromium
         shell: pwsh
-        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net10.0/playwright.ps1 install chromium
+        run: ./tests/BenchDouble.Browser.Tests/bin/Release/net11.0/playwright.ps1 install chromium
       - name: Run real-browser unattended monitor tests
         run: dotnet test tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj --configuration Release --no-build
       - name: Archive browser failure screenshots

@@ -1,0 +1,53 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BenchDouble/BenchDouble.csproj" />
+    <Project Path="src/BenchDouble.Artifacts.Sqlite/BenchDouble.Artifacts.Sqlite.csproj" />
+    <Project Path="src/BenchDouble.Experiments/BenchDouble.Experiments.csproj" />
+    <Project Path="src/BenchDouble.Host.Client/BenchDouble.Host.Client.csproj" />
+    <Project Path="src/BenchDouble.Host.Contracts/BenchDouble.Host.Contracts.csproj" />
+    <Project Path="src/BenchDouble.Host.Server/BenchDouble.Host.Server.csproj" />
+    <Project Path="src/BenchDouble.Ivi.Official/BenchDouble.Ivi.Official.csproj" />
+    <Project Path="src/BenchDouble.Plotting/BenchDouble.Plotting.csproj" />
+    <Project Path="src/BenchDouble.Plotting.ScottPlot/BenchDouble.Plotting.ScottPlot.csproj" />
+    <Project Path="src/BenchDouble.Procedures/BenchDouble.Procedures.csproj" />
+    <Project Path="src/BenchDouble.TimeSeries.Sqlite/BenchDouble.TimeSeries.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BenchDouble.Acceptance.Tests/BenchDouble.Acceptance.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Artifacts.Tests/BenchDouble.Artifacts.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Browser.Tests/BenchDouble.Browser.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Experiments.Tests/BenchDouble.Experiments.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Host.Tests/BenchDouble.Host.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Ivi.Official.Tests/BenchDouble.Ivi.Official.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Procedures.Tests/BenchDouble.Procedures.Tests.csproj" />
+    <Project Path="tests/BenchDouble.Tests/BenchDouble.Tests.csproj" />
+    <Project Path="tests/BenchDouble.TimeSeries.Sqlite.Tests/BenchDouble.TimeSeries.Sqlite.Tests.csproj" />
+    <Project Path="tests/UnitsNet.Plotting.Tests/UnitsNet.Plotting.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/BenchDouble.ArtifactCrashProbe/BenchDouble.ArtifactCrashProbe.csproj" />
+    <Project Path="tools/BenchDouble.BrowserSetup/BenchDouble.BrowserSetup.csproj" />
+    <Project Path="tools/BenchDouble.DocumentationAudit/BenchDouble.DocumentationAudit.csproj" />
+    <Project Path="tools/BenchDouble.DriverGen/BenchDouble.DriverGen.csproj" />
+    <Project Path="tools/BenchDouble.RecoveryProbe/BenchDouble.RecoveryProbe.csproj" />
+    <Project Path="tools/BenchForge.CheckWorkflow/BenchForge.CheckWorkflow.csproj" />
+    <Project Path="tools/BenchForge.Checks/BenchForge.Checks.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/BenchDouble.CaptureDemo/BenchDouble.CaptureDemo.csproj" />
+    <Project Path="examples/BenchDouble.DiDemo/BenchDouble.DiDemo.csproj" />
+    <Project Path="examples/BenchDouble.ExperimentDemo/BenchDouble.ExperimentDemo.csproj" />
+    <Project Path="examples/BenchDouble.GeneratedMockDemo/BenchDouble.GeneratedMockDemo.csproj" />
+    <Project Path="examples/BenchDouble.ProcedureDemo/BenchDouble.ProcedureDemo.csproj" />
+    <Project Path="examples/BenchDouble.ThermalCycleDemo/BenchDouble.ThermalCycleDemo.csproj" />
+    <Project Path="examples/BenchDouble.TypedMockDemo/BenchDouble.TypedMockDemo.csproj" />
+    <Project Path="examples/BenchForge.AlphaDemo/BenchForge.AlphaDemo.csproj" />
+  </Folder>
+  <Folder Name="/generated/">
+    <Project Path="generated/BenchForge.Instruments/BenchForge.Instruments.csproj" />
+  </Folder>
+  <Folder Name="/external/">
+    <Project Path="external/starlark-cs/src/Starlark.Syntax/Starlark.Syntax.csproj" />
+    <Project Path="external/starlark-cs/src/Starlark.Eval/Starlark.Eval.csproj" />
+  </Folder>
+</Solution>
