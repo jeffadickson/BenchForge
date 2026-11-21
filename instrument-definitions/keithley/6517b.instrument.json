@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "6517B",
+  "class": "Electrometer",
+  "driverName": "Keithley6517B",
+  "description": "Clean-room SCPI command profile for Keithley 6517B; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "High-voltage DC source setpoint",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR:VOLT?",
+      "set": "SOUR:VOLT {value}",
+      "minimum": -1000,
+      "maximum": 1000
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Low-current electrometer reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR?",
+      "minimum": -0.021,
+      "maximum": 0.021
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "High-impedance voltage reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": -210,
+      "maximum": 210
+    },
+    {
+      "name": "MeasuredResistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "High-resistance reading",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0,
+      "maximum": 1e+16
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

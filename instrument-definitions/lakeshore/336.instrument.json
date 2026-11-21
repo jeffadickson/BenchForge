@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "LakeShore",
+  "model": "336",
+  "class": "TemperatureController",
+  "driverName": "LakeShore336",
+  "description": "Clean-room SCPI command profile for LakeShore 336; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "SetpointTemperature",
+      "kind": "control",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Loop temperature setpoint",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SETP? {channel}",
+      "set": "SETP {channel} {value}",
+      "minimum": -270,
+      "maximum": 500
+    },
+    {
+      "name": "MeasuredTemperature",
+      "kind": "measurement",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Sensor temperature reading in Celsius",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "CRDG? {channel}",
+      "minimum": -270,
+      "maximum": 500
+    },
+    {
+      "name": "HeaterOutputPercent",
+      "kind": "measurement",
+      "quantity": "Ratio",
+      "unit": "Percent",
+      "description": "Active heater output percentage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "HTR? {channel}",
+      "minimum": 0,
+      "maximum": 100
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

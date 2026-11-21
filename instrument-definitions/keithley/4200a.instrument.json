@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "4200A-SCS",
+  "class": "ParameterAnalyzer",
+  "driverName": "Keithley4200A",
+  "description": "Clean-room SCPI command profile for Keithley 4200A-SCS; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU channel DC bias voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": -210,
+      "maximum": 210
+    },
+    {
+      "name": "SourceCurrent",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU channel DC bias current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": -0.1,
+      "maximum": 0.1
+    },
+    {
+      "name": "VoltageCompliance",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU channel voltage compliance",
+      "mock": {
+        "defaultValue": 10.0
+      },
+      "query": "SENS{channel}:VOLT:PROT?",
+      "set": "SENS{channel}:VOLT:PROT {value}",
+      "minimum": 0.01,
+      "maximum": 210
+    },
+    {
+      "name": "CurrentCompliance",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU channel current compliance",
+      "mock": {
+        "defaultValue": 0.01
+      },
+      "query": "SENS{channel}:CURR:PROT?",
+      "set": "SENS{channel}:CURR:PROT {value}",
+      "minimum": 1e-12,
+      "maximum": 0.1
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

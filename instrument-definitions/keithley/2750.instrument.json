@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2750",
+  "class": "DigitalMultimeterSwitch",
+  "driverName": "Keithley2750",
+  "description": "Clean-room SCPI command profile for Keithley 2750; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "DcVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "DC voltage reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT:DC?",
+      "minimum": -1000,
+      "maximum": 1000
+    },
+    {
+      "name": "DcCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "DC current reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR:DC?",
+      "minimum": -3,
+      "maximum": 3
+    },
+    {
+      "name": "Resistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Two-wire resistance reading",
+      "mock": {
+        "defaultValue": 100.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0,
+      "maximum": 120000000.0
+    },
+    {
+      "name": "FourWireResistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Low-ohm four-wire resistance reading",
+      "mock": {
+        "defaultValue": 10.0
+      },
+      "query": "MEAS:FRES?",
+      "minimum": 0,
+      "maximum": 120000000.0
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

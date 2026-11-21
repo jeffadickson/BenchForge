@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Siglent",
+  "model": "SDM3055",
+  "class": "DigitalMultimeter",
+  "driverName": "SiglentSdm3055",
+  "description": "Clean-room SCPI command profile for Siglent SDM3055; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "DcVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "DC voltage reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT:DC?",
+      "minimum": -1000,
+      "maximum": 1000
+    },
+    {
+      "name": "AcVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "AC voltage reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT:AC?",
+      "minimum": 0,
+      "maximum": 750
+    },
+    {
+      "name": "DcCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "DC current reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR:DC?",
+      "minimum": -10,
+      "maximum": 10
+    },
+    {
+      "name": "Resistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Resistance reading",
+      "mock": {
+        "defaultValue": 100.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0,
+      "maximum": 100000000.0
+    },
+    {
+      "name": "Capacitance",
+      "kind": "measurement",
+      "quantity": "ElectricCapacitance",
+      "unit": "Farad",
+      "description": "Capacitance reading",
+      "mock": {
+        "defaultValue": 1e-09
+      },
+      "query": "MEAS:CAP?",
+      "minimum": 0,
+      "maximum": 0.01
+    },
+    {
+      "name": "Frequency",
+      "kind": "measurement",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Frequency reading",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "MEAS:FREQ?",
+      "minimum": 20,
+      "maximum": 1000000.0
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2306",
+  "class": "PowerSupply",
+  "driverName": "Keithley2306",
+  "description": "Clean-room SCPI command profile for Keithley 2306; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel DC voltage setpoint",
+      "mock": {
+        "defaultValue": 3.8
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0,
+      "maximum": 15
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Channel current limit",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:CURR:LIM?",
+      "set": "SOUR{channel}:CURR:LIM {value}",
+      "minimum": 0.006,
+      "maximum": 5
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured channel voltage",
+      "mock": {
+        "defaultValue": 3.8
+      },
+      "query": "MEAS{channel}:VOLT?",
+      "minimum": 0,
+      "maximum": 15
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured channel current",
+      "mock": {
+        "defaultValue": 0.15
+      },
+      "query": "MEAS{channel}:CURR?",
+      "minimum": -5,
+      "maximum": 5
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

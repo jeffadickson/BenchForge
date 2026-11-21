@@ -218,4 +218,17 @@ public sealed class ProcedureTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => runner.RunAsync(procedure, cts.Token));
     }
+
+    /// <summary>Verify StarlarkProcedureEngine exposes capabilities and preflights through IProcedureScriptEngine.</summary>
+    [Fact]
+    public void StarlarkProcedureEnginePreflightsThroughNeutralSeam()
+    {
+        IProcedureScriptEngine engine = StarlarkProcedureEngine.Instance;
+        Assert.Equal("starlark-cs", engine.Capabilities.EngineName);
+        Assert.True(engine.Capabilities.SupportsDeterministicFutures);
+        Assert.True(engine.Capabilities.SupportsStaticTypeChecking);
+        Assert.True(engine.Capabilities.SupportsWebAssembly);
+        Assert.True(engine.Preflight("instrument(\"Meter1\")\nwait_s(1)\n").Success);
+        Assert.False(engine.Preflight("while True:\n    pass\n").Success);
+    }
 }

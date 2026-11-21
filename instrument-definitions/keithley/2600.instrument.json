@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2600",
+  "class": "SourceMeasureUnit",
+  "driverName": "Keithley2600",
+  "description": "Clean-room SCPI command profile for Keithley 2600; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU channel voltage setpoint",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": -200,
+      "maximum": 200
+    },
+    {
+      "name": "SourceCurrent",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU channel current setpoint",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": -1.5,
+      "maximum": 1.5
+    },
+    {
+      "name": "VoltageLimit",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU channel voltage compliance",
+      "mock": {
+        "defaultValue": 20.0
+      },
+      "query": "SENS{channel}:VOLT:PROT?",
+      "set": "SENS{channel}:VOLT:PROT {value}",
+      "minimum": 0.01,
+      "maximum": 200
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU channel current compliance",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "SENS{channel}:CURR:PROT?",
+      "set": "SENS{channel}:CURR:PROT {value}",
+      "minimum": 1e-08,
+      "maximum": 1.5
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU channel measured voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS{channel}:VOLT?",
+      "minimum": -200,
+      "maximum": 200
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU channel measured current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS{channel}:CURR?",
+      "minimum": -1.5,
+      "maximum": 1.5
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

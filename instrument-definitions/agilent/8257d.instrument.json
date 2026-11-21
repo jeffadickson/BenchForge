@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Agilent",
+  "model": "8257D",
+  "class": "SignalGenerator",
+  "driverName": "Agilent8257D",
+  "description": "Clean-room SCPI command profile for Agilent 8257D; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "Frequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "CW RF output frequency",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "SOUR:FREQ:CW?",
+      "set": "SOUR:FREQ:CW {value}",
+      "minimum": 250000.0,
+      "maximum": 40000000000.0
+    },
+    {
+      "name": "OutputPower",
+      "kind": "control",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "Linear RF output power in watts",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "SOUR:POW:LEV:IMM:AMPL?",
+      "set": "SOUR:POW:LEV:IMM:AMPL {value}",
+      "minimum": 1e-15,
+      "maximum": 1.0
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

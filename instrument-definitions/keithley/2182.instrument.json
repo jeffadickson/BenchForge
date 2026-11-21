@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2182",
+  "class": "Nanovoltmeter",
+  "driverName": "Keithley2182",
+  "description": "Clean-room SCPI command profile for Keithley 2182; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "DcVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Nanovoltmeter DC voltage channel reading",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SENS{channel}:VOLT:DC:DATA?",
+      "minimum": -120,
+      "maximum": 120
+    },
+    {
+      "name": "Temperature",
+      "kind": "measurement",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Nanovoltmeter thermocouple temperature reading",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SENS{channel}:TEMP:DATA?",
+      "minimum": -200,
+      "maximum": 1800
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

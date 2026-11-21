@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2200",
+  "class": "PowerSupply",
+  "driverName": "Keithley2200",
+  "description": "Clean-room SCPI command profile for Keithley 2200; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "DC output voltage setpoint",
+      "mock": {
+        "defaultValue": 5.0
+      },
+      "query": "SOUR:VOLT?",
+      "set": "SOUR:VOLT {value}",
+      "minimum": 0,
+      "maximum": 72
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "DC output current limit",
+      "mock": {
+        "defaultValue": 0.5
+      },
+      "query": "SOUR:CURR?",
+      "set": "SOUR:CURR {value}",
+      "minimum": 0,
+      "maximum": 5
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured terminal voltage",
+      "mock": {
+        "defaultValue": 5.0
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": 0,
+      "maximum": 72
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured terminal current",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "MEAS:CURR?",
+      "minimum": 0,
+      "maximum": 5
+    },
+    {
+      "name": "OverVoltageProtection",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Over-voltage protection threshold",
+      "mock": {
+        "defaultValue": 30.0
+      },
+      "query": "SOUR:VOLT:PROT?",
+      "set": "SOUR:VOLT:PROT {value}",
+      "minimum": 1,
+      "maximum": 75
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

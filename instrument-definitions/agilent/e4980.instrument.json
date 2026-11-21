@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Agilent",
+  "model": "E4980",
+  "class": "LcrMeter",
+  "driverName": "AgilentE4980",
+  "description": "Clean-room SCPI command profile for Agilent E4980; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "TestFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "LCR stimulus frequency",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "FREQ:CW?",
+      "set": "FREQ:CW {value}",
+      "minimum": 20,
+      "maximum": 2000000.0
+    },
+    {
+      "name": "TestVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "LCR AC test voltage level",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "VOLT:LEV?",
+      "set": "VOLT:LEV {value}",
+      "minimum": 0,
+      "maximum": 20
+    },
+    {
+      "name": "TestCurrent",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "LCR AC test current level",
+      "mock": {
+        "defaultValue": 0.01
+      },
+      "query": "CURR:LEV?",
+      "set": "CURR:LEV {value}",
+      "minimum": 0,
+      "maximum": 0.1
+    },
+    {
+      "name": "MeasuredCapacitance",
+      "kind": "measurement",
+      "quantity": "ElectricCapacitance",
+      "unit": "Farad",
+      "description": "Measured capacitance",
+      "mock": {
+        "defaultValue": 1e-09
+      },
+      "query": "MEAS:CAP?",
+      "minimum": 0,
+      "maximum": 1.0
+    },
+    {
+      "name": "MeasuredResistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Measured series resistance",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0,
+      "maximum": 1000000000.0
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

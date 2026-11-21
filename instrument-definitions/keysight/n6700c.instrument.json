@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "N6700C",
+  "class": "PowerSupply",
+  "driverName": "KeysightN6700C",
+  "description": "Clean-room SCPI command profile for Keysight N6700C; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Modular channel voltage setpoint",
+      "mock": {
+        "defaultValue": 12.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0,
+      "maximum": 60
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Modular channel current limit",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": 0,
+      "maximum": 20
+    },
+    {
+      "name": "OverVoltageProtection",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Modular channel OVP threshold",
+      "mock": {
+        "defaultValue": 24.0
+      },
+      "query": "SOUR{channel}:VOLT:PROT?",
+      "set": "SOUR{channel}:VOLT:PROT {value}",
+      "minimum": 1,
+      "maximum": 66
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured channel voltage",
+      "mock": {
+        "defaultValue": 12.0
+      },
+      "query": "MEAS{channel}:VOLT?",
+      "minimum": 0,
+      "maximum": 60
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured channel current",
+      "mock": {
+        "defaultValue": 0.2
+      },
+      "query": "MEAS{channel}:CURR?",
+      "minimum": 0,
+      "maximum": 20
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

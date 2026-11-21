@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Rigol",
+  "model": "DP832",
+  "class": "PowerSupply",
+  "driverName": "RigolDp832",
+  "description": "Clean-room SCPI command profile for Rigol DP832; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 3
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel DC voltage setpoint",
+      "mock": {
+        "defaultValue": 5.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0,
+      "maximum": 30
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Channel DC current limit",
+      "mock": {
+        "defaultValue": 0.5
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": 0,
+      "maximum": 3
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured channel voltage",
+      "mock": {
+        "defaultValue": 5.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": 0,
+      "maximum": 30
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured channel current",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": 0,
+      "maximum": 3
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

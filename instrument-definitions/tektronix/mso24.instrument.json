@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Tektronix",
+  "model": "MSO24",
+  "class": "Oscilloscope",
+  "driverName": "TektronixMso24",
+  "description": "Clean-room SCPI command profile for Tektronix MSO24; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "VerticalScale",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel vertical scale in volts per division",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "CH{channel}:SCA?",
+      "set": "CH{channel}:SCA {value}",
+      "minimum": 0.001,
+      "maximum": 10
+    },
+    {
+      "name": "VerticalOffset",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel vertical offset in volts",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "CH{channel}:OFFS?",
+      "set": "CH{channel}:OFFS {value}",
+      "minimum": -50,
+      "maximum": 50
+    },
+    {
+      "name": "BandwidthLimit",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Channel analog bandwidth limit in hertz",
+      "mock": {
+        "defaultValue": 200000000.0
+      },
+      "query": "CH{channel}:BAN?",
+      "set": "CH{channel}:BAN {value}",
+      "minimum": 20000000.0,
+      "maximum": 500000000.0
+    },
+    {
+      "name": "TriggerLevel",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Edge trigger level in volts",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "TRIG:A:LEV:CH{channel}?",
+      "set": "TRIG:A:LEV:CH{channel} {value}",
+      "minimum": -50,
+      "maximum": 50
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "2510",
+  "class": "SourceMeasureUnit",
+  "driverName": "Keithley2510",
+  "description": "Clean-room SCPI command profile for Keithley 2510; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "SetpointTemperature",
+      "kind": "control",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "TEC temperature setpoint",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SOUR:TEMP?",
+      "set": "SOUR:TEMP {value}",
+      "minimum": -50,
+      "maximum": 150
+    },
+    {
+      "name": "MeasuredTemperature",
+      "kind": "measurement",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Measured TEC temperature",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "MEAS:TEMP?",
+      "minimum": -50,
+      "maximum": 150
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "TEC drive current limit",
+      "mock": {
+        "defaultValue": 2.0
+      },
+      "query": "SOUR:CURR:PROT?",
+      "set": "SOUR:CURR:PROT {value}",
+      "minimum": 0.1,
+      "maximum": 5.25
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured TEC drive current",
+      "mock": {
+        "defaultValue": 0.5
+      },
+      "query": "MEAS:CURR?",
+      "minimum": -5.25,
+      "maximum": 5.25
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured TEC voltage",
+      "mock": {
+        "defaultValue": 2.5
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": -10,
+      "maximum": 10
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

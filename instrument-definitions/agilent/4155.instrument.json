@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Agilent",
+  "model": "4155/4156",
+  "class": "ParameterAnalyzer",
+  "driverName": "Agilent4155",
+  "description": "Clean-room SCPI command profile for Agilent 4155/4156; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel DC bias voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": -100,
+      "maximum": 100
+    },
+    {
+      "name": "SourceCurrent",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Channel DC bias current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": -0.1,
+      "maximum": 0.1
+    },
+    {
+      "name": "VoltageCompliance",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Channel voltage compliance",
+      "mock": {
+        "defaultValue": 10.0
+      },
+      "query": "SENS{channel}:VOLT:PROT?",
+      "set": "SENS{channel}:VOLT:PROT {value}",
+      "minimum": 0.01,
+      "maximum": 100
+    },
+    {
+      "name": "CurrentCompliance",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Channel current compliance",
+      "mock": {
+        "defaultValue": 0.01
+      },
+      "query": "SENS{channel}:CURR:PROT?",
+      "set": "SENS{channel}:CURR:PROT {value}",
+      "minimum": 1e-12,
+      "maximum": 0.1
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

@@ -71,12 +71,17 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         if (!Regex.IsMatch(propertyName, @"^[A-Za-z_][A-Za-z0-9_]*$") ||
             !seen.Add(propertyName)) throw new InvalidDataException($"Invalid or duplicate parameter {file}");
         // Strict allow-list prevents arbitrary C# expressions in schema values.
-        var units = new Dictionary<string, (string unitProperty, string factory)>(StringComparer.Ordinal)
+        var units = new Dictionary<string, (string unitProperty, string factory, bool isDecimal)>(StringComparer.Ordinal)
         {
-            ["Frequency:Hertz"] = ("Hertz", "FromHertz"),
-            ["ElectricPotential:Volt"] = ("Volts", "FromVolts"),
-            ["ElectricResistance:Ohm"] = ("Ohms", "FromOhms"),
-            ["ElectricCurrent:Ampere"] = ("Amperes", "FromAmperes")
+            ["Frequency:Hertz"] = ("Hertz", "FromHertz", false),
+            ["ElectricPotential:Volt"] = ("Volts", "FromVolts", false),
+            ["ElectricResistance:Ohm"] = ("Ohms", "FromOhms", false),
+            ["ElectricCurrent:Ampere"] = ("Amperes", "FromAmperes", false),
+            ["Power:Watt"] = ("Watts", "FromWatts", true),
+            ["Temperature:DegreeCelsius"] = ("DegreesCelsius", "FromDegreesCelsius", false),
+            ["Duration:Second"] = ("Seconds", "FromSeconds", false),
+            ["ElectricCapacitance:Farad"] = ("Farads", "FromFarads", false),
+            ["Ratio:Percent"] = ("Percent", "FromPercent", false)
         };
         if (!units.TryGetValue($"{quantity}:{unit}", out var info)) throw new InvalidDataException($"Unsupported quantity/unit: {quantity}/{unit}");
         foreach (var template in new[] { query, set }.Where(t => t.Length > 0))
@@ -127,7 +132,10 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
             body.AppendLine("  {");
             body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
             body.AppendLine($"    string reply = await session.QueryAsync($\"{query.Replace("{channel}", "{channel}")}\", ct).ConfigureAwait(false);");
-            body.AppendLine($"    return {quantity}.{info.factory}(double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture));");
+            string parsedExpr = info.isDecimal
+                ? "(decimal)double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture)"
+                : "double.Parse(reply, NumberStyles.Float, CultureInfo.InvariantCulture)";
+            body.AppendLine($"    return {quantity}.{info.factory}({parsedExpr});");
             body.AppendLine("  }");
         }
         if (set.Length > 0)
@@ -143,7 +151,8 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
             body.AppendLine($"  public async ValueTask Set{propertyName}Async(int channel, {quantity} value, CancellationToken ct = default)");
             body.AppendLine("  {");
             body.AppendLine($"    if (channel < 1 || channel > {channelCount}) throw new ArgumentOutOfRangeException(nameof(channel));");
-            body.AppendLine($"    double number = value.{info.unitProperty};");
+            string extractExpr = info.isDecimal ? $"(double)value.{info.unitProperty}" : $"value.{info.unitProperty}";
+            body.AppendLine($"    double number = {extractExpr};");
             body.AppendLine("    if (!double.IsFinite(number)) throw new ArgumentOutOfRangeException(nameof(value));");
             if (param.TryGetProperty("minimum", out var min)) body.AppendLine($"    if (number < {min.GetDouble().ToString("R", System.Globalization.CultureInfo.InvariantCulture)}) throw new ArgumentOutOfRangeException(nameof(value));");
             if (param.TryGetProperty("maximum", out var max)) body.AppendLine($"    if (number > {max.GetDouble().ToString("R", System.Globalization.CultureInfo.InvariantCulture)}) throw new ArgumentOutOfRangeException(nameof(value));");
@@ -159,7 +168,8 @@ foreach (var file in Directory.EnumerateFiles(input, "*.instrument.json", Search
         mockMethods.AppendLine("  /// <exception cref=\"ArgumentOutOfRangeException\">Channel or value violates the definition.</exception>");
         mockMethods.AppendLine($"  public void SetMock{propertyName}(int channel, {quantity} value)");
         mockMethods.AppendLine("  {");
-        mockMethods.AppendLine($"    SetReading({Literal(propertyName)}, channel, value.{info.unitProperty});");
+        string mockValueExpr = info.isDecimal ? $"(double)value.{info.unitProperty}" : $"value.{info.unitProperty}";
+        mockMethods.AppendLine($"    SetReading({Literal(propertyName)}, channel, {mockValueExpr});");
         mockMethods.AppendLine("  }");
     }
     body.AppendLine("}");

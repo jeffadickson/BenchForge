@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keithley",
+  "model": "6221",
+  "class": "CurrentSource",
+  "driverName": "Keithley6221",
+  "description": "Clean-room SCPI command profile for Keithley 6221; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "Current",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "DC output current setpoint",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "SOUR:CURR?",
+      "set": "SOUR:CURR {value}",
+      "minimum": -0.105,
+      "maximum": 0.105
+    },
+    {
+      "name": "ComplianceVoltage",
+      "kind": "control",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Compliance voltage ceiling",
+      "mock": {
+        "defaultValue": 10.0
+      },
+      "query": "SOUR:CURR:COMP?",
+      "set": "SOUR:CURR:COMP {value}",
+      "minimum": 0.1,
+      "maximum": 105
+    },
+    {
+      "name": "WaveFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "AC waveform frequency",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "SOUR:WAVE:FREQ?",
+      "set": "SOUR:WAVE:FREQ {value}",
+      "minimum": 0.001,
+      "maximum": 100000.0
+    },
+    {
+      "name": "WaveAmplitude",
+      "kind": "control",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "AC waveform peak current",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "SOUR:WAVE:AMPL?",
+      "set": "SOUR:WAVE:AMPL {value}",
+      "minimum": 2e-12,
+      "maximum": 0.105
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}

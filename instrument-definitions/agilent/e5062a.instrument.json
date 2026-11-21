@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Agilent",
+  "model": "E5062A",
+  "class": "NetworkAnalyzer",
+  "driverName": "AgilentE5062A",
+  "description": "Clean-room SCPI command profile for Agilent E5062A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "StartFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "ENA sweep start frequency",
+      "mock": {
+        "defaultValue": 1000000.0
+      },
+      "query": "SENS:FREQ:STAR?",
+      "set": "SENS:FREQ:STAR {value}",
+      "minimum": 300000.0,
+      "maximum": 3000000000.0
+    },
+    {
+      "name": "StopFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "ENA sweep stop frequency",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "SENS:FREQ:STOP?",
+      "set": "SENS:FREQ:STOP {value}",
+      "minimum": 300000.0,
+      "maximum": 3000000000.0
+    },
+    {
+      "name": "CenterFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "ENA center frequency",
+      "mock": {
+        "defaultValue": 500000000.0
+      },
+      "query": "SENS:FREQ:CENT?",
+      "set": "SENS:FREQ:CENT {value}",
+      "minimum": 300000.0,
+      "maximum": 3000000000.0
+    },
+    {
+      "name": "SpanFrequency",
+      "kind": "control",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "ENA frequency span",
+      "mock": {
+        "defaultValue": 999000000.0
+      },
+      "query": "SENS:FREQ:SPAN?",
+      "set": "SENS:FREQ:SPAN {value}",
+      "minimum": 0,
+      "maximum": 3000000000.0
+    },
+    {
+      "name": "SourcePower",
+      "kind": "control",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "ENA stimulus power in watts",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "SOUR:POW:LEV?",
+      "set": "SOUR:POW:LEV {value}",
+      "minimum": 1e-10,
+      "maximum": 0.01
+    }
+  ],
+  "verification": {
+    "status": "cleanRoomCommandProfile",
+    "hardwareTested": false,
+    "notes": "Authored directly from standard SCPI command strings without upstream driver code; hardware validation pending."
+  }
+}
