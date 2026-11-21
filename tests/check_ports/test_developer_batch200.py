@@ -53,7 +53,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_generation_order(self):
         """Validate catalog before both generators."""
-        steps=self.plan('generate');self.assertEqual('scripts/check_instrument_catalog.py',steps[0]['Arguments'][0]);self.assertIn('--preview-v2',steps[2]['Arguments'])
+        steps=self.plan('generate');self.assertIn('catalog',steps[0]['Arguments']);self.assertIn('--preview-v2',steps[2]['Arguments'])
 
     def test_nested_projects(self):
         """Discover nested application projects."""
@@ -113,11 +113,11 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_debug_configuration(self):
         """Forward Debug configuration to every dotnet task."""
-        steps=self.plan('build','--configuration','Debug');self.assertTrue(all('Debug' in s['Arguments'] for s in steps[1:]))
+        steps=self.plan('build','--configuration','Debug');self.assertTrue(all('Debug' in s['Arguments'] for s in steps))
 
     def test_release_configuration(self):
         """Use Release for default developer tasks."""
-        self.assertTrue(all('Release' in s['Arguments'] for s in self.plan()[1:]))
+        self.assertTrue(all('Release' in s['Arguments'] for s in self.plan()))
 
     def test_reject_configuration(self):
         """Reject unknown configurations before launching tasks."""
@@ -153,7 +153,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_build_execution(self):
         """Build source projects only after generation."""
-        self.invoke('--command','build');self.assertEqual(['check_instrument_catalog.py','run','run','build'],[Path(e[0]).name for e in self.events()])
+        self.invoke('--command','build');self.assertEqual(['run','run','run','build'],[Path(e[0]).name for e in self.events()])
 
     def test_test_execution(self):
         """Run test projects only after generation."""
@@ -161,11 +161,11 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_catalog_failure(self):
         """Stop before generators after catalog failure."""
-        (self.root/'fail-check_instrument_catalog.py').write_text('23');self.invoke('--command','build',expected=23);self.assertEqual(1,len(self.events()));self.assertEqual(23,self.report()['stages'][0]['ExitCode'])
+        (self.root/'fail-run').write_text('23');self.invoke('--command','build',expected=23);self.assertEqual(1,len(self.events()));self.assertEqual(23,self.report()['stages'][0]['ExitCode'])
 
     def test_generator_failure(self):
         """Stop before preview generation after generator failure."""
-        (self.root/'fail-run').write_text('24');self.invoke('--command','build',expected=24);self.assertEqual(2,len(self.events()));self.assertEqual(24,self.report()['stages'][-1]['ExitCode'])
+        (self.root/'fail-run').write_text('24');self.invoke('--command','build',expected=24);self.assertEqual(1,len(self.events()));self.assertEqual(24,self.report()['stages'][-1]['ExitCode'])
 
     def test_build_failure(self):
         """Preserve the first failing build exit code."""
@@ -181,7 +181,7 @@ class DeveloperBatch200Tests(unittest.TestCase):
 
     def test_executable_report(self):
         """Record selected executable identities."""
-        self.invoke('--command','generate');stages=self.report()['stages'];self.assertEqual(sys.executable,stages[0]['Executable']);self.assertTrue(all(s['Executable']==self.recorder for s in stages[1:]))
+        self.invoke('--command','generate');stages=self.report()['stages'];self.assertTrue(all(s['Executable']==self.recorder for s in stages))
 
     def test_arguments_report(self):
         """Record exact generator arguments."""
@@ -191,9 +191,9 @@ class DeveloperBatch200Tests(unittest.TestCase):
         """Terminate timed-out children before dependent work."""
         (self.root/'sleep').touch();host=['dotnet',str(self.dll),'--root',str(self.root),'--python',sys.executable,'--dotnet',self.recorder,'--command','build','--timeout-seconds','1'];r=subprocess.run(host,capture_output=True,text=True,timeout=30);self.assertEqual(124,r.returncode,r.stderr);self.assertEqual(1,len(self.events()));self.assertEqual(124,self.report()['stages'][0]['ExitCode'])
 
-    def test_missing_python(self):
-        """Record missing catalog executable without invoking dotnet tasks."""
-        r=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--python',str(self.root/'missing.exe'),'--command','build'],capture_output=True,text=True,timeout=30);self.assertEqual(2,r.returncode);self.assertEqual(2,self.report()['stages'][0]['ExitCode']);self.assertEqual([],self.events())
+    def test_missing_dotnet(self):
+        """Record missing dotnet executable without invoking subsequent tasks."""
+        r=subprocess.run(['dotnet',str(self.dll),'--root',str(self.root),'--dotnet',str(self.root/'missing.exe'),'--command','build'],capture_output=True,text=True,timeout=30);self.assertEqual(2,r.returncode);self.assertEqual(2,self.report()['stages'][0]['ExitCode']);self.assertEqual([],self.events())
 
     def test_unknown_task(self):
         """Reject unsupported task names before launching work."""

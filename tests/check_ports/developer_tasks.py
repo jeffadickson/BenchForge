@@ -45,14 +45,15 @@ def main():
         for task, count in [('build', 7), ('test', 4), ('generate', 3)]:
             steps = json.loads(invoke('--command', 'plan', '--task', task).stdout)
             assert len(steps) == count, steps
-            assert steps[0]['Executable']==sys.executable and all(s['Executable']==recorder_exe for s in steps[1:])
+            assert all(s['Executable']==recorder_exe for s in steps)
+            assert 'catalog' in steps[0]['Arguments']
             assert not any('Hidden.csproj' in a or 'Browser.Tests.csproj' in a for s in steps for a in s['Arguments'])
             assert not (fixture / 'events.jsonl').exists()
         invoke('--command', 'build')
         events = [json.loads(s) for s in (fixture / 'events.jsonl').read_text().splitlines()]
-        assert len(events) == 7 and events[0][0].endswith('check_instrument_catalog.py')
+        assert len(events) == 7 and events[0][0] == 'run' and 'catalog' in events[0]
         assert events[1][0] == 'run' and events[2][0] == 'run'
-        assert all('Debug' in e for e in events[1:])
+        assert all('Debug' in e for e in events)
         (fixture / 'events.jsonl').unlink()
         (fixture / 'exit-code').write_text('23')
         invoke('--command', 'test', expected=23)

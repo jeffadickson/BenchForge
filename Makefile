@@ -101,8 +101,8 @@ test-browser:
 verify: requirements build test docs artifact-recovery
 
 check-generated:
-	$(PYTHON) scripts/check_instrument_catalog.py
-	$(DOTNET) run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated --check
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- catalog
+	"$(DOTNET)" run --project tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj -- instrument-definitions src/BenchForge/Generated --check
 
 demo:
 	$(DOTNET) run --project examples/BenchForge.DiDemo/BenchForge.DiDemo.csproj
@@ -153,7 +153,7 @@ docs: check-generated docs-check
 	.tools/docs-venv/bin/python -m sphinx -W --keep-going -b html docs/python build/python
 	$(DOTNET) tool run docfx docfx.json
 
-.PHONY: demo-capture artifact-check artifact-recovery
+.PHONY: demo-capture artifact-check artifact-recovery ownership-probes
 demo-capture:
 	$(DOTNET) run --project examples/BenchForge.CaptureDemo
 
@@ -161,10 +161,16 @@ artifact-check: artifact-recovery
 	$(DOTNET) test tests/BenchForge.Artifacts.Tests
 
 artifact-recovery:
-	$(DOTNET) build tools/BenchForge.ArtifactCrashProbe
-	$(PYTHON) scripts/check_artifact_recovery.py --dotnet "$(DOTNET)"
+	"$(DOTNET)" build tools/BenchForge.ArtifactCrashProbe
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- artifact-recovery --dotnet "$(DOTNET)"
 
-# Focused .NET 10 alpha verification, without expanding distributed-host scope.
+ownership-probes:
+	"$(DOTNET)" build tools/BenchForge.RecoveryProbe --configuration Release
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- ownership-restart --dotnet "$(DOTNET)"
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- ownership-shutdown --dotnet "$(DOTNET)"
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- owner-heartbeat --dotnet "$(DOTNET)"
+
+# Focused .NET 11 alpha verification, without expanding distributed-host scope.
 import-check:
 	$(DOTNET) test tests/BenchForge.Tests/BenchForge.Tests.csproj --configuration Release --filter "FullyQualifiedName~ImportedInstrumentDefinitionTests|FullyQualifiedName~InstrumentImportPipelineTests"
 
@@ -201,7 +207,20 @@ build-generated: generate-v2-preview
 	$(DOTNET) build generated/BenchForge.Instruments/BenchForge.Instruments.csproj --configuration Release
 
 clean-generated:
-	$(PYTHON) scripts/clean_generated.py
+	"$(DOTNET)" run --project tools/BenchForge.Checks/BenchForge.Checks.csproj --configuration Release -- clean-generated
+
+# High-speed C++20 native helper for repeated local scans.
+FAST_AUDIT_BIN := .tools/fast-audit/benchforge-fast-audit$(if $(filter Windows_NT,$(OS)),.exe,)
+CXX ?= g++
+.PHONY: build-fast-audit fast-audit
+$(FAST_AUDIT_BIN): tools/BenchForge.FastAudit/fast_audit.cpp
+	mkdir -p .tools/fast-audit
+	$(CXX) -O3 -std=c++20 -pthread tools/BenchForge.FastAudit/fast_audit.cpp -o "$(FAST_AUDIT_BIN)"
+
+build-fast-audit: $(FAST_AUDIT_BIN)
+
+fast-audit: $(FAST_AUDIT_BIN)
+	"$(FAST_AUDIT_BIN)" all --strict
 
 # Shared-signal stateful mock integration tests (source, meter, oscilloscope).
 .PHONY: test-virtual-bench

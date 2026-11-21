@@ -12,8 +12,9 @@ internal static class DeveloperTasks
         if (configuration is not ("Debug" or "Release")) throw new ArgumentException("Invalid configuration");
         Step Dotnet(params string[] args) => new(dotnet, args);
         var generator = "tools/BenchForge.DriverGen/BenchForge.DriverGen.csproj";
+        var checks = "tools/BenchForge.Checks/BenchForge.Checks.csproj";
         Step[] Generate() => [
-            new(Program.Python, ["scripts/check_instrument_catalog.py"]),
+            Dotnet("run", "--project", checks, "--configuration", configuration, "--", "catalog"),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "instrument-definitions", "src/BenchForge/Generated"),
             Dotnet("run", "--project", generator, "--configuration", configuration, "--", "--preview-v2", "instrument-definitions/drafts", "generated/BenchForge.Instruments/Code")];
         string[] Projects(string folder)

@@ -9,6 +9,12 @@ dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll neutral
 dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll preflight --output build/docs-preflight.json
 dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll docs
 dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll compare --roslyn build/api-audit.json --portable build/docs-preflight.json --output build/docs-parity.json
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll catalog
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll clean-generated
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll artifact-recovery
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll ownership-restart
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll ownership-shutdown
+dotnet tools/BenchForge.Checks/bin/Release/net11.0/BenchForge.Checks.dll owner-heartbeat
 ```
 
 `--root` selects the checkout, `--jobs` bounds independent file work (1–256;

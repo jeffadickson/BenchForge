@@ -25,6 +25,8 @@ internal static class Program
         {
             Root = Path.GetFullPath(Take("--root") ?? Root);
             Python = Take("--python") ?? Python;
+            var dotnet = Take("--dotnet") ?? Environment.GetEnvironmentVariable("BENCH_SETUP_DOTNET") ?? "dotnet";
+            var probe = Take("--probe");
             if (Take("--jobs") is { } jobs) Jobs = Math.Clamp(int.Parse(jobs), 1, 256);
             var command = options.FirstOrDefault() ?? "help";
             if (options.Count > 0) options.RemoveAt(0);
@@ -38,6 +40,12 @@ internal static class Program
                 "compare" => Reports.Compare(Take("--roslyn")!, Take("--portable")!, output!),
                 "docs" => Documentation.Gate(Take("--baseline")),
                 "preflight" => Documentation.Preflight(output, strict),
+                "catalog" => Helpers.Catalog(),
+                "clean-generated" => Helpers.CleanGenerated(),
+                "artifact-recovery" => Helpers.ArtifactRecovery(dotnet, probe),
+                "ownership-restart" => Helpers.OwnershipRestart(dotnet, probe),
+                "ownership-shutdown" => Helpers.OwnershipShutdown(dotnet, probe),
+                "owner-heartbeat" => Helpers.OwnerHeartbeat(dotnet, probe),
                 _ => Usage()
             };
         }
@@ -49,7 +57,7 @@ internal static class Program
 
     private static int Usage()
     {
-        Console.WriteLine("BenchForge.Checks requirements|scoreboard|neutrality|compare|docs|preflight --root PATH [--jobs N] [--output PATH] [--strict] [--python EXE]");
+        Console.WriteLine("BenchForge.Checks requirements|scoreboard|neutrality|compare|docs|preflight|catalog|clean-generated|artifact-recovery|ownership-restart|ownership-shutdown|owner-heartbeat --root PATH [--jobs N] [--output PATH] [--strict] [--python EXE] [--dotnet EXE] [--probe PATH]");
         return 2;
     }
 
