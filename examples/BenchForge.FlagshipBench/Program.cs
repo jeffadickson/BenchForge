@@ -58,7 +58,7 @@ try
     }
     catch (OperationGuardDeniedException denied)
     {
-        Console.WriteLine($"[1/5] Interlock fail-closed verified: {denied.Decision.RuleId} -> {denied.Decision.Reason}");
+        Console.WriteLine($"[1/6] Interlock fail-closed verified: {denied.Decision.RuleId} -> {denied.Decision.Reason}");
     }
 
     // Arm interlock, then drive generated clean-room Keithley2450 & Keysight34461A over live TCP sockets.
@@ -68,7 +68,7 @@ try
     await smuDriver.SetSourceVoltageAsync(1, ElectricPotential.FromVolts(3.3));
     var smuSetpoint = await smuDriver.GetSourceVoltageAsync(1);
     var dmmReading = await dmmDriver.GetDcVoltageAsync(1);
-    Console.WriteLine($"[2/5] Pure-C# TCP SCPI (zero VISA): Keithley2450 setpoint={smuSetpoint.Volts:F4} V, Keysight34461A read={dmmReading.Volts:F4} V");
+    Console.WriteLine($"[2/6] Pure-C# TCP SCPI (zero VISA): Keithley2450 setpoint={smuSetpoint.Volts:F4} V, Keysight34461A read={dmmReading.Volts:F4} V");
 
     // Durable command ledger + fenced canonical dispatcher (BD-CMD-001..008).
     var ledgerPath = Path.Combine(workDir, "command-ledger.json");
@@ -96,7 +96,7 @@ try
 
     var receipt = await dispatcher.SubmitAsync(writeEnvelope);
     var verified = dispatcher.ConfirmPhysicalVerification(cmdId, $"DMM1 readback confirmed {dmmReading.Volts:F4} V");
-    Console.WriteLine($"[3/5] Durable Command Ledger: {receipt.State} -> {verified.State} (attempts={verified.AttemptCount}, file={Path.GetFileName(ledgerPath)})");
+    Console.WriteLine($"[3/6] Durable Command Ledger: {receipt.State} -> {verified.State} (attempts={verified.AttemptCount}, file={Path.GetFileName(ledgerPath)})");
 
     // -------------------------------------------------------------------------
     // 2. Deterministic Parallel Starlark (.star) Multi-Instrument Sweep
@@ -145,7 +145,7 @@ try
     if (run.Status != ExperimentStatus.Completed)
         throw new InvalidOperationException($"Starlark sweep failed: {run.Error?.Message}");
 
-    Console.WriteLine($"[4/5] Starlark Parallel Sweep: status={run.Status}, steps={procedure.LastRunSteps}, samples={sink.Samples.Count}, fingerprint={procedure.RunFingerprint[..16]}...");
+    Console.WriteLine($"[4/6] Starlark Parallel Sweep: status={run.Status}, steps={procedure.LastRunSteps}, samples={sink.Samples.Count}, fingerprint={procedure.RunFingerprint[..16]}...");
 
     // -------------------------------------------------------------------------
     // 3. Zero-Dependency .NET 11 Brotli-Compressed SQLite Evidence Bundle
@@ -185,8 +185,66 @@ try
         store, artifactId, restored, expectedRawSha256: saved.RawSha256);
 
     Console.WriteLine(
-        $"[5/5] Brotli SQLite Evidence: raw={saved.RawByteLength} B -> stored={saved.Record.ByteLength} B " +
+        $"[5/6] Brotli SQLite Evidence: raw={saved.RawByteLength} B -> stored={saved.Record.ByteLength} B " +
         $"(ratio={saved.CompressionRatio:P1}), roundtrip={rawLen} B, sha256={rawSha[..16]}... OK");
+
+    // -------------------------------------------------------------------------
+    // 4. Flight-Hardware Client SDK, Safe Voltage Ramp, Private-Lab Security & Sealed Evidence
+    // -------------------------------------------------------------------------
+    var cal = new BenchForge.Interfaces.InstrumentCalibrationInfo(
+        "CAL-EGSE-2026-01",
+        DateTimeOffset.UtcNow.AddDays(-30),
+        DateTimeOffset.UtcNow.AddDays(335));
+    var auditLog = new BenchForge.Host.Server.Security.HashChainedAuditLog(Path.Combine(workDir, "flight-audit.jsonl"));
+    var operatorPrincipal = new BenchForge.Host.Server.Security.LabPrincipal(
+        "flight-test-engineer-1",
+        BenchForge.Host.Server.Security.LabRole.Operator,
+        BenchForge.Host.Server.Security.LabPrincipal.HashToken("private-lab-token-demo"),
+        ["SMU_FLIGHT", "DMM_FLIGHT"]);
+    var security = new BenchForge.Host.Server.Security.PrivateLabSecurityPolicy(
+        [operatorPrincipal],
+        allowPrivateLanBinding: true,
+        requireTlsOnLan: true);
+
+    var auth = security.AuthenticateToken("private-lab-token-demo")
+        .Bind(p => security.Authorize(p, BenchForge.Host.Server.Security.LabHostAction.Actuate, "SMU_FLIGHT", p.PrincipalId).IsSuccess
+            ? BenchForge.Outcomes.BenchResult<BenchForge.Host.Server.Security.LabPrincipal>.Ok(p)
+            : BenchForge.Outcomes.BenchResult<BenchForge.Host.Server.Security.LabPrincipal>.Fail(
+                security.Authorize(p, BenchForge.Host.Server.Security.LabHostAction.Actuate, "SMU_FLIGHT", p.PrincipalId).Error));
+    auth.GetValueOrThrow();
+    auditLog.Append(auth.Value.PrincipalId, "Actuate", "SMU_FLIGHT", "Authorized");
+
+    await using var flightBench = BenchForge.Client.BenchSession.Create("FlightAvionicsEGSE")
+        .WithFlightEnvelope("SMU_FLIGHT", new BenchForge.Flight.FlightSafeEnvelope(
+            MaxVoltage: ElectricPotential.FromVolts(5.5),
+            MinVoltage: ElectricPotential.FromVolts(0.0),
+            MaxCurrent: ElectricCurrent.FromAmperes(0.5),
+            MaxPower: Power.FromWatts(2.5)))
+        .AddMockSmu("SMU_FLIGHT", loadResistanceOhms: 15.0, calibration: cal)
+        .AddMockDmm("DMM_FLIGHT", nominalVoltageVolts: 3.301, calibration: cal)
+        .Build();
+
+    flightBench.PreflightCalibration().ThrowIfFailure();
+    var rampResult = await flightBench.RampVoltageSafelyAsync(
+        "SMU_FLIGHT",
+        ElectricPotential.FromVolts(3.3),
+        ElectricCurrent.FromAmperes(0.35),
+        ElectricPotential.FromVolts(0.55));
+    rampResult.GetValueOrThrow();
+    var railRead = await flightBench.Dmm("DMM_FLIGHT").MeasureDcVoltageAsync();
+    flightBench.RecordStep("Verify3V3Rail", railRead.IsSuccess, $"Read {railRead.Value.Volts:F4} V");
+
+    var evidence = flightBench.SealEvidence(
+        "FLIGHT-AVIONICS-SN-0104",
+        auth.Value.PrincipalId,
+        procedure.RunFingerprint,
+        auditLog.HeadSha256);
+    if (!evidence.VerifySeal())
+        throw new InvalidOperationException("Flight evidence seal verification failed.");
+
+    Console.WriteLine(
+        $"[6/6] Flight EGSE Railroad SDK: ramp={rampResult.Value.Count} steps, overallPassed={evidence.OverallPassed}, " +
+        $"seal={evidence.ManifestSha256[..16]}..., auditHead={auditLog.HeadSha256[..16]}... OK");
     Console.WriteLine();
     Console.WriteLine("Flagship vertical stack passed end-to-end.");
 }

@@ -37,7 +37,7 @@ TR-035,P1,PartialSourceUnverified,src/BenchForge.Host.Contracts/SharingPolicies.
 TR-036,P0,PartialSourceUnverified,src/BenchForge/InstrumentContracts.cs,tests/BenchForge.Tests/InstrumentContractTests.cs,https://github.com/jeffadickson/BenchForge/issues/46,,
 TR-037,P1,PartialSourceUnverified,src/BenchForge.Ivi.Official/OfficialIviCompatibility.cs,tests/BenchForge.Ivi.Official.Tests/OfficialBridgeTests.cs,https://github.com/jeffadickson/BenchForge/issues/46,,
 TR-038,P1,PartialSourceUnverified,proto/benchforge/host/v1/host.proto,,https://github.com/jeffadickson/BenchForge/issues/46,,
-TR-039,P0,NoImplementationEvidence,,,https://github.com/jeffadickson/BenchForge/issues/46,,
+TR-039,P0,PartialSourceUnverified,src/BenchForge.Host.Server/Security/PrivateLabSecurity.cs,tests/BenchForge.Host.Tests/PrivateLabSecurityTests.cs,https://github.com/jeffadickson/BenchForge/issues/46,,docs/RAILROAD-NET11-LIBRARY-AUDIT.md;src/BenchForge/Client/BenchClientSdk.cs;src/BenchForge/Flight/FlightSafetyAndEvidence.cs;src/BenchForge/Interfaces/CanonicalInstrumentInterfaces.cs;src/BenchForge/Results/BenchResult.cs;tests/BenchForge.Tests/FlightClientAndRailroadTests.cs
 TR-040,P2,DesignOnly,docs/VERSIONED-DRIVERS-AND-SHARING.md,,https://github.com/jeffadickson/BenchForge/issues/46,,
 TR-041,P0,PartialSourceUnverified,src/BenchForge/Simulation/PowerSupplyBehavior.cs,tests/BenchForge.Tests/PowerSupplyBehaviorTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,
 TR-042,P0,PartialSourceUnverified,src/BenchForge/Simulation/TypedMockMeasurements.cs,tests/BenchForge.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,
