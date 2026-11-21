@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "LakeShore",
+  "model": "350",
+  "class": "TemperatureController",
+  "driverName": "LakeShore350",
+  "description": "Clean-room SCPI command profile for LakeShore 350; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "SetpointTemperature",
+      "kind": "setting",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Thermal controller setpoint temperature per loop",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SETP? {channel}",
+      "set": "SETP {channel} {value}",
+      "minimum": -271.0,
+      "maximum": 200.0
+    },
+    {
+      "name": "MeasuredTemperature",
+      "kind": "measurement",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Measured sensor temperature per channel",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "CRDG? {channel}",
+      "minimum": -281.0,
+      "maximum": 210.0
+    },
+    {
+      "name": "HeaterOutputPercent",
+      "kind": "measurement",
+      "quantity": "Ratio",
+      "unit": "Percent",
+      "description": "Heater output percentage per loop",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "HTR? {channel}",
+      "minimum": 0.0,
+      "maximum": 100.0
+    }
+  ]
+}

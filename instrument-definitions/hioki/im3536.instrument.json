@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Hioki",
+  "model": "IM3536",
+  "class": "LcrMeter",
+  "driverName": "HiokiIm3536",
+  "description": "Clean-room SCPI command profile for Hioki IM3536; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "TestFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "AC stimulus frequency for impedance measurement",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "FREQ?",
+      "set": "FREQ {value}",
+      "minimum": 4.0,
+      "maximum": 8000000.0
+    },
+    {
+      "name": "TestVoltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "AC stimulus test level",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "VOLT?",
+      "set": "VOLT {value}",
+      "minimum": 0.001,
+      "maximum": 5.0
+    },
+    {
+      "name": "MeasuredCapacitance",
+      "kind": "measurement",
+      "quantity": "ElectricCapacitance",
+      "unit": "Farad",
+      "description": "Measured parallel/series capacitance",
+      "mock": {
+        "defaultValue": 1e-09
+      },
+      "query": "MEAS:CAP?",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    {
+      "name": "MeasuredResistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Measured equivalent series resistance",
+      "mock": {
+        "defaultValue": 100.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0.0,
+      "maximum": 1000000000.0
+    }
+  ]
+}

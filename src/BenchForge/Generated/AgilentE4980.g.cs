@@ -187,4 +187,11 @@ public sealed partial class AgilentE4980(IAsyncScpiSession session)
   /// <returns>Canonical <see cref="IBenchInstrument"/> wrapper.</returns>
   public IBenchInstrument AsBenchInstrument(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
     new GeneratedBenchInstrument(role, "AgilentE4980", "SCPI", ["MeasuredCapacitance", "MeasuredResistance", "TestCurrent", "TestFrequency", "TestVoltage"], backend, calibration);
+  /// <summary>Wrap this AgilentE4980 driver as a symmetric <see cref="IBenchLcrMeter"/> for <see cref="BenchForge.Client.BenchSession"/>.</summary>
+  /// <param name="role">Logical bench role identifier.</param>
+  /// <param name="backend">Explicit backend provenance.</param>
+  /// <param name="calibration">Optional calibration certificate metadata.</param>
+  /// <returns>Symmetric <see cref="IBenchLcrMeter"/> adapter.</returns>
+  public IBenchLcrMeter AsBenchLcrMeter(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
+    new GeneratedBenchLcrMeter(role, "AgilentE4980", (ch, f, ct) => TrySetTestFrequencyAsync(ch, f, ct), (ch, v, ct) => TrySetTestVoltageAsync(ch, v, ct), (ch, ct) => TryGetMeasuredCapacitanceAsync(ch, ct), (ch, ct) => TryGetMeasuredResistanceAsync(ch, ct), backend, calibration);
 }

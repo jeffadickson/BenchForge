@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "TdkLambda",
+  "model": "Genesys",
+  "class": "PowerSupply",
+  "driverName": "TdkLambdaGenesys",
+  "description": "Clean-room SCPI command profile for TdkLambda Genesys; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed DC output voltage setpoint",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR:VOLT?",
+      "set": "SOUR:VOLT {value}",
+      "minimum": 0.0,
+      "maximum": 60.0
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed DC output current limit",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR:CURR?",
+      "set": "SOUR:CURR {value}",
+      "minimum": 0.0,
+      "maximum": 25.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured terminal DC voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": 0.0,
+      "maximum": 63.0
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured terminal DC current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR?",
+      "minimum": 0.0,
+      "maximum": 26.25
+    },
+    {
+      "name": "OverVoltageProtection",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Hardware over-voltage protection threshold",
+      "mock": {
+        "defaultValue": 60.0
+      },
+      "query": "SOUR:VOLT:PROT?",
+      "set": "SOUR:VOLT:PROT {value}",
+      "minimum": 0.0,
+      "maximum": 66.0
+    }
+  ]
+}

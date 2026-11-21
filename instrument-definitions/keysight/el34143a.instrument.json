@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "EL34143A",
+  "class": "ElectronicLoad",
+  "driverName": "KeysightEl34143A",
+  "description": "Clean-room SCPI command profile for Keysight EL34143A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "CurrentSink",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Constant-current sink setpoint",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "CURR?",
+      "set": "CURR {value}",
+      "minimum": 0.0,
+      "maximum": 60.0
+    },
+    {
+      "name": "ResistanceLoad",
+      "kind": "setting",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Constant-resistance load setpoint",
+      "mock": {
+        "defaultValue": 100.0
+      },
+      "query": "RES?",
+      "set": "RES {value}",
+      "minimum": 0.01,
+      "maximum": 10000.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured load input voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": 0.0,
+      "maximum": 150.0
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured load sink current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR?",
+      "minimum": 0.0,
+      "maximum": 60.0
+    },
+    {
+      "name": "MeasuredPower",
+      "kind": "measurement",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "Measured absorbed DC power",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:POW?",
+      "minimum": 0.0,
+      "maximum": 350.0
+    }
+  ]
+}

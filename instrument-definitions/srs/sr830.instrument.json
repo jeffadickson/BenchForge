@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "StanfordResearchSystems",
+  "model": "SR830",
+  "class": "LockInAmplifier",
+  "driverName": "StanfordResearchSr830",
+  "description": "Clean-room SCPI command profile for StanfordResearchSystems SR830; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "ReferenceFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Internal lock-in reference oscillator frequency",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "FREQ?",
+      "set": "FREQ {value}",
+      "minimum": 0.001,
+      "maximum": 102000.0
+    },
+    {
+      "name": "ReferenceAmplitude",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Internal sine output amplitude",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SLVL?",
+      "set": "SLVL {value}",
+      "minimum": 0.004,
+      "maximum": 5.0
+    },
+    {
+      "name": "TimeConstant",
+      "kind": "setting",
+      "quantity": "Duration",
+      "unit": "Second",
+      "description": "Demodulator low-pass filter time constant",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "OFLT?",
+      "set": "OFLT {value}",
+      "minimum": 1e-05,
+      "maximum": 30000.0
+    },
+    {
+      "name": "MeasuredMagnitude",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Demodulated signal amplitude R",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "OUTP? 3",
+      "minimum": 0.0,
+      "maximum": 10.0
+    }
+  ]
+}

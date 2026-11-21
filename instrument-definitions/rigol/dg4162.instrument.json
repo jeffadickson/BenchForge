@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Rigol",
+  "model": "DG4162",
+  "class": "FunctionGenerator",
+  "driverName": "RigolDg4162",
+  "description": "Clean-room SCPI command profile for Rigol DG4162; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "Frequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Output waveform frequency per channel",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "SOUR{channel}:FREQ?",
+      "set": "SOUR{channel}:FREQ {value}",
+      "minimum": 1e-06,
+      "maximum": 160000000.0
+    },
+    {
+      "name": "Amplitude",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Output peak-to-peak amplitude per channel",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0.001,
+      "maximum": 10.0
+    },
+    {
+      "name": "Offset",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Output DC offset voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT:OFFS?",
+      "set": "SOUR{channel}:VOLT:OFFS {value}",
+      "minimum": -5.0,
+      "maximum": 5.0
+    }
+  ]
+}

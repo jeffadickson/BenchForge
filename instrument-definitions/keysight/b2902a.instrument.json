@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "B2902A",
+  "class": "SourceMeasureUnit",
+  "driverName": "KeysightB2902A",
+  "description": "Clean-room SCPI command profile for Keysight B2902A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed SMU source voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": -210.0,
+      "maximum": 210.0
+    },
+    {
+      "name": "SourceCurrent",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed SMU source current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": -3.03,
+      "maximum": 3.03
+    },
+    {
+      "name": "CurrentCompliance",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU current compliance limit per channel",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "SENS{channel}:CURR:PROT?",
+      "set": "SENS{channel}:CURR:PROT {value}",
+      "minimum": 1e-09,
+      "maximum": 3.03
+    },
+    {
+      "name": "VoltageCompliance",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU voltage compliance limit per channel",
+      "mock": {
+        "defaultValue": 20.0
+      },
+      "query": "SENS{channel}:VOLT:PROT?",
+      "set": "SENS{channel}:VOLT:PROT {value}",
+      "minimum": 0.001,
+      "maximum": 210.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured SMU terminal voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": -220.5,
+      "maximum": 220.5
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured SMU terminal current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": -3.1814999999999998,
+      "maximum": 3.1814999999999998
+    }
+  ]
+}

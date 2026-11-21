@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "E36312A",
+  "class": "PowerSupply",
+  "driverName": "KeysightE36312A",
+  "description": "Clean-room SCPI command profile for Keysight E36312A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 3
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed DC output voltage setpoint per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0.0,
+      "maximum": 25.0
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed DC output current limit per channel",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": 0.0,
+      "maximum": 5.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured terminal DC voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 26.25
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured terminal DC current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 5.25
+    },
+    {
+      "name": "OverVoltageProtection",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Hardware over-voltage protection threshold per channel",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SOUR{channel}:VOLT:PROT?",
+      "set": "SOUR{channel}:VOLT:PROT {value}",
+      "minimum": 0.0,
+      "maximum": 27.500000000000004
+    }
+  ]
+}

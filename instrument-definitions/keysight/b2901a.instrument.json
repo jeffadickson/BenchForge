@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "B2901A",
+  "class": "SourceMeasureUnit",
+  "driverName": "KeysightB2901A",
+  "description": "Clean-room SCPI command profile for Keysight B2901A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "SourceVoltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed SMU source voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR:VOLT?",
+      "set": "SOUR:VOLT {value}",
+      "minimum": -210.0,
+      "maximum": 210.0
+    },
+    {
+      "name": "SourceCurrent",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed SMU source current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR:CURR?",
+      "set": "SOUR:CURR {value}",
+      "minimum": -3.03,
+      "maximum": 3.03
+    },
+    {
+      "name": "CurrentCompliance",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "SMU current compliance limit",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "SENS:CURR:PROT?",
+      "set": "SENS:CURR:PROT {value}",
+      "minimum": 1e-09,
+      "maximum": 3.03
+    },
+    {
+      "name": "VoltageCompliance",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "SMU voltage compliance limit",
+      "mock": {
+        "defaultValue": 20.0
+      },
+      "query": "SENS:VOLT:PROT?",
+      "set": "SENS:VOLT:PROT {value}",
+      "minimum": 0.001,
+      "maximum": 210.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured SMU terminal voltage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT?",
+      "minimum": -220.5,
+      "maximum": 220.5
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured SMU terminal current",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR?",
+      "minimum": -3.1814999999999998,
+      "maximum": 3.1814999999999998
+    },
+    {
+      "name": "MeasuredResistance",
+      "kind": "measurement",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Measured SMU resistance",
+      "mock": {
+        "defaultValue": 1000.0
+      },
+      "query": "MEAS:RES?",
+      "minimum": 0.0,
+      "maximum": 1000000000000.0
+    }
+  ]
+}

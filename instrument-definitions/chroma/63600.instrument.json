@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Chroma",
+  "model": "63600",
+  "class": "ElectronicLoad",
+  "driverName": "Chroma63600",
+  "description": "Clean-room SCPI command profile for Chroma 63600; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "CurrentSink",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Constant-current sink setpoint per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "CHAN{channel}:CURR?",
+      "set": "CHAN{channel}:CURR {value}",
+      "minimum": 0.0,
+      "maximum": 80.0
+    },
+    {
+      "name": "ResistanceLoad",
+      "kind": "setting",
+      "quantity": "ElectricResistance",
+      "unit": "Ohm",
+      "description": "Constant-resistance load setpoint per channel",
+      "mock": {
+        "defaultValue": 100.0
+      },
+      "query": "CHAN{channel}:RES?",
+      "set": "CHAN{channel}:RES {value}",
+      "minimum": 0.01,
+      "maximum": 10000.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured load input voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 150.0
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured load sink current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 80.0
+    },
+    {
+      "name": "MeasuredPower",
+      "kind": "measurement",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "Measured absorbed DC power per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:POW? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 400.0
+    }
+  ]
+}

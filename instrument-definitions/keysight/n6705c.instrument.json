@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "N6705C",
+  "class": "PowerSupply",
+  "driverName": "KeysightN6705C",
+  "description": "Clean-room SCPI command profile for Keysight N6705C; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 4
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed DC output voltage setpoint per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0.0,
+      "maximum": 60.0
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed DC output current limit per channel",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": 0.0,
+      "maximum": 20.0
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured terminal DC voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 63.0
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured terminal DC current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 21.0
+    },
+    {
+      "name": "OverVoltageProtection",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Hardware over-voltage protection threshold per channel",
+      "mock": {
+        "defaultValue": 60.0
+      },
+      "query": "SOUR{channel}:VOLT:PROT?",
+      "set": "SOUR{channel}:VOLT:PROT {value}",
+      "minimum": 0.0,
+      "maximum": 66.0
+    }
+  ]
+}

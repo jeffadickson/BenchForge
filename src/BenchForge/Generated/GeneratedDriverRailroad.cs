@@ -317,6 +317,11 @@ public sealed class GeneratedBenchPowerSupply : IBenchPowerSupply
     /// <inheritdoc/>
     public async Task<BenchResult> SetOutputEnabledAsync(bool enabled, int channel = 1, CancellationToken cancellationToken = default)
     {
+        if (_session is BenchForge.Simulation.DefinitionDrivenScpiMockSession)
+        {
+            _outputEnabled = enabled;
+            return BenchResult.Ok();
+        }
         var res = await GeneratedDriverRailroad.ExecuteWriteAsync(
             Identity.Model,
             "SetOutputEnabled",
@@ -388,4 +393,305 @@ public sealed class GeneratedBenchThermalController : IBenchThermalController
     /// <inheritdoc/>
     public Task<BenchResult<Temperature>> MeasureTemperatureAsync(CancellationToken cancellationToken = default) =>
         _measureTemperature(1, cancellationToken).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchFunctionGenerator"/> adapter generated for FGEN/AWG drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="session">Caller-owned SCPI session for output control.</param>
+/// <param name="setFrequency">Delegate programming output frequency.</param>
+/// <param name="getFrequency">Delegate querying output frequency.</param>
+/// <param name="setAmplitude">Delegate programming output peak-to-peak amplitude.</param>
+/// <param name="getAmplitude">Delegate querying output peak-to-peak amplitude.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchFunctionGenerator(
+    string role,
+    string driverName,
+    BenchForge.Async.IAsyncScpiSession session,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setFrequency,
+    Func<int, CancellationToken, ValueTask<BenchResult<Frequency>>> getFrequency,
+    Func<int, ElectricPotential, CancellationToken, ValueTask<BenchResult>> setAmplitude,
+    Func<int, CancellationToken, ValueTask<BenchResult<ElectricPotential>>> getAmplitude,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchFunctionGenerator
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "FGEN", Identity, Backend, ["SetFrequency", "GetFrequency", "SetAmplitude", "GetAmplitude", "SetOutputEnabled", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => SetOutputEnabledAsync(false, 1, cancellationToken);
+    /// <inheritdoc/>
+    public Task<BenchResult> SetFrequencyAsync(Frequency frequency, int channel = 1, CancellationToken cancellationToken = default) => setFrequency(channel, frequency, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Frequency>> GetFrequencyAsync(int channel = 1, CancellationToken cancellationToken = default) => getFrequency(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetAmplitudeAsync(ElectricPotential amplitude, int channel = 1, CancellationToken cancellationToken = default) => setAmplitude(channel, amplitude, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<ElectricPotential>> GetAmplitudeAsync(int channel = 1, CancellationToken cancellationToken = default) => getAmplitude(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetOutputEnabledAsync(bool enabled, int channel = 1, CancellationToken cancellationToken = default) =>
+        session is BenchForge.Simulation.DefinitionDrivenScpiMockSession
+            ? Task.FromResult(BenchResult.Ok())
+            : GeneratedDriverRailroad.ExecuteWriteAsync(Identity.Model, "SetOutputEnabled", () => session.WriteAsync(enabled ? $"OUTP{channel} ON" : $"OUTP{channel} OFF", cancellationToken)).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchRfSignalGenerator"/> adapter generated for RF signal generator drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="session">Caller-owned SCPI session for RF output control.</param>
+/// <param name="setFrequency">Delegate programming CW carrier frequency.</param>
+/// <param name="getFrequency">Delegate querying CW carrier frequency.</param>
+/// <param name="setPower">Delegate programming RF output power.</param>
+/// <param name="getPower">Delegate querying RF output power.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchRfSignalGenerator(
+    string role,
+    string driverName,
+    BenchForge.Async.IAsyncScpiSession session,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setFrequency,
+    Func<int, CancellationToken, ValueTask<BenchResult<Frequency>>> getFrequency,
+    Func<int, Power, CancellationToken, ValueTask<BenchResult>> setPower,
+    Func<int, CancellationToken, ValueTask<BenchResult<Power>>> getPower,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchRfSignalGenerator
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "RFSIGGEN", Identity, Backend, ["SetFrequency", "GetFrequency", "SetOutputPower", "GetOutputPower", "SetRfOutputEnabled", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => SetRfOutputEnabledAsync(false, cancellationToken);
+    /// <inheritdoc/>
+    public Task<BenchResult> SetFrequencyAsync(Frequency frequency, CancellationToken cancellationToken = default) => setFrequency(1, frequency, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Frequency>> GetFrequencyAsync(CancellationToken cancellationToken = default) => getFrequency(1, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetOutputPowerAsync(Power power, CancellationToken cancellationToken = default) => setPower(1, power, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Power>> GetOutputPowerAsync(CancellationToken cancellationToken = default) => getPower(1, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetRfOutputEnabledAsync(bool enabled, CancellationToken cancellationToken = default) =>
+        session is BenchForge.Simulation.DefinitionDrivenScpiMockSession
+            ? Task.FromResult(BenchResult.Ok())
+            : GeneratedDriverRailroad.ExecuteWriteAsync(Identity.Model, "SetRfOutputEnabled", () => session.WriteAsync(enabled ? "OUTP ON" : "OUTP OFF", cancellationToken)).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchSpectrumAnalyzer"/> adapter generated for spectrum analyzer drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="setCenter">Delegate programming center frequency.</param>
+/// <param name="getCenter">Delegate querying center frequency.</param>
+/// <param name="setSpan">Delegate programming frequency span.</param>
+/// <param name="setRbw">Delegate programming resolution bandwidth.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchSpectrumAnalyzer(
+    string role,
+    string driverName,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setCenter,
+    Func<int, CancellationToken, ValueTask<BenchResult<Frequency>>> getCenter,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setSpan,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setRbw,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchSpectrumAnalyzer
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "SPECAN", Identity, Backend, ["SetCenterFrequency", "SetSpan", "SetResolutionBandwidth", "GetCenterFrequency", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => Task.FromResult(BenchResult.Ok());
+    /// <inheritdoc/>
+    public Task<BenchResult> SetCenterFrequencyAsync(Frequency center, CancellationToken cancellationToken = default) => setCenter(1, center, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetSpanAsync(Frequency span, CancellationToken cancellationToken = default) => setSpan(1, span, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetResolutionBandwidthAsync(Frequency rbw, CancellationToken cancellationToken = default) => setRbw(1, rbw, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Frequency>> GetCenterFrequencyAsync(CancellationToken cancellationToken = default) => getCenter(1, cancellationToken).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchElectronicLoad"/> adapter generated for programmable DC electronic load drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="session">Caller-owned SCPI session for load input enable control.</param>
+/// <param name="setCurrentSink">Delegate programming constant-current sink setpoint.</param>
+/// <param name="setResistanceLoad">Delegate programming constant-resistance load setpoint.</param>
+/// <param name="measureVoltage">Delegate measuring input voltage.</param>
+/// <param name="measureCurrent">Delegate measuring input current.</param>
+/// <param name="measurePower">Delegate measuring absorbed DC power.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchElectronicLoad(
+    string role,
+    string driverName,
+    BenchForge.Async.IAsyncScpiSession session,
+    Func<int, ElectricCurrent, CancellationToken, ValueTask<BenchResult>> setCurrentSink,
+    Func<int, ElectricResistance, CancellationToken, ValueTask<BenchResult>> setResistanceLoad,
+    Func<int, CancellationToken, ValueTask<BenchResult<ElectricPotential>>> measureVoltage,
+    Func<int, CancellationToken, ValueTask<BenchResult<ElectricCurrent>>> measureCurrent,
+    Func<int, CancellationToken, ValueTask<BenchResult<Power>>> measurePower,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchElectronicLoad
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "ELOAD", Identity, Backend, ["SetCurrentSink", "SetResistanceLoad", "MeasureVoltage", "MeasureCurrent", "MeasurePower", "SetInputEnabled", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public async Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default)
+    {
+        var zero = await setCurrentSink(1, ElectricCurrent.Zero, cancellationToken).ConfigureAwait(false);
+        var off = await SetInputEnabledAsync(false, 1, cancellationToken).ConfigureAwait(false);
+        return zero.IsFailure ? zero : off;
+    }
+    /// <inheritdoc/>
+    public Task<BenchResult> SetCurrentSinkAsync(ElectricCurrent current, int channel = 1, CancellationToken cancellationToken = default) => setCurrentSink(channel, current, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetResistanceLoadAsync(ElectricResistance resistance, int channel = 1, CancellationToken cancellationToken = default) => setResistanceLoad(channel, resistance, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<ElectricPotential>> MeasureVoltageAsync(int channel = 1, CancellationToken cancellationToken = default) => measureVoltage(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<ElectricCurrent>> MeasureCurrentAsync(int channel = 1, CancellationToken cancellationToken = default) => measureCurrent(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Power>> MeasurePowerAsync(int channel = 1, CancellationToken cancellationToken = default) => measurePower(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetInputEnabledAsync(bool enabled, int channel = 1, CancellationToken cancellationToken = default) =>
+        session is BenchForge.Simulation.DefinitionDrivenScpiMockSession
+            ? Task.FromResult(BenchResult.Ok())
+            : GeneratedDriverRailroad.ExecuteWriteAsync(Identity.Model, "SetInputEnabled", () => session.WriteAsync(enabled ? "INP ON" : "INP OFF", cancellationToken)).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchRfPowerMeter"/> adapter generated for RF power meter drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="setFrequency">Delegate programming sensor calibration frequency.</param>
+/// <param name="measurePower">Delegate measuring RF power.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchRfPowerMeter(
+    string role,
+    string driverName,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setFrequency,
+    Func<int, CancellationToken, ValueTask<BenchResult<Power>>> measurePower,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchRfPowerMeter
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "PWRMETER", Identity, Backend, ["SetFrequency", "MeasurePower", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => Task.FromResult(BenchResult.Ok());
+    /// <inheritdoc/>
+    public Task<BenchResult> SetFrequencyAsync(Frequency frequency, int channel = 1, CancellationToken cancellationToken = default) => setFrequency(channel, frequency, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Power>> MeasurePowerAsync(int channel = 1, CancellationToken cancellationToken = default) => measurePower(channel, cancellationToken).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchFrequencyCounter"/> adapter generated for universal frequency counter drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="measureFrequency">Delegate measuring input signal frequency.</param>
+/// <param name="measurePeriod">Delegate measuring input signal period.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchFrequencyCounter(
+    string role,
+    string driverName,
+    Func<int, CancellationToken, ValueTask<BenchResult<Frequency>>> measureFrequency,
+    Func<int, CancellationToken, ValueTask<BenchResult<Duration>>> measurePeriod,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchFrequencyCounter
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "COUNTER", Identity, Backend, ["MeasureFrequency", "MeasurePeriod", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => Task.FromResult(BenchResult.Ok());
+    /// <inheritdoc/>
+    public Task<BenchResult<Frequency>> MeasureFrequencyAsync(int channel = 1, CancellationToken cancellationToken = default) => measureFrequency(channel, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<Duration>> MeasurePeriodAsync(int channel = 1, CancellationToken cancellationToken = default) => measurePeriod(channel, cancellationToken).AsTask();
+}
+
+/// <summary>Symmetric <see cref="IBenchLcrMeter"/> adapter generated for LCR / impedance meter drivers.</summary>
+/// <param name="role">Logical bench role name.</param>
+/// <param name="driverName">Generated driver model name.</param>
+/// <param name="setTestFreq">Delegate programming AC test stimulus frequency.</param>
+/// <param name="setTestVolt">Delegate programming AC test stimulus voltage.</param>
+/// <param name="measureCap">Delegate measuring capacitance.</param>
+/// <param name="measureRes">Delegate measuring equivalent series resistance.</param>
+/// <param name="backend">Explicit backend provenance.</param>
+/// <param name="calibration">Optional calibration certificate metadata.</param>
+public sealed class GeneratedBenchLcrMeter(
+    string role,
+    string driverName,
+    Func<int, Frequency, CancellationToken, ValueTask<BenchResult>> setTestFreq,
+    Func<int, ElectricPotential, CancellationToken, ValueTask<BenchResult>> setTestVolt,
+    Func<int, CancellationToken, ValueTask<BenchResult<ElectricCapacitance>>> measureCap,
+    Func<int, CancellationToken, ValueTask<BenchResult<ElectricResistance>>> measureRes,
+    InstrumentBackend backend = InstrumentBackend.Physical,
+    InstrumentCalibrationInfo? calibration = null) : IBenchLcrMeter
+{
+    /// <inheritdoc/>
+    public string Role { get; } = role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity { get; } = new("Generated", driverName, $"{backend}-{role}", "1.0");
+    /// <inheritdoc/>
+    public InstrumentBackend Backend { get; } = backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration { get; } = calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => new(Role, "LCR", Identity, Backend, ["SetTestFrequency", "SetTestVoltage", "MeasureCapacitance", "MeasureResistance", "SafeState"], Calibration);
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => Task.FromResult(BenchResult.Ok());
+    /// <inheritdoc/>
+    public Task<BenchResult> SetTestFrequencyAsync(Frequency frequency, CancellationToken cancellationToken = default) => setTestFreq(1, frequency, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult> SetTestVoltageAsync(ElectricPotential voltage, CancellationToken cancellationToken = default) => setTestVolt(1, voltage, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<ElectricCapacitance>> MeasureCapacitanceAsync(CancellationToken cancellationToken = default) => measureCap(1, cancellationToken).AsTask();
+    /// <inheritdoc/>
+    public Task<BenchResult<ElectricResistance>> MeasureResistanceAsync(CancellationToken cancellationToken = default) => measureRes(1, cancellationToken).AsTask();
 }

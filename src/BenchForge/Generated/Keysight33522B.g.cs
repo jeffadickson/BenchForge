@@ -104,4 +104,11 @@ public sealed partial class Keysight33522B(IAsyncScpiSession session)
   /// <returns>Canonical <see cref="IBenchInstrument"/> wrapper.</returns>
   public IBenchInstrument AsBenchInstrument(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
     new GeneratedBenchInstrument(role, "Keysight33522B", "SCPI", ["Amplitude", "Frequency"], backend, calibration);
+  /// <summary>Wrap this Keysight33522B driver as a symmetric <see cref="IBenchFunctionGenerator"/> for <see cref="BenchForge.Client.BenchSession"/>.</summary>
+  /// <param name="role">Logical bench role identifier.</param>
+  /// <param name="backend">Explicit backend provenance.</param>
+  /// <param name="calibration">Optional calibration certificate metadata.</param>
+  /// <returns>Symmetric <see cref="IBenchFunctionGenerator"/> adapter.</returns>
+  public IBenchFunctionGenerator AsBenchFunctionGenerator(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
+    new GeneratedBenchFunctionGenerator(role, "Keysight33522B", session, (ch, f, ct) => TrySetFrequencyAsync(ch, f, ct), (ch, ct) => TryGetFrequencyAsync(ch, ct), (ch, a, ct) => TrySetAmplitudeAsync(ch, a, ct), (ch, ct) => TryGetAmplitudeAsync(ch, ct), backend, calibration);
 }

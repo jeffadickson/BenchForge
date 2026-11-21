@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Keysight",
+  "model": "N1912A",
+  "class": "RfPowerMeter",
+  "driverName": "KeysightN1912A",
+  "description": "Clean-room SCPI command profile for Keysight N1912A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "SensorFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Power sensor calibration frequency per channel",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "SENS{channel}:FREQ?",
+      "set": "SENS{channel}:FREQ {value}",
+      "minimum": 100000.0,
+      "maximum": 40000000000.0
+    },
+    {
+      "name": "MeasuredPower",
+      "kind": "measurement",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "Measured RF power in watts per channel",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "MEAS{channel}:POW?",
+      "minimum": 1e-12,
+      "maximum": 1.0
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Watlow",
+  "model": "F4T",
+  "class": "TemperatureController",
+  "driverName": "WatlowF4T",
+  "description": "Clean-room SCPI command profile for Watlow F4T; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "SetpointTemperature",
+      "kind": "setting",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Thermal controller setpoint temperature",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "SOUR:TEMP:SPO?",
+      "set": "SOUR:TEMP:SPO {value}",
+      "minimum": -70.0,
+      "maximum": 180.0
+    },
+    {
+      "name": "MeasuredTemperature",
+      "kind": "measurement",
+      "quantity": "Temperature",
+      "unit": "DegreeCelsius",
+      "description": "Measured chamber/sensor temperature",
+      "mock": {
+        "defaultValue": 25.0
+      },
+      "query": "MEAS:TEMP?",
+      "minimum": -80.0,
+      "maximum": 190.0
+    },
+    {
+      "name": "HeaterOutputPercent",
+      "kind": "measurement",
+      "quantity": "Ratio",
+      "unit": "Percent",
+      "description": "Heater duty output percentage",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:HEAT:OUTP?",
+      "minimum": 0.0,
+      "maximum": 100.0
+    }
+  ]
+}

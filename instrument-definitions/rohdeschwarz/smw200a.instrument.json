@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "RohdeSchwarz",
+  "model": "SMW200A",
+  "class": "RfSignalGenerator",
+  "driverName": "RohdeSchwarzSmw200A",
+  "description": "Clean-room SCPI command profile for RohdeSchwarz SMW200A; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "Frequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "RF CW carrier frequency",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "SOUR:FREQ:CW?",
+      "set": "SOUR:FREQ:CW {value}",
+      "minimum": 100000.0,
+      "maximum": 20000000000.0
+    },
+    {
+      "name": "OutputPower",
+      "kind": "setting",
+      "quantity": "Power",
+      "unit": "Watt",
+      "description": "RF output carrier power in watts",
+      "mock": {
+        "defaultValue": 0.001
+      },
+      "query": "SOUR:POW:LEV:IMM:AMPL?",
+      "set": "SOUR:POW:LEV:IMM:AMPL {value}",
+      "minimum": 1e-12,
+      "maximum": 0.2
+    }
+  ]
+}

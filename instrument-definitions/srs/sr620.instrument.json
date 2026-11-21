@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "StanfordResearchSystems",
+  "model": "SR620",
+  "class": "FrequencyCounter",
+  "driverName": "StanfordResearchSr620",
+  "description": "Clean-room SCPI command profile for StanfordResearchSystems SR620; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "MeasuredFrequency",
+      "kind": "measurement",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Measured signal frequency per channel",
+      "mock": {
+        "defaultValue": 10000000.0
+      },
+      "query": "MEAS:FREQ? CH{channel}",
+      "minimum": 0.001,
+      "maximum": 1300000000.0
+    },
+    {
+      "name": "MeasuredPeriod",
+      "kind": "measurement",
+      "quantity": "Duration",
+      "unit": "Second",
+      "description": "Measured signal period per channel",
+      "mock": {
+        "defaultValue": 1e-07
+      },
+      "query": "MEAS:PER? CH{channel}",
+      "minimum": 1e-11,
+      "maximum": 1000.0
+    },
+    {
+      "name": "GateTime",
+      "kind": "setting",
+      "quantity": "Duration",
+      "unit": "Second",
+      "description": "Measurement gate time per channel",
+      "mock": {
+        "defaultValue": 0.1
+      },
+      "query": "SENS{channel}:FREQ:GATE:TIME?",
+      "set": "SENS{channel}:FREQ:GATE:TIME {value}",
+      "minimum": 1e-06,
+      "maximum": 100.0
+    }
+  ]
+}

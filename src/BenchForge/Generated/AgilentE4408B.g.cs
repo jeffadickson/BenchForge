@@ -235,4 +235,11 @@ public sealed partial class AgilentE4408B(IAsyncScpiSession session)
   /// <returns>Canonical <see cref="IBenchInstrument"/> wrapper.</returns>
   public IBenchInstrument AsBenchInstrument(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
     new GeneratedBenchInstrument(role, "AgilentE4408B", "SCPI", ["CenterFrequency", "ResolutionBandwidth", "SpanFrequency", "StartFrequency", "StopFrequency"], backend, calibration);
+  /// <summary>Wrap this AgilentE4408B driver as a symmetric <see cref="IBenchSpectrumAnalyzer"/> for <see cref="BenchForge.Client.BenchSession"/>.</summary>
+  /// <param name="role">Logical bench role identifier.</param>
+  /// <param name="backend">Explicit backend provenance.</param>
+  /// <param name="calibration">Optional calibration certificate metadata.</param>
+  /// <returns>Symmetric <see cref="IBenchSpectrumAnalyzer"/> adapter.</returns>
+  public IBenchSpectrumAnalyzer AsBenchSpectrumAnalyzer(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
+    new GeneratedBenchSpectrumAnalyzer(role, "AgilentE4408B", (ch, c, ct) => TrySetCenterFrequencyAsync(ch, c, ct), (ch, ct) => TryGetCenterFrequencyAsync(ch, ct), (ch, s, ct) => TrySetSpanFrequencyAsync(ch, s, ct), (ch, r, ct) => TrySetResolutionBandwidthAsync(ch, r, ct), backend, calibration);
 }

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Siglent",
+  "model": "SPD3303X",
+  "class": "PowerSupply",
+  "driverName": "SiglentSpd3303X",
+  "description": "Clean-room SCPI command profile for Siglent SPD3303X; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 2
+  },
+  "parameters": [
+    {
+      "name": "Voltage",
+      "kind": "setting",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Programmed DC output voltage setpoint per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "SOUR{channel}:VOLT?",
+      "set": "SOUR{channel}:VOLT {value}",
+      "minimum": 0.0,
+      "maximum": 32.0
+    },
+    {
+      "name": "CurrentLimit",
+      "kind": "setting",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Programmed DC output current limit per channel",
+      "mock": {
+        "defaultValue": 1.0
+      },
+      "query": "SOUR{channel}:CURR?",
+      "set": "SOUR{channel}:CURR {value}",
+      "minimum": 0.0,
+      "maximum": 3.2
+    },
+    {
+      "name": "MeasuredVoltage",
+      "kind": "measurement",
+      "quantity": "ElectricPotential",
+      "unit": "Volt",
+      "description": "Measured terminal DC voltage per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:VOLT? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 33.6
+    },
+    {
+      "name": "MeasuredCurrent",
+      "kind": "measurement",
+      "quantity": "ElectricCurrent",
+      "unit": "Ampere",
+      "description": "Measured terminal DC current per channel",
+      "mock": {
+        "defaultValue": 0.0
+      },
+      "query": "MEAS:CURR? CH{channel}",
+      "minimum": 0.0,
+      "maximum": 3.3600000000000003
+    }
+  ]
+}

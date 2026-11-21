@@ -106,6 +106,51 @@ public sealed class BenchSession : IAsyncDisposable
     /// <returns>Railroad result containing the <see cref="IBenchThermalController"/> or a structured lookup error.</returns>
     public BenchResult<IBenchThermalController> TryGetThermal(string role) => Resolve<IBenchThermalController>(role, "THERMAL");
 
+    /// <summary>Resolve a registered function generator by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchFunctionGenerator"/>.</returns>
+    public BenchResult<IBenchFunctionGenerator> TryGetFunctionGenerator(string role) => Resolve<IBenchFunctionGenerator>(role, "FGEN");
+
+    /// <summary>Resolve a registered oscilloscope by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchOscilloscope"/>.</returns>
+    public BenchResult<IBenchOscilloscope> TryGetOscilloscope(string role) => Resolve<IBenchOscilloscope>(role, "SCOPE");
+
+    /// <summary>Resolve a registered switch matrix by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchSwitchMatrix"/>.</returns>
+    public BenchResult<IBenchSwitchMatrix> TryGetSwitchMatrix(string role) => Resolve<IBenchSwitchMatrix>(role, "SWITCH");
+
+    /// <summary>Resolve a registered programmable electronic load by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchElectronicLoad"/>.</returns>
+    public BenchResult<IBenchElectronicLoad> TryGetElectronicLoad(string role) => Resolve<IBenchElectronicLoad>(role, "ELOAD");
+
+    /// <summary>Resolve a registered RF signal generator by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchRfSignalGenerator"/>.</returns>
+    public BenchResult<IBenchRfSignalGenerator> TryGetRfSignalGenerator(string role) => Resolve<IBenchRfSignalGenerator>(role, "RFSIGGEN");
+
+    /// <summary>Resolve a registered spectrum analyzer by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchSpectrumAnalyzer"/>.</returns>
+    public BenchResult<IBenchSpectrumAnalyzer> TryGetSpectrumAnalyzer(string role) => Resolve<IBenchSpectrumAnalyzer>(role, "SPECAN");
+
+    /// <summary>Resolve a registered RF power meter by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchRfPowerMeter"/>.</returns>
+    public BenchResult<IBenchRfPowerMeter> TryGetRfPowerMeter(string role) => Resolve<IBenchRfPowerMeter>(role, "PWRMETER");
+
+    /// <summary>Resolve a registered frequency counter by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchFrequencyCounter"/>.</returns>
+    public BenchResult<IBenchFrequencyCounter> TryGetFrequencyCounter(string role) => Resolve<IBenchFrequencyCounter>(role, "COUNTER");
+
+    /// <summary>Resolve a registered LCR meter by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchLcrMeter"/>.</returns>
+    public BenchResult<IBenchLcrMeter> TryGetLcrMeter(string role) => Resolve<IBenchLcrMeter>(role, "LCR");
+
     /// <summary>Resolve the test-only <see cref="IBenchMockControl"/> handle for a simulated instrument role.</summary>
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Railroad result containing the mock control interface, or <see cref="BenchErrorKind.UnsupportedCapability"/> for physical devices.</returns>
@@ -130,6 +175,51 @@ public sealed class BenchSession : IAsyncDisposable
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Resolved <see cref="IBenchThermalController"/>.</returns>
     public IBenchThermalController Thermal(string role) => TryGetThermal(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a function generator role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchFunctionGenerator"/>.</returns>
+    public IBenchFunctionGenerator FunctionGenerator(string role) => TryGetFunctionGenerator(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for an oscilloscope role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchOscilloscope"/>.</returns>
+    public IBenchOscilloscope Oscilloscope(string role) => TryGetOscilloscope(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a switch matrix role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchSwitchMatrix"/>.</returns>
+    public IBenchSwitchMatrix SwitchMatrix(string role) => TryGetSwitchMatrix(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a programmable electronic load role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchElectronicLoad"/>.</returns>
+    public IBenchElectronicLoad ElectronicLoad(string role) => TryGetElectronicLoad(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for an RF signal generator role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchRfSignalGenerator"/>.</returns>
+    public IBenchRfSignalGenerator RfSignalGenerator(string role) => TryGetRfSignalGenerator(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a spectrum analyzer role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchSpectrumAnalyzer"/>.</returns>
+    public IBenchSpectrumAnalyzer SpectrumAnalyzer(string role) => TryGetSpectrumAnalyzer(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for an RF power meter role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchRfPowerMeter"/>.</returns>
+    public IBenchRfPowerMeter RfPowerMeter(string role) => TryGetRfPowerMeter(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a frequency counter role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchFrequencyCounter"/>.</returns>
+    public IBenchFrequencyCounter FrequencyCounter(string role) => TryGetFrequencyCounter(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for an LCR meter role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchLcrMeter"/>.</returns>
+    public IBenchLcrMeter LcrMeter(string role) => TryGetLcrMeter(role).GetValueOrThrow();
 
     /// <summary>Execute a safe monotonic voltage ramp on an SMU role and record the step outcome into the evidence trail.</summary>
     /// <param name="role">SMU bench role name.</param>
@@ -329,6 +419,77 @@ public sealed class BenchBuilder
         double initialTempCelsius = 25.0,
         InstrumentCalibrationInfo? calibration = null) =>
         AddInstrument(new StatefulMockThermalController(role, initialTempCelsius, calibration));
+
+    /// <summary>Add a stateful simulated function generator role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockFunctionGenerator(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockFunctionGenerator(role, calibration));
+
+    /// <summary>Add a stateful simulated oscilloscope role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="dcOffsetVolts">Simulated DC rail offset in volts.</param>
+    /// <param name="rippleAmplitudeVolts">Simulated AC sinusoidal ripple amplitude in volts.</param>
+    /// <param name="sampleCount">Samples per waveform acquisition.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockOscilloscope(string role, double dcOffsetVolts = 3.3, double rippleAmplitudeVolts = 0.008, int sampleCount = 1024, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockOscilloscope(role, dcOffsetVolts, rippleAmplitudeVolts, sampleCount, calibration));
+
+    /// <summary>Add a stateful simulated switch matrix role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockSwitchMatrix(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockSwitchMatrix(role, calibration));
+
+    /// <summary>Add a stateful simulated programmable DC electronic load role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="sourceVoltageVolts">Simulated bus voltage in volts.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockElectronicLoad(string role, double sourceVoltageVolts = 28.0, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockElectronicLoad(role, sourceVoltageVolts, calibration));
+
+    /// <summary>Add a stateful simulated RF signal generator role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockRfSignalGenerator(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockRfSignalGenerator(role, calibration));
+
+    /// <summary>Add a stateful simulated spectrum analyzer role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockSpectrumAnalyzer(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockSpectrumAnalyzer(role, calibration));
+
+    /// <summary>Add a stateful simulated RF power meter role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="measuredWatts">Initial simulated RF power in watts.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockRfPowerMeter(string role, decimal measuredWatts = 0.001m, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockRfPowerMeter(role, measuredWatts, calibration));
+
+    /// <summary>Add a stateful simulated universal frequency counter role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="frequencyHz">Initial simulated frequency in hertz.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockFrequencyCounter(string role, double frequencyHz = 10_000_000.0, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockFrequencyCounter(role, frequencyHz, calibration));
+
+    /// <summary>Add a stateful simulated LCR / impedance meter role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="capacitanceFarads">Initial simulated capacitance in farads.</param>
+    /// <param name="resistanceOhms">Initial simulated resistance in ohms.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockLcrMeter(string role, double capacitanceFarads = 1e-6, double resistanceOhms = 0.05, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockLcrMeter(role, capacitanceFarads, resistanceOhms, calibration));
 
     /// <summary>Build the configured <see cref="BenchSession"/>, automatically wrapping SMU roles with declared flight envelopes.</summary>
     /// <returns>Configured <see cref="BenchSession"/>.</returns>

@@ -106,4 +106,11 @@ public sealed partial class Agilent8257D(IAsyncScpiSession session)
   /// <returns>Canonical <see cref="IBenchInstrument"/> wrapper.</returns>
   public IBenchInstrument AsBenchInstrument(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
     new GeneratedBenchInstrument(role, "Agilent8257D", "SCPI", ["Frequency", "OutputPower"], backend, calibration);
+  /// <summary>Wrap this Agilent8257D driver as a symmetric <see cref="IBenchRfSignalGenerator"/> for <see cref="BenchForge.Client.BenchSession"/>.</summary>
+  /// <param name="role">Logical bench role identifier.</param>
+  /// <param name="backend">Explicit backend provenance.</param>
+  /// <param name="calibration">Optional calibration certificate metadata.</param>
+  /// <returns>Symmetric <see cref="IBenchRfSignalGenerator"/> adapter.</returns>
+  public IBenchRfSignalGenerator AsBenchRfSignalGenerator(string role, InstrumentBackend backend = InstrumentBackend.Physical, InstrumentCalibrationInfo? calibration = null) =>
+    new GeneratedBenchRfSignalGenerator(role, "Agilent8257D", session, (ch, f, ct) => TrySetFrequencyAsync(ch, f, ct), (ch, ct) => TryGetFrequencyAsync(ch, ct), (ch, p, ct) => TrySetOutputPowerAsync(ch, p, ct), (ch, ct) => TryGetOutputPowerAsync(ch, ct), backend, calibration);
 }

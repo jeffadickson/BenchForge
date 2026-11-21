@@ -9,8 +9,15 @@
     <ProjectReference Include="../BenchForge/BenchForge.csproj" />
     <PackageReference Include="IviFoundation.Driver" Version="2.1.0" />
     <PackageReference Include="IviFoundation.Driver.ConfigServer" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.Counter" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.DCPwr" Version="2.1.0" />
     <PackageReference Include="IviFoundation.Driver.Dmm" Version="2.1.0" />
     <PackageReference Include="IviFoundation.Driver.Fgen" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.PwrMeter" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.RFSigGen" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.Scope" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.SpecAn" Version="2.1.0" />
+    <PackageReference Include="IviFoundation.Driver.Swtch" Version="2.1.0" />
     <PackageReference Include="IviFoundation.DriverCore" Version="1.0.1" />
   </ItemGroup>
 </Project>

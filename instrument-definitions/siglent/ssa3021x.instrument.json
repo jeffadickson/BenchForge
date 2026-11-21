@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Siglent",
+  "model": "SSA3021X",
+  "class": "SpectrumAnalyzer",
+  "driverName": "SiglentSsa3021X",
+  "description": "Clean-room SCPI command profile for Siglent SSA3021X; validate commands and limits against manufacturer manual before physical use.",
+  "channels": {
+    "count": 1
+  },
+  "parameters": [
+    {
+      "name": "CenterFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Analyzer center frequency",
+      "mock": {
+        "defaultValue": 1000000000.0
+      },
+      "query": "SENS:FREQ:CENT?",
+      "set": "SENS:FREQ:CENT {value}",
+      "minimum": 1000.0,
+      "maximum": 2100000000.0
+    },
+    {
+      "name": "SpanFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Analyzer frequency span",
+      "mock": {
+        "defaultValue": 10000000.0
+      },
+      "query": "SENS:FREQ:SPAN?",
+      "set": "SENS:FREQ:SPAN {value}",
+      "minimum": 0.0,
+      "maximum": 2100000000.0
+    },
+    {
+      "name": "StartFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Sweep start frequency",
+      "mock": {
+        "defaultValue": 995000000.0
+      },
+      "query": "SENS:FREQ:STAR?",
+      "set": "SENS:FREQ:STAR {value}",
+      "minimum": 0.0,
+      "maximum": 2100000000.0
+    },
+    {
+      "name": "StopFrequency",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Sweep stop frequency",
+      "mock": {
+        "defaultValue": 1005000000.0
+      },
+      "query": "SENS:FREQ:STOP?",
+      "set": "SENS:FREQ:STOP {value}",
+      "minimum": 1000.0,
+      "maximum": 2100000000.0
+    },
+    {
+      "name": "ResolutionBandwidth",
+      "kind": "setting",
+      "quantity": "Frequency",
+      "unit": "Hertz",
+      "description": "Resolution bandwidth (RBW)",
+      "mock": {
+        "defaultValue": 10000.0
+      },
+      "query": "SENS:BAND:RES?",
+      "set": "SENS:BAND:RES {value}",
+      "minimum": 1.0,
+      "maximum": 1000000.0
+    }
+  ]
+}
