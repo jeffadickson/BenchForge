@@ -1,0 +1,99 @@
+{
+  "benchName": "spacecraft-eps-tvac-digital-twin",
+  "modelVersion": "Cameo-SysML-Flight-ICD-Rev5",
+  "requireHardLimitsForPhysical": true,
+  "simulationTime": {
+    "mode": "Manual",
+    "speed": 100.0
+  },
+  "digitalTwin": {
+    "enabled": true,
+    "baseLoadResistanceOhms": 14.0,
+    "tempCoeffPerCelsius": 0.0035,
+    "standbyCurrentAmperes": 0.25,
+    "busSeriesResistanceOhms": 0.08,
+    "switchingRippleVolts": 0.012,
+    "initialTemperatureCelsius": 25.0,
+    "thermalTimeConstantSeconds": 60.0,
+    "selfHeatingCelsiusPerWatt": 0.25,
+    "dmmSwitchRole": "harness_sw",
+    "dmmRequiredRoute": "BUS_A->UUT_V"
+  },
+  "blocks": [
+    {
+      "role": "eps_psu",
+      "instrumentClass": "PSU",
+      "backend": "Mock",
+      "requireComplianceBeforeOutputOn": true,
+      "autoSafeOnViolation": true,
+      "policyNote": "EPS 28V Primary Flight Bus (ICD-EPS-001)",
+      "valueProperties": [
+        { "name": "maxVoltage", "value": 28.5, "unit": "V" },
+        { "name": "maxCurrent", "value": 5000, "unit": "mA" },
+        { "name": "maxPower", "value": 120, "unit": "W" }
+      ],
+      "constraints": [
+        { "id": "REQ-EPS-MAXV", "expression": "voltage <= 28.0 V" },
+        { "id": "REQ-EPS-MINV", "expression": "voltage >= 0.0 V" }
+      ]
+    },
+    {
+      "role": "harness_sw",
+      "instrumentClass": "SWITCH",
+      "backend": "Mock",
+      "policyNote": "EGSE Relay Matrix routing DMM sense leads"
+    },
+    {
+      "role": "bus_dmm",
+      "instrumentClass": "DMM",
+      "backend": "Mock",
+      "policyNote": "6.5-digit bus telemetry voltmeter"
+    },
+    {
+      "role": "bus_scope",
+      "instrumentClass": "SCOPE",
+      "backend": "Mock",
+      "policyNote": "Power rail ripple & transient oscilloscope"
+    },
+    {
+      "role": "bus_eload",
+      "instrumentClass": "ELOAD",
+      "backend": "Mock",
+      "policyNote": "Programmable payload transient load",
+      "constraints": [
+        { "id": "REQ-LOAD-SHORT", "expression": "resistance >= 2.0 Ohm" },
+        { "id": "REQ-LOAD-MAXI", "expression": "current <= 4.0 A" }
+      ]
+    },
+    {
+      "role": "tvac_chamber",
+      "instrumentClass": "THERMAL",
+      "backend": "Mock",
+      "policyNote": "TVAC Qualification Thermal Envelope",
+      "valueProperties": [
+        { "name": "minTemperature", "value": -40.0, "unit": "degC" },
+        { "name": "maxTemperature", "value": 358.15, "unit": "K" }
+      ]
+    },
+    {
+      "role": "tc_daq",
+      "instrumentClass": "DAQ",
+      "backend": "Mock",
+      "mock": { "channelCount": 8 },
+      "policyNote": "8-channel thermocouple multiplexer"
+    },
+    {
+      "role": "egse_dio",
+      "instrumentClass": "DIO",
+      "backend": "Mock",
+      "policyNote": "Discrete spacecraft command/status lines"
+    },
+    {
+      "role": "safety_loop",
+      "instrumentClass": "INTERLOCK",
+      "backend": "Mock",
+      "mock": { "watchdogTimeoutSeconds": 30.0 },
+      "policyNote": "Hardware E-Stop & 30s Dead-Man Watchdog (BD-RES-002)"
+    }
+  ]
+}

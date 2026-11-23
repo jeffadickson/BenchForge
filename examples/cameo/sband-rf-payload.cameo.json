@@ -1,0 +1,53 @@
+{
+  "benchName": "sband-rf-payload-checkout",
+  "modelVersion": "Cameo-SysML-RF-ICD-Rev2",
+  "requireHardLimitsForPhysical": true,
+  "simulationTime": {
+    "mode": "Manual",
+    "speed": 10.0
+  },
+  "blocks": [
+    {
+      "role": "rf_tx",
+      "instrumentClass": "RFSIGGEN",
+      "backend": "Mock",
+      "policyNote": "S-Band LNA Damage Limit (+10 dBm)",
+      "valueProperties": [
+        { "name": "minFrequency", "value": 2.0, "unit": "GHz" },
+        { "name": "maxFrequency", "value": 2.5, "unit": "GHz" },
+        { "name": "maxPower", "value": 10.0, "unit": "dBm" }
+      ]
+    },
+    {
+      "role": "rf_vna",
+      "instrumentClass": "VNA",
+      "backend": "Mock",
+      "policyNote": "S-Band Filter Return Loss & Insertion Loss VNA",
+      "valueProperties": [
+        { "name": "minFrequency", "value": 1.8, "unit": "GHz" },
+        { "name": "maxFrequency", "value": 2.7, "unit": "GHz" },
+        { "name": "maxPower", "value": 0.0, "unit": "dBm" }
+      ]
+    },
+    {
+      "role": "rf_sa",
+      "instrumentClass": "SPECAN",
+      "backend": "Mock",
+      "policyNote": "Spurious & Harmonics Spectrum Analyzer"
+    },
+    {
+      "role": "rf_pm",
+      "instrumentClass": "PWRMETER",
+      "backend": "Mock",
+      "mock": { "measuredPowerW": 0.005 },
+      "policyNote": "RF Power Sensor"
+    },
+    {
+      "role": "ref_counter",
+      "instrumentClass": "COUNTER",
+      "backend": "Mock",
+      "mock": { "frequencyHz": 10000000.0 },
+      "policyNote": "10 MHz Reference Counter"
+    }
+  ]
+}

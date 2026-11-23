@@ -804,6 +804,7 @@ public static class InstrumentHardLimitWrapper
             IBenchElectronicLoad eload => new HardLimitedElectronicLoad(eload, resolve),
             IBenchRfSignalGenerator rfsg => new HardLimitedRfSignalGenerator(rfsg, resolve),
             IBenchLcrMeter lcr => new HardLimitedLcrMeter(lcr, resolve),
+            IBenchVectorNetworkAnalyzer vna => new HardLimitedVectorNetworkAnalyzer(vna, resolve),
             _ => instrument
         };
     }
@@ -821,7 +822,7 @@ public static class InstrumentHardLimitWrapper
 }
 
 /// <summary>Final fail-safe proxy wrapping any <see cref="IBenchPowerSupply"/> with hard voltage, current, and power ceilings.</summary>
-public class HardLimitedPowerSupply : IBenchPowerSupply, IHardwareLimitProgrammable
+public class HardLimitedPowerSupply : IBenchPowerSupply, IHardwareLimitProgrammable, ISimulationTimeAware
 {
     private readonly IBenchPowerSupply _inner;
     private readonly Func<InstrumentHardLimits> _limits;
@@ -933,6 +934,13 @@ public class HardLimitedPowerSupply : IBenchPowerSupply, IHardwareLimitProgramma
         _inner.GetOutputEnabledAsync(channel, cancellationToken);
 
     /// <inheritdoc/>
+    public void OnSimulationTimeAdvanced(TimeSpan elapsed, TimeSpan delta)
+    {
+        if (_inner is ISimulationTimeAware timeAware)
+            timeAware.OnSimulationTimeAdvanced(elapsed, delta);
+    }
+
+    /// <inheritdoc/>
     public Task<BenchResult<HardwareProtectionReport>> ProgramHardwareLimitsAsync(
         InstrumentHardLimits limits,
         int channel = 1,
@@ -975,7 +983,7 @@ public sealed class HardLimitedSourceMeasureUnit : HardLimitedPowerSupply, IBenc
 }
 
 /// <summary>Final fail-safe proxy wrapping any <see cref="IBenchThermalController"/> with hard temperature bounds.</summary>
-public sealed class HardLimitedThermalController : IBenchThermalController
+public sealed class HardLimitedThermalController : IBenchThermalController, ISimulationTimeAware
 {
     private readonly IBenchThermalController _inner;
     private readonly Func<InstrumentHardLimits> _limits;
@@ -1001,6 +1009,13 @@ public sealed class HardLimitedThermalController : IBenchThermalController
     public BenchInstrumentDescriptor Describe() => _inner.Describe();
     /// <inheritdoc/>
     public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => _inner.SafeStateAsync(cancellationToken);
+
+    /// <inheritdoc/>
+    public void OnSimulationTimeAdvanced(TimeSpan elapsed, TimeSpan delta)
+    {
+        if (_inner is ISimulationTimeAware timeAware)
+            timeAware.OnSimulationTimeAdvanced(elapsed, delta);
+    }
 
     /// <inheritdoc/>
     public async Task<BenchResult> SetSetpointAsync(Temperature target, CancellationToken cancellationToken = default)
@@ -1256,4 +1271,60 @@ public sealed class HardLimitedLcrMeter : IBenchLcrMeter
     /// <inheritdoc/>
     public Task<BenchResult<ElectricResistance>> MeasureResistanceAsync(CancellationToken cancellationToken = default) =>
         _inner.MeasureResistanceAsync(cancellationToken);
+}
+
+/// <summary>Final fail-safe proxy wrapping any <see cref="IBenchVectorNetworkAnalyzer"/> with hard sweep frequency and RF power limits.</summary>
+public sealed class HardLimitedVectorNetworkAnalyzer : IBenchVectorNetworkAnalyzer
+{
+    private readonly IBenchVectorNetworkAnalyzer _inner;
+    private readonly Func<InstrumentHardLimits> _limits;
+
+    /// <summary>Wrap a VNA with hard sweep frequency and RF source power limits.</summary>
+    /// <param name="inner">Underlying VNA.</param>
+    /// <param name="limitsAccessor">Delegate returning active monotonically-tightened limits.</param>
+    public HardLimitedVectorNetworkAnalyzer(IBenchVectorNetworkAnalyzer inner, Func<InstrumentHardLimits> limitsAccessor)
+    {
+        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+        _limits = limitsAccessor ?? throw new ArgumentNullException(nameof(limitsAccessor));
+    }
+
+    /// <inheritdoc/>
+    public string Role => _inner.Role;
+    /// <inheritdoc/>
+    public InstrumentIdentity Identity => _inner.Identity;
+    /// <inheritdoc/>
+    public InstrumentBackend Backend => _inner.Backend;
+    /// <inheritdoc/>
+    public InstrumentCalibrationInfo? Calibration => _inner.Calibration;
+    /// <inheritdoc/>
+    public BenchInstrumentDescriptor Describe() => _inner.Describe();
+    /// <inheritdoc/>
+    public Task<BenchResult> SafeStateAsync(CancellationToken cancellationToken = default) => _inner.SafeStateAsync(cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<BenchResult> SetFrequencyRangeAsync(Frequency start, Frequency stop, CancellationToken cancellationToken = default)
+    {
+        var limits = _limits();
+        var c1 = limits.CheckFrequency(Role, start);
+        if (c1.IsFailure)
+            return await InstrumentHardLimitWrapper.RejectAndMaybeSafeAsync(_inner, limits, c1, cancellationToken).ConfigureAwait(false);
+        var c2 = limits.CheckFrequency(Role, stop);
+        if (c2.IsFailure)
+            return await InstrumentHardLimitWrapper.RejectAndMaybeSafeAsync(_inner, limits, c2, cancellationToken).ConfigureAwait(false);
+        return await _inner.SetFrequencyRangeAsync(start, stop, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public async Task<BenchResult> SetSourcePowerAsync(Power power, CancellationToken cancellationToken = default)
+    {
+        var limits = _limits();
+        var check = limits.CheckPower(Role, power);
+        if (check.IsFailure)
+            return await InstrumentHardLimitWrapper.RejectAndMaybeSafeAsync(_inner, limits, check, cancellationToken).ConfigureAwait(false);
+        return await _inner.SetSourcePowerAsync(power, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public Task<BenchResult<IReadOnlyList<SParameterPoint>>> MeasureSParameterSweepAsync(string parameter = "S21", int points = 101, CancellationToken cancellationToken = default) =>
+        _inner.MeasureSParameterSweepAsync(parameter, points, cancellationToken);
 }

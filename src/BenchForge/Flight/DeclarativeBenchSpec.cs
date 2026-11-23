@@ -3,7 +3,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using BenchForge.Client;
 using BenchForge.Contracts;
+using BenchForge.Interfaces;
 using BenchForge.Outcomes;
+using BenchForge.Simulation;
 using UnitsNet;
 
 namespace BenchForge.Flight;
@@ -40,6 +42,8 @@ public sealed record CameoConstraint(string Id, string Expression, string? Unit 
 /// <param name="MeasuredPowerW">Simulated RF power in watts for RF power meter mocks.</param>
 /// <param name="FrequencyHz">Simulated frequency in hertz for frequency counter mocks.</param>
 /// <param name="CapacitanceF">Simulated capacitance in farads for LCR mocks.</param>
+/// <param name="ChannelCount">Initial channel count for DAQ mocks.</param>
+/// <param name="WatchdogTimeoutSeconds">Watchdog timeout in seconds for safety interlock mocks.</param>
 public sealed record CameoMockParameters(
     double? LoadResistanceOhm = null,
     double? DefaultCurrentLimitA = null,
@@ -51,14 +55,48 @@ public sealed record CameoMockParameters(
     double? RippleAmplitudeV = null,
     decimal? MeasuredPowerW = null,
     double? FrequencyHz = null,
-    double? CapacitanceF = null);
+    double? CapacitanceF = null,
+    int? ChannelCount = null,
+    double? WatchdogTimeoutSeconds = null);
+
+/// <summary>Declarative simulation clock configuration exported from Cameo / SysML.</summary>
+/// <param name="Mode">Clock mode (<c>Manual</c>, <c>Paused</c>, <c>RealTime</c>, <c>Accelerated</c>, <c>Slowed</c>).</param>
+/// <param name="Speed">Logical seconds per wall second (0.001 to 1000000; default 1.0).</param>
+public sealed record CameoSimulationTimeConfig(
+    string Mode = "Manual",
+    double Speed = 1.0);
+
+/// <summary>Declarative closed-loop spacecraft UUT digital-twin physics block exported from Cameo / SysML.</summary>
+/// <param name="Enabled">True to couple PSU, Thermal, Electronic Load, DMM, and Oscilloscope blocks onto a shared <see cref="DigitalTwinPlant"/>.</param>
+/// <param name="BaseLoadResistanceOhms">Nominal UUT resistance at 25 C in ohms.</param>
+/// <param name="TempCoeffPerCelsius">Fractional resistance temperature coefficient per degree Celsius.</param>
+/// <param name="StandbyCurrentAmperes">Constant quiescent current draw above 3 V.</param>
+/// <param name="BusSeriesResistanceOhms">Harness IR series resistance in ohms.</param>
+/// <param name="SwitchingRippleVolts">Peak sinusoidal bus switching ripple in volts.</param>
+/// <param name="InitialTemperatureCelsius">Initial UUT/chamber temperature in degrees Celsius.</param>
+/// <param name="ThermalTimeConstantSeconds">Chamber first-order thermal time constant tau in seconds.</param>
+/// <param name="SelfHeatingCelsiusPerWatt">UUT self-heating coefficient in C/W.</param>
+/// <param name="DmmSwitchRole">Optional switch-matrix role gating DMM continuity to the UUT bus.</param>
+/// <param name="DmmRequiredRoute">Optional closed relay route required for DMM readings (for example, <c>BUS_A->UUT_V</c>).</param>
+public sealed record CameoDigitalTwinConfig(
+    bool Enabled = false,
+    double BaseLoadResistanceOhms = 14.0,
+    double TempCoeffPerCelsius = 0.0035,
+    double StandbyCurrentAmperes = 0.25,
+    double BusSeriesResistanceOhms = 0.08,
+    double SwitchingRippleVolts = 0.015,
+    double InitialTemperatureCelsius = 25.0,
+    double ThermalTimeConstantSeconds = 60.0,
+    double SelfHeatingCelsiusPerWatt = 0.35,
+    string? DmmSwitchRole = null,
+    string? DmmRequiredRoute = null);
 
 /// <summary>
 /// Declarative instrument block exported from Cameo Systems Modeler / SysML combining role identity,
 /// canonical class, fail-safe limits (value properties + constraints), and optional mock parameters.
 /// </summary>
 /// <param name="Role">Logical bench role identifier (for example, <c>eps_psu</c>).</param>
-/// <param name="InstrumentClass">Canonical BenchForge class tag (<c>PSU</c>, <c>SMU</c>, <c>DMM</c>, <c>THERMAL</c>, <c>FGEN</c>, <c>SCOPE</c>, <c>SWITCH</c>, <c>ELOAD</c>, <c>RFSIGGEN</c>, <c>SPECAN</c>, <c>PWRMETER</c>, <c>COUNTER</c>, <c>LCR</c>).</param>
+/// <param name="InstrumentClass">Canonical BenchForge class tag (<c>PSU</c>, <c>SMU</c>, <c>DMM</c>, <c>THERMAL</c>, <c>FGEN</c>, <c>SCOPE</c>, <c>SWITCH</c>, <c>ELOAD</c>, <c>RFSIGGEN</c>, <c>SPECAN</c>, <c>PWRMETER</c>, <c>COUNTER</c>, <c>LCR</c>, <c>VNA</c>, <c>DAQ</c>, <c>DIO</c>, <c>INTERLOCK</c>).</param>
 /// <param name="Backend">Declared backend (<c>Mock</c> or <c>Physical</c>; defaults to <c>Mock</c>).</param>
 /// <param name="ValueProperties">Optional SysML typed value properties declaring hard ceilings/floors.</param>
 /// <param name="Constraints">Optional SysML constraint expressions monotonically intersected into hard limits.</param>
@@ -83,28 +121,37 @@ public sealed record CameoInstrumentBlock(
 /// <param name="BenchName">Logical bench or EGSE test-stand name.</param>
 /// <param name="ModelVersion">Optional Cameo / SysML model revision tag.</param>
 /// <param name="RequireHardLimitsForPhysical">When true, fails closed if any physical output instrument lacks hard limits.</param>
+/// <param name="SimulationTime">Optional simulation time model configuration (<see cref="AdjustableSimulationClock"/>).</param>
+/// <param name="DigitalTwin">Optional closed-loop coupled spacecraft UUT digital-twin physics parameters.</param>
 /// <param name="Blocks">Ordered instrument blocks to instantiate and protect with fail-safe hard limits.</param>
 public sealed record CameoBenchManifest(
     string BenchName,
     string? ModelVersion = null,
     bool RequireHardLimitsForPhysical = true,
+    CameoSimulationTimeConfig? SimulationTime = null,
+    CameoDigitalTwinConfig? DigitalTwin = null,
     IReadOnlyList<CameoInstrumentBlock>? Blocks = null);
 
 /// <summary>Compiled declarative bench plan ready to apply to a <see cref="BenchBuilder"/>.</summary>
 /// <param name="BenchName">Logical bench name.</param>
 /// <param name="ModelVersion">Optional source model revision.</param>
 /// <param name="RequireHardLimitsForPhysical">True when physical output instruments must have registered hard limits.</param>
+/// <param name="SimulationTime">Optional simulation clock settings.</param>
+/// <param name="DigitalTwin">Optional coupled digital-twin physics settings.</param>
 /// <param name="Blocks">Validated instrument block definitions.</param>
 /// <param name="CompiledLimits">Monotonically tightened <see cref="InstrumentHardLimits"/> per instrument role.</param>
 public sealed record DeclarativeBenchPlan(
     string BenchName,
     string? ModelVersion,
     bool RequireHardLimitsForPhysical,
+    CameoSimulationTimeConfig? SimulationTime,
+    CameoDigitalTwinConfig? DigitalTwin,
     IReadOnlyList<CameoInstrumentBlock> Blocks,
     IReadOnlyDictionary<string, InstrumentHardLimits> CompiledLimits);
 
 /// <summary>
-/// Compiles declarative Cameo / SysML JSON bench manifests into sealed fail-safe <see cref="InstrumentHardLimits"/>
+/// Compiles declarative Cameo / SysML JSON bench manifests into sealed fail-safe <see cref="InstrumentHardLimits"/>,
+/// canonical <see cref="AdjustableSimulationClock"/> configuration, coupled <see cref="DigitalTwinPlant"/> models,
 /// and symmetric simulated bench instruments without verbose hand-written C# boilerplate.
 /// </summary>
 public static class DeclarativeBenchLoader
@@ -163,11 +210,13 @@ public static class DeclarativeBenchLoader
             manifest.BenchName,
             manifest.ModelVersion,
             manifest.RequireHardLimitsForPhysical,
+            manifest.SimulationTime,
+            manifest.DigitalTwin,
             blocks,
             compiled));
     }
 
-    /// <summary>Apply a compiled <see cref="DeclarativeBenchPlan"/> onto a <see cref="BenchBuilder"/>, registering mocks and fail-safe limits.</summary>
+    /// <summary>Apply a compiled <see cref="DeclarativeBenchPlan"/> onto a <see cref="BenchBuilder"/>, registering simulation clock, coupled digital twin, mocks, and fail-safe limits.</summary>
     /// <param name="builder">Target bench builder.</param>
     /// <param name="plan">Compiled declarative plan.</param>
     /// <param name="registerMocks">When true, instantiates every block whose backend is <c>Mock</c>.</param>
@@ -180,13 +229,60 @@ public static class DeclarativeBenchLoader
         if (plan.RequireHardLimitsForPhysical)
             builder.RequireHardLimitsForPhysical(true);
 
+        if (plan.SimulationTime is { } timeCfg)
+        {
+            try
+            {
+                var simClock = new AdjustableSimulationClock(speed: timeCfg.Speed);
+                if (string.Equals(timeCfg.Mode, "RealTime", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(timeCfg.Mode, "Accelerated", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(timeCfg.Mode, "Slowed", StringComparison.OrdinalIgnoreCase))
+                    simClock.Start();
+                else if (string.Equals(timeCfg.Mode, "Paused", StringComparison.OrdinalIgnoreCase))
+                    simClock.Pause();
+                builder.WithSimulationClock(simClock);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BenchResult.Fail(BenchError.Validation("BF-CAMEO-TIME", $"Invalid simulationTime configuration: {ex.Message}"));
+            }
+        }
+
+        DigitalTwinPlant? twin = null;
+        if (plan.DigitalTwin is { Enabled: true } dt)
+        {
+            twin = new DigitalTwinPlant(new DigitalTwinParameters(
+                dt.BaseLoadResistanceOhms,
+                dt.TempCoeffPerCelsius,
+                dt.StandbyCurrentAmperes,
+                dt.BusSeriesResistanceOhms,
+                dt.SwitchingRippleVolts,
+                dt.InitialTemperatureCelsius,
+                dt.ThermalTimeConstantSeconds,
+                dt.SelfHeatingCelsiusPerWatt));
+            builder.WithDigitalTwin(twin);
+        }
+
         if (registerMocks)
         {
+            // Instantiate switch matrices first so CoupledTwinDmm can bind to a required relay route if declared.
+            var switches = new Dictionary<string, IBenchSwitchMatrix>(StringComparer.OrdinalIgnoreCase);
             foreach (var block in plan.Blocks)
             {
-                if (!string.Equals(block.Backend, "Mock", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                var addRes = AddMockBlock(builder, block);
+                if (!string.Equals(block.Backend, "Mock", StringComparison.OrdinalIgnoreCase)) continue;
+                if (string.Equals(block.InstrumentClass.Trim(), "SWITCH", StringComparison.OrdinalIgnoreCase))
+                {
+                    var sw = new StatefulMockSwitchMatrix(block.Role);
+                    switches[block.Role] = sw;
+                    builder.AddInstrument(sw);
+                }
+            }
+
+            foreach (var block in plan.Blocks)
+            {
+                if (!string.Equals(block.Backend, "Mock", StringComparison.OrdinalIgnoreCase)) continue;
+                if (string.Equals(block.InstrumentClass.Trim(), "SWITCH", StringComparison.OrdinalIgnoreCase)) continue;
+                var addRes = AddMockBlock(builder, block, twin, plan.DigitalTwin, switches);
                 if (addRes.IsFailure)
                     return addRes;
             }
@@ -232,32 +328,54 @@ public static class DeclarativeBenchLoader
         }
     }
 
-    private static BenchResult AddMockBlock(BenchBuilder builder, CameoInstrumentBlock block)
+    private static BenchResult AddMockBlock(
+        BenchBuilder builder,
+        CameoInstrumentBlock block,
+        DigitalTwinPlant? twin,
+        CameoDigitalTwinConfig? twinCfg,
+        Dictionary<string, IBenchSwitchMatrix> switches)
     {
         var m = block.Mock ?? new CameoMockParameters();
         switch (block.InstrumentClass.Trim().ToUpperInvariant())
         {
             case "PSU":
             case "SMU":
-                builder.AddMockSmu(block.Role, m.LoadResistanceOhm ?? 10.0, m.DefaultCurrentLimitA ?? 0.1);
+                if (twin is not null)
+                    builder.AddInstrument(new CoupledTwinPowerSupply(block.Role, twin));
+                else
+                    builder.AddMockSmu(block.Role, m.LoadResistanceOhm ?? 10.0, m.DefaultCurrentLimitA ?? 0.1);
                 return BenchResult.Ok();
             case "DMM":
-                builder.AddMockDmm(block.Role, m.NominalVoltageV ?? 0.0, m.NominalResistanceOhm ?? 100.0);
+                if (twin is not null)
+                {
+                    IBenchSwitchMatrix? sw = twinCfg?.DmmSwitchRole is { } swRole && switches.TryGetValue(swRole, out var found) ? found : null;
+                    builder.AddInstrument(new CoupledTwinDmm(block.Role, twin, sw, twinCfg?.DmmRequiredRoute));
+                }
+                else
+                {
+                    builder.AddMockDmm(block.Role, m.NominalVoltageV ?? 0.0, m.NominalResistanceOhm ?? 100.0);
+                }
                 return BenchResult.Ok();
             case "THERMAL":
-                builder.AddMockThermal(block.Role, m.InitialTemperatureC ?? 25.0);
+                if (twin is not null)
+                    builder.AddInstrument(new CoupledTwinThermalController(block.Role, twin));
+                else
+                    builder.AddMockThermal(block.Role, m.InitialTemperatureC ?? 25.0);
                 return BenchResult.Ok();
             case "FGEN":
                 builder.AddMockFunctionGenerator(block.Role);
                 return BenchResult.Ok();
             case "SCOPE":
-                builder.AddMockOscilloscope(block.Role, m.DcOffsetV ?? 3.3, m.RippleAmplitudeV ?? 0.008);
-                return BenchResult.Ok();
-            case "SWITCH":
-                builder.AddMockSwitchMatrix(block.Role);
+                if (twin is not null)
+                    builder.AddInstrument(new CoupledTwinOscilloscope(block.Role, twin));
+                else
+                    builder.AddMockOscilloscope(block.Role, m.DcOffsetV ?? 3.3, m.RippleAmplitudeV ?? 0.008);
                 return BenchResult.Ok();
             case "ELOAD":
-                builder.AddMockElectronicLoad(block.Role, m.SourceVoltageV ?? 28.0);
+                if (twin is not null)
+                    builder.AddInstrument(new CoupledTwinElectronicLoad(block.Role, twin));
+                else
+                    builder.AddMockElectronicLoad(block.Role, m.SourceVoltageV ?? 28.0);
                 return BenchResult.Ok();
             case "RFSIGGEN":
                 builder.AddMockRfSignalGenerator(block.Role);
@@ -273,6 +391,18 @@ public static class DeclarativeBenchLoader
                 return BenchResult.Ok();
             case "LCR":
                 builder.AddMockLcrMeter(block.Role, m.CapacitanceF ?? 1e-6, m.NominalResistanceOhm ?? 0.05);
+                return BenchResult.Ok();
+            case "VNA":
+                builder.AddMockVna(block.Role);
+                return BenchResult.Ok();
+            case "DAQ":
+                builder.AddMockDaq(block.Role, m.ChannelCount ?? 8);
+                return BenchResult.Ok();
+            case "DIO":
+                builder.AddMockDigitalIo(block.Role);
+                return BenchResult.Ok();
+            case "INTERLOCK":
+                builder.AddMockSafetyInterlock(block.Role, m.WatchdogTimeoutSeconds is { } s ? TimeSpan.FromSeconds(s) : null);
                 return BenchResult.Ok();
             default:
                 return BenchResult.Fail(BenchError.Validation("BF-CAMEO-CLASS", $"Unsupported instrumentClass '{block.InstrumentClass}' on role '{block.Role}'.", block.Role));

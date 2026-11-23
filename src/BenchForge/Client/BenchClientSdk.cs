@@ -2,6 +2,7 @@ using System.Text.Json;
 using BenchForge.Flight;
 using BenchForge.Interfaces;
 using BenchForge.Outcomes;
+using BenchForge.Simulation;
 using UnitsNet;
 
 namespace BenchForge.Client;
@@ -14,6 +15,10 @@ public sealed class BenchSession : IAsyncDisposable
 {
     private readonly Dictionary<string, IBenchInstrument> _instruments;
     private readonly HardLimitRegistry _hardLimits;
+    private readonly AdjustableSimulationClock _simClock;
+    private readonly SimulationScheduler _scheduler;
+    private readonly FlightRecorder _recorder;
+    private readonly DigitalTwinPlant? _digitalTwin;
     private readonly List<FlightTestStepRecord> _steps = new();
     private readonly Lock _stepGate = new();
     private readonly DateTimeOffset _startedUtc = DateTimeOffset.UtcNow;
@@ -24,13 +29,19 @@ public sealed class BenchSession : IAsyncDisposable
         string benchName,
         Dictionary<string, IBenchInstrument> instruments,
         TimeProvider clock,
-        HardLimitRegistry? hardLimits = null)
+        HardLimitRegistry? hardLimits = null,
+        AdjustableSimulationClock? simClock = null,
+        DigitalTwinPlant? digitalTwin = null)
     {
         BenchName = benchName;
         _instruments = instruments;
         _clock = clock;
         _hardLimits = hardLimits ?? new HardLimitRegistry();
         _hardLimits.Seal();
+        _simClock = simClock ?? new AdjustableSimulationClock(clock);
+        _scheduler = new SimulationScheduler(_simClock);
+        _recorder = new FlightRecorder(benchName, _simClock, clock);
+        _digitalTwin = digitalTwin;
     }
 
     /// <summary>Logical name of this bench session.</summary>
@@ -38,6 +49,64 @@ public sealed class BenchSession : IAsyncDisposable
 
     /// <summary>Sealed fail-safe hard-limit registry enforced across all registered instruments (tighten-only).</summary>
     public HardLimitRegistry HardLimits => _hardLimits;
+
+    /// <summary>Canonical run-scoped virtual simulation clock shared by time-aware mocks and digital-twin plants.</summary>
+    public AdjustableSimulationClock SimulationClock => _simClock;
+
+    /// <summary>Explicitly pumped virtual event scheduler bound to <see cref="SimulationClock"/>.</summary>
+    public SimulationScheduler Scheduler => _scheduler;
+
+    /// <summary>Deterministic SHA-256 hash-chained flight recorder attached to this bench session.</summary>
+    public FlightRecorder Recorder => _recorder;
+
+    /// <summary>Optional coupled closed-loop spacecraft UUT digital twin backing coupled bench mocks.</summary>
+    public DigitalTwinPlant? DigitalTwin => _digitalTwin;
+
+    /// <summary>
+    /// Advance the canonical <see cref="SimulationClock"/> by <paramref name="delta"/>, propagate the time step to
+    /// the coupled <see cref="DigitalTwin"/> and all <see cref="ISimulationTimeAware"/> instruments, and log the step
+    /// into <see cref="Recorder"/>.
+    /// </summary>
+    /// <param name="delta">Non-negative logical simulation duration to advance.</param>
+    /// <returns>Railroad outcome containing the updated <see cref="SimulationClockStatus"/>.</returns>
+    public BenchResult<SimulationClockStatus> AdvanceSimulationTime(TimeSpan delta)
+    {
+        if (delta < TimeSpan.Zero)
+            return BenchResult<SimulationClockStatus>.Fail(BenchError.Validation("BF-TIME-NEG", "Simulation time delta must be non-negative."));
+
+        try
+        {
+            var status = _simClock.Status();
+            if (status.Mode is SimulationClockMode.RealTime or SimulationClockMode.Accelerated or SimulationClockMode.Slowed)
+                _simClock.Pause();
+            if (delta > TimeSpan.Zero)
+                _simClock.AdvanceBy(delta);
+            var updated = _simClock.Status();
+
+            if (_digitalTwin is not null)
+                _digitalTwin.OnSimulationTimeAdvanced(updated.Elapsed, delta);
+
+            foreach (var inst in _instruments.Values.OrderBy(i => i.Role, StringComparer.Ordinal))
+            {
+                if (inst is ISimulationTimeAware timeAware)
+                {
+                    // Avoid double-stepping a DigitalTwinPlant already stepped above.
+                    if (_digitalTwin is not null && inst is CoupledTwinPowerSupply or CoupledTwinThermalController)
+                        continue;
+                    if (_digitalTwin is not null && inst is HardLimitedPowerSupply or HardLimitedThermalController)
+                        continue;
+                    timeAware.OnSimulationTimeAdvanced(updated.Elapsed, delta);
+                }
+            }
+
+            _recorder.Record("bench", "AdvanceSimulationTime", "TimeAdvance", $"dt={delta.TotalSeconds:G6}s, elapsed={updated.Elapsed.TotalSeconds:G6}s");
+            return BenchResult<SimulationClockStatus>.Ok(updated);
+        }
+        catch (Exception ex)
+        {
+            return BenchResult<SimulationClockStatus>.Fail(BenchError.Validation("BF-TIME-ERR", ex.Message));
+        }
+    }
 
     /// <summary>Begin building a configured local, simulated, or hybrid bench session.</summary>
     /// <param name="benchName">Logical bench or test-stand name.</param>
@@ -52,15 +121,24 @@ public sealed class BenchSession : IAsyncDisposable
         _instruments.Values.OrderBy(i => i.Role, StringComparer.Ordinal).Select(i => i.Describe()).ToArray();
 
     /// <summary>
-    /// Serialize the full bench inventory, capabilities, provenance, calibration metadata, and registered fail-safe hard limits
-    /// as indented JSON so human operators and AI agents can discover every role and ceiling without guessing.
+    /// Serialize the full bench inventory, capabilities, provenance, calibration metadata, simulation clock status,
+    /// and registered fail-safe hard limits as indented JSON so human operators and AI agents can discover every role and ceiling without guessing.
     /// </summary>
     /// <returns>JSON manifest string.</returns>
-    public string DescribeJson() =>
-        JsonSerializer.Serialize(
+    public string DescribeJson()
+    {
+        var clockStatus = _simClock.Status();
+        return JsonSerializer.Serialize(
             new
             {
                 benchName = BenchName,
+                simulationClock = new
+                {
+                    mode = clockStatus.Mode.ToString(),
+                    speed = clockStatus.Speed,
+                    elapsedSeconds = clockStatus.Elapsed.TotalSeconds
+                },
+                hasDigitalTwin = _digitalTwin is not null,
                 instruments = Describe(),
                 hardLimits = _hardLimits.Snapshot().ToDictionary(
                     kv => kv.Key,
@@ -85,6 +163,7 @@ public sealed class BenchSession : IAsyncDisposable
                     StringComparer.OrdinalIgnoreCase)
             },
             new JsonSerializerOptions { WriteIndented = true });
+    }
 
     /// <summary>
     /// Monotonically tighten the registered hard limits for <paramref name="role"/> at runtime.
@@ -246,6 +325,26 @@ public sealed class BenchSession : IAsyncDisposable
     /// <returns>Railroad result containing <see cref="IBenchLcrMeter"/>.</returns>
     public BenchResult<IBenchLcrMeter> TryGetLcrMeter(string role) => Resolve<IBenchLcrMeter>(role, "LCR");
 
+    /// <summary>Resolve a registered Vector Network Analyzer by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchVectorNetworkAnalyzer"/>.</returns>
+    public BenchResult<IBenchVectorNetworkAnalyzer> TryGetVna(string role) => Resolve<IBenchVectorNetworkAnalyzer>(role, "VNA");
+
+    /// <summary>Resolve a registered multiplexed DAQ by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchDataAcquisition"/>.</returns>
+    public BenchResult<IBenchDataAcquisition> TryGetDaq(string role) => Resolve<IBenchDataAcquisition>(role, "DAQ");
+
+    /// <summary>Resolve a registered Digital I/O controller by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchDigitalIo"/>.</returns>
+    public BenchResult<IBenchDigitalIo> TryGetDigitalIo(string role) => Resolve<IBenchDigitalIo>(role, "DIO");
+
+    /// <summary>Resolve a registered safety interlock / watchdog loop by role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Railroad result containing <see cref="IBenchSafetyInterlock"/>.</returns>
+    public BenchResult<IBenchSafetyInterlock> TryGetSafetyInterlock(string role) => Resolve<IBenchSafetyInterlock>(role, "INTERLOCK");
+
     /// <summary>Resolve the test-only <see cref="IBenchMockControl"/> handle for a simulated instrument role.</summary>
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Railroad result containing the mock control interface, or <see cref="BenchErrorKind.UnsupportedCapability"/> for physical devices.</returns>
@@ -315,6 +414,26 @@ public sealed class BenchSession : IAsyncDisposable
     /// <param name="role">Logical bench role name.</param>
     /// <returns>Resolved <see cref="IBenchLcrMeter"/>.</returns>
     public IBenchLcrMeter LcrMeter(string role) => TryGetLcrMeter(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a Vector Network Analyzer role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchVectorNetworkAnalyzer"/>.</returns>
+    public IBenchVectorNetworkAnalyzer Vna(string role) => TryGetVna(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a multiplexed DAQ role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchDataAcquisition"/>.</returns>
+    public IBenchDataAcquisition Daq(string role) => TryGetDaq(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a Digital I/O controller role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchDigitalIo"/>.</returns>
+    public IBenchDigitalIo DigitalIo(string role) => TryGetDigitalIo(role).GetValueOrThrow();
+
+    /// <summary>Convenience accessor for a safety interlock / watchdog loop role.</summary>
+    /// <param name="role">Logical bench role name.</param>
+    /// <returns>Resolved <see cref="IBenchSafetyInterlock"/>.</returns>
+    public IBenchSafetyInterlock SafetyInterlock(string role) => TryGetSafetyInterlock(role).GetValueOrThrow();
 
     /// <summary>Execute a safe monotonic voltage ramp on an SMU role and record the step outcome into the evidence trail.</summary>
     /// <param name="role">SMU bench role name.</param>
@@ -448,6 +567,8 @@ public sealed class BenchBuilder
     private readonly Dictionary<string, FlightSafeEnvelope> _envelopes = new(StringComparer.OrdinalIgnoreCase);
     private readonly HardLimitRegistry _hardLimits = new();
     private bool _requireHardLimitsForPhysical;
+    private AdjustableSimulationClock? _simClock;
+    private DigitalTwinPlant? _digitalTwin;
 
     internal BenchBuilder(string benchName, TimeProvider clock)
     {
@@ -619,6 +740,54 @@ public sealed class BenchBuilder
     public BenchBuilder AddMockLcrMeter(string role, double capacitanceFarads = 1e-6, double resistanceOhms = 0.05, InstrumentCalibrationInfo? calibration = null) =>
         AddInstrument(new StatefulMockLcrMeter(role, capacitanceFarads, resistanceOhms, calibration));
 
+    /// <summary>Add a stateful simulated Vector Network Analyzer role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockVna(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockVectorNetworkAnalyzer(role, calibration));
+
+    /// <summary>Add a time-aware stateful simulated multiplexed DAQ role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="channelCount">Initial channel count.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockDaq(string role, int channelCount = 8, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockDataAcquisition(role, channelCount, calibration));
+
+    /// <summary>Add a stateful simulated discrete Digital I/O role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockDigitalIo(string role, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockDigitalIo(role, calibration));
+
+    /// <summary>Add a time-aware stateful simulated safety interlock and dead-man watchdog role.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="watchdogTimeout">Maximum logical time permitted between watchdog kicks before auto-trip.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockSafetyInterlock(string role, TimeSpan? watchdogTimeout = null, InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockSafetyInterlock(role, watchdogTimeout, calibration));
+
+    /// <summary>Configure the canonical run-scoped <see cref="AdjustableSimulationClock"/> shared by all time-aware mocks and digital-twin models.</summary>
+    /// <param name="simulationClock">Caller-configured simulation clock.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder WithSimulationClock(AdjustableSimulationClock simulationClock)
+    {
+        _simClock = simulationClock ?? throw new ArgumentNullException(nameof(simulationClock));
+        return this;
+    }
+
+    /// <summary>Attach a shared closed-loop <see cref="DigitalTwinPlant"/> stepped automatically by <see cref="BenchSession.AdvanceSimulationTime"/>.</summary>
+    /// <param name="plant">Closed-loop spacecraft UUT physics plant.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder WithDigitalTwin(DigitalTwinPlant plant)
+    {
+        _digitalTwin = plant ?? throw new ArgumentNullException(nameof(plant));
+        return this;
+    }
+
     /// <summary>
     /// Build the configured <see cref="BenchSession"/>, automatically wrapping instruments with declared flight envelopes
     /// and sealing all registered fail-safe <see cref="InstrumentHardLimits"/>.
@@ -652,7 +821,7 @@ public sealed class BenchBuilder
             resolved[role] = wrapped;
         }
         _hardLimits.Seal();
-        return new BenchSession(_benchName, resolved, _clock, _hardLimits);
+        return new BenchSession(_benchName, resolved, _clock, _hardLimits, _simClock, _digitalTwin);
     }
 
     private static bool IsOutputCapable(IBenchInstrument instrument) =>
@@ -662,5 +831,6 @@ public sealed class BenchBuilder
             or IBenchFunctionGenerator
             or IBenchElectronicLoad
             or IBenchRfSignalGenerator
-            or IBenchLcrMeter;
+            or IBenchLcrMeter
+            or IBenchVectorNetworkAnalyzer;
 }

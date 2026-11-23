@@ -32,6 +32,7 @@
     <Project Path="tools/BenchForge.RecoveryProbe/BenchForge.RecoveryProbe.csproj" />
     <Project Path="tools/BenchForge.CheckWorkflow/BenchForge.CheckWorkflow.csproj" />
     <Project Path="tools/BenchForge.Checks/BenchForge.Checks.csproj" />
+    <Project Path="tools/BenchForge.Cli/BenchForge.Cli.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/BenchForge.CaptureDemo/BenchForge.CaptureDemo.csproj" />
