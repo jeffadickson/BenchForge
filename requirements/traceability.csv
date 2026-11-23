@@ -149,7 +149,7 @@ BD-AM-009,P0,Planned,,,https://github.com/jeffadickson/BenchForge/issues/22,,
 BD-AM-010,P1,Planned,,,https://github.com/jeffadickson/BenchForge/issues/42,,
 BD-AM-011,P1,PartialSourceUnverified,tools/BenchForge.DriverGen/Program.cs,tests/BenchForge.Tests/DefinitionDrivenMockTests.cs,https://github.com/jeffadickson/BenchForge/issues/44,,
 BD-AM-012,P1,SourceCommittedUnverified,src/BenchForge.Experiments/ExperimentDefinition.cs,tests/BenchForge.Experiments.Tests/ExperimentCompositionTests.cs,https://github.com/jeffadickson/BenchForge/issues/43,,
-BD-AM-013,P0,SourceCommittedUnverified,src/BenchForge/Simulation/TypedMockMeasurements.cs,tests/BenchForge.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,
+BD-AM-013,P0,SourceCommittedUnverified,src/BenchForge/Simulation/TypedMockMeasurements.cs,tests/BenchForge.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,examples/cameo/default-egse-mocks.cameo.json;src/BenchForge/Flight/CameoDefaultMocks.cs;src/BenchForge/Flight/CameoUnits.cs;tests/BenchForge.Tests/CameoDefaultMocksWithUnitsTests.cs
 BD-AM-014,P0,SourceCommittedUnverified,src/BenchForge/Simulation/TypedMockMeasurements.cs,tests/BenchForge.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,
 BD-AM-015,P1,PartialSourceUnverified,src/BenchForge/Simulation/InstrumentDefinitionMockLoader.cs,tests/BenchForge.Tests/InstrumentDefinitionMockLoaderTests.cs,https://github.com/jeffadickson/BenchForge/issues/44,,
 BD-AM-016,P1,SourceCommittedUnverified,src/BenchForge/Simulation/TypedMockMeasurements.cs,tests/BenchForge.Tests/TypedMockMeasurementsTests.cs,https://github.com/jeffadickson/BenchForge/issues/40,,

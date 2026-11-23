@@ -39,14 +39,14 @@
       "role": "rf_pm",
       "instrumentClass": "PWRMETER",
       "backend": "Mock",
-      "mock": { "measuredPowerW": 0.005 },
+      "mock": { "measuredPower": "5 mW" },
       "policyNote": "RF Power Sensor"
     },
     {
       "role": "ref_counter",
       "instrumentClass": "COUNTER",
       "backend": "Mock",
-      "mock": { "frequencyHz": 10000000.0 },
+      "mock": { "frequency": "10 MHz" },
       "policyNote": "10 MHz Reference Counter"
     }
   ]

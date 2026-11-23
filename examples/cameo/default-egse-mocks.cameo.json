@@ -1,0 +1,196 @@
+{
+  "benchName": "benchforge-default-egse-bench",
+  "modelVersion": "Cameo-SysML-QUDV-DefaultMocks-v1",
+  "requireHardLimitsForPhysical": true,
+  "simulationTime": {
+    "mode": "Manual",
+    "speed": 100.0
+  },
+  "digitalTwin": {
+    "enabled": true,
+    "baseLoadResistance": { "value": 14.0, "unit": "Ohm", "quantityKind": "ElectricResistance", "valueType": "Ohms" },
+    "tempCoeff": { "value": 3500.0, "unit": "ppm/degC", "quantityKind": "TemperatureCoefficient", "valueType": "PartsPerMillionPerDegreeCelsius" },
+    "standbyCurrent": { "value": 250.0, "unit": "mA", "quantityKind": "ElectricCurrent", "valueType": "Milliamperes" },
+    "busSeriesResistance": { "value": 80.0, "unit": "mOhm", "quantityKind": "ElectricResistance", "valueType": "Milliohms" },
+    "switchingRipple": { "value": 12.0, "unit": "mV", "quantityKind": "ElectricPotential", "valueType": "Millivolts" },
+    "initialTemperature": { "value": 25.0, "unit": "degC", "quantityKind": "ThermodynamicTemperature", "valueType": "DegreesCelsius" },
+    "thermalTimeConstant": { "value": 60.0, "unit": "s", "quantityKind": "Time", "valueType": "Seconds" },
+    "selfHeating": { "value": 0.25, "unit": "degC/W", "quantityKind": "ThermalResistance", "valueType": "DegreesCelsiusPerWatt" },
+    "dmmSwitchRole": "switch",
+    "dmmRequiredRoute": "BUS_A->UUT_V"
+  },
+  "blocks": [
+    {
+      "role": "psu",
+      "instrumentClass": "PSU",
+      "backend": "Mock",
+      "requireComplianceBeforeOutputOn": true,
+      "autoSafeOnViolation": true,
+      "policyNote": "Default Cameo-with-units spacecraft DC Power Supply mock",
+      "valueProperties": [
+        { "name": "loadResistance", "value": 14.0, "unit": "Ohm", "quantityKind": "ElectricResistance", "valueType": "Ohms" },
+        { "name": "defaultCurrentLimit", "value": 500.0, "unit": "mA", "quantityKind": "ElectricCurrent", "valueType": "Milliamperes" },
+        { "name": "minVoltage", "value": 0.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "maxVoltage", "value": 32.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "maxCurrent", "value": 5.0, "unit": "A", "quantityKind": "ElectricCurrent", "valueType": "Amperes" },
+        { "name": "maxPower", "value": 150.0, "unit": "W", "quantityKind": "Power", "valueType": "Watts" }
+      ]
+    },
+    {
+      "role": "smu",
+      "instrumentClass": "SMU",
+      "backend": "Mock",
+      "requireComplianceBeforeOutputOn": true,
+      "autoSafeOnViolation": true,
+      "policyNote": "Default Cameo-with-units Source-Measure Unit mock",
+      "valueProperties": [
+        { "name": "loadResistance", "value": 10.0, "unit": "Ohm", "quantityKind": "ElectricResistance", "valueType": "Ohms" },
+        { "name": "defaultCurrentLimit", "value": 100.0, "unit": "mA", "quantityKind": "ElectricCurrent", "valueType": "Milliamperes" },
+        { "name": "minVoltage", "value": 0.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "maxVoltage", "value": 28.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "maxCurrent", "value": 2.0, "unit": "A", "quantityKind": "ElectricCurrent", "valueType": "Amperes" },
+        { "name": "maxPower", "value": 40.0, "unit": "W", "quantityKind": "Power", "valueType": "Watts" }
+      ]
+    },
+    {
+      "role": "dmm",
+      "instrumentClass": "DMM",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units 6.5-digit DMM mock",
+      "valueProperties": [
+        { "name": "nominalVoltage", "value": 28.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "nominalResistance", "value": 100.0, "unit": "Ohm", "quantityKind": "ElectricResistance", "valueType": "Ohms" }
+      ]
+    },
+    {
+      "role": "thermal",
+      "instrumentClass": "THERMAL",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units TVAC / Thermal Chamber mock",
+      "valueProperties": [
+        { "name": "initialTemperature", "value": 25.0, "unit": "degC", "quantityKind": "ThermodynamicTemperature", "valueType": "DegreesCelsius" },
+        { "name": "minTemperature", "value": -55.0, "unit": "degC", "quantityKind": "ThermodynamicTemperature", "valueType": "DegreesCelsius" },
+        { "name": "maxTemperature", "value": 125.0, "unit": "degC", "quantityKind": "ThermodynamicTemperature", "valueType": "DegreesCelsius" }
+      ]
+    },
+    {
+      "role": "fgen",
+      "instrumentClass": "FGEN",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Function / Arbitrary Waveform Generator mock",
+      "valueProperties": [
+        { "name": "minFrequency", "value": 1.0, "unit": "Hz", "quantityKind": "Frequency", "valueType": "Hertz" },
+        { "name": "maxFrequency", "value": 25.0, "unit": "MHz", "quantityKind": "Frequency", "valueType": "Megahertz" },
+        { "name": "maxVoltage", "value": 10.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" }
+      ]
+    },
+    {
+      "role": "scope",
+      "instrumentClass": "SCOPE",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Oscilloscope mock",
+      "valueProperties": [
+        { "name": "dcOffset", "value": 3.3, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "rippleAmplitude", "value": 8.0, "unit": "mV", "quantityKind": "ElectricPotential", "valueType": "Millivolts" }
+      ]
+    },
+    {
+      "role": "switch",
+      "instrumentClass": "SWITCH",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Relay / Switch Matrix mock"
+    },
+    {
+      "role": "eload",
+      "instrumentClass": "ELOAD",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Programmable DC Electronic Load mock",
+      "valueProperties": [
+        { "name": "sourceVoltage", "value": 28.0, "unit": "V", "quantityKind": "ElectricPotential", "valueType": "Volts" },
+        { "name": "maxCurrent", "value": 10.0, "unit": "A", "quantityKind": "ElectricCurrent", "valueType": "Amperes" },
+        { "name": "minResistance", "value": 1.0, "unit": "Ohm", "quantityKind": "ElectricResistance", "valueType": "Ohms" },
+        { "name": "maxPower", "value": 250.0, "unit": "W", "quantityKind": "Power", "valueType": "Watts" }
+      ]
+    },
+    {
+      "role": "rf_siggen",
+      "instrumentClass": "RFSIGGEN",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units RF Signal Generator mock",
+      "valueProperties": [
+        { "name": "minFrequency", "value": 100.0, "unit": "MHz", "quantityKind": "Frequency", "valueType": "Megahertz" },
+        { "name": "maxFrequency", "value": 6.0, "unit": "GHz", "quantityKind": "Frequency", "valueType": "Gigahertz" },
+        { "name": "maxPower", "value": 10.0, "unit": "dBm", "quantityKind": "Power", "valueType": "DecibelMilliwatts" }
+      ]
+    },
+    {
+      "role": "spec_an",
+      "instrumentClass": "SPECAN",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Spectrum Analyzer mock"
+    },
+    {
+      "role": "rf_pwrmeter",
+      "instrumentClass": "PWRMETER",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units RF Power Meter mock",
+      "valueProperties": [
+        { "name": "measuredPower", "value": 0.0, "unit": "dBm", "quantityKind": "Power", "valueType": "DecibelMilliwatts" }
+      ]
+    },
+    {
+      "role": "counter",
+      "instrumentClass": "COUNTER",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units 10 MHz Reference Frequency Counter mock",
+      "valueProperties": [
+        { "name": "frequency", "value": 10.0, "unit": "MHz", "quantityKind": "Frequency", "valueType": "Megahertz" }
+      ]
+    },
+    {
+      "role": "lcr",
+      "instrumentClass": "LCR",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units LCR / Impedance Meter mock",
+      "valueProperties": [
+        { "name": "capacitance", "value": 1.0, "unit": "uF", "quantityKind": "ElectricCapacitance", "valueType": "Microfarads" },
+        { "name": "nominalResistance", "value": 50.0, "unit": "mOhm", "quantityKind": "ElectricResistance", "valueType": "Milliohms" },
+        { "name": "minFrequency", "value": 20.0, "unit": "Hz", "quantityKind": "Frequency", "valueType": "Hertz" },
+        { "name": "maxFrequency", "value": 2.0, "unit": "MHz", "quantityKind": "Frequency", "valueType": "Megahertz" }
+      ]
+    },
+    {
+      "role": "vna",
+      "instrumentClass": "VNA",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Vector Network Analyzer mock",
+      "valueProperties": [
+        { "name": "minFrequency", "value": 100.0, "unit": "MHz", "quantityKind": "Frequency", "valueType": "Megahertz" },
+        { "name": "maxFrequency", "value": 8.5, "unit": "GHz", "quantityKind": "Frequency", "valueType": "Gigahertz" },
+        { "name": "maxPower", "value": 0.0, "unit": "dBm", "quantityKind": "Power", "valueType": "DecibelMilliwatts" }
+      ]
+    },
+    {
+      "role": "daq",
+      "instrumentClass": "DAQ",
+      "backend": "Mock",
+      "mock": { "channelCount": 8 },
+      "policyNote": "Default Cameo-with-units 8-channel Multiplexed DAQ mock"
+    },
+    {
+      "role": "dio",
+      "instrumentClass": "DIO",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units Discrete Digital I/O mock"
+    },
+    {
+      "role": "interlock",
+      "instrumentClass": "INTERLOCK",
+      "backend": "Mock",
+      "policyNote": "Default Cameo-with-units E-Stop & Dead-Man Watchdog Safety Interlock mock",
+      "valueProperties": [
+        { "name": "watchdogTimeout", "value": 30.0, "unit": "s", "quantityKind": "Time", "valueType": "Seconds" }
+      ]
+    }
+  ]
+}

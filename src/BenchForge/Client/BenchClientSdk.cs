@@ -632,6 +632,104 @@ public sealed class BenchBuilder
         return this;
     }
 
+    /// <summary>Add a stateful simulated digital multimeter role using strongly typed <c>UnitsNet</c> quantities.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="nominalVoltage">Initial simulated DC voltage with explicit physical unit.</param>
+    /// <param name="nominalResistance">Optional initial simulated resistance (defaults to 100 Ohm).</param>
+    /// <param name="calibration">Optional calibration certificate metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockDmm(
+        string role,
+        ElectricPotential nominalVoltage,
+        ElectricResistance? nominalResistance = null,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockDigitalMultimeter(role, nominalVoltage.Volts, 0.0, (nominalResistance ?? ElectricResistance.FromOhms(100.0)).Ohms, calibration));
+
+    /// <summary>Add a stateful simulated SMU role modeling resistive load physics and compliance clamping using strongly typed <c>UnitsNet</c> quantities.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="loadResistance">Simulated load resistance with explicit physical unit.</param>
+    /// <param name="defaultCurrentLimit">Optional initial compliance current limit (defaults to 100 mA).</param>
+    /// <param name="calibration">Optional calibration certificate metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockSmu(
+        string role,
+        ElectricResistance loadResistance,
+        ElectricCurrent? defaultCurrentLimit = null,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockSourceMeasureUnit(role, loadResistance.Ohms, (defaultCurrentLimit ?? ElectricCurrent.FromMilliamperes(100.0)).Amperes, calibration));
+
+    /// <summary>Add a stateful simulated thermal chamber controller role using strongly typed <see cref="Temperature"/>.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="initialTemperature">Initial chamber temperature with explicit physical unit.</param>
+    /// <param name="calibration">Optional calibration certificate metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockThermal(
+        string role,
+        Temperature initialTemperature,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockThermalController(role, initialTemperature.DegreesCelsius, calibration));
+
+    /// <summary>Add a stateful simulated oscilloscope role using strongly typed <see cref="ElectricPotential"/> quantities.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="dcOffset">Simulated DC rail offset with explicit physical unit.</param>
+    /// <param name="rippleAmplitude">Optional simulated AC sinusoidal ripple amplitude (defaults to 8 mV).</param>
+    /// <param name="sampleCount">Samples per waveform acquisition.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockOscilloscope(
+        string role,
+        ElectricPotential dcOffset,
+        ElectricPotential? rippleAmplitude = null,
+        int sampleCount = 1024,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockOscilloscope(role, dcOffset.Volts, (rippleAmplitude ?? ElectricPotential.FromMillivolts(8.0)).Volts, sampleCount, calibration));
+
+    /// <summary>Add a stateful simulated programmable DC electronic load role using strongly typed <see cref="ElectricPotential"/>.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="sourceVoltage">Simulated bus voltage with explicit physical unit.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockElectronicLoad(
+        string role,
+        ElectricPotential sourceVoltage,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockElectronicLoad(role, sourceVoltage.Volts, calibration));
+
+    /// <summary>Add a stateful simulated RF power meter role using strongly typed <see cref="Power"/>.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="measuredPower">Initial simulated RF power with explicit physical unit.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockRfPowerMeter(
+        string role,
+        Power measuredPower,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockRfPowerMeter(role, (decimal)measuredPower.Watts, calibration));
+
+    /// <summary>Add a stateful simulated universal frequency counter role using strongly typed <see cref="Frequency"/>.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="frequency">Initial simulated frequency with explicit physical unit.</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockFrequencyCounter(
+        string role,
+        Frequency frequency,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockFrequencyCounter(role, frequency.Hertz, calibration));
+
+    /// <summary>Add a stateful simulated LCR / impedance meter role using strongly typed <see cref="ElectricCapacitance"/> and <see cref="ElectricResistance"/>.</summary>
+    /// <param name="role">Logical role name.</param>
+    /// <param name="capacitance">Initial simulated capacitance with explicit physical unit.</param>
+    /// <param name="resistance">Optional initial simulated equivalent series resistance (defaults to 50 mOhm).</param>
+    /// <param name="calibration">Optional calibration metadata.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    public BenchBuilder AddMockLcrMeter(
+        string role,
+        ElectricCapacitance capacitance,
+        ElectricResistance? resistance = null,
+        InstrumentCalibrationInfo? calibration = null) =>
+        AddInstrument(new StatefulMockLcrMeter(role, capacitance.Farads, (resistance ?? ElectricResistance.FromMilliohms(50.0)).Ohms, calibration));
+
     /// <summary>Add a stateful simulated digital multimeter role.</summary>
     /// <param name="role">Logical role name.</param>
     /// <param name="nominalVoltageVolts">Initial simulated DC voltage in volts.</param>
@@ -769,6 +867,49 @@ public sealed class BenchBuilder
     /// <returns>This builder for fluent chaining.</returns>
     public BenchBuilder AddMockSafetyInterlock(string role, TimeSpan? watchdogTimeout = null, InstrumentCalibrationInfo? calibration = null) =>
         AddInstrument(new StatefulMockSafetyInterlock(role, watchdogTimeout, calibration));
+
+    /// <summary>
+    /// Add a canonical Cameo-with-units default mock for <paramref name="instrumentClass"/>, including its default
+    /// SysML QUDV physics parameters and conservative fail-safe hard limits, with optional unit-typed overrides.
+    /// </summary>
+    /// <param name="role">Logical bench role identifier.</param>
+    /// <param name="instrumentClass">Canonical class tag (<c>PSU</c>, <c>SMU</c>, <c>DMM</c>, <c>THERMAL</c>, <c>FGEN</c>, <c>SCOPE</c>, <c>SWITCH</c>, <c>ELOAD</c>, <c>RFSIGGEN</c>, <c>SPECAN</c>, <c>PWRMETER</c>, <c>COUNTER</c>, <c>LCR</c>, <c>VNA</c>, <c>DAQ</c>, <c>DIO</c>, <c>INTERLOCK</c>).</param>
+    /// <param name="valuePropertyOverrides">Optional Cameo value properties with explicit units overriding default physics or tightening limits.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    /// <exception cref="BenchOperationException">Thrown when the class is unsupported or any unit is invalid.</exception>
+    public BenchBuilder AddCameoDefaultMock(string role, string instrumentClass, params CameoValueProperty[] valuePropertyOverrides)
+    {
+        var blockRes = CameoDefaultMocks.CreateDefaultBlock(role, instrumentClass, valuePropertyOverrides);
+        if (blockRes.IsFailure)
+            throw new BenchOperationException(blockRes.Error);
+
+        var applyRes = DeclarativeBenchLoader.ApplySingleBlock(this, blockRes.Value);
+        if (applyRes.IsFailure)
+            throw new BenchOperationException(applyRes.Error);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Populate this builder with the complete 16-class Cameo-with-units default mock bench, canonical simulation
+    /// clock, and optional unit-explicit coupled digital twin.
+    /// </summary>
+    /// <param name="enableDigitalTwin">When true, couples PSU, Thermal, ELoad, DMM, and Scope onto a shared <see cref="DigitalTwinPlant"/>.</param>
+    /// <returns>This builder for fluent chaining.</returns>
+    /// <exception cref="BenchOperationException">Thrown if manifest compilation or registration fails.</exception>
+    public BenchBuilder UseCameoDefaultMocks(bool enableDigitalTwin = true)
+    {
+        var manifest = CameoDefaultMocks.CreateDefaultBenchManifest(_benchName, enableDigitalTwin);
+        var planRes = DeclarativeBenchLoader.CompileManifest(manifest);
+        if (planRes.IsFailure)
+            throw new BenchOperationException(planRes.Error);
+
+        var applyRes = DeclarativeBenchLoader.ApplyTo(this, planRes.Value, registerMocks: true);
+        if (applyRes.IsFailure)
+            throw new BenchOperationException(applyRes.Error);
+
+        return this;
+    }
 
     /// <summary>Configure the canonical run-scoped <see cref="AdjustableSimulationClock"/> shared by all time-aware mocks and digital-twin models.</summary>
     /// <param name="simulationClock">Caller-configured simulation clock.</param>

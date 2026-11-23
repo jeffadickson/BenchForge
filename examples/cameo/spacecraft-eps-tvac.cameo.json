@@ -8,14 +8,14 @@
   },
   "digitalTwin": {
     "enabled": true,
-    "baseLoadResistanceOhms": 14.0,
-    "tempCoeffPerCelsius": 0.0035,
-    "standbyCurrentAmperes": 0.25,
-    "busSeriesResistanceOhms": 0.08,
-    "switchingRippleVolts": 0.012,
-    "initialTemperatureCelsius": 25.0,
-    "thermalTimeConstantSeconds": 60.0,
-    "selfHeatingCelsiusPerWatt": 0.25,
+    "baseLoadResistance": "14 Ohm",
+    "tempCoeff": "3500 ppm/degC",
+    "standbyCurrent": "250 mA",
+    "busSeriesResistance": "80 mOhm",
+    "switchingRipple": "12 mV",
+    "initialTemperature": "25 degC",
+    "thermalTimeConstant": "60 s",
+    "selfHeating": "0.25 degC/W",
     "dmmSwitchRole": "harness_sw",
     "dmmRequiredRoute": "BUS_A->UUT_V"
   },
@@ -92,7 +92,7 @@
       "role": "safety_loop",
       "instrumentClass": "INTERLOCK",
       "backend": "Mock",
-      "mock": { "watchdogTimeoutSeconds": 30.0 },
+      "mock": { "watchdogTimeout": "30 s" },
       "policyNote": "Hardware E-Stop & 30s Dead-Man Watchdog (BD-RES-002)"
     }
   ]

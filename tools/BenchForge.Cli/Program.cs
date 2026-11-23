@@ -12,7 +12,7 @@ namespace BenchForge.Cli;
 /// </summary>
 public static class Program
 {
-    /// <summary>CLI entry point supporting <c>run-cameo</c>, <c>describe-cameo</c>, <c>mcp-manifest</c>, and <c>mcp-serve</c>.</summary>
+    /// <summary>CLI entry point supporting <c>run-cameo</c>, <c>describe-cameo</c>, <c>export-cameo-defaults</c>, <c>mcp-manifest</c>, and <c>mcp-serve</c>.</summary>
     /// <param name="args">Command-line arguments.</param>
     /// <returns>Zero on success; non-zero on invalid arguments or failed validation.</returns>
     public static async Task<int> Main(string[] args)
@@ -30,6 +30,8 @@ public static class Program
                 return await DescribeCameoAsync(args).ConfigureAwait(false);
             case "run-cameo":
                 return await RunCameoAsync(args).ConfigureAwait(false);
+            case "export-cameo-defaults":
+                return await ExportCameoDefaultsAsync(args).ConfigureAwait(false);
             case "mcp-manifest":
                 Console.WriteLine(JsonSerializer.Serialize(
                     new { server = "BenchForge.Mcp", protocolVersion = "2024-11-05", tools = BenchMcpServer.GetToolCatalog() },
@@ -197,6 +199,27 @@ public static class Program
         return 0;
     }
 
+    private static async Task<int> ExportCameoDefaultsAsync(string[] args)
+    {
+        string? outPath = GetOption(args, "--out");
+        string benchName = GetOption(args, "--name") ?? "benchforge-default-egse-bench";
+        bool enableDigitalTwin = !args.Any(a => string.Equals(a, "--no-twin", StringComparison.OrdinalIgnoreCase));
+
+        string json = CameoDefaultMocks.ExportDefaultManifestJson(benchName, enableDigitalTwin);
+        if (!string.IsNullOrWhiteSpace(outPath))
+        {
+            var dir = Path.GetDirectoryName(Path.GetFullPath(outPath));
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            await File.WriteAllTextAsync(outPath, json).ConfigureAwait(false);
+            Console.WriteLine($"Exported Cameo-with-units default mocks ({CameoDefaultMocks.CanonicalClasses.Count} blocks) to {outPath}");
+        }
+        else
+        {
+            Console.WriteLine(json);
+        }
+        return 0;
+    }
+
     private static string? GetOption(string[] args, string flag)
     {
         for (int i = 0; i < args.Length - 1; i++)
@@ -210,6 +233,7 @@ public static class Program
         Console.Error.WriteLine("BenchForge CLI (.NET 11)");
         Console.Error.WriteLine("  describe-cameo <manifest.cameo.json>");
         Console.Error.WriteLine("  run-cameo <manifest.cameo.json> [--report <out.html>] [--trace <out.bftrace.br>] [--uut <serial>]");
+        Console.Error.WriteLine("  export-cameo-defaults [--name <benchName>] [--no-twin] [--out <file.cameo.json>]");
         Console.Error.WriteLine("  mcp-manifest");
         Console.Error.WriteLine("  mcp-serve <manifest.cameo.json>");
     }
